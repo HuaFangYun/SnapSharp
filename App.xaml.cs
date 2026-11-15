@@ -259,6 +259,7 @@ public partial class App : Application
                 ["toolbar-styles"] = Check("toolbar-styles", () => RunToolbarStyleSelfTest()),
                 ["toolbar-icons"] = Check("toolbar-icons", () => RunToolbarIconSelfTest()),
                 ["region-reselection"] = Check("region-reselection", () => SelectionWindow.RunReselectionSelfTest(source)),
+                ["selection-double-click-copy"] = Check("selection-double-click-copy", () => SelectionWindow.RunDoubleClickCopySelfTest(source)),
                 ["scrolling-region-selection"] = Check("scrolling-region-selection", () => SelectionWindow.RunScrollingSelectionSelfTest(source)),
                 ["screen-color-picker"] = Check("screen-color-picker", SelectionWindow.RunColorPickerSelfTest),
                 ["secondary-toolbar-layouts"] = Check("secondary-toolbar-layouts", () => SelectionWindow.RunSecondaryToolbarLayoutSelfTest(source)),

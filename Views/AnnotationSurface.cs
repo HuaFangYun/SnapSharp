@@ -568,6 +568,13 @@ public sealed class AnnotationSurface : Canvas
         return false;
     }
 
+    internal bool AllowsWindowDoubleClickCopy(Point point)
+    {
+        if (_viewModel is null || _inlineEditor?.Visibility == Visibility.Visible) return false;
+        return _viewModel.SelectedTool != AnnotationTool.Select ||
+               HitAnnotation(point) is not (TextAnnotation or BubbleAnnotation);
+    }
+
     protected override void OnMouseMove(MouseEventArgs e)
     {
         _current = GetImagePoint(e);

@@ -11,7 +11,7 @@ After launch, SnapSharp stays in the system tray and does not open a main window
 1. Launch `SnapSharp.exe` and find its icon in the notification area. Expand the hidden icons if necessary.
 2. Press `Ctrl+Shift+A`, then drag to select an area.
 3. Choose an arrow, text, or pixelation tool from the toolbar beside the selection and annotate the screenshot directly.
-4. Click Copy and paste the result into a chat or editor. You can also save it or pin it above other windows.
+4. Double-click the selected area or click Copy, then paste the result into a chat or editor. You can also save it or pin it above other windows.
 5. Press `Esc` to cancel the capture.
 
 Capturing, annotating, and saving screenshots do not require an AI model. OCR, background removal, and local translation require their respective models to be configured before first use. Once downloaded, the models run locally.
@@ -58,6 +58,16 @@ Area capture supports rectangular, elliptical, freehand lasso, and polygon selec
 The toolbar has two levels. The main toolbar selects tools and output actions, while the options toolbar controls color, thickness, line style, fill, font, and similar settings. Some tools are grouped in drop-down menus; each group's main button reuses the tool most recently selected from that group.
 
 Available tools include rectangles, ellipses, arrows, pens, highlighters, text, speech bubbles, numbered markers, watermarks, pixelation, blur, spotlights, and magnifiers. Existing annotations can be selected, moved, resized, rotated, reordered, undone, and redone.
+
+<p align="center">
+  <img src="Screenshot/1.png" alt="SnapSharp capture selection and annotation toolbars" width="900">
+</p>
+<p align="center"><em>The selection, size indicator, annotation tools, and output actions share one overlay.</em></p>
+
+<p align="center">
+  <img src="Screenshot/7.png" alt="Screenshot annotations created with SnapSharp" width="900">
+</p>
+<p align="center"><em>Rectangles, ellipses, arrows, text, pens, highlights, and other annotations can be combined.</em></p>
 
 If the selection is incorrect, right-click to discard the current selection and annotations and select again from the same desktop snapshot. Press `Esc` to cancel the entire capture.
 
@@ -160,6 +170,11 @@ Each scrolling-capture frame is limited to 16 million pixels, with a maximum of 
 
 **Recognize Clipboard Image…** in the tray menu is the central entry point for processing a copied image.
 
+<p align="center">
+  <img src="Screenshot/2.png" alt="SnapSharp OCR, barcode, table, formula, and background-removal modes" width="900">
+</p>
+<p align="center"><em>Use one window for text OCR, barcodes, tables, formulas, and one-click background removal.</em></p>
+
 1. Copy image content from a browser, chat application, or another program. Copy the image itself, not only its URL or file path.
 2. Right-click the SnapSharp tray icon and choose **Recognize Clipboard Image…**.
 3. The window displays the image without running recognition automatically. Select text OCR, barcode, table, formula, or background-removal mode at the top.
@@ -177,11 +192,21 @@ Translation operates on text; it does not directly turn a portrait or ordinary i
 4. Click **Configure Recommended ONNX OCR (Download Model)** and wait for the approximately 14.2 MB package to download and pass verification.
 5. Confirm that the model and dictionary paths were filled in, then click **Save Settings**.
 
+<p align="center">
+  <img src="Screenshot/8.png" alt="SnapSharp OCR and recognition settings" width="900">
+</p>
+<p align="center"><em>Configure the OCR engine, ONNX compute device, and resource limits on the OCR and Recognition page.</em></p>
+
 Python and CUDA are not required. You can instead use Windows OCR with installed system language packs, or select Tesseract and download its language data. All three engines process content locally.
 
 ### Recognize, review, and translate
 
 Open an image containing text, select **Text OCR**, and start recognition. Review the result on the **Text/Barcode** page, where you can correct, copy, or export the text. Click a recognition box in the source image or a recognized line to locate its counterpart.
+
+<p align="center">
+  <img src="Screenshot/5.png" alt="Local OCR results in SnapSharp" width="900">
+</p>
+<p align="center"><em>Recognition boxes, extracted text, confidence values, and source positions are linked.</em></p>
 
 After checking the text, click **Translate…**. You can translate the entire result or select a passage first. If the result pane is empty, verify that the source image actually contains text. An empty OCR result for a portrait without text does not mean that the image failed to load.
 
@@ -189,6 +214,16 @@ For first-time translation, choose an engine under **Settings → Translation, A
 
 - Local translation uses a Qwen model and the bundled llama.cpp runtime. The one-click download is approximately 1.04 GiB and supports CPU or Vulkan GPU. Save the settings after download; the text remains on your computer.
 - Online translation supports MyMemory, the Google web adapter, or LibreTranslate. You must explicitly authorize online processing and confirm the destination and text before sending. Quotas, pricing, and availability are determined by the provider.
+
+<p align="center">
+  <img src="Screenshot/9.png" alt="SnapSharp local translation, online API, and privacy settings" width="900">
+</p>
+<p align="center"><em>Local translation and online APIs are configured separately; online sending is disabled by default.</em></p>
+
+<p align="center">
+  <img src="Screenshot/6.png" alt="Local translation results in SnapSharp" width="900">
+</p>
+<p align="center"><em>OCR output can be translated by a local model without uploading it to an external service.</em></p>
 
 Local translation accepts up to 6,000 characters per request and may be slower on first load. Small models can mistranslate, and OCR errors affect the translation. Review important source text and then verify the translation. A failure does not automatically switch services or compute devices.
 
@@ -211,6 +246,10 @@ Local translation accepts up to 6,000 characters per request and may be slower o
 4. Select the model you normally want to use under **Default Model**, then click **Save Settings**.
 
 The path, input size, and preprocessing parameters are stored separately for each model. Downloading another model does not replace the default automatically, and you do not need to download every model.
+
+| Original | Background removed |
+|---|---|
+| <img src="Screenshot/3.png" alt="Original portrait before background removal" width="360"> | <img src="Screenshot/4.png" alt="One-click background-removal result in SnapSharp" width="620"> |
 
 | Model | Recommended use | Approximate download |
 |---|---|---|

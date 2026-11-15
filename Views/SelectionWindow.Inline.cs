@@ -158,6 +158,30 @@ public partial class SelectionWindow : Window
         e.Handled = true;
     }
 
+    private void Window_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.OriginalSource is not DependencyObject source ||
+            !ReferenceEquals(source, AnnotationView) && !AnnotationView.IsAncestorOf(source)) return;
+        if (!AnnotationView.AllowsWindowDoubleClickCopy(e.GetPosition(AnnotationView))) return;
+        var point = Clamp(GetLogicalPointer(e));
+        if (!TryCompleteDoubleClickCopy(e.ClickCount, point)) return;
+        e.Handled = true;
+    }
+
+    private bool TryCompleteDoubleClickCopy(int clickCount, Point point)
+    {
+        if (clickCount < 2 || !_editing || _scrollingSelection || _dragging || _moving ||
+            !IsValidSelection() || !_selection.Contains(point) || _editor is null ||
+            !SupportsDoubleClickCopy(_editor.SelectedTool)) return false;
+        Complete(CaptureAction.Copy);
+        return true;
+    }
+
+    private static bool SupportsDoubleClickCopy(AnnotationTool tool) => tool is
+        AnnotationTool.Select or AnnotationTool.Rectangle or AnnotationTool.Ellipse or AnnotationTool.Line or AnnotationTool.Arrow or
+        AnnotationTool.Pen or AnnotationTool.Highlight or AnnotationTool.Polyline or AnnotationTool.Mosaic or
+        AnnotationTool.Blur or AnnotationTool.Spotlight or AnnotationTool.Magnifier;
+
     private void Window_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (!_editing) return;
@@ -1616,6 +1640,36 @@ public partial class SelectionWindow : Window
             new FormatConvertedBitmap(expected, PixelFormats.Bgra32, null, 0).CopyPixels(left, 40 * 4, 0);
             new FormatConvertedBitmap(accepted.Image, PixelFormats.Bgra32, null, 0).CopyPixels(right, 40 * 4, 0);
             return left.SequenceEqual(right);
+        }
+        finally { window.Close(); }
+    }
+
+    internal static bool RunDoubleClickCopySelfTest(BitmapSource source)
+    {
+        var window = new SelectionWindow(new CapturedScreen(
+            new Rectangle(0, 0, source.PixelWidth, source.PixelHeight), source), [], new ScreenCaptureService())
+            { Width = source.PixelWidth, Height = source.PixelHeight };
+        try
+        {
+            window.Root.Measure(new System.Windows.Size(source.PixelWidth, source.PixelHeight));
+            window.Root.Arrange(new Rect(0, 0, source.PixelWidth, source.PixelHeight));
+            window._selection = new Rect(2, 2, Math.Max(3, source.PixelWidth - 4), Math.Max(3, source.PixelHeight - 4));
+            window.BeginInlineEditing();
+            CaptureResult? accepted = null;
+            window.CaptureAccepted += (_, result) => accepted = result;
+            var center = new Point(window._selection.Left + window._selection.Width / 2,
+                window._selection.Top + window._selection.Height / 2);
+            if (!window.TryCompleteDoubleClickCopy(2, center) || accepted is not { Action: CaptureAction.Copy }) return false;
+
+            accepted = null;
+            window._editor!.SelectedTool = AnnotationTool.Select;
+            if (!window.AnnotationView.AllowsWindowDoubleClickCopy(new Point(1, 1)) ||
+                !window.TryCompleteDoubleClickCopy(2, center) || accepted is not { Action: CaptureAction.Copy }) return false;
+
+            accepted = null;
+            window._editor!.SelectedTool = AnnotationTool.Number;
+            return !window.TryCompleteDoubleClickCopy(2, center) && accepted is null &&
+                   !window.TryCompleteDoubleClickCopy(2, new Point(window._selection.Right + 1, center.Y));
         }
         finally { window.Close(); }
     }
