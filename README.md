@@ -387,3 +387,9 @@ SnapSharp-{date}-{time}-{seq}
 | 录屏失败或文件打不开 | 等待收尾，查看失败临时文件；不要强行结束进程 |
 
 日常使用可以从“快捷键截图 → 直接标注 → 复制或保存”开始。需要处理已有图片时，就使用“识别粘贴板图片…”：选择 OCR 提取文字、接着翻译，或者切换模型一键抠图。
+
+## 11. 许可证
+
+Copyright 2026 SnapSharp contributors
+
+SnapSharp 基于 [Apache License 2.0](LICENSE) 开源。项目使用的第三方组件、模型和服务保留各自的许可证及使用条款，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。

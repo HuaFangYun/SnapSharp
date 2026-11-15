@@ -34,6 +34,8 @@ if errorlevel 1 (
     goto cleanup
 )
 
+copy /y "%~dp0LICENSE" "%PUBLISH_OUTPUT%\LICENSE" >nul
+if errorlevel 1 goto copy_failed
 copy /y "%~dp0THIRD-PARTY-NOTICES.md" "%PUBLISH_OUTPUT%\THIRD-PARTY-NOTICES.md" >nul
 if errorlevel 1 goto copy_failed
 copy /y "%~dp0README.md" "%PUBLISH_OUTPUT%\README.md" >nul

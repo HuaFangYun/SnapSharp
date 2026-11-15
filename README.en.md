@@ -387,3 +387,9 @@ Screenshot history is not encrypted. History images, scrolling-capture projects,
 | Recording failed or the file cannot be opened | Wait for finalization and inspect the failed temporary files; do not terminate the process |
 
 For everyday use, start with **keyboard shortcut → annotate directly → copy or save**. To process an existing image, choose **Recognize Clipboard Image…**, then use OCR and translation or switch to a background-removal model.
+
+## 11. License
+
+Copyright 2026 SnapSharp contributors
+
+SnapSharp is licensed under the [Apache License 2.0](LICENSE). Third-party components, models, and services retain their respective licenses and terms; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for details.
