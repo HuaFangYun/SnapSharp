@@ -1,0 +1,116 @@
+<Window x:Class="SnapSharp.Views.PinWindow" Style="{StaticResource AppWindow}"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:SnapSharp.Views"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        WindowStyle="None" ShowInTaskbar="False" Topmost="True"
+        AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        PreviewMouseRightButtonDown="Window_PreviewMouseRightButtonDown"
+        MouseWheel="Window_MouseWheel">
+  <Window.Resources><ResourceDictionary>
+    <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="ToolbarStyles.xaml" /></ResourceDictionary.MergedDictionaries>
+    <Style x:Key="PinToolButton" TargetType="Button">
+      <Setter Property="Width" Value="34" /><Setter Property="Height" Value="34" />
+      <Setter Property="Margin" Value="1" /><Setter Property="Padding" Value="6" />
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" /><Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" /><Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+        <Border x:Name="Surface" Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+          <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        <ControlTemplate.Triggers>
+          <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="{DynamicResource ControlHoverBrush}" /></Trigger>
+          <Trigger Property="IsPressed" Value="True"><Setter TargetName="Surface" Property="Background" Value="#2868D8" /></Trigger>
+          <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.35" /></Trigger>
+        </ControlTemplate.Triggers>
+      </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style TargetType="iconPacks:PackIconLucide" BasedOn="{StaticResource ToolbarIcon}">
+      <Setter Property="Width" Value="20" /><Setter Property="Height" Value="20" />
+    </Style>
+    <ContextMenu x:Key="PinMenu" Style="{StaticResource AppContextMenu}" Opened="Menu_Opened">
+      <MenuItem Header="编辑标注" Click="BeginEdit_Click" />
+      <MenuItem Header="完成编辑" Click="ApplyEdit_Click" />
+      <MenuItem Header="复制图片" Click="Copy_Click" />
+      <MenuItem Header="另存为" Click="Save_Click" />
+      <MenuItem Header="文字／条码识别…" Tag="OCR" Click="Recognition_Click" />
+      <MenuItem Header="一键抠图…" Tag="Cutout" Click="Recognition_Click" />
+      <MenuItem Header="切换置顶" Click="ToggleTopmost_Click" />
+      <MenuItem Header="透明度">
+        <MenuItem Header="100%" Tag="1" Click="Opacity_Click" />
+        <MenuItem Header="75%" Tag="0.75" Click="Opacity_Click" />
+        <MenuItem Header="50%" Tag="0.5" Click="Opacity_Click" />
+        <MenuItem Header="25%" Tag="0.25" Click="Opacity_Click" />
+      </MenuItem>
+      <MenuItem Header="向左旋转" Tag="-90" Click="Rotate_Click" />
+      <MenuItem Header="向右旋转" Tag="90" Click="Rotate_Click" />
+      <MenuItem Header="鼠标穿透" Click="ClickThrough_Click" />
+      <MenuItem Header="恢复原始大小" Click="ResetSize_Click" />
+      <Separator />
+      <MenuItem Header="分组" Tag="Groups" />
+      <MenuItem Header="隐藏本组（从托盘恢复）" Tag="HideGroup" Click="HideGroup_Click" />
+      <MenuItem Header="关闭本组" Tag="CloseGroup" Click="CloseGroup_Click" />
+      <Separator />
+      <MenuItem Header="关闭" Click="Close_Click" />
+    </ContextMenu>
+  </ResourceDictionary></Window.Resources>
+
+  <Grid x:Name="Root">
+    <Border x:Name="FrameBorder" Margin="10" Background="{DynamicResource SurfaceBrush}"
+            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="3">
+      <Border.Effect>
+        <DropShadowEffect Color="Black" BlurRadius="18" ShadowDepth="3" Opacity="0.55" />
+      </Border.Effect>
+      <Grid x:Name="ImageHost" ClipToBounds="True">
+        <Image x:Name="ImageView" Stretch="Uniform" RenderTransformOrigin="0.5,0.5"
+               MouseLeftButtonDown="Image_MouseLeftButtonDown" />
+        <local:AnnotationSurface x:Name="AnnotationView" Visibility="Collapsed"
+                                 HorizontalAlignment="Left" VerticalAlignment="Top" />
+      </Grid>
+    </Border>
+
+    <StackPanel x:Name="ColorCopyBar" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="18" Visibility="Collapsed">
+      <Button Content="复制 HEX" Click="CopyHex_Click" Style="{StaticResource DialogButton}" Margin="2" />
+      <Button Content="复制 RGB" Click="CopyRgb_Click" Style="{StaticResource DialogButton}" Margin="2" />
+    </StackPanel>
+
+    <Border x:Name="EditToolbar" Visibility="Collapsed"
+            HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="18"
+            MaxWidth="{Binding ActualWidth, ElementName=ImageHost}"
+            Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+            CornerRadius="8" Padding="6">
+      <Border.Effect>
+        <DropShadowEffect Color="Black" BlurRadius="14" ShadowDepth="2" Opacity="0.5" />
+      </Border.Effect>
+      <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+      <StackPanel x:Name="EditToolButtons" Orientation="Horizontal">
+        <Button Style="{StaticResource PinToolButton}" Tag="Rectangle" Click="EditTool_Click" ToolTip="矩形"><iconPacks:PackIconLucide Kind="Square" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Ellipse" Click="EditTool_Click" ToolTip="椭圆"><iconPacks:PackIconLucide Kind="Circle" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Line" Click="EditTool_Click" ToolTip="直线"><iconPacks:PackIconLucide Kind="Minus" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Arrow" Click="EditTool_Click" ToolTip="箭头"><iconPacks:PackIconLucide Kind="ArrowUpRight" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Pen" Click="EditTool_Click" ToolTip="画笔"><iconPacks:PackIconLucide Kind="Pencil" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Highlight" Click="EditTool_Click" ToolTip="荧光笔"><iconPacks:PackIconLucide Kind="Highlighter" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Text" Click="EditTool_Click" ToolTip="文字"><iconPacks:PackIconLucide Kind="Type" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Watermark" Click="EditTool_Click" ToolTip="水印"><iconPacks:PackIconLucide Kind="Stamp" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Number" Click="EditTool_Click" ToolTip="序号"><iconPacks:PackIconLucide Kind="Hash" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Mosaic" Click="EditTool_Click" ToolTip="马赛克"><iconPacks:PackIconLucide Kind="Grid3X3" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Blur" Click="EditTool_Click" ToolTip="模糊"><iconPacks:PackIconLucide Kind="Droplets" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Spotlight" Click="EditTool_Click" ToolTip="聚光灯"><iconPacks:PackIconLucide Kind="Focus" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Bubble" Click="EditTool_Click" ToolTip="气泡"><iconPacks:PackIconLucide Kind="MessageCircle" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Magnifier" Click="EditTool_Click" ToolTip="放大镜标注"><iconPacks:PackIconLucide Kind="ZoomIn" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Polygon" Click="EditTool_Click" ToolTip="多边形"><iconPacks:PackIconLucide Kind="Pentagon" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Select" Click="EditTool_Click" ToolTip="选择对象"><iconPacks:PackIconLucide Kind="MousePointer2" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Tag="Eraser" Click="EditTool_Click" ToolTip="删除标注"><iconPacks:PackIconLucide Kind="Eraser" /></Button>
+        <Separator Margin="6,7" />
+        <Button Style="{StaticResource PinToolButton}" Click="EditColor_Click" ToolTip="颜色"><iconPacks:PackIconLucide Kind="Palette" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Command="{Binding UndoCommand}" ToolTip="撤销"><iconPacks:PackIconLucide Kind="Undo2" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Command="{Binding RedoCommand}" ToolTip="重做"><iconPacks:PackIconLucide Kind="Redo2" /></Button>
+        <Separator Margin="6,7" />
+        <Button Style="{StaticResource PinToolButton}" Click="ApplyEdit_Click" ToolTip="完成编辑"><iconPacks:PackIconLucide Kind="Check" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Click="CancelEdit_Click" ToolTip="取消编辑"><iconPacks:PackIconLucide Kind="X" /></Button>
+        <Button Style="{StaticResource PinToolButton}" Click="More_Click" ToolTip="更多"><iconPacks:PackIconLucide Kind="Menu" /></Button>
+      </StackPanel>
+      </Viewbox>
+    </Border>
+  </Grid>
+</Window>

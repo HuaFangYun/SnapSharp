@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>SnapSharp.PluginHost</AssemblyName>
+    <RootNamespace>SnapSharp.Plugins</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SnapSharp.Plugin.Abstractions\SnapSharp.Plugin.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

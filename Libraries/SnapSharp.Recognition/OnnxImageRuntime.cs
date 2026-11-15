@@ -1,0 +1,164 @@
+using Microsoft.ML.OnnxRuntime;
+using Microsoft.ML.OnnxRuntime.Tensors;
+using SnapSharp.Models;
+using SkiaSharp;
+using System.Windows.Media.Imaging;
+
+namespace SnapSharp.Services;
+
+/// <summary>Bounded, serial CPU/DirectML inference. Models are always local.</summary>
+public sealed class OnnxImageRuntime : IDisposable
+{
+    public static OnnxImageRuntime Shared { get; } = new();
+    private readonly SemaphoreSlim _gate = new(1);
+    private readonly Dictionary<string, InferenceSession> _sessions = [];
+    private readonly SkiaImageService _images = new();
+
+    public async Task<T> Execute<T>(AppSettings settings, Func<ModelAccess, CancellationToken, T> operation, CancellationToken cancellationToken)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
+        await _gate.WaitAsync(timeout.Token).ConfigureAwait(false);
+        try { return await Task.Run(() => operation(new ModelAccess(this, Math.Clamp(settings.RecognitionThreads, 1, 8), settings.OnnxDevice, settings.OnnxDeviceId), timeout.Token), timeout.Token).ConfigureAwait(false); }
+        catch (OnnxRuntimeException) when (timeout.IsCancellationRequested) { throw new OperationCanceledException("本地推理已取消或超时。", timeout.Token); }
+        finally { _gate.Release(); }
+    }
+    public static void RequireFile(string path, string label)
+    {
+        if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path) || !File.Exists(path))
+            throw new FileNotFoundException($"缺少{label}，请在设置 → OCR 与识别／一键抠图中点击一键下载并配置，然后保存设置。");
+        if (new FileInfo(path).Length > 2_000_000_000) throw new ArgumentException($"{label}过大。");
+    }
+    public sealed class ModelAccess
+    {
+        private readonly OnnxImageRuntime _owner; private readonly int _threads;
+        private readonly string _device; private readonly int _deviceId;
+        private readonly HashSet<string> _opened = [];
+        internal ModelAccess(OnnxImageRuntime owner, int threads, string device, int deviceId)
+        { _owner = owner; _threads = threads; _device = device; _deviceId = deviceId; }
+        public string DeviceLabel => _device == "DirectML" ? $"DirectML GPU #{_deviceId}（不支持的算子可在 CPU 执行）" : "CPU";
+        public InferenceSession Open(string path, string label, bool imageInput = true)
+        {
+            RequireFile(path, label);
+            var key = Path.GetFullPath(path) + "|" + File.GetLastWriteTimeUtc(path).Ticks + "|" + _threads + "|" + _device + "|" + _deviceId;
+            _opened.Add(key);
+            if (_owner._sessions.TryGetValue(key, out var cached)) return cached;
+            if (_owner._sessions.Count >= 4)
+            {
+                var oldest = _owner._sessions.FirstOrDefault(x => !_opened.Contains(x.Key));
+                if (oldest.Key is null) throw new InvalidOperationException("单次推理最多使用四个模型会话。");
+                oldest.Value.Dispose(); _owner._sessions.Remove(oldest.Key);
+            }
+            using var options = new SessionOptions { IntraOpNumThreads = _threads, InterOpNumThreads = 1, GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL };
+            if (_device == "DirectML")
+            {
+                options.EnableMemoryPattern = false;
+                options.ExecutionMode = ExecutionMode.ORT_SEQUENTIAL;
+                try { options.AppendExecutionProvider_DML(_deviceId); }
+                catch (Exception ex) { throw new InvalidOperationException("DirectML GPU 初始化失败。请更新显卡驱动、检查 GPU 编号，或主动切换 CPU。", ex); }
+            }
+            else if (_device != "CPU") throw new ArgumentException("未知 ONNX 计算设备。");
+            var session = new InferenceSession(path, options);
+            if (imageInput && (session.InputMetadata.Count != 1 || session.InputMetadata.First().Value.ElementType != typeof(float)))
+            { session.Dispose(); throw new NotSupportedException("此模型需要单个 float32 NCHW 图像输入；多输入／量化模型不受当前适配器支持。"); }
+            _owner._sessions.Add(key, session); return session;
+        }
+        public static (int Height, int Width) Size(InferenceSession session, int height, int width)
+        {
+            var shape = session.InputMetadata.First().Value.Dimensions;
+            if (shape.Length != 4 || shape[0] > 1 || shape[1] is not (3 or -1)) throw new NotSupportedException("模型输入需为 [1,3,H,W] 的 NCHW 图像。");
+            height = shape[2] > 0 ? shape[2] : height; width = shape[3] > 0 ? shape[3] : width;
+            if (height is < 16 or > 2048 || width is < 16 or > 2048) throw new NotSupportedException("模型输入尺寸需在 16–2048 范围内。");
+            return (height, width);
+        }
+        public static (float[] Data, int[] Shape) Run(InferenceSession session, DenseTensor<float> tensor, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            using var options = new RunOptions();
+            using var registration = token.Register(() => options.Terminate = true);
+            using var result = session.Run([NamedOnnxValue.CreateFromTensor(session.InputMetadata.First().Key, tensor)], session.OutputMetadata.Keys.ToArray(), options);
+            token.ThrowIfCancellationRequested();
+            var value = result.First().AsTensor<float>();
+            return (value.ToArray(), value.Dimensions.ToArray());
+        }
+        public static Dictionary<string, (float[] Data, int[] Shape)> RunAll(InferenceSession session, IReadOnlyCollection<NamedOnnxValue> inputs, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            using var options = new RunOptions();
+            using var registration = token.Register(() => options.Terminate = true);
+            using var results = session.Run(inputs, session.OutputMetadata.Keys.ToArray(), options);
+            token.ThrowIfCancellationRequested();
+            return results.ToDictionary(x => x.Name, x => (x.AsTensor<float>().ToArray(), x.AsTensor<float>().Dimensions.ToArray()));
+        }
+    }
+
+    public static DenseTensor<float> Tensor(SKBitmap bitmap, int height, int width, string normalization, bool padWidth = false)
+    {
+        var tensor = new DenseTensor<float>(new[] { 1, 3, height, width });
+        var drawWidth = padWidth ? Math.Min(width, Math.Max(1, (int)Math.Ceiling(bitmap.Width * (double)height / bitmap.Height))) : width;
+        using var resized = bitmap.Resize(new SKImageInfo(drawWidth, height, SKColorType.Bgra8888, SKAlphaType.Premul), new SKSamplingOptions(SKFilterMode.Linear))
+            ?? throw new InvalidOperationException("图像预处理失败。");
+        var mean = normalization == "ImageNet" ? new[] { .485f, .456f, .406f } : new[] { .5f, .5f, .5f };
+        var std = normalization == "ImageNet" ? new[] { .229f, .224f, .225f } : normalization == "MinusOne" ? new[] { .5f, .5f, .5f } : new[] { 1f, 1f, 1f };
+        for (var y = 0; y < height; y++) for (var x = 0; x < drawWidth; x++)
+        {
+            var pixel = resized.GetPixel(x, y);
+            // Composite transparent source pixels on white before OCR/model normalization.
+            var alpha = pixel.Alpha / 255f;
+            tensor[0, 0, y, x] = ((pixel.Red / 255f * alpha + 1 - alpha) - mean[0]) / std[0];
+            tensor[0, 1, y, x] = ((pixel.Green / 255f * alpha + 1 - alpha) - mean[1]) / std[1];
+            tensor[0, 2, y, x] = ((pixel.Blue / 255f * alpha + 1 - alpha) - mean[2]) / std[2];
+        }
+        return tensor;
+    }
+
+    public Task<BitmapSource> RemoveBackground(BitmapSource image, AppSettings settings, CancellationToken token = default) => Execute(settings, (models, cancellation) =>
+    {
+        ValidateImage(image);
+        if (settings.CutoutProfile is not ("U2Net" or "ISNet" or "BiRefNet" or "BiRefNetMatting" or "BiRefNetAlpha"))
+            throw new NotSupportedException("未知抠图模型契约，请在设置中重新配置。");
+        var session = models.Open(settings.CutoutModel, "抠图 ONNX 模型");
+        var size = ModelAccess.Size(session, Math.Clamp(settings.CutoutInputSize, 32, 2048), Math.Clamp(settings.CutoutInputSize, 32, 2048));
+        using var source = _images.ToSkBitmap(image);
+        var output = ModelAccess.Run(session, Tensor(source, size.Height, size.Width, settings.CutoutProfile == "ISNet" ? "Half" : "ImageNet"), cancellation);
+        var shape = output.Shape;
+        if (shape.Length < 2 || shape.Length > 4 || shape.Take(shape.Length - 2).Any(x => x != 1)) throw new NotSupportedException("抠图输出需为单通道 [1,1,H,W]、[1,H,W] 或 [H,W]。");
+        var height = shape[^2]; var width = shape[^1];
+        if (height < 1 || width < 1 || (long)height * width > 16_000_000 || output.Data.Length != height * width) throw new InvalidDataException("抠图蒙版尺寸无效。");
+        var minimum = output.Data.Min(); var maximum = output.Data.Max();
+        if (!float.IsFinite(minimum) || !float.IsFinite(maximum)) throw new InvalidDataException("抠图模型输出包含无效数值。");
+        static float Sigmoid(float value) => 1f / (1f + MathF.Exp(-value));
+        var probabilityMinimum = Sigmoid(minimum); var probabilityMaximum = Sigmoid(maximum);
+        using var mask = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Opaque);
+        for (var y = 0; y < height; y++) for (var x = 0; x < width; x++)
+        {
+            var value = output.Data[y * width + x];
+            if (settings.CutoutProfile is "BiRefNet" or "BiRefNetMatting")
+            {
+                value = Sigmoid(value);
+                // rembg general/portrait exports use min-max after sigmoid; matting preserves soft alpha.
+                if (settings.CutoutProfile == "BiRefNet" && probabilityMaximum - probabilityMinimum > .00001f)
+                    value = (value - probabilityMinimum) / (probabilityMaximum - probabilityMinimum);
+            }
+            else if (settings.CutoutProfile == "U2Net" && maximum - minimum > .00001) value = (value - minimum) / (maximum - minimum);
+            // BiRefNetAlpha exports already include sigmoid: clamp only, never stretch soft alpha.
+            var level = (byte)Math.Clamp((int)Math.Round(value * 255), 0, 255); mask.SetPixel(x, y, new SKColor(level, level, level));
+        }
+        using var fullMask = mask.Resize(new SKImageInfo(source.Width, source.Height, SKColorType.Bgra8888, SKAlphaType.Opaque), new SKSamplingOptions(SKFilterMode.Linear));
+        using var result = new SKBitmap(source.Width, source.Height, SKColorType.Bgra8888, SKAlphaType.Unpremul);
+        for (var y = 0; y < source.Height; y++)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            for (var x = 0; x < source.Width; x++)
+            { var pixel = source.GetPixel(x, y); var alpha = (byte)((pixel.Alpha * fullMask.GetPixel(x, y).Red + 127) / 255); result.SetPixel(x, y, pixel.WithAlpha(alpha)); }
+        }
+        return _images.ToBitmapSource(result);
+    }, token);
+
+    public static void ValidateImage(BitmapSource image)
+    {
+        if (image.PixelWidth < 1 || image.PixelHeight < 1 || (long)image.PixelWidth * image.PixelHeight > 16_000_000)
+            throw new ArgumentException("识别／抠图输入不超过 1600 万像素，请先裁剪或缩小图像。");
+    }
+    public void Dispose() { foreach (var session in _sessions.Values) session.Dispose(); _sessions.Clear(); }
+}

@@ -1,0 +1,257 @@
+<Window x:Class="SnapSharp.Views.SettingsWindow" Style="{StaticResource AppWindow}"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Title="SnapSharp 设置" Width="1040" Height="820" MinWidth="640" MinHeight="420"
+        FontFamily="Segoe UI, Microsoft YaHei UI" FontSize="14" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display"
+        WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackgroundBrush}" Foreground="{DynamicResource TextBrush}">
+  <Window.Resources><ResourceDictionary>
+    <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="SettingsStyles.xaml" /></ResourceDictionary.MergedDictionaries>
+    <Style TargetType="TabItem">
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Margin" Value="10,3" />
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabItem">
+        <Border x:Name="TabSurface" Background="Transparent" CornerRadius="8" BorderThickness="1" BorderBrush="Transparent" Padding="12,11">
+          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="22" /><ColumnDefinition Width="10" /><ColumnDefinition /></Grid.ColumnDefinitions>
+            <icons:PackIconLucide x:Name="TabIcon" Kind="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Width="18" Height="18" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" />
+            <TextBlock x:Name="TabLabel" Grid.Column="2" Text="{TemplateBinding Header}" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextWrapping="Wrap" LineHeight="20" />
+          </Grid>
+        </Border>
+        <ControlTemplate.Triggers>
+          <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="TabSurface" Property="Background" Value="{DynamicResource ControlHoverBrush}" /></Trigger>
+          <Trigger Property="IsSelected" Value="True"><Setter TargetName="TabSurface" Property="Background" Value="{DynamicResource ToolbarActiveBrush}" /><Setter TargetName="TabLabel" Property="Foreground" Value="{DynamicResource AccentForegroundBrush}" /><Setter TargetName="TabIcon" Property="Foreground" Value="{DynamicResource AccentForegroundBrush}" /></Trigger>
+          <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="TabSurface" Property="BorderBrush" Value="{DynamicResource TextSecondaryBrush}" /></Trigger>
+        </ControlTemplate.Triggers>
+      </ControlTemplate></Setter.Value></Setter>
+    </Style>
+  </ResourceDictionary></Window.Resources>
+  <Grid x:Name="SettingsRoot" Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+    <TabControl x:Name="Categories" TabStripPlacement="Left" SelectedIndex="0" Background="Transparent" BorderThickness="0">
+      <TabControl.Template><ControlTemplate TargetType="TabControl">
+        <Grid>
+          <Grid.ColumnDefinitions><ColumnDefinition x:Name="NavigationColumn" Width="204" /><ColumnDefinition /></Grid.ColumnDefinitions>
+          <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+            <DockPanel Margin="0,24,0,16">
+              <StackPanel DockPanel.Dock="Top" Margin="22,0,16,20"><TextBlock Text="偏好设置" FontSize="19" FontWeight="SemiBold" /><TextBlock Text="SNAPSHARP" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,6,0,0" /></StackPanel>
+              <ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False" Focusable="False"><TabPanel IsItemsHost="True" KeyboardNavigation.TabIndex="1" VerticalAlignment="Top" /></ScrollViewer>
+            </DockPanel>
+          </Border>
+          <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Column="1" ContentSource="SelectedContent" Margin="30,28,18,12" />
+        </Grid>
+        <ControlTemplate.Triggers><DataTrigger Binding="{Binding CompactLayout, RelativeSource={RelativeSource AncestorType=Window}}" Value="True"><Setter TargetName="NavigationColumn" Property="Width" Value="176" /><Setter TargetName="PART_SelectedContentHost" Property="Margin" Value="16,20,10,8" /></DataTrigger></ControlTemplate.Triggers>
+      </ControlTemplate></TabControl.Template>
+      <TabItem Header="常规" Tag="Settings"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="常规" Style="{StaticResource PageTitle}" /><TextBlock Text="启动行为与应用信息。更改仅在点击“保存设置”后生效。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="启动与外观" Style="{StaticResource SectionTitle}" />          <CheckBox x:Name="StartWithWindows" Content="登录 Windows 后自动启动" />
+        <TextBlock Text="界面使用与截图工具栏一致的深色风格，并支持 Windows 高对比度配色。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="本地数据" Style="{StaticResource SectionTitle}" />          <TextBlock Text="数据目录" FontWeight="SemiBold" Margin="0,10" /><TextBlock x:Name="DataDirectory" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="截图" Tag="Camera"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="截图" Style="{StaticResource PageTitle}" /><TextBlock Text="选择捕获方式与鼠标指针行为。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="捕获选项" Style="{StaticResource SectionTitle}" />          <CheckBox x:Name="IncludeCursor" Content="截图中包含鼠标指针" /><CheckBox x:Name="PreferWgcCapture" Content="优先使用 WGC 捕获（推荐）" />
+        <TextBlock Text="WGC 不可用时自动回退到 GDI。区域、全屏和窗口快捷键可在“快捷键”中修改。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="输出与文件" Tag="Folder"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="输出与文件" Style="{StaticResource PageTitle}" /><TextBlock Text="默认保存位置、输出编码与自动保存。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="保存位置" Style="{StaticResource SectionTitle}" />          <TextBlock Text="默认保存目录" /><DockPanel><Button Content="浏览…" Click="Browse_Click" DockPanel.Dock="Right" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="SaveDirectory" /></DockPanel>
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="编码与质量" Style="{StaticResource SectionTitle}" />          <TextBlock Text="默认输出格式" /><ComboBox x:Name="OutputFormatBox" DisplayMemberPath="Name" SelectionChanged="Output_Changed" />
+        <CheckBox x:Name="WebpLossless" Content="WebP 使用无损编码" Checked="Output_Changed" Unchecked="Output_Changed" />
+        <StackPanel x:Name="QualitySection"><DockPanel><TextBlock Text="JPEG / WebP 有损质量" /><TextBlock Text="{Binding ElementName=Quality, Path=Value, StringFormat={}{0:F0}}" HorizontalAlignment="Right" /></DockPanel><Slider x:Name="Quality" Minimum="1" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1" /></StackPanel>
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="自动保存与命名" Style="{StaticResource SectionTitle}" />          <CheckBox x:Name="AutoSaveImages" Content="每次完成截图后自动保存图片（独立于历史记录）" />
+        <CheckBox x:Name="ArchiveByDate" Content="自动保存按日期归档到 yyyy-MM-dd 子目录" />
+        <TextBlock Text="命名模板" /><TextBox x:Name="FileNameTemplate" TextChanged="Template_Changed" />
+        <TextBlock x:Name="TemplatePreview" Style="{StaticResource Hint}" /><TextBlock Text="支持 {date}、{time}、{width}、{height}、{seq}。日期归档不改变手动另存为的目录。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="贴图" Tag="Pin"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="贴图" Style="{StaticResource PageTitle}" /><TextBlock Text="新建贴图的默认外观与文本样式；保存后边缘吸附设置对现有贴图生效。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="窗口与吸附" Style="{StaticResource SectionTitle}" />          <DockPanel><TextBlock Text="默认透明度" /><TextBlock Text="{Binding ElementName=PinOpacity, Path=Value, StringFormat={}{0:P0}}" HorizontalAlignment="Right" /></DockPanel><Slider x:Name="PinOpacity" Minimum="0.2" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True" />
+        <CheckBox x:Name="PinSnapToEdges" Content="拖动贴图时吸附当前屏幕工作区边缘" />
+        <TextBlock Text="吸附距离（DIP，跨屏按 DPI 缩放）" /><TextBox x:Name="PinSnapDistance" />
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="文本排版" Style="{StaticResource SectionTitle}" />          <TextBlock Text="文本贴图字体" /><TextBox x:Name="TextFontFamily" />
+        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="16" /><ColumnDefinition /></Grid.ColumnDefinitions>
+          <StackPanel><TextBlock Text="字号（10–64）" /><TextBox x:Name="TextFontSize" /></StackPanel>
+          <StackPanel Grid.Column="2"><TextBlock Text="宽度（200–1200 像素）" /><TextBox x:Name="TextWidth" /></StackPanel>
+        </Grid>
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="文字与背景颜色" Style="{StaticResource SectionTitle}" />          <TextBlock Text="文本颜色（#HEX）" /><DockPanel><Button Content="选色…" Tag="Foreground" Click="PickColor_Click" DockPanel.Dock="Right" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="TextForeground" /></DockPanel>
+        <TextBlock Text="背景颜色（#HEX）" /><DockPanel><Button Content="选色…" Tag="Background" Click="PickColor_Click" DockPanel.Dock="Right" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="TextBackground" /></DockPanel>
+        <TextBlock Text="滚轮缩放，Ctrl+滚轮调整透明度。右键菜单可旋转、编辑标注和分组；拖动一张已分组贴图会移动整组。隐藏的分组可从托盘恢复。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="录屏" Tag="Video"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="录屏默认选项" Style="{StaticResource PageTitle}" /><TextBlock Text="音频和摄像头每次录制单独授权，不保存为默认开启。区域录屏从选区工具条录像图标进入，也可从托盘录制当前显示器。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel><TextBlock Text="首次使用 · 一键配置" Style="{StaticResource SectionTitle}" /><Button Content="检查并一键配置录屏环境…" Click="RecordingSetup_Click" HorizontalAlignment="Left" /><TextBlock Text="检测 VC++ x64 与 Media Foundation。缺失时从微软官方源下载安装；安装需 Windows 管理员授权，必要时提示重启。也可直达麦克风／摄像头系统权限设置。" Style="{StaticResource Hint}" /></StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="编码默认项" Style="{StaticResource SectionTitle}" />          <TextBlock Text="默认格式" /><ComboBox x:Name="RecordingFormat"><ComboBoxItem Content="MP4" /><ComboBoxItem Content="GIF" /></ComboBox>
+        <TextBlock Text="MP4 帧率（GIF 最多 15 fps）" /><ComboBox x:Name="RecordingFps"><ComboBoxItem Content="15" /><ComboBoxItem Content="30" /><ComboBoxItem Content="60" /></ComboBox>
+        <TextBlock Text="质量" /><ComboBox x:Name="RecordingQuality"><ComboBoxItem Content="流畅" /><ComboBoxItem Content="标准" /><ComboBoxItem Content="高清" /></ComboBox>
+        <TextBlock Text="采集引擎" /><ComboBox x:Name="RecordingCaptureBackend"><ComboBoxItem Content="WGC（推荐）" Tag="WGC" /><ComboBoxItem Content="Desktop Duplication（DXGI）" Tag="DXGI" /></ComboBox>
+        <TextBlock Text="MP4 码率 kbps（0 按质量自动；自定义 500–100000）" /><TextBox x:Name="RecordingBitrate" />
+        <TextBlock Text="开始倒计时（0–10 秒）" /><TextBox x:Name="RecordingCountdown" />
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="画面与交互" Style="{StaticResource SectionTitle}" />          <CheckBox x:Name="RecordingHardware" Content="优先硬件编码（初始化失败时尝试软件编码）" /><CheckBox x:Name="RecordingCursor" Content="录制鼠标指针" /><CheckBox x:Name="RecordingClicks" Content="显示点击高亮" />
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="时长与尺寸" Style="{StaticResource SectionTitle}" />          <TextBlock Text="定时停止（有效录制秒数；0 为手动，最多 86400）" /><TextBox x:Name="RecordingStop" />
+        <TextBlock Text="GIF 最长边（160–800 像素）" /><TextBox x:Name="RecordingGifEdge" />
+        <TextBlock Text="GIF 无音频、最多 60 秒／100 MB。MP4 使用系统 Media Foundation H.264/AAC 编码；需要 Visual C++ x64 运行库，Windows N/KN 需要 Media Feature Pack。不会下载或调用 FFmpeg。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="OCR 与识别" Tag="ScanText"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="OCR 与识别" Style="{StaticResource PageTitle}" /><TextBlock Text="默认 PaddleOCR 中英文识别。可主动下载配套模型与字典，也可选择本地文件；识别在本机运行，不上传截图。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="识别引擎" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="本地 OCR 引擎（当前不调用云端 OCR API）" /><ComboBox x:Name="OcrBackendBox"><ComboBoxItem Content="默认推荐 · 本地 ONNX / PaddleOCR · CPU 或 GPU" Tag="PaddleOCR" /><ComboBoxItem Content="可选 · 本地 Windows OCR · 系统语言包" Tag="Windows" /><ComboBoxItem Content="可选 · 本地 Tesseract 5 · CPU" Tag="Tesseract" /></ComboBox>
+          <TextBlock Text="日常 OCR 推荐直接使用本地 ONNX：首次点击下方一键下载，自动填好模型和字典后保存即可。CPU 为默认兼容选项，GPU 按需选择；切换其他引擎会保留已填配置，已保存的个人选择不会被覆盖。" Style="{StaticResource Hint}" />
+          <TextBlock Text="ONNX 计算设备（适用于 PaddleOCR 和抠图）" /><ComboBox x:Name="OnnxDeviceBox"><ComboBoxItem Content="本地 CPU · 兼容模式" Tag="CPU" /><ComboBoxItem Content="本地 GPU · DirectML · NVIDIA / AMD / Intel" Tag="DirectML" /></ComboBox>
+          <TextBlock Text="DirectML GPU 编号（默认 0；多显卡可改为 1 等）" /><TextBox x:Name="OnnxGpuId" />
+          <TextBlock Text="DirectML 运行库随程序提供，无需 CUDA；需要支持 DirectX 12 的显卡和驱动。GPU 初始化失败会报错，可自行切换 CPU；不支持的个别算子仍可能使用 CPU。Windows OCR / Tesseract 不受此选择影响。" Style="{StaticResource Hint}" />
+          <WrapPanel><Button Content="PaddleOCR 官网与许可证" Tag="PaddleOCR" Click="OpenProviderWebsite_Click" /><Button Content="DirectML 官方运行要求" Tag="DirectML" Click="OpenProviderWebsite_Click" Margin="10,0,0,0" /></WrapPanel>
+          <TextBlock Text="三种引擎均在本机识别。PaddleOCR 推荐中英文截图；Tesseract 为 Apache-2.0 免费开源 NuGet 引擎；Windows OCR 使用系统已安装语言。按下方对应按钮可下载并自动选中引擎，不会静默切换。" Style="{StaticResource Hint}" />
+          <WrapPanel><Button Content="一键配置已安装的 Windows OCR" Click="ConfigureWindowsOcr_Click" /><Button Content="安装 Windows OCR 语言包…" Click="OpenLanguageSettings_Click" Margin="10,0,0,0" /></WrapPanel>
+          <TextBlock x:Name="WindowsOcrStatus" Style="{StaticResource Hint}" Text="Windows 语言包由系统管理，安装需要在系统设置中确认；不想安装系统组件可用下方 PaddleOCR 一键下载。" />
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="PaddleOCR 模型与字典" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="本地 OCR 所需模型包（仅下载时联网）" />
+          <ComboBox x:Name="OcrModelPackage" SelectedIndex="0"><ComboBoxItem Content="PP-OCRv4 · 中文＋英文（默认推荐）" /></ComboBox>
+          <TextBlock Text="来源：RapidOCR 1.3.24 / PyPI，约 14.2 MB，Apache-2.0。校验固定 SHA256，仅提取 ONNX 数据并从模型生成配套字典；不安装 Python。" Style="{StaticResource Hint}" />
+          <WrapPanel><Button x:Name="DownloadOcrButton" Content="一键配置推荐 ONNX OCR（下载模型）" Click="DownloadOcr_Click" /><Button x:Name="CancelOcrDownloadButton" Content="取消下载" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
+          <TextBlock x:Name="OcrDownloadStatus" Style="{StaticResource Hint}" Text="仅点击下载时联网；下载完成后请保存设置。已有本地模型不会被覆盖。" />
+          <TextBlock Text="PaddleOCR 检测模型（DB，.onnx）" /><DockPanel><Button Content="浏览…" DockPanel.Dock="Right" Tag="OcrDetPath" Click="ModelBrowse_Click" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="OcrDetPath" /></DockPanel>
+        <TextBlock Text="PaddleOCR 识别模型（单输入 CTC，.onnx）" /><DockPanel><Button Content="浏览…" DockPanel.Dock="Right" Tag="OcrRecPath" Click="ModelBrowse_Click" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="OcrRecPath" /></DockPanel>
+        <TextBlock Text="与识别模型对应的 UTF-8 字典（每行一个字符）" /><DockPanel><Button Content="浏览…" DockPanel.Dock="Right" Tag="OcrDictPath" Click="ModelBrowse_Click" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="OcrDictPath" /></DockPanel>
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="Tesseract · 一键下载与配置" Style="{StaticResource SectionTitle}" />
+          <ComboBox x:Name="TesseractPackageBox" SelectedIndex="0"><ComboBoxItem Content="简体中文＋英文 · 约 6.3 MB（推荐）" Tag="chi_sim+eng" /><ComboBoxItem Content="英文 · 约 3.9 MB" Tag="eng" /><ComboBoxItem Content="简体中文 · 约 2.4 MB" Tag="chi_sim" /></ComboBox>
+          <TextBlock Text="官方 tessdata_fast 固定版本，Apache-2.0；逐文件 SHA256 校验并验证可加载。引擎随程序提供，只需下载字库，不安装 Python。" Style="{StaticResource Hint}" />
+          <WrapPanel><Button x:Name="DownloadTesseractButton" Content="一键下载并配置 Tesseract" Click="DownloadTesseract_Click" /><Button x:Name="CancelTesseractButton" Content="取消下载" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
+          <TextBlock x:Name="TesseractDownloadStatus" Style="{StaticResource Hint}" Text="下载后自动填入路径、语言与引擎，保存设置后生效。失败／取消不改原配置。" />
+          <TextBlock Text="字库目录（包含 *.traineddata）" /><DockPanel><Button Content="浏览…" Click="TesseractBrowse_Click" DockPanel.Dock="Right" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="TesseractDirectory" /></DockPanel>
+          <TextBlock Text="识别语言（chi_sim / eng / chi_sim+eng；其他已下载字库可手填）" /><TextBox x:Name="TesseractLanguages" />
+          <TextBlock Text="Tesseract 原生识别阶段不能即时中断，停止／超时会在该调用返回后生效；最多一个任务，最长边限制同下。CPU 线程设置仅用于 ONNX 引擎。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="语言与资源限制" Style="{StaticResource SectionTitle}" />          <TextBlock Text="Windows OCR 语言（空白使用用户语言，例如 zh-Hans / en-US）" /><TextBox x:Name="OcrLanguage" />
+        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="16" /><ColumnDefinition /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="检测最长边（320–2048）" /><TextBox x:Name="OcrMaxEdge" /></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="CPU 线程数（1–8）" /><TextBox x:Name="ModelThreads" /></StackPanel></Grid>
+        <TextBlock Text="推理超时（1–120 秒，可取消）" /><TextBox x:Name="ModelTimeout" />
+        <CheckBox x:Name="BarcodeRotate" Content="条码识别允许有限的旋转重试" />
+        <Button Content="检查当前 OCR 引擎与模型" Click="CheckModels_Click" HorizontalAlignment="Left" /><TextBlock x:Name="ModelStatus" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="本地表格与公式" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="表格：PP-Structure / SLANet 结构模型 + 当前 OCR 引擎，自动识别行列与合并区域。公式：LaTeX-OCR 编码器／解码器，输出可编辑 LaTeX。两者均无需 API，沿用上方 CPU / DirectML GPU 及超时设置。" Style="{StaticResource Hint}" />
+          <TextBlock Text="表格结构 ONNX 模型" /><TextBox x:Name="TableModelPath" />
+          <WrapPanel><Button x:Name="DownloadTableButton" Content="一键配置本地表格识别（约 7.4 MB + 所需 OCR）" Click="DownloadSpecialist_Click" Tag="Table" /><Button Content="选择模型…" Click="ModelBrowse_Click" Tag="TableModelPath" /></WrapPanel>
+          <TextBlock Text="公式模型目录（编码器、解码器、尺寸模型与词表，共约 171 MB）" /><TextBox x:Name="FormulaDirectory" />
+          <WrapPanel><Button x:Name="DownloadFormulaButton" Content="一键配置本地公式识别" Click="DownloadSpecialist_Click" Tag="Formula" /><Button Content="选择目录…" Click="BrowseFormulaDirectory_Click" /><Button x:Name="CancelSpecialistButton" Content="取消下载" Click="CancelOcrDownload_Click" IsEnabled="False" /></WrapPanel>
+          <TextBlock x:Name="SpecialistStatus" Style="{StaticResource Hint}" Text="下载校验通过后自动填好路径；点击保存生效。请裁剪到单张表格或单个公式，识别结果需核对。" />
+          <TextBlock Text="可选表格识别插件 ID（空白使用内置 SLANet）" /><TextBox x:Name="TablePluginId" />
+          <TextBlock Text="可选公式识别插件 ID（空白使用内置 LaTeX-OCR）" /><TextBox x:Name="FormulaPluginId" />
+          <TextBlock Text="已有插件选择不会自动覆盖；点击对应一键配置会主动选择内置识别器。外部插件须在“插件与安全”中按策略启用。原生 Paddle 文件不能直接作为 ONNX 使用；仅支持配套模型契约，不支持任意 ONNX。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="一键抠图" Tag="Scissors"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="一键抠图" Style="{StaticResource PageTitle}" /><TextBlock Text="本地 ONNX 前景分割，输出透明背景。推荐一键下载轻量模型，自动配置路径、输入尺寸与预处理；高级用户也可选择本地模型。ONNX 运行库已随程序提供，无需另装。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="抠图模型管理" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="默认模型（保存后生效）" /><ComboBox x:Name="CutoutDefaultBox" />
+          <TextBlock Text="选择要下载／配置的模型" /><ComboBox x:Name="CutoutPackageBox" SelectionChanged="CutoutPackage_Changed" />
+          <TextBlock Text="最小组合：U²-Net 快速预览／CPU，General Lite 默认精修，Portrait 人像精修；可再选 Matting 发丝／玻璃精修。前三项来自 rembg GitHub（固定 SHA256 或上游 MD5），Matting 来自 Hugging Face emrikol 社区导出（固定版本与 SHA256）。均验证 ONNX 契约。各模型独立保存，下载后请保存设置。BiRefNet 为 MIT，U²-Net 为 Apache-2.0；不上传图片，不分发 RMBG 非商用权重。" Style="{StaticResource Hint}" />
+          <TextBlock Text="新增高质量选项：General 完整版（973 MB，rembg 上游 MD5 校验）及 HR Matting 2048（932 MB，Hugging Face PinkPixel 社区导出，固定版本与 SHA256）。HR 模型更耗内存／显存，CPU 可能很慢；可在 OCR 与识别页调整推理超时（最高 120 秒）或选择 DirectML。不会自动替换默认模型，实际效果及 GPU 兼容性需按设备验证。" Style="{StaticResource Hint}" />
+          <WrapPanel><Button x:Name="DownloadCutoutButton" Content="一键下载并配置抠图" Click="DownloadCutout_Click" /><Button x:Name="CancelCutoutButton" Content="取消下载" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
+          <TextBlock x:Name="CutoutDownloadStatus" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="模型与预处理" Style="{StaticResource SectionTitle}" />          <TextBlock Text="抠图 ONNX 模型" /><DockPanel><Button Content="浏览…" DockPanel.Dock="Right" Tag="CutoutPath" Click="ModelBrowse_Click" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="CutoutPath" /></DockPanel>
+        <TextBlock Text="输入归一化／输出契约（必须匹配所用模型导出方式）" /><ComboBox x:Name="CutoutProfileBox"><ComboBoxItem Content="ONNX U²-Net · ImageNet / min-max" Tag="U2Net" /><ComboBoxItem Content="ONNX IS-Net / RMBG · 自备兼容模型" Tag="ISNet" /><ComboBoxItem Content="ONNX BiRefNet · ImageNet / logits→sigmoid / min-max" Tag="BiRefNet" /><ComboBoxItem Content="ONNX BiRefNet Matting · ImageNet / logits→sigmoid（保留软透明度）" Tag="BiRefNetMatting" /><ComboBoxItem Content="ONNX BiRefNet HR Matting · ImageNet / 已输出 alpha（不重复 sigmoid）" Tag="BiRefNetAlpha" /></ComboBox>
+        <TextBlock Text="下载自动配置匹配的输入归一化与输出契约。General / Portrait 使用 sigmoid 后 min-max；Matting 只做 sigmoid；配套 HR Matting 已输出 alpha，仅限幅，保留软透明度。自备模型须匹配契约，不会因为扩展名是 .onnx 就自动兼容。" Style="{StaticResource Hint}" />
+        <TextBlock Text="动态模型输入边长（32–2048；固定输入自动读取模型尺寸）" /><TextBox x:Name="CutoutSize" />
+        <TextBlock Text="需要单个 float32 [1,3,H,W] 输入，首个输出为单通道蒙版。不兼容的模型会明确报错。抠图保持原图分辨率和原有透明度，可在预览后复制、保存 PNG/WebP 或贴图。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="翻译、API 与隐私" Tag="Shield"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="本地翻译、在线 API 与隐私" Style="{StaticResource PageTitle}" /><TextBlock Text="本地翻译在自己的电脑推理，不向外部服务发送文字；首次下载模型需要联网。API 翻译会发送文字，默认禁止，开启后仍逐次预览并确认接收地址。软件开源免费不代表 API 免费，价格和免费额度以服务商官网为准。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="文字翻译" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="① 选择本地或 API 引擎 → 一键配置 → 保存设置。② 截图后点击 OCR。③ 检查文字或选中一段，点击“翻译…”。本地直接翻译，API 需确认发送；译文在“翻译结果”页。" Style="{StaticResource Hint}" />
+          <WrapPanel><Button Content="一键配置所选引擎 · 英译中" Click="ConfigureTranslation_Click" /><Button Content="测试翻译连接" Click="TestTranslation_Click" Margin="10,0,0,0" /></WrapPanel>
+          <TextBlock x:Name="TranslationStatus" Style="{StaticResource Hint}" Text="免密钥预设使用 MyMemory 公共服务，无需安装；有免费额度与单次 500 UTF-8 字节限制，文字会发送给该服务。配置按钮不发送文字。" />
+          <CheckBox x:Name="AllowTranslation" Content="允许在逐次确认后在线翻译文字" />
+          <TextBlock Text="翻译引擎 · 明确区分本地与 API" /><ComboBox x:Name="TranslationProviderBox" SelectionChanged="TranslationProvider_Changed"><ComboBoxItem Content="API · MyMemory · 有限公共免费额度，官网查询" Tag="MyMemory" /><ComboBoxItem Content="API · 自定义 LibreTranslate · 价格由服务商决定" Tag="LibreTranslate" /><ComboBoxItem Content="API · Google 网页适配 · 非官方 Cloud API，无免费保证" Tag="Google" /><ComboBoxItem Content="本地 · Qwen2.5 1.5B / llama.cpp · CPU 或 GPU" Tag="Local" /></ComboBox>
+          <TextBlock x:Name="TranslationPricing" Style="{StaticResource Hint}" />
+          <Button Content="查看所选服务官网 / 价格 / 免费额度" Click="OpenTranslationWebsite_Click" HorizontalAlignment="Left" />
+          <StackPanel x:Name="LocalTranslationPanel" Margin="0,12,0,0">
+            <TextBlock Text="本地翻译计算设备" /><ComboBox x:Name="LocalTranslationDeviceBox"><ComboBoxItem Content="本地 CPU · 无需独立显卡" Tag="CPU" /><ComboBoxItem Content="本地 GPU · Vulkan · NVIDIA / AMD / Intel" Tag="Vulkan" /></ComboBox>
+            <TextBlock Text="一键下载 Qwen2.5 1.5B Instruct Q4_K_M（约 1.04 GiB）及 llama.cpp Windows x64 运行库（约 24–37 MiB），固定版本和 SHA256 校验。无需 Python、Docker 或 API 密钥。模型 Apache-2.0，运行库 MIT；GPU 需支持 Vulkan 的驱动及可用显存，失败时不会自动改用 CPU。小模型翻译需人工核对，首次加载较慢；单次最多 6000 字符，3 分钟超时。" Style="{StaticResource Hint}" />
+            <WrapPanel><Button x:Name="DownloadLocalTranslationButton" Content="一键下载并配置本地翻译" Click="DownloadLocalTranslation_Click" /><Button x:Name="CancelLocalTranslationButton" Content="取消下载" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
+            <TextBlock Text="本地模型路径（下载后自动填写）" /><TextBox x:Name="LocalTranslationModelPath" IsReadOnly="True" />
+            <TextBlock Text="本地运行库路径（下载后自动填写）" /><TextBox x:Name="LocalTranslationRuntimePath" IsReadOnly="True" />
+            <Button Content="配置 VC++ x64 运行库…" Click="RecordingSetup_Click" HorizontalAlignment="Left" />
+          </StackPanel>
+          <TextBlock Text="API 不自动切换服务商。MyMemory 单次 500 UTF-8 字节；Google 网页适配单次 5000 字符，可能限流、不可达或变更。LibreTranslate 公共实例可能收费或需要密钥，当前兼容无密钥端点；选择本机地址也属于自定义 API，SnapSharp 不会替它安装服务器。" Style="{StaticResource Hint}" />
+          <TextBlock Text="自定义服务 POST 地址（仅 LibreTranslate 使用；需自行提供可用服务）" /><TextBox x:Name="TranslateUrl" />
+        <TextBlock Text="源语言（默认 en 英文；auto 自动识别）" /><TextBox x:Name="TranslateSource" />
+        <TextBlock Text="目标语言（默认 zh 中文）" /><TextBox x:Name="TranslateTarget" />
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="图片搜索" Style="{StaticResource SectionTitle}" />          <CheckBox x:Name="AllowSearch" Content="允许在逐次确认后上传图片搜索" /><TextBlock Text="识图服务 POST 地址（接收 multipart image，返回 JSON url）" /><TextBox x:Name="SearchUrl" />
+        <TextBlock Text="仅接受 HTTPS，或本机回环 HTTP 服务。服务商由配置地址决定，不内置未公开的搜索引擎上传接口。上传前可取消，服务失败不会覆盖原识别文字。" Style="{StaticResource Hint}" />
+        <TextBlock Text="当前没有内置可自动部署的图片搜索服务，需要自有兼容接口。OCR、条码、表格与公式均可在本机识别，无需图片搜索服务。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="快捷键" Tag="Keyboard"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="快捷键" Style="{StaticResource PageTitle}" /><TextBlock Text="点击输入框后按组合键（例如 Ctrl+Shift+A）。贴图快捷键留空即禁用；Delete / Backspace 可清空。设置窗口打开时暂停全局触发。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="截图快捷键" Style="{StaticResource SectionTitle}" />          <TextBlock Text="区域截图" /><TextBox x:Name="RegionHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
+        <TextBlock Text="全屏截图" /><TextBox x:Name="FullScreenHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
+        <TextBlock Text="当前窗口截图" /><TextBox x:Name="ActiveWindowHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="贴图快捷键" Style="{StaticResource SectionTitle}" />          <TextBlock Text="从剪贴板贴图（图片 / 颜色 / 文本）" /><TextBox x:Name="ClipboardPinHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
+        <TextBlock Text="隐藏 / 显示全部贴图" /><TextBox x:Name="TogglePinsHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
+        <TextBlock Text="恢复最近关闭的贴图" /><TextBox x:Name="RestorePinHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
+        <TextBlock Text="恢复贴图鼠标交互（关闭穿透）" /><TextBox x:Name="RestoreInteractionHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="历史记录" Tag="History"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="历史记录" Style="{StaticResource PageTitle}" /><TextBlock Text="历史记录与输出目录中的自动保存互相独立。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="记录与保留" Style="{StaticResource SectionTitle}" />          <CheckBox x:Name="SaveHistory" Content="保存截图历史" /><TextBlock Text="最多保留条数（0–1000）" /><TextBox x:Name="HistoryLimit" />
+        <TextBlock Text="历史图片及缩略图保存在本地，不会上传。减少条数后，将在下次添加历史时清理超出上限的旧记录。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="插件与安全" Tag="Puzzle"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="插件与安全" Style="{StaticResource PageTitle}" /><TextBlock Text="插件设置在重启 SnapSharp 后生效。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="外部插件策略" Style="{StaticResource SectionTitle}" />          <CheckBox x:Name="EnableExternalPlugins" Content="启用外部插件" /><CheckBox x:Name="RequireSignedPlugins" Content="只允许强名称签名插件（基础校验）" />
+        <TextBlock Text="外部插件是进程内代码，签名并不代表安全。请仅安装可信来源；默认禁止外部插件。" Style="{StaticResource Hint}" />
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
+    </TabControl>
+    <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="22,16">
+      <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+        <TextBlock x:Name="FooterHint" Text="更改仅在保存后生效；取消可放弃修改。" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,20,0" FontSize="12" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="取消" IsCancel="True" Margin="0,0,10,0" /><Button x:Name="SaveSettingsButton" Content="保存设置" Click="Save_Click" Background="{DynamicResource ToolbarActiveBrush}" Foreground="{DynamicResource AccentForegroundBrush}" /></StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

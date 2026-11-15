@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>SnapSharp.Imaging</AssemblyName>
+    <RootNamespace>SnapSharp</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SnapSharp.Core\SnapSharp.Core.csproj" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,115 @@
+<Window x:Class="SnapSharp.Views.SaveImageWindow" Style="{StaticResource AppWindow}"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="输出图片 · SnapSharp" Width="1040" Height="740" MinWidth="820" MinHeight="540"
+        WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackgroundBrush}">
+  <Window.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="ToolbarStyles.xaml" /></ResourceDictionary.MergedDictionaries>
+      <Style TargetType="TextBox" BasedOn="{StaticResource ToolbarTextBox}"><Setter Property="Height" Value="34" /><Setter Property="Margin" Value="0,5,0,10" /><Setter Property="VerticalContentAlignment" Value="Center" /></Style>
+      <Style TargetType="Button" BasedOn="{StaticResource DialogButton}"><Setter Property="Width" Value="Auto" /><Setter Property="Padding" Value="12,6" /><Setter Property="Margin" Value="0,4,6,4" /></Style>
+      <Style TargetType="ComboBox" BasedOn="{StaticResource ToolbarComboBox}"><Setter Property="Height" Value="34" /><Setter Property="Margin" Value="0,5,0,10" /></Style>
+      <Style TargetType="CheckBox" BasedOn="{StaticResource ToolbarCheckBox}"><Setter Property="Margin" Value="0,6" /></Style>
+      <Style x:Key="OutputFormatItem" TargetType="ComboBoxItem">
+        <Setter Property="Padding" Value="14,12" /><Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="IsEnabled" Value="{Binding IsAvailable}" />
+        <Setter Property="ToolTip" Value="{Binding Description}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem">
+          <Border x:Name="ItemSurface" Background="Transparent" CornerRadius="7" Padding="{TemplateBinding Padding}" Margin="0,2">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="24" /></Grid.ColumnDefinitions>
+              <StackPanel Margin="0,0,12,0">
+                <TextBlock Text="{Binding Name}" FontSize="18" Foreground="{DynamicResource TextBrush}" />
+                <TextBlock Text="{Binding Description}" FontSize="13" Margin="0,5,0,0" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+              </StackPanel>
+              <Path x:Name="SelectedMark" Grid.Column="1" Data="M1,6 L5,10 L14,1" Stroke="{DynamicResource ToolbarActiveBrush}" StrokeThickness="2" Width="16" Height="12" VerticalAlignment="Center" Visibility="Collapsed" />
+            </Grid>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="ItemSurface" Property="Background" Value="{DynamicResource WindowBackgroundBrush}" /></Trigger>
+            <Trigger Property="IsSelected" Value="True"><Setter TargetName="SelectedMark" Property="Visibility" Value="Visible" /></Trigger>
+            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4" /></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+      </Style>
+      <Style x:Key="OutputFormatPicker" TargetType="ComboBox">
+        <Setter Property="Height" Value="40" /><Setter Property="Margin" Value="0,5,0,12" />
+        <Setter Property="ItemContainerStyle" Value="{StaticResource OutputFormatItem}" />
+        <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox">
+          <Grid>
+            <ToggleButton Style="{StaticResource ToolbarFieldToggle}" Focusable="False" ClickMode="Press"
+                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+              <Grid Margin="12,0"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="16" /></Grid.ColumnDefinitions>
+                <TextBlock x:Name="SelectedFormatName" Text="{Binding SelectedItem.Name, RelativeSource={RelativeSource TemplatedParent}}" FontSize="15" VerticalAlignment="Center" />
+                <Path Grid.Column="1" Data="M1,1 L6,6 L11,1" Stroke="{DynamicResource TextSecondaryBrush}" StrokeThickness="1.5" Width="12" Height="8" VerticalAlignment="Center" />
+              </Grid>
+            </ToggleButton>
+            <Popup x:Name="PART_Popup" Placement="Bottom" VerticalOffset="6" AllowsTransparency="True" Focusable="False"
+                   IsOpen="{TemplateBinding IsDropDownOpen}" PopupAnimation="Fade">
+              <Border Width="420" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="7">
+                <ScrollViewer MaxHeight="{TemplateBinding MaxDropDownHeight}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" CanContentScroll="False"><ItemsPresenter /></ScrollViewer>
+              </Border>
+            </Popup>
+          </Grid>
+        </ControlTemplate></Setter.Value></Setter>
+      </Style>
+      <DrawingBrush x:Key="Checker" TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">
+        <DrawingBrush.Drawing><DrawingGroup>
+          <GeometryDrawing Brush="#EEE" Geometry="M0,0 H16 V16 H0 Z" />
+          <GeometryDrawing Brush="#D4D4D4" Geometry="M0,0 H8 V8 H0 Z M8,8 H16 V16 H8 Z" />
+        </DrawingGroup></DrawingBrush.Drawing>
+      </DrawingBrush>
+    </ResourceDictionary>
+  </Window.Resources>
+  <Grid Margin="20">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="24" /><ColumnDefinition Width="350" /></Grid.ColumnDefinitions>
+    <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+    <Grid>
+      <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+      <StackPanel Margin="0,0,0,14"><TextBlock Text="图片预览" FontSize="20" FontWeight="SemiBold" /><TextBlock x:Name="SourceInfo" Margin="0,6,0,0" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+      <Border Grid.Row="1" Background="{StaticResource Checker}" CornerRadius="8" ClipToBounds="True" Padding="16">
+        <Image x:Name="Preview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
+      </Border>
+      <StackPanel Grid.Row="2" Margin="0,12,0,0">
+        <TextBlock x:Name="SizeInfo" FontSize="15" FontWeight="SemiBold" Text="正在计算编码体积…" />
+        <TextBlock x:Name="PreviewHint" Text="预览使用实际编码结果；棋盘格表示透明区域。" Margin="0,6" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+        <WrapPanel><Button Content="打印…" Click="Print_Click" /><Button Content="关闭" IsCancel="True" /></WrapPanel>
+      </StackPanel>
+    </Grid>
+    <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel x:Name="SettingsPanel" Margin="0,0,10,0">
+        <TextBlock Text="保存设置" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,14" />
+        <TextBlock Text="保存到" />
+        <DockPanel><Button Content="浏览…" DockPanel.Dock="Right" MinWidth="64" Click="Browse_Click" Margin="6,5,0,10" Height="34" /><TextBox x:Name="DirectoryBox" /></DockPanel>
+        <TextBlock Text="文件名（不含扩展名）" /><TextBox x:Name="NameBox" TextChanged="Name_Changed" />
+        <TextBlock Text="输出格式" /><ComboBox x:Name="FormatBox" Style="{StaticResource OutputFormatPicker}" SelectionChanged="Options_Changed" />
+        <Expander Header="自动命名模板" Margin="0,0,0,10">
+          <StackPanel><TextBox x:Name="TemplateBox" TextChanged="Template_Changed" />
+            <TextBlock Text="支持 {date} {time} {width} {height} {seq}；非法文件名字符会替换为下划线。" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+            <TextBlock x:Name="TemplatePreview" Margin="0,6" TextWrapping="Wrap" />
+            <Button Content="应用模板生成文件名" Click="ApplyTemplate_Click" HorizontalAlignment="Left" />
+          </StackPanel>
+        </Expander>
+        <TextBlock Text="输出尺寸（像素）" />
+        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="24" /><ColumnDefinition /></Grid.ColumnDefinitions>
+          <TextBox x:Name="WidthBox" TextChanged="Dimensions_Changed" /><TextBlock Grid.Column="1" Text="×" HorizontalAlignment="Center" VerticalAlignment="Center" /><TextBox Grid.Column="2" x:Name="HeightBox" TextChanged="Dimensions_Changed" />
+        </Grid>
+        <DockPanel Margin="0,0,0,6"><Button Content="还原尺寸" DockPanel.Dock="Right" Click="Reset_Click" /><CheckBox x:Name="LockRatio" Content="锁定原图比例" IsChecked="True" /></DockPanel>
+        <CheckBox x:Name="LosslessBox" Content="WebP 无损编码（保留透明通道）" Checked="Options_Changed" Unchecked="Options_Changed" />
+        <StackPanel x:Name="QualityPanel" Margin="0,4,0,6">
+          <DockPanel><TextBlock Text="有损质量" /><TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right" Text="{Binding ElementName=QualitySlider, Path=Value, StringFormat={}{0:F0}}" /></DockPanel>
+          <Slider x:Name="QualitySlider" Style="{StaticResource ParameterSlider}" Minimum="1" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1" ValueChanged="Options_Changed" Margin="0,8" />
+        </StackPanel>
+        <TextBlock x:Name="FormatHint" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12" />
+        <Button x:Name="SaveButton" Content="保存图片" Click="Save_Click" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource AccentForegroundBrush}" HorizontalAlignment="Stretch" />
+        <Button Content="使用系统“另存为”…" Click="SystemSave_Click" HorizontalAlignment="Stretch" />
+        <Border x:Name="SavedActions" Visibility="Collapsed" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="0,12,0,0" Padding="0,10,0,0">
+          <StackPanel><TextBlock x:Name="SavedPathText" TextWrapping="Wrap" />
+            <WrapPanel><Button Content="复制文件" Click="CopyFile_Click" /><Button Content="复制路径" Click="CopyPath_Click" /><Button Content="定位文件" Click="Reveal_Click" /></WrapPanel>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" x:Name="StatusText" TextWrapping="Wrap" Margin="0,16,0,0" Foreground="{DynamicResource TextSecondaryBrush}" Text="保存前可调整格式和尺寸；关闭窗口不会创建文件。" />
+  </Grid>
+</Window>

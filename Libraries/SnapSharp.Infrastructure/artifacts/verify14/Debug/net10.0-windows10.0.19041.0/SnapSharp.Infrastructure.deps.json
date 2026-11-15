@@ -1,0 +1,153 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "SnapSharp.Infrastructure/1.0.0": {
+        "dependencies": {
+          "Clowd.Clipboard.Wpf": "1.1.4",
+          "SnapSharp.Core": "1.0.0",
+          "SnapSharp.Imaging": "1.0.0",
+          "runtimepack.Microsoft.Windows.SDK.NET.Ref": "10.0.19041.57"
+        },
+        "runtime": {
+          "SnapSharp.Infrastructure.dll": {}
+        }
+      },
+      "runtimepack.Microsoft.Windows.SDK.NET.Ref/10.0.19041.57": {
+        "runtime": {
+          "Microsoft.Windows.SDK.NET.dll": {
+            "assemblyVersion": "10.0.19041.38",
+            "fileVersion": "10.0.19041.55"
+          },
+          "WinRT.Runtime.dll": {
+            "assemblyVersion": "2.2.0.0",
+            "fileVersion": "2.2.0.48161"
+          }
+        }
+      },
+      "Clowd.Clipboard/1.1.4": {
+        "runtime": {
+          "lib/net8.0/Clowd.Clipboard.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.1.4.11471"
+          }
+        }
+      },
+      "Clowd.Clipboard.Wpf/1.1.4": {
+        "dependencies": {
+          "Clowd.Clipboard": "1.1.4"
+        },
+        "runtime": {
+          "lib/net8.0-windows7.0/Clowd.Clipboard.Wpf.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.1.4.11471"
+          }
+        }
+      },
+      "SkiaSharp/3.119.1": {
+        "dependencies": {
+          "SkiaSharp.NativeAssets.Win32": "3.119.1"
+        },
+        "runtime": {
+          "lib/net8.0-windows10.0.19041/SkiaSharp.dll": {
+            "assemblyVersion": "3.119.0.0",
+            "fileVersion": "3.119.1.0"
+          }
+        }
+      },
+      "SkiaSharp.NativeAssets.Win32/3.119.1": {
+        "runtimeTargets": {
+          "runtimes/win-arm64/native/libSkiaSharp.dll": {
+            "rid": "win-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x64/native/libSkiaSharp.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x86/native/libSkiaSharp.dll": {
+            "rid": "win-x86",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "SnapSharp.Core/1.0.0": {
+        "runtime": {
+          "SnapSharp.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "SnapSharp.Imaging/1.0.0": {
+        "dependencies": {
+          "SkiaSharp": "3.119.1",
+          "SnapSharp.Core": "1.0.0"
+        },
+        "runtime": {
+          "SnapSharp.Imaging.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SnapSharp.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "runtimepack.Microsoft.Windows.SDK.NET.Ref/10.0.19041.57": {
+      "type": "runtimepack",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Clowd.Clipboard/1.1.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-k7fcuk8QuPnjdva2yHGEF95Ja6j/rVL07cmsjcpnHdr7uGwe8wPNskDkzNyJYdA4hM0TReQN4IiduGcbyTJDXQ==",
+      "path": "clowd.clipboard/1.1.4",
+      "hashPath": "clowd.clipboard.1.1.4.nupkg.sha512"
+    },
+    "Clowd.Clipboard.Wpf/1.1.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NufOHW9MNmW2tvb3TcU5YicnDzSAxlC2JOj3M4YjzjcB+ayDRe1KOdDO5wE4CbTg7rWb3mWrCJ0wcod7rITNbw==",
+      "path": "clowd.clipboard.wpf/1.1.4",
+      "hashPath": "clowd.clipboard.wpf.1.1.4.nupkg.sha512"
+    },
+    "SkiaSharp/3.119.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+Ru1BTSZQne3Vp+vbSb50Ke3Nlc3ZnItxx4+751J9WZ8YzLKAV/n+9DAo4zFTyeCI//ueT63c+VybmTTpYBEiw==",
+      "path": "skiasharp/3.119.1",
+      "hashPath": "skiasharp.3.119.1.nupkg.sha512"
+    },
+    "SkiaSharp.NativeAssets.Win32/3.119.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-8C4GSXVJqSr0y3Tyyv5jz6MJSTVUyYkMjeKrzK+VyZPGLo89MNoUEclVuYahzOCDdtbfXrd2HtxXfDuvoSXrUw==",
+      "path": "skiasharp.nativeassets.win32/3.119.1",
+      "hashPath": "skiasharp.nativeassets.win32.3.119.1.nupkg.sha512"
+    },
+    "SnapSharp.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SnapSharp.Imaging/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -1,0 +1,13 @@
+<Solution>
+  <Project Path="SnapSharp.csproj" />
+  <Folder Name="/Libraries/">
+    <Project Path="Libraries/SnapSharp.Core/SnapSharp.Core.csproj" />
+    <Project Path="Libraries/SnapSharp.Imaging/SnapSharp.Imaging.csproj" />
+    <Project Path="Libraries/SnapSharp.Recognition/SnapSharp.Recognition.csproj" />
+    <Project Path="Libraries/SnapSharp.Editor/SnapSharp.Editor.csproj" />
+    <Project Path="Libraries/SnapSharp.Capture/SnapSharp.Capture.csproj" />
+    <Project Path="Libraries/SnapSharp.Infrastructure/SnapSharp.Infrastructure.csproj" />
+    <Project Path="Libraries/SnapSharp.Plugin.Abstractions/SnapSharp.Plugin.Abstractions.csproj" />
+    <Project Path="Libraries/SnapSharp.PluginHost/SnapSharp.PluginHost.csproj" />
+  </Folder>
+</Solution>

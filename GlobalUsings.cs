@@ -1,0 +1,11 @@
+global using Application = System.Windows.Application;
+global using System.IO;
+global using Brushes = System.Windows.Media.Brushes;
+global using Color = System.Windows.Media.Color;
+global using Cursors = System.Windows.Input.Cursors;
+global using FlowDirection = System.Windows.FlowDirection;
+global using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+global using MessageBox = SnapSharp.Views.ThemedMessageBox;
+global using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+global using Pen = System.Windows.Media.Pen;
+global using Point = System.Windows.Point;

@@ -1,0 +1,82 @@
+using System.Net.Http;
+using System.Security.Cryptography;
+
+namespace SnapSharp.Services;
+
+internal sealed class TesseractModelDownloadService
+{
+    internal const string Revision = "87416418657359cb625c412a48b6e1d6d41c29bd";
+    internal sealed record Model(string Language, int Size, string Sha256)
+    {
+        public string Url => $"https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/{Revision}/{Language}.traineddata";
+    }
+    internal static readonly Model[] Models =
+    [
+        new("eng", 4113088, "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"),
+        new("chi_sim", 2469156, "a5fcb6f0db1e1d6d8522f39db4e848f05984669172e584e8d76b6b3141e1f730")
+    ];
+    internal static Model[] Package(string languages)
+    {
+        if (languages is not ("eng" or "chi_sim" or "chi_sim+eng")) throw new ArgumentException("内置下载支持英文、简体中文、简中＋英文；其他语言可选择现有字库目录。");
+        return languages.Split('+').Select(x => Models.Single(m => m.Language == x)).ToArray();
+    }
+    internal static void Validate(Model model, byte[] data)
+    {
+        if (data.Length != model.Size || !Convert.ToHexString(SHA256.HashData(data)).Equals(model.Sha256, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException(model.Language + " 字库 SHA256／大小校验失败，原配置未更改。");
+    }
+    public async Task<string> Download(string root, string languages, IProgress<string> progress, CancellationToken token)
+    {
+        var models = Package(languages);
+        var payload = new Dictionary<string, byte[]>();
+        using var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false }) { Timeout = TimeSpan.FromMinutes(5) };
+        foreach (var model in models)
+        {
+            progress.Report("正在连接官方 " + model.Language + " 字库源…");
+            using var response = await client.GetAsync(model.Url, HttpCompletionOption.ResponseHeadersRead, token);
+            response.EnsureSuccessStatusCode();
+            if (response.Content.Headers.ContentLength is long size && size != model.Size) throw new InvalidDataException("字库下载大小不匹配。");
+            using var data = new MemoryStream(model.Size);
+            await using var stream = await response.Content.ReadAsStreamAsync(token);
+            var buffer = new byte[81920]; int read;
+            while ((read = await stream.ReadAsync(buffer, token)) != 0)
+            {
+                if (data.Length + read > model.Size) throw new InvalidDataException("字库超过预期大小。");
+                await data.WriteAsync(buffer.AsMemory(0, read), token);
+                progress.Report($"{model.Language} 下载 {data.Length * 100 / model.Size}% · {data.Length / 1048576d:F1} / {model.Size / 1048576d:F1} MB");
+            }
+            var bytes = data.ToArray(); Validate(model, bytes); payload.Add(model.Language, bytes);
+        }
+        progress.Report("SHA256 校验通过，正在验证 Tesseract 字库可加载…");
+        return await Task.Run(() => Install(payload, root, languages, token), token);
+    }
+    internal static string Install(IReadOnlyDictionary<string, byte[]> payload, string root, string languages, CancellationToken token)
+    {
+        var models = Package(languages);
+        foreach (var model in models) Validate(model, payload[model.Language]);
+        token.ThrowIfCancellationRequested();
+        Directory.CreateDirectory(root);
+        var directory = Path.Combine(root, "tesseract-fast-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        var files = models.Select(x => Path.Combine(directory, x.Language + ".traineddata")).Append(Path.Combine(directory, "source.txt")).ToArray();
+        try
+        {
+            foreach (var model in models)
+            {
+                token.ThrowIfCancellationRequested();
+                File.WriteAllBytes(Path.Combine(directory, model.Language + ".traineddata"), payload[model.Language]);
+            }
+            File.WriteAllText(files[^1], "Tesseract tessdata_fast / Apache-2.0\nRevision: " + Revision + "\n" + string.Join("\n", models.Select(x => x.Url + "\nSHA256: " + x.Sha256)));
+            LocalRecognitionService.CheckTesseract(directory, languages);
+            token.ThrowIfCancellationRequested();
+            return directory;
+        }
+        catch
+        {
+            // This attempt owns only these explicit files in a freshly created directory.
+            foreach (var file in files) if (File.Exists(file)) File.Delete(file);
+            Directory.Delete(directory, false);
+            throw;
+        }
+    }
+}

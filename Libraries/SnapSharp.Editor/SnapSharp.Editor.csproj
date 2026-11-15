@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>SnapSharp.Editor</AssemblyName>
+    <RootNamespace>SnapSharp</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SnapSharp.Core\SnapSharp.Core.csproj" />
+    <ProjectReference Include="..\SnapSharp.Imaging\SnapSharp.Imaging.csproj" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+</Project>

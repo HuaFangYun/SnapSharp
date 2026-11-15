@@ -1,0 +1,36 @@
+<Window x:Class="SnapSharp.Views.CanvasExpandDialog" Style="{StaticResource AppWindow}"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="扩展画布" SizeToContent="WidthAndHeight" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource TextBrush}">
+  <Window.Resources><ResourceDictionary>
+    <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="ToolbarStyles.xaml" /></ResourceDictionary.MergedDictionaries>
+    <Style TargetType="TextBox" BasedOn="{StaticResource ToolbarTextBox}" />
+    <Style TargetType="ComboBox" BasedOn="{StaticResource ToolbarComboBox}" />
+    <Style TargetType="Button" BasedOn="{StaticResource DialogButton}" />
+  </ResourceDictionary></Window.Resources>
+  <Grid Margin="18">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
+    <TextBlock Grid.Row="0" Text="宽度" Margin="0,0,12,10" VerticalAlignment="Center"/>
+    <TextBox x:Name="WidthBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"/>
+    <TextBlock Grid.Row="1" Text="高度" Margin="0,0,12,10" VerticalAlignment="Center"/>
+    <TextBox x:Name="HeightBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"/>
+    <TextBlock Grid.Row="2" Text="原图位置" Margin="0,0,12,10" VerticalAlignment="Center"/>
+    <ComboBox x:Name="PositionBox" Grid.Row="2" Grid.Column="1" SelectedIndex="4" Margin="0,0,0,10">
+      <ComboBoxItem Content="左上" Tag="TopLeft"/><ComboBoxItem Content="上中" Tag="Top"/><ComboBoxItem Content="右上" Tag="TopRight"/>
+      <ComboBoxItem Content="左中" Tag="Left"/><ComboBoxItem Content="居中" Tag="Center"/><ComboBoxItem Content="右中" Tag="Right"/>
+      <ComboBoxItem Content="左下" Tag="BottomLeft"/><ComboBoxItem Content="下中" Tag="Bottom"/><ComboBoxItem Content="右下" Tag="BottomRight"/>
+    </ComboBox>
+    <TextBlock Grid.Row="3" Text="背景色" Margin="0,0,12,14" VerticalAlignment="Center"/>
+    <Button x:Name="ColorButton" Grid.Row="3" Grid.Column="1" Content="#FFFFFFFF" Click="Color_Click" Margin="0,0,0,14"/>
+    <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+      <Button Content="取消" Width="76" Margin="0,0,8,0" IsCancel="True"/>
+      <Button Content="确定" Width="76" IsDefault="True" Click="Ok_Click"/>
+    </StackPanel>
+  </Grid>
+</Window>

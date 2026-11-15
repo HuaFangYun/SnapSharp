@@ -1,0 +1,67 @@
+# .NET build and publish output (all projects)
+**/[Bb]in/
+**/[Oo]bj/
+/publish/
+/.artifacts/
+/artifacts/
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+*.binlog
+
+# IDE and machine-specific settings
+.vs/
+/.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+/.codex/
+/.agents/
+
+# Local model downloads and weights; keep model definitions in source control
+/models/
+/tessdata/
+/downloads/
+*.onnx
+*.onnx.data
+*.gguf
+*.safetensors
+*.traineddata
+*.pt
+*.pth
+
+# Local app data, diagnostics and recording recovery files
+/settings.json
+/settings.json.*
+/History/
+/Diagnostics/
+/Cache/
+recording-check-*/
+.SnapSharp-record-*/
+*.log
+*.dmp
+*.tmp
+*.partial
+*.download
+
+# Secrets and private signing keys (do not ignore ordinary project JSON files)
+.env
+.env.*
+!.env.example
+!.env.sample
+secrets.json
+appsettings.Local.json
+appsettings.*.Local.json
+*.pfx
+*.p12
+*.key
+
+# OS-generated files
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.zip

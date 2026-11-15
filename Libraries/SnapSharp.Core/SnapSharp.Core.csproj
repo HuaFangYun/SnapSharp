@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>SnapSharp.Core</AssemblyName>
+    <RootNamespace>SnapSharp</RootNamespace>
+  </PropertyGroup>
+</Project>
