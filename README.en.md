@@ -6,6 +6,24 @@ SnapSharp is a Windows screenshot and image-processing tool. In addition to capt
 
 After launch, SnapSharp stays in the system tray and does not open a main window by default. Start common tasks with a keyboard shortcut or right-click the tray icon to choose a feature.
 
+## Comparison with Common Screenshot Tools
+
+The table reflects features publicly documented by each product as of November 15, 2026. `—` means that the vendor does not present the capability as a core feature. Check each product's website for changes to versions, platforms, and paid plans.
+
+| Capability | SnapSharp | [PixPin](https://pixpin.com/features/) | [Snipaste](https://www.snipaste.com/) | [ShareX](https://getsharex.com/) | [Windows Snipping Tool](https://support.microsoft.com/windows/apps/use-snipping-tool-to-capture-screenshots) |
+|---|---|---|---|---|---|
+| Region/window capture and annotation | Yes | Yes | Yes | Yes, with extensive editing and workflow options | Basic capture and annotation |
+| Always-on-top image/text pins | Yes, including groups, opacity, and click-through | Yes | A mature core feature | Pin images to the screen | — |
+| Scrolling capture | Manual/automatic capture, seam correction, and editable project files | Manual/automatic scrolling, including extra-long captures | — | Automatic scrolling capture | — |
+| OCR | Local PaddleOCR, Windows OCR, or Tesseract | Local OCR; some document, table, and formula recognition is Pro | Pro text extraction through Tencent or OCR.space APIs | OCR that can run as an after-capture task | Text Actions extracts text from screenshots |
+| Translation | Local translation after OCR, or explicitly authorized online translation | AI screenshot translation is a Pro feature | — | No dedicated built-in translation flow | — |
+| One-click background removal | Multiple local ONNX models with CPU or DirectML GPU | —; Smart Eraser is available in Pro | — | Includes a background-removal tool | — |
+| Screen recording | MP4/GIF with system audio, microphone, and camera options | MP4/GIF/WebP; some enhancements are Pro | — | Video/GIF with automated post-processing | Video recording |
+| Upload and automation | Local-first; online sending is disabled by default | Custom actions; settings sync is Pro | Focused on capture and pinning; some CLI features are Pro | A strength: upload destinations, after-capture tasks, and custom workflows | — |
+| Platforms | Windows 10/11 x64 | Windows and macOS | Windows, macOS, and Linux | Windows | Built into Windows |
+
+In short: start with Windows Snipping Tool for basic built-in capture and recording; choose Snipaste for lightweight, polished pinning; consider PixPin for a mature Windows/macOS capture, pinning, and scrolling workflow; and use ShareX when uploads, scripting, and deep automation matter most. SnapSharp focuses on combining capture, scrolling capture, pinning, OCR, translation, background removal, and recording in a local-first Windows workflow.
+
 ## Take Your First Screenshot in One Minute
 
 1. Launch `SnapSharp.exe` and find its icon in the notification area. Expand the hidden icons if necessary.

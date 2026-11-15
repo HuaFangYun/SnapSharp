@@ -6,6 +6,24 @@ SnapSharp 是一款 Windows 截图与图像处理工具。除了截图、画箭�
 
 软件启动后驻留在任务栏托盘，不会默认打开主窗口。日常使用可以从快捷键开始，也可以右键点击托盘图标选择功能。
 
+## 与常见截图工具横向对比
+
+下面按各产品截至 2026 年 11 月 15 日公开的功能说明对比。`—` 表示官方没有把该能力作为核心功能提供；版本、平台和付费方案变化时，请以各产品官网为准。
+
+| 能力 | SnapSharp | [PixPin](https://pixpin.com/features/) | [Snipaste](https://www.snipaste.com/) | [ShareX](https://getsharex.com/) | [Windows 截图工具](https://support.microsoft.com/windows/apps/use-snipping-tool-to-capture-screenshots) |
+|---|---|---|---|---|---|
+| 区域／窗口截图与标注 | 支持 | 支持 | 支持 | 支持，编辑与工作流选项丰富 | 支持基础截图与标注 |
+| 图片／文字置顶贴图 | 支持，含分组、透明度和鼠标穿透 | 支持 | 核心功能，贴图操作成熟 | 支持置顶图片 | — |
+| 滚动长截图 | 手动／自动采集，支持接缝修正和工程保存 | 手动／自动滚动，支持超长截图 | — | 自动滚动截图 | — |
+| OCR | PaddleOCR、Windows OCR、Tesseract，均可本地处理 | 本地 OCR；文档、表格和公式识别部分为 Pro | Pro 文本提取，使用腾讯或 OCR.space API | OCR，可加入捕获后任务 | “文本操作”可提取截图文字 |
+| 翻译 | OCR 后可本地翻译，也可主动授权在线翻译 | AI 截图翻译为 Pro 功能 | — | 无专门的内置翻译流程 | — |
+| 一键抠图 | 多种本地 ONNX 模型，可选 CPU／DirectML GPU | —；提供智能擦除 Pro | — | 提供背景移除工具 | — |
+| 录屏 | MP4／GIF，可录系统声音、麦克风和摄像头 | MP4／GIF／WebP；部分增强功能为 Pro | — | 视频／GIF，支持自动化后处理 | 支持视频录制 |
+| 上传与自动化 | 以本地处理为主，在线发送默认关闭 | 支持自定义动作，设置同步为 Pro | 侧重截图和贴图，部分命令行为 Pro | 强项：上传目标、捕获后任务和自定义工作流 | — |
+| 平台 | Windows 10／11 x64 | Windows、macOS | Windows、macOS、Linux | Windows | Windows 内置 |
+
+简单选择：只需要系统自带的基础截图和录屏，可先用 Windows 截图工具；重视轻量贴图，可看 Snipaste；需要 Windows／macOS 上成熟的截图、贴图和长截图流程，可看 PixPin；需要上传、脚本和高度自动化，ShareX 更合适。SnapSharp 的侧重点是把截图、长截图、贴图、OCR、翻译、抠图和录屏放进一个以本地处理为主的 Windows 工作流中。
+
 ## 先用一分钟完成第一张截图
 
 1. 启动 `SnapSharp.exe`，在任务栏右下角找到托盘图标；看不到时展开隐藏图标。
