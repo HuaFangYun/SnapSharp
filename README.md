@@ -2,6 +2,8 @@
 
 **简体中文** | [English](README.en.md)
 
+项目地址：[GitHub](https://github.com/leelongjiang/SnapSharp) | [Gitee](https://gitee.com/lilongjiang/SnapSharp)
+
 SnapSharp 是一款 Windows 截图与图像处理工具。除了截图、画箭头和打马赛克，还能把图片置顶贴在桌面上、拼接长截图、识别图片文字、翻译、抠出透明背景，以及录制 MP4 或 GIF。
 
 软件启动后驻留在任务栏托盘，不会默认打开主窗口。日常使用可以从快捷键开始，也可以右键点击托盘图标选择功能。

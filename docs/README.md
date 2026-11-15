@@ -1,5 +1,7 @@
 # SnapSharp 文档中心
 
+项目地址：[GitHub](https://github.com/leelongjiang/SnapSharp) | [Gitee](https://gitee.com/lilongjiang/SnapSharp)
+
 文档按操作、配置、开发和功能状态分工，同一类信息集中维护。按 2026-11-15 的仓库代码整理。
 
 ## 从这里开始

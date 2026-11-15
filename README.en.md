@@ -2,6 +2,8 @@
 
 [简体中文](README.md) | **English**
 
+Repository mirrors: [GitHub](https://github.com/leelongjiang/SnapSharp) | [Gitee](https://gitee.com/lilongjiang/SnapSharp)
+
 SnapSharp is a Windows screenshot and image-processing tool. In addition to capturing screenshots, drawing arrows, and applying pixelation, it can pin images above other windows, stitch scrolling screenshots, recognize text in images, translate text, remove image backgrounds, and record MP4 or GIF files.
 
 After launch, SnapSharp stays in the system tray and does not open a main window by default. Start common tasks with a keyboard shortcut or right-click the tray icon to choose a feature.
