@@ -247,12 +247,23 @@
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="关于" Tag="Info"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
-        <TextBlock Text="关于" Style="{StaticResource PageTitle}" /><TextBlock Text="SnapSharp 应用信息与项目地址。" Style="{StaticResource Hint}" />
+        <TextBlock Text="关于" Style="{StaticResource PageTitle}" /><TextBlock Text="SnapSharp 应用信息、开源许可与第三方声明。" Style="{StaticResource Hint}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="SnapSharp" Style="{StaticResource SectionTitle}" />
           <TextBlock Text="一款面向 Windows 的开源截图、标注、贴图与屏幕识别工具。" Margin="0,0,0,18" />
           <TextBlock Text="项目主页" FontWeight="SemiBold" Margin="0,0,0,8" />
-          <TextBlock Margin="0,0,0,18"><Hyperlink NavigateUri="https://github.com/leelongjiang/SnapSharp" Click="ProjectWebsite_Click" Foreground="{DynamicResource AccentForegroundBrush}">https://github.com/leelongjiang/SnapSharp</Hyperlink></TextBlock>
+          <TextBlock Margin="0,0,0,18"><Hyperlink NavigateUri="https://github.com/leelongjiang/SnapSharp" Click="AboutLink_Click" Foreground="{DynamicResource AccentForegroundBrush}">https://github.com/leelongjiang/SnapSharp</Hyperlink></TextBlock>
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="开源许可" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="SnapSharp 基于 Apache License 2.0 开源。你可以在遵守许可证条款的前提下使用、复制、修改和分发本软件。" Margin="0,0,0,12" />
+          <TextBlock Margin="0,0,0,18"><Hyperlink NavigateUri="https://github.com/leelongjiang/SnapSharp/blob/main/LICENSE" Click="AboutLink_Click" Foreground="{DynamicResource AccentForegroundBrush}">查看 Apache License 2.0 完整文本</Hyperlink></TextBlock>
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="第三方组件与模型" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="主要组件包括 .NET / WPF、SkiaSharp、ONNX Runtime / DirectML、ScreenRecorderLib、ZXing.Net、Tesseract、Vortice.Windows、H.NotifyIcon.Wpf、Lucide 和 GTranslate 等。各组件保留其 MIT、Apache-2.0、BSD-2-Clause、ISC 或其他原始许可。" Margin="0,0,0,12" />
+          <TextBlock Text="可选下载的模型与运行库包括 RapidOCR / PaddleOCR、tessdata_fast、U²-Net / BiRefNet、SLANet / RapidTable、LaTeX-OCR、Qwen2.5 和 llama.cpp。模型权重不随程序内置，仅在用户主动配置时下载；其来源、许可及使用限制分别适用。" Margin="0,0,0,12" />
+          <TextBlock Margin="0,0,0,18"><Hyperlink NavigateUri="https://github.com/leelongjiang/SnapSharp/blob/main/THIRD-PARTY-NOTICES.md" Click="AboutLink_Click" Foreground="{DynamicResource AccentForegroundBrush}">查看完整第三方组件、模型与服务声明</Hyperlink></TextBlock>
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
     </TabControl>
