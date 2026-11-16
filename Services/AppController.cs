@@ -34,6 +34,12 @@ public sealed class AppController : IDisposable
         _hotkey = new GlobalHotkeyHost();
         _settings = new SettingsService();
         _settings.Load();
+        var licenseFailures = ThirdPartyLicenseService.BackfillManagedModelLicenses();
+        if (licenseFailures.Count > 0)
+        {
+            Directory.CreateDirectory(AppPaths.DiagnosticsRoot);
+            File.WriteAllLines(Path.Combine(AppPaths.DiagnosticsRoot, "license-backfill.txt"), licenseFailures);
+        }
         _plugins = new PluginCatalog(new PluginLoadOptions(AppPaths.PluginsRoot,
             _settings.Current.EnableExternalPlugins, _settings.Current.RequireSignedPlugins));
         _plugins.DiscoverExternalPlugins();

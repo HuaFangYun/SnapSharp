@@ -23,6 +23,22 @@ public partial class App : Application
         base.OnStartup(e);
         EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent,
             new RoutedEventHandler(OnWindowLoaded));
+        if (e.Args.Contains("--license-self-test", StringComparer.OrdinalIgnoreCase))
+        {
+            Directory.CreateDirectory(AppPaths.DiagnosticsRoot);
+            try
+            {
+                var passed = ThirdPartyLicenseService.RunSelfTest();
+                File.WriteAllText(Path.Combine(AppPaths.DiagnosticsRoot, "license-self-test.txt"), passed ? "PASS" : "FAIL");
+                Shutdown(passed ? 0 : 1);
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText(Path.Combine(AppPaths.DiagnosticsRoot, "license-self-test.txt"), ex.ToString());
+                Shutdown(1);
+            }
+            return;
+        }
         if (e.Args.Contains("--recording-capture-self-test", StringComparer.OrdinalIgnoreCase))
         {
             _ = CheckRecordingCapture();
@@ -246,6 +262,7 @@ public partial class App : Application
                 ["pin-tray-menu"] = Check("pin-tray-menu", TrayService.RunPinMenuSelfTest),
                 ["pin-hotkey-routing"] = Check("pin-hotkey-routing", GlobalHotkeyHost.RunPinRoutingSelfTest),
                 ["settings-pages"] = Check("settings-pages", SettingsWindow.RunLayoutSelfTest),
+                ["third-party-licenses"] = Check("third-party-licenses", ThirdPartyLicenseService.RunSelfTest),
                 ["all-window-themes"] = Check("all-window-themes", () => WindowThemeSelfTest.Run(source)),
                 ["recording-clock-gif-native-mp4"] = Check("recording-clock-gif-native-mp4", () => RecordingSelfTest.Run(testDirectory)),
                 ["recording-window"] = Check("recording-window", RecordingWindow.RunLayoutSelfTest),

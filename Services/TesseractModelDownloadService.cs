@@ -58,7 +58,9 @@ internal sealed class TesseractModelDownloadService
         Directory.CreateDirectory(root);
         var directory = Path.Combine(root, "tesseract-fast-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
-        var files = models.Select(x => Path.Combine(directory, x.Language + ".traineddata")).Append(Path.Combine(directory, "source.txt")).ToArray();
+        var sourceFile = Path.Combine(directory, "source.txt");
+        var files = models.Select(x => Path.Combine(directory, x.Language + ".traineddata"))
+            .Append(sourceFile).Append(Path.Combine(directory, "Apache-2.0.txt")).ToArray();
         try
         {
             foreach (var model in models)
@@ -66,7 +68,8 @@ internal sealed class TesseractModelDownloadService
                 token.ThrowIfCancellationRequested();
                 File.WriteAllBytes(Path.Combine(directory, model.Language + ".traineddata"), payload[model.Language]);
             }
-            File.WriteAllText(files[^1], "Tesseract tessdata_fast / Apache-2.0\nRevision: " + Revision + "\n" + string.Join("\n", models.Select(x => x.Url + "\nSHA256: " + x.Sha256)));
+            File.WriteAllText(sourceFile, "Tesseract tessdata_fast / Apache-2.0\nRevision: " + Revision + "\n" + string.Join("\n", models.Select(x => x.Url + "\nSHA256: " + x.Sha256)));
+            ThirdPartyLicenseService.CopyTo(directory, "Apache-2.0.txt");
             LocalRecognitionService.CheckTesseract(directory, languages);
             token.ThrowIfCancellationRequested();
             return directory;

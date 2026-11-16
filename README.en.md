@@ -393,6 +393,6 @@ For everyday use, start with **keyboard shortcut → annotate directly → copy 
 
 ## 11. License
 
-Copyright 2026 SnapSharp contributors
+Copyright 2026 leelongjiang and SnapSharp contributors
 
 SnapSharp is licensed under the [Apache License 2.0](LICENSE). Third-party components, models, and services retain their respective licenses and terms; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for details.

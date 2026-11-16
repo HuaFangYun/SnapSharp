@@ -163,7 +163,7 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 | [MahApps.Metro.IconPacks.Lucide](https://www.nuget.org/packages/MahApps.Metro.IconPacks.Lucide) | 工具栏图标 | MIT / ISC | 已使用 |
 | [Vortice.Direct3D11](https://www.nuget.org/packages/Vortice.Direct3D11) | WGC 的 D3D11 / WinRT 设备互操作 | MIT | 已使用；DXGI 由依赖关系提供 |
 | [Microsoft.ML.OnnxRuntime.DirectML](https://www.nuget.org/packages/Microsoft.ML.OnnxRuntime.DirectML/1.24.1) | 本地 OCR 与抠图 CPU / DirectML GPU 推理 | MIT，原生依赖另有声明 | 已使用；模型许可独立，OCR 可一键下载 PP-OCRv4，抠图可一键下载 U²-Net 小型版 |
-| [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML) | 主程序复制 DirectML 原生运行库 | MIT，依赖声明另行核查 | 主程序直接引用，避免依赖系统中的 DirectML.dll |
+| [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML) | 主程序复制 DirectML 原生运行库 | 二进制适用 Microsoft DirectML 分发条款；源代码许可与第三方声明另附 | 主程序直接引用，避免依赖系统中的 DirectML.dll；发布包保留原始许可与声明 |
 | [Tesseract](https://www.nuget.org/packages/Tesseract) | 可选离线 OCR 引擎 | Apache-2.0 | 已使用，原生引擎来自 Charles Weld 的 Tesseract NuGet 分发；官方 tessdata_fast 简中／英文字库按需下载并固定 SHA256 校验 |
 | [GTranslate](https://www.nuget.org/packages/GTranslate) | 可选 Google 在线翻译适配器 | MIT | 已使用，包随程序提供；不是离线翻译模型，服务可用性与额度由第三方决定；逐次确认接收地址与文字 |
 | [ZXing.Net](https://www.nuget.org/packages/ZXing.Net) | QR 与指定一维码离线解码 | Apache-2.0 | 已使用；限制格式、旋转重试及输入大小 |
@@ -223,6 +223,7 @@ PaddleOCR、Tesseract 字库及抠图权重的固定来源、大小、SHA256 与
 ## 12. 引用与分发规则
 
 - 新增直接或传递依赖时同步更新项目文件、本文和根目录 `THIRD-PARTY-NOTICES.md`。
+- 发布包必须保留 `ThirdPartyLicenses/`；按需下载的模型和运行库必须在安装目录保留对应完整许可文本，不能只记录 SPDX 名称或网页链接。
 - 记录包名、版本、版权所有者、许可证、原生二进制来源和修改情况。
 - GPL 项目不得通过“只复制少量代码”规避许可证义务；不确定时只参考可观察行为并独立实现。
 - NuGet 包许可证不自动覆盖其下载的模型、FFmpeg 构建、训练数据或其他外部资产。

@@ -89,9 +89,18 @@ internal sealed class CutoutModelDownloadService
         Directory.CreateDirectory(directory);
         var path = Path.Combine(directory, model.Id + ".onnx");
         var provenance = Path.Combine(directory, "source.txt");
+        IReadOnlyList<string> licenses = Array.Empty<string>();
         try
         {
-            File.WriteAllText(provenance, $"Source: {model.Source}\nChecksum: {model.Hash}\nProfile: {model.Profile}; input: {model.InputSize}\nLicense: {(model.Profile == "U2Net" ? "Apache-2.0" : "MIT")}; see upstream U-2-Net / ZhengPeng7/BiRefNet and rembg.\n");
+            var licenseNames = model.Id switch
+            {
+                "u2netp" => new[] { "U-2-Net-LICENSE.txt", "rembg-LICENSE.txt" },
+                "birefnet-matting" => new[] { "BiRefNet-LICENSE.txt", "BiRefNet-Matting-Export-MODEL-CARD.md" },
+                "birefnet-hr-matting" => new[] { "BiRefNet-LICENSE.txt", "BiRefNet-HR-Export-LICENSE.txt", "BiRefNet-HR-Export-MODEL-CARD.md" },
+                _ => new[] { "BiRefNet-LICENSE.txt", "rembg-LICENSE.txt" }
+            };
+            File.WriteAllText(provenance, $"Source: {model.Source}\nChecksum: {model.Hash}\nProfile: {model.Profile}; input: {model.InputSize}\nLicense: {(model.Profile == "U2Net" ? "Apache-2.0" : "MIT")}\nLicense files: {string.Join(", ", licenseNames)}\n");
+            licenses = ThirdPartyLicenseService.CopyTo(directory, licenseNames);
             token.ThrowIfCancellationRequested();
             File.Move(temporary, path);
             return path;
@@ -99,6 +108,7 @@ internal sealed class CutoutModelDownloadService
         catch
         {
             if (File.Exists(provenance)) File.Delete(provenance);
+            foreach (var license in licenses) if (File.Exists(license)) File.Delete(license);
             Directory.Delete(directory, false);
             throw;
         }

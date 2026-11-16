@@ -2,3 +2,4 @@
 * text=auto eol=lf
 *.sln text eol=crlf
 *.csproj text eol=crlf
+ThirdPartyLicenses/*.rtf -text -diff

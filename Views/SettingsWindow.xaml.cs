@@ -25,6 +25,10 @@ public partial class SettingsWindow : Window
     {
         _settings = settings; _startup = startup; _hotkey = hotkey;
         InitializeComponent();
+        var informationalVersion = typeof(SettingsWindow).Assembly
+            .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+            .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion;
+        AboutVersion.Text = "版本 " + (informationalVersion?.Split('+')[0] ?? typeof(SettingsWindow).Assembly.GetName().Version?.ToString(3) ?? "未知");
         DialogLayoutService.Attach(this);
         SizeChanged += (_, _) => { CompactLayout = ActualWidth < 840; FooterHint.Visibility = ActualWidth < 700 ? Visibility.Collapsed : Visibility.Visible; };
         Categories.SelectionChanged += (_, e) => { if (ReferenceEquals(e.OriginalSource, Categories)) BringSelectedCategoryIntoView(); };
@@ -347,6 +351,23 @@ public partial class SettingsWindow : Window
         var website = link.NavigateUri.AbsoluteUri;
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(website) { UseShellExecute = true }); }
         catch (Exception ex) { MessageBox.Show(this, "无法打开链接，请手动访问：" + website + Environment.NewLine + ex.Message, "打开链接失败", MessageBoxButton.OK, MessageBoxImage.Error); }
+    }
+    private void AboutDocument_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { Tag: string document }) return;
+        var path = document switch
+        {
+            "LICENSE" => Path.Combine(AppContext.BaseDirectory, "LICENSE"),
+            "THIRD-PARTY-NOTICES.md" => Path.Combine(AppContext.BaseDirectory, "THIRD-PARTY-NOTICES.md"),
+            "ThirdPartyLicenses" => Path.Combine(AppContext.BaseDirectory, "ThirdPartyLicenses"),
+            _ => ""
+        };
+        try
+        {
+            if (path.Length == 0 || !File.Exists(path) && !Directory.Exists(path)) throw new FileNotFoundException("发行包中未找到对应的许可材料。", path);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex) { MessageBox.Show(this, ex.GetBaseException().Message, "无法打开许可材料", MessageBoxButton.OK, MessageBoxImage.Error); }
     }
     private void OpenWebsite(string website)
     {

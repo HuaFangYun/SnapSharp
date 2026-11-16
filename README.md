@@ -392,6 +392,6 @@ SnapSharp-{date}-{time}-{seq}
 
 ## 11. 许可证
 
-Copyright 2026 SnapSharp contributors
+Copyright 2026 leelongjiang and SnapSharp contributors
 
 SnapSharp 基于 [Apache License 2.0](LICENSE) 开源。项目使用的第三方组件、模型和服务保留各自的许可证及使用条款，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。

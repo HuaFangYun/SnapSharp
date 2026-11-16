@@ -50,7 +50,7 @@ internal sealed class OcrModelDownloadService
         var directory = Path.Combine(root, "ppocr-v4-zh-en-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
         var paths = new ModelPaths(Path.Combine(directory, "detection.onnx"), Path.Combine(directory, "recognition.onnx"), Path.Combine(directory, "dictionary.txt"));
-        var files = new[] { paths.Detection, paths.Recognition, paths.Dictionary, Path.Combine(directory, "source.txt") };
+        var files = new[] { paths.Detection, paths.Recognition, paths.Dictionary, Path.Combine(directory, "source.txt"), Path.Combine(directory, "Apache-2.0.txt") };
         try
         {
             data.Position = 0;
@@ -74,6 +74,7 @@ internal sealed class OcrModelDownloadService
                 throw new InvalidDataException("中英文字典与 CTC 模型类别数不匹配。");
             File.WriteAllLines(paths.Dictionary, labels, new UTF8Encoding(false));
             File.WriteAllText(files[3], $"RapidOCR 1.3.24 / PP-OCRv4 Chinese + English\nSource: {Source}\nSHA256: {Sha256}\nUpstream: https://github.com/RapidAI/RapidOCR/tree/v1.3.24\nLicense: Apache-2.0; see upstream distribution.\nDictionary extracted from recognition model metadata.\n");
+            ThirdPartyLicenseService.CopyTo(directory, "Apache-2.0.txt");
             token.ThrowIfCancellationRequested();
             return paths;
         }

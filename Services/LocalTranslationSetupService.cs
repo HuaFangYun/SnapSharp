@@ -61,9 +61,11 @@ internal static class LocalTranslationSetupService
                 await File.WriteAllTextAsync(Path.Combine(directory, "verified-files.json"), JsonSerializer.Serialize(manifest), token);
                 if (!await VerifyRuntime(server, token)) throw new InvalidDataException("本地翻译运行库完整性检查失败。");
             }
+            ThirdPartyLicenseService.CopyTo(directory, "llama.cpp-LICENSE.txt");
             var model = Path.Combine(root, ModelName);
             await Download($"https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/{ModelRevision}/{ModelName}",
                 model, ModelHash, ModelSize, progress, token);
+            ThirdPartyLicenseService.CopyTo(root, "Apache-2.0.txt");
             progress.Report("模型和运行库 SHA256 校验通过，已配置本地 " + device + " 翻译。请测试并保存设置。");
             return new(server, model);
         }

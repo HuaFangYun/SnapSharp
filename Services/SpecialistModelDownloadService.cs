@@ -87,6 +87,9 @@ internal static class SpecialistModelDownloadService
                 (table ? "PP-Structure / SLANet, RapidTable v2.0.0. Apache-2.0. https://github.com/RapidAI/RapidTable\n" :
                     "LaTeX-OCR weights, RapidLaTeXOCR v0.0.0. https://github.com/RapidAI/RapidLaTeXOCR\nUpstream weights: https://github.com/lukas-blecher/LaTeX-OCR (MIT).\n") +
                 string.Join("\n", assets.Select(x => $"{x.Name}\nSource: {x.Url}\nSize: {x.Size}\nSHA256: {x.Hash}")), token);
+            created.AddRange(ThirdPartyLicenseService.CopyTo(directory, table
+                ? new[] { "Apache-2.0.txt" }
+                : new[] { "LaTeX-OCR-LICENSE.txt", "RapidLaTeXOCR-LICENSE.txt" }));
             token.ThrowIfCancellationRequested();
             return table ? Path.Combine(directory, Table.Name) : directory;
         }

@@ -44,6 +44,14 @@ if not exist "%PUBLISH_OUTPUT%\SnapSharp.exe" (
     echo ERROR: Publish did not produce SnapSharp.exe.
     goto cleanup
 )
+if not exist "%PUBLISH_OUTPUT%\ThirdPartyLicenses\PACKAGE-NOTICES.md" (
+    echo ERROR: Publish did not include third-party license materials.
+    goto cleanup
+)
+if not exist "%PUBLISH_OUTPUT%\ThirdPartyLicenses\DirectML-LICENSE.txt" (
+    echo ERROR: Publish did not include the DirectML distribution license.
+    goto cleanup
+)
 
 echo.
 echo SUCCESS: "%PUBLISH_OUTPUT%\SnapSharp.exe"
