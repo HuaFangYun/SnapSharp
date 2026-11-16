@@ -97,7 +97,6 @@ public sealed class AppController : IDisposable
         _hotkey.CaptureRequested += RequestCapture;
         _capture.CaptureCompleted += OnCaptureCompleted;
         _tray.UpdateHotkeyLabels(_settings.Current);
-        _tray.Show();
         if (_plugins.Failures.Count > 0)
             _tray.ShowMessage("插件加载", $"有 {_plugins.Failures.Count} 个插件未能加载。",
                 System.Windows.Forms.ToolTipIcon.Warning);

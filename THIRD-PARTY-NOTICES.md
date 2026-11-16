@@ -50,6 +50,12 @@ No source code from PixPin is included in this project.
 - License: MIT / ISC
 - Use: consistent line icons in the screenshot toolbar
 
+## H.NotifyIcon.Wpf 2.4.1
+
+- Project: https://github.com/HavenDV/H.NotifyIcon
+- License: MIT
+- Use: WPF system-tray icon, context menu, and balloon notifications
+
 ## Vortice.Windows
 
 - Project: https://github.com/amerkoleci/Vortice.Windows

@@ -166,7 +166,7 @@
     <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="MenuItem">
       <Grid>
         <Border x:Name="MenuSurface" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="4">
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition x:Name="IconColumn" Width="22" /><ColumnDefinition /><ColumnDefinition Width="Auto" /><ColumnDefinition x:Name="ArrowColumn" Width="16" /></Grid.ColumnDefinitions>
+          <Grid><Grid.ColumnDefinitions><ColumnDefinition x:Name="IconColumn" Width="38" /><ColumnDefinition /><ColumnDefinition Width="Auto" /><ColumnDefinition x:Name="ArrowColumn" Width="16" /></Grid.ColumnDefinitions>
             <ContentPresenter x:Name="IconHost" ContentSource="Icon" VerticalAlignment="Center" />
             <TextBlock x:Name="Check" Grid.Column="3" Text="✓" Margin="0,0,9,0" Visibility="Collapsed" VerticalAlignment="Center" />
             <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center" />

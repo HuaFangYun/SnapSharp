@@ -68,5 +68,5 @@ exit /b 1
 :cleanup
 popd
 :finish
-if "%PUBLISH_PAUSE%"=="1" pause
-exit /b %PUBLISH_EXIT%
+@REM  if "%PUBLISH_PAUSE%"=="1" pause
+@REM  exit /b %PUBLISH_EXIT%

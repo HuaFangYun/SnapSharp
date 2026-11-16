@@ -18,7 +18,8 @@ After launch, SnapSharp stays in the system tray and does not open a main window
 
 Capturing, annotating, and saving screenshots do not require an AI model. OCR, background removal, and local translation require their respective models to be configured before first use. Once downloaded, the models run locally.
 
-<a id="shortcuts"></a>
+<a id="selection"></a>
+
 
 ## 1. Starting, Exiting, and Keyboard Shortcuts
 

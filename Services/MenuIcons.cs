@@ -2,24 +2,20 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using MahApps.Metro.IconPacks;
 using Control = System.Windows.Controls.Control;
-using MenuItem = System.Windows.Controls.MenuItem;
 using Binding = System.Windows.Data.Binding;
 
 namespace SnapSharp.Services;
 
-// One semantic vocabulary for WPF menus and the WinForms notification-area menu.
+// Shared icon mapping for WPF menus.
 // Each WPF item owns its own icon; never share UIElements between menu parents.
 public sealed class MenuIconConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         var icon = new PackIconLucide { Kind = MenuIcons.Kind(value?.ToString()), Width = 18, Height = 18 };
-        icon.SetBinding(Control.ForegroundProperty, new Binding(nameof(Control.Foreground))
-        { RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(MenuItem), 1) });
+        icon.SetResourceReference(Control.ForegroundProperty, "TextBrush");
         return icon;
     }
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
@@ -77,18 +73,4 @@ internal static class MenuIcons
         return PackIconLucideKind.Folder;
     }
 
-    internal static System.Drawing.Bitmap Bitmap(PackIconLucideKind kind, System.Drawing.Color color)
-    {
-        // Use the same corrected Y-up Lucide template as the WPF toolbar; rasterize
-        // at 2x for the tray menu, which WinForms scales to the current display DPI.
-        var icon = new PackIconLucide { Kind = kind, Width = 36, Height = 36,
-            Foreground = new SolidColorBrush(Color.FromArgb(color.A, color.R, color.G, color.B)),
-            Style = (Style)Application.Current.FindResource("ToolbarIcon") };
-        icon.Measure(new System.Windows.Size(36, 36)); icon.Arrange(new Rect(0, 0, 36, 36)); icon.UpdateLayout();
-        var bitmap = new RenderTargetBitmap(36, 36, 96, 96, PixelFormats.Pbgra32); bitmap.Render(icon);
-        var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
-        using var stream = new MemoryStream(); encoder.Save(stream); stream.Position = 0;
-        using var source = new System.Drawing.Bitmap(stream);
-        return new System.Drawing.Bitmap(source);
-    }
 }
