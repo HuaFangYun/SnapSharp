@@ -341,6 +341,12 @@ public partial class SettingsWindow : Window
         OpenWebsite(RecognitionProviderCatalog.Translation(((System.Windows.Controls.ComboBoxItem)TranslationProviderBox.SelectedItem).Tag.ToString()!).Website);
     private void OpenProviderWebsite_Click(object sender, RoutedEventArgs e) =>
         OpenWebsite(RecognitionProviderCatalog.Website(((FrameworkElement)sender).Tag.ToString()!));
+    private void ProjectWebsite_Click(object sender, RoutedEventArgs e)
+    {
+        const string website = "https://github.com/leelongjiang/SnapSharp";
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(website) { UseShellExecute = true }); }
+        catch (Exception ex) { MessageBox.Show(this, "无法打开项目主页，请手动访问：" + website + Environment.NewLine + ex.Message, "打开链接失败", MessageBoxButton.OK, MessageBoxImage.Error); }
+    }
     private void OpenWebsite(string website)
     {
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(website) { UseShellExecute = true }); }

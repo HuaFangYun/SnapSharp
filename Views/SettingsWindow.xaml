@@ -246,6 +246,15 @@
         <TextBlock Text="外部插件是进程内代码，签名并不代表安全。请仅安装可信来源；默认禁止外部插件。" Style="{StaticResource Hint}" />
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="关于" Tag="Info"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="关于" Style="{StaticResource PageTitle}" /><TextBlock Text="SnapSharp 应用信息与项目地址。" Style="{StaticResource Hint}" />
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="SnapSharp" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="一款面向 Windows 的开源截图、标注、贴图与屏幕识别工具。" Margin="0,0,0,18" />
+          <TextBlock Text="项目主页" FontWeight="SemiBold" Margin="0,0,0,8" />
+          <TextBlock Margin="0,0,0,18"><Hyperlink NavigateUri="https://github.com/leelongjiang/SnapSharp" Click="ProjectWebsite_Click" Foreground="{DynamicResource AccentForegroundBrush}">https://github.com/leelongjiang/SnapSharp</Hyperlink></TextBlock>
+        </StackPanel></Border>
+      </StackPanel></ScrollViewer></TabItem>
     </TabControl>
     <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="22,16">
       <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
