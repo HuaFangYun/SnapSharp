@@ -113,7 +113,11 @@ public sealed class OnnxImageRuntime : IDisposable
         return tensor;
     }
 
-    public Task<BitmapSource> RemoveBackground(BitmapSource image, AppSettings settings, CancellationToken token = default) => Execute(settings, (models, cancellation) =>
+    public Task<BitmapSource> RemoveBackground(BitmapSource image, AppSettings settings, CancellationToken token = default)
+    {
+        var device = settings.CutoutOnnxDevice is "CPU" or "DirectML" ? settings.CutoutOnnxDevice : settings.OnnxDevice;
+        var deviceId = settings.CutoutOnnxDeviceId >= 0 ? settings.CutoutOnnxDeviceId : settings.OnnxDeviceId;
+        return Execute(settings, device, deviceId, (models, cancellation) =>
     {
         ValidateImage(image);
         if (settings.CutoutProfile is not ("U2Net" or "ISNet" or "BiRefNet" or "BiRefNetMatting" or "BiRefNetAlpha"))
@@ -154,7 +158,19 @@ public sealed class OnnxImageRuntime : IDisposable
             { var pixel = source.GetPixel(x, y); var alpha = (byte)((pixel.Alpha * fullMask.GetPixel(x, y).Red + 127) / 255); result.SetPixel(x, y, pixel.WithAlpha(alpha)); }
         }
         return _images.ToBitmapSource(result);
-    }, token);
+        }, token);
+    }
+
+    private async Task<T> Execute<T>(AppSettings settings, string device, int deviceId,
+        Func<ModelAccess, CancellationToken, T> operation, CancellationToken cancellationToken)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
+        await _gate.WaitAsync(timeout.Token).ConfigureAwait(false);
+        try { return await Task.Run(() => operation(new ModelAccess(this, Math.Clamp(settings.RecognitionThreads, 1, 8), device, deviceId), timeout.Token), timeout.Token).ConfigureAwait(false); }
+        catch (OnnxRuntimeException) when (timeout.IsCancellationRequested) { throw new OperationCanceledException(L.Get("LocalInferenceCanceledOrTimedOut"), timeout.Token); }
+        finally { _gate.Release(); }
+    }
 
     public static void ValidateImage(BitmapSource image)
     {

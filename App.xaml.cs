@@ -87,9 +87,12 @@ public partial class App : Application
                 var index = Array.FindIndex(e.Args, x => x.Equals("--local-translation-self-test", StringComparison.OrdinalIgnoreCase));
                 var root = index + 1 < e.Args.Length ? e.Args[index + 1] : Path.Combine(AppPaths.Root, "models", "local-translation");
                 var device = index + 2 < e.Args.Length ? e.Args[index + 2] : "CPU";
+                var model = index + 3 < e.Args.Length
+                    ? LocalTranslationSetupService.Models.FirstOrDefault(x => x.Id == e.Args[index + 3]) ?? throw new ArgumentException("Unknown local translation model.")
+                    : LocalTranslationSetupService.Models.First(x => x.Id == "qwen35-4b");
                 var result = Task.Run(async () =>
                 {
-                    var install = await LocalTranslationSetupService.Install(root, device, new LocalTranslationSetupService.InlineProgress(
+                    var install = await LocalTranslationSetupService.Install(root, device, model, new LocalTranslationSetupService.InlineProgress(
                         text => File.WriteAllText(Path.Combine(AppPaths.DiagnosticsRoot, "local-translation-test.txt"), text)), CancellationToken.None);
                     var settings = new AppSettings { LocalTranslationModel = install.Model, LocalTranslationRuntime = install.Runtime,
                         LocalTranslationDevice = device, TranslationSource = "en", TranslationTarget = "zh" };

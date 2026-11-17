@@ -178,7 +178,7 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 
 | 组件 | 当前用途 | 许可证 | 采用说明 |
 |---|---|---|---|
-| [llama.cpp](https://github.com/ggml-org/llama.cpp) / [Qwen2.5 1.5B GGUF](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF) | 本地 CPU / Vulkan GPU 翻译 | MIT / Apache-2.0 | 一键下载固定版本与 SHA256 校验，运行库约 24–37 MiB、模型约 1.04 GiB；无 API 费用，小模型精度需核对 |
+| [llama.cpp](https://github.com/ggml-org/llama.cpp) / [Qwen3.5 GGUF catalog](https://huggingface.co/bartowski) | 本地 CPU / Vulkan GPU 翻译 | MIT / Apache-2.0 | 2B / 4B / 9B / 27B Q4_K_M；27B Q5_K_M 仅在检测到至少 24 GiB 专用显存时显示。固定修订、大小与 SHA256 校验；无 API 费用 |
 
 PaddleOCR、Tesseract 字库及抠图权重的固定来源、大小、SHA256 与适配契约统一维护在[配置与依赖](配置与依赖.md)，实际分发义务见[第三方声明](../THIRD-PARTY-NOTICES.md)。
 

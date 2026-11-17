@@ -79,21 +79,19 @@ public sealed class GlobalHotkeyHost : IDisposable
 
     internal static Dictionary<int, (GlobalAction Action, HotkeyGesture Gesture)> CreateRegistrations(AppSettings settings)
     {
-        var desired = new Dictionary<int, (GlobalAction, HotkeyGesture)>
+        var desired = new Dictionary<int, (GlobalAction, HotkeyGesture)>();
+        var shortcuts = new[]
         {
-            [RegionHotkeyId] = (GlobalAction.Region, Parse(settings.RegionHotkey, L.Get("RegionCapture"))),
-            [FullScreenHotkeyId] = (GlobalAction.FullScreen, Parse(settings.FullScreenHotkey, L.Get("FullScreenCapture"))),
-            [ActiveWindowHotkeyId] = (GlobalAction.ActiveWindow, Parse(settings.ActiveWindowHotkey, L.Get("ActiveWindowCapture")))
+            (RegionHotkeyId, GlobalAction.Region, settings.RegionHotkey, L.Get("RegionCapture")),
+            (FullScreenHotkeyId, GlobalAction.FullScreen, settings.FullScreenHotkey, L.Get("FullScreenCapture")),
+            (ActiveWindowHotkeyId, GlobalAction.ActiveWindow, settings.ActiveWindowHotkey, L.Get("ActiveWindowCapture")),
+            (0x5020 + (int)GlobalAction.ClipboardPin, GlobalAction.ClipboardPin, settings.ClipboardPinHotkey, L.Get("PinClipboardContent")),
+            (0x5020 + (int)GlobalAction.TogglePins, GlobalAction.TogglePins, settings.TogglePinsHotkey, L.Get("ShowHidePins")),
+            (0x5020 + (int)GlobalAction.RestorePin, GlobalAction.RestorePin, settings.RestorePinHotkey, L.Get("RestorePin")),
+            (0x5020 + (int)GlobalAction.RestoreInteraction, GlobalAction.RestoreInteraction, settings.RestorePinInteractionHotkey, L.Get("RestorePinInteraction"))
         };
-        var optional = new[]
-        {
-            (GlobalAction.ClipboardPin, settings.ClipboardPinHotkey, L.Get("PinClipboardContent")),
-            (GlobalAction.TogglePins, settings.TogglePinsHotkey, L.Get("ShowHidePins")),
-            (GlobalAction.RestorePin, settings.RestorePinHotkey, L.Get("RestorePin")),
-            (GlobalAction.RestoreInteraction, settings.RestorePinInteractionHotkey, L.Get("RestorePinInteraction"))
-        };
-        foreach (var (action, text, label) in optional)
-            if (!string.IsNullOrWhiteSpace(text)) desired[0x5020 + (int)action] = (action, Parse(text, label));
+        foreach (var (id, action, text, label) in shortcuts)
+            if (!string.IsNullOrWhiteSpace(text)) desired[id] = (action, Parse(text, label));
         if (desired.Values.GroupBy(x => (x.Item2.Modifiers, x.Item2.VirtualKey)).Any(x => x.Count() > 1))
             throw new InvalidOperationException(L.Get("GlobalShortcutsMustBeUniqueIncludingCapture"));
         return desired;
@@ -175,7 +173,9 @@ public sealed class GlobalHotkeyHost : IDisposable
         settings.ClipboardPinHotkey = "Shift+Ctrl+A";
         try { CreateRegistrations(settings); return false; } catch (InvalidOperationException) { }
         settings.ClipboardPinHotkey = ""; settings.TogglePinsHotkey = "";
-        return CreateRegistrations(settings).Count == 3;
+        if (CreateRegistrations(settings).Count != 3) return false;
+        settings.RegionHotkey = ""; settings.FullScreenHotkey = ""; settings.ActiveWindowHotkey = "";
+        return CreateRegistrations(settings).Count == 0;
     }
 
     private static bool AreModifiersDown(uint modifiers) =>

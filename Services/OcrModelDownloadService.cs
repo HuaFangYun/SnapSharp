@@ -1,101 +1,105 @@
 using L = SnapSharp.Localization.UiText;
 using Microsoft.ML.OnnxRuntime;
-using System.IO;
-using System.IO.Compression;
 using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace SnapSharp.Services;
 
-/// <summary>Downloads data only: the pinned wheel is a ZIP, never installed or executed.</summary>
 internal sealed class OcrModelDownloadService
 {
-    internal const string Source = "https://files.pythonhosted.org/packages/54/08/6b3c1762c9800faa4346d6141b88af9f94f3680c9d83774e700b1b75c256/rapidocr_onnxruntime-1.3.24-py3-none-any.whl";
-    internal const string Sha256 = "4282ff0b8db05ad2a53afc8d0ef2e7d879c53022fc61a4f8e84c58d737822cd2";
-    internal const int PackageSize = 14910742;
+    private const string PaddleOcrRevision = "dab3fe35379033fdcb2d0e9572fac0b36c9a9ebf";
+    internal const string DefaultPackageId = "small";
+
     internal sealed record ModelPaths(string Detection, string Recognition, string Dictionary);
-    internal static readonly ModelInstallCache.Asset[] InstalledAssets =
+    internal sealed record DownloadAsset(string Name, string Source, string Hash, long Size);
+    internal sealed record ModelPackage(string Id, string Version, string Profile, DownloadAsset Detection,
+        DownloadAsset Recognition, DownloadAsset Dictionary)
+    {
+        internal string DirectoryPrefix => $"ppocr-v6-{Id}-";
+        internal DownloadAsset[] Assets => [Detection, Recognition, Dictionary];
+        internal ModelInstallCache.Asset[] InstalledAssets => Assets
+            .Select(asset => new ModelInstallCache.Asset(asset.Name, asset.Hash, asset.Size, asset.Size)).ToArray();
+    }
+
+    internal static readonly ModelPackage[] Packages =
     [
-        new("detection.onnx", "d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9", 4745517, 4745517),
-        new("recognition.onnx", "48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b", 10857958, 10857958),
-        new("dictionary.txt", "b22996db93ffedffa90abf62009659af14ae22df06a2da5a1ce0e6fb1117af86", 32873, 32873)
+        Package("tiny", "Tiny",
+            "2ba1506c0380b8f0b03dd142459aac66d4421f6c", 1_780_590, "193bab7a04fca699a6c82e6abb5b81bdb28177f0abd4062552b04908dafb19f8",
+            "2612ab37152ae0a677521bae4e1e3d4fb4cf7c30", 4_462_639, "9ef676d6ed3c88256a2d92c640c44f25b0c40947e111b14b8be8f594091563e6",
+            "ppocrv6_tiny_dict.txt", 27_156, "c5cbe34ef40c29c4df07ed012bf96569cb69a2d2a01a07027e9f13cb832bd9cd"),
+        Package("small", "Small",
+            "28fe5895c24fd108c19eb3e8479f4ab385fbfc62", 9_880_512, "d73e0058b7a8086bbd57f3d10b8bcd4ff95363f67e06e2762b5e814fe9c9410e",
+            "b8f84f0b80c529de40b4fbb3544b84fa7233a513", 21_159_378, "5435fd747c9e0efe15a96d0b378d5bd157e9492ed8fd80edf08f30d02fa24634",
+            "ppocrv6_dict.txt", 74_947, "b5f2bfe2bdd9448429e3e82b51c789775d9b42f2403d082b00662eb77e401c5d"),
+        Package("medium", "Medium",
+            "61323801669c338b7891481ec7bac61ce31b576a", 62_032_837, "eb13b44b25bb36f89528b68720af8a61d9cf381176107f465db1757b65d086e1",
+            "50c7eacafc52fa7bcf4194e8cd08e46f8558504b", 76_554_979, "9c09abf0957f7968c7586464b7397b84ad2387a0497a351af40e9acc71b673ba",
+            "ppocrv6_dict.txt", 74_947, "b5f2bfe2bdd9448429e3e82b51c789775d9b42f2403d082b00662eb77e401c5d")
     ];
 
-    public async Task<ModelPaths> Download(string root, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official, HttpClient? httpClient = null)
-    {
-        using var lease = await ModelInstallCache.Lock(root, "ppocr-v4-zh-en-", token);
-        var existing = await ModelInstallCache.Find(root, "ppocr-v4-zh-en-", InstalledAssets, progress, token);
-        if (existing is not null)
-            return new(Path.Combine(existing, "detection.onnx"), Path.Combine(existing, "recognition.onnx"), Path.Combine(existing, "dictionary.txt"));
-        using var handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
-        using var ownedClient = httpClient is null ? new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(5) } : null;
-        var client = httpClient ?? ownedClient!;
-        using var response = await ModelDownloadSource.Get(client, Source, sourceKind, token);
-        response.EnsureSuccessStatusCode();
-        if (response.Content.Headers.ContentLength is long length && length != PackageSize) throw new InvalidDataException(L.Get("ModelPackageSizeMismatch"));
-        using var data = new MemoryStream(PackageSize);
-        await using (var stream = await response.Content.ReadAsStreamAsync(token))
-        {
-            var buffer = new byte[81920]; int read;
-            while ((read = await stream.ReadAsync(buffer, token)) != 0)
-            {
-                if (data.Length + read > PackageSize) throw new InvalidDataException(L.Get("ModelPackageExceedsItsExpectedSize"));
-                await data.WriteAsync(buffer.AsMemory(0, read), token);
-                progress.Report(L.Format("Downloading01F12F1MB", data.Length * 100 / PackageSize, data.Length / 1048576d, PackageSize / 1048576d));
-            }
-        }
-        ValidatePackage(data.ToArray());
-        progress.Report(L.Get("SHA256VerifiedCheckingModelsAndExtractingThe"));
-        return await Task.Run(() => Install(data, root, token), token);
-    }
+    internal static ModelPackage DefaultPackage => FindPackage(DefaultPackageId);
+    internal static string Source => DefaultPackage.Detection.Source;
+    internal static ModelInstallCache.Asset[] InstalledAssets => DefaultPackage.InstalledAssets;
 
-    internal static void ValidatePackage(byte[] data)
-    {
-        if (data.Length != PackageSize || !Convert.ToHexString(SHA256.HashData(data)).Equals(Sha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException(L.Get("ModelPackageSHA256VerificationFailedNoConfiguration"));
-    }
+    private static ModelPackage Package(string id, string profile, string detectionRevision, long detectionSize,
+        string detectionHash, string recognitionRevision, long recognitionSize, string recognitionHash,
+        string dictionaryName, long dictionarySize, string dictionaryHash) =>
+        new(id, "PP-OCRv6", profile,
+            new("detection.onnx", HuggingFace(profile, "det", detectionRevision), detectionHash, detectionSize),
+            new("recognition.onnx", HuggingFace(profile, "rec", recognitionRevision), recognitionHash, recognitionSize),
+            new("dictionary.txt", $"https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/{PaddleOcrRevision}/ppocr/utils/dict/{dictionaryName}", dictionaryHash, dictionarySize));
 
-    private static ModelPaths Install(MemoryStream data, string root, CancellationToken token)
+    private static string HuggingFace(string profile, string kind, string revision) =>
+        $"https://huggingface.co/PaddlePaddle/PP-OCRv6_{profile.ToLowerInvariant()}_{kind}_onnx/resolve/{revision}/inference.onnx";
+
+    internal static ModelPackage FindPackage(string? id) =>
+        Packages.FirstOrDefault(package => package.Id.Equals(id, StringComparison.OrdinalIgnoreCase)) ?? DefaultPackage;
+
+    // Tiny avoids GPU startup overhead; Medium is intentionally GPU-only in the settings workflow.
+    internal static bool SupportsDevice(string packageId, string device) => SnapSharp.Models.ModelDeviceSupport.OcrSupports(packageId, device);
+
+    public async Task<ModelPaths> Download(string root, IProgress<string> progress, CancellationToken token,
+        string sourceKind = ModelDownloadSource.Official, HttpClient? httpClient = null, string packageId = DefaultPackageId)
     {
+        var package = FindPackage(packageId);
+        using var lease = await ModelInstallCache.Lock(root, package.DirectoryPrefix, token);
+        var existing = await ModelInstallCache.Find(root, package.DirectoryPrefix, package.InstalledAssets, progress, token);
+        if (existing is not null) return Paths(existing);
+
         Directory.CreateDirectory(root);
-        var directory = Path.Combine(root, "ppocr-v4-zh-en-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(directory);
-        var paths = new ModelPaths(Path.Combine(directory, "detection.onnx"), Path.Combine(directory, "recognition.onnx"), Path.Combine(directory, "dictionary.txt"));
-        var files = new[] { paths.Detection, paths.Recognition, paths.Dictionary, Path.Combine(directory, "source.txt"), Path.Combine(directory, "Apache-2.0.txt") };
-        try
-        {
-            data.Position = 0;
-            using var zip = new ZipArchive(data, ZipArchiveMode.Read, true);
-            void Extract(string name, string destination)
-            {
-                token.ThrowIfCancellationRequested();
-                var entry = zip.GetEntry("rapidocr_onnxruntime/models/" + name) ?? throw new InvalidDataException(L.Get("ModelPackageIsMissing") + name);
-                if (entry.Length is < 1000 or > 20_000_000) throw new InvalidDataException(L.Get("InvalidModelFileSize"));
-                using var source = entry.Open(); using var target = new FileStream(destination, FileMode.CreateNew); source.CopyTo(target);
-            }
-            Extract("ch_PP-OCRv4_det_infer.onnx", paths.Detection);
-            Extract("ch_PP-OCRv4_rec_infer.onnx", paths.Recognition);
-            using var options = new SessionOptions { IntraOpNumThreads = 1, InterOpNumThreads = 1 };
-            using var detector = new InferenceSession(paths.Detection, options);
-            using var recognizer = new InferenceSession(paths.Recognition, options);
-            if (!recognizer.ModelMetadata.CustomMetadataMap.TryGetValue("character", out var characters)) throw new InvalidDataException(L.Get("RecognitionModelIsMissingItsEmbeddedDictionary"));
-            var labels = characters.Split('\n').Select(x => x.TrimEnd('\r')).Where(x => x.Length > 0).ToArray();
-            var shape = recognizer.OutputMetadata.First().Value.Dimensions;
-            if (labels.Length < 100 || !labels.Contains("中") || !labels.Contains("A") || shape.Length != 3 || shape[2] != labels.Length + 1 && shape[2] != labels.Length + 2)
-                throw new InvalidDataException(L.Get("ChineseEnglishDictionaryDoesNotMatchThe"));
-            File.WriteAllLines(paths.Dictionary, labels, new UTF8Encoding(false));
-            File.WriteAllText(files[3], $"RapidOCR 1.3.24 / PP-OCRv4 Chinese + English\nSource: {Source}\nSHA256: {Sha256}\nUpstream: https://github.com/RapidAI/RapidOCR/tree/v1.3.24\nLicense: Apache-2.0; see upstream distribution.\nDictionary extracted from recognition model metadata.\n");
-            ThirdPartyLicenseService.CopyTo(directory, "Apache-2.0.txt");
-            token.ThrowIfCancellationRequested();
-            return paths;
-        }
-        catch
-        {
-            // Only the explicitly created files in our unique directory are removed.
-            foreach (var file in files) if (File.Exists(file)) File.Delete(file);
-            Directory.Delete(directory, false);
-            throw;
-        }
+        var staging = Path.Combine(root, "." + package.DirectoryPrefix + "download");
+        Directory.CreateDirectory(staging);
+        foreach (var asset in package.Assets)
+            await ResumableModelDownload.Download(asset.Source, Path.Combine(staging, asset.Name), asset.Hash, asset.Size,
+                progress, token, httpClient: httpClient, sourceKind: sourceKind);
+
+        Validate(staging, package);
+        File.WriteAllText(Path.Combine(staging, "source.txt"),
+            $"RapidOCR / PaddleOCR {package.Version} {package.Profile} ONNX\n" +
+            $"Detection: {package.Detection.Source}\nRecognition: {package.Recognition.Source}\nDictionary: {package.Dictionary.Source}\n" +
+            "All files are pinned by size and SHA256. Models: Apache-2.0; see upstream attribution.\n");
+        ThirdPartyLicenseService.CopyTo(staging, "Apache-2.0.txt");
+        token.ThrowIfCancellationRequested();
+        var directory = Path.Combine(root, package.DirectoryPrefix + Guid.NewGuid().ToString("N"));
+        Directory.Move(staging, directory);
+        return Paths(directory);
+    }
+
+    private static ModelPaths Paths(string directory) => new(Path.Combine(directory, "detection.onnx"),
+        Path.Combine(directory, "recognition.onnx"), Path.Combine(directory, "dictionary.txt"));
+
+    private static void Validate(string directory, ModelPackage package)
+    {
+        var paths = Paths(directory);
+        var labels = File.ReadAllLines(paths.Dictionary, System.Text.Encoding.UTF8).Where(line => line.Length > 0).ToArray();
+        if (labels.Length < 1_000 || labels.Length > 100_000)
+            throw new InvalidDataException(L.Get("InvalidOCRDictionaryEntryCount"));
+        using var options = new SessionOptions { IntraOpNumThreads = 1, InterOpNumThreads = 1 };
+        using var detector = new InferenceSession(paths.Detection, options);
+        using var recognizer = new InferenceSession(paths.Recognition, options);
+        var detectorOutput = detector.OutputMetadata.First().Value.Dimensions;
+        var recognitionOutput = recognizer.OutputMetadata.First().Value.Dimensions;
+        if (detectorOutput.Length != 4 || recognitionOutput.Length != 3 ||
+            recognitionOutput[2] > 0 && recognitionOutput[2] != labels.Length + 1 && recognitionOutput[2] != labels.Length + 2)
+            throw new InvalidDataException($"{package.Version} {package.Profile}: " + L.Get("ChineseEnglishDictionaryDoesNotMatchThe"));
     }
 }

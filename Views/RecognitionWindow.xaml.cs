@@ -38,8 +38,9 @@ public partial class RecognitionWindow : Window
         InitializeComponent();
         ModeBox.SelectedIndex = mode switch { "Barcode" => 1, "Table" => 2, "Formula" => 3, "Cutout" => 4, _ => 0 };
         CutoutModels.Migrate(settings.Current);
-        CutoutModelBox.ItemsSource = CutoutModels.All;
-        CutoutModelBox.SelectedItem = CutoutModels.All.First(x => x.Id == settings.Current.CutoutDefaultModelId);
+        var cutoutModels = CutoutModels.ForDevice(settings.Current.CutoutOnnxDevice);
+        CutoutModelBox.ItemsSource = cutoutModels;
+        CutoutModelBox.SelectedItem = cutoutModels.FirstOrDefault(x => x.Id == settings.Current.CutoutDefaultModelId) ?? cutoutModels[0];
         void UpdateMode()
         {
             CutoutModelBox.Visibility = Mode == "Cutout" ? Visibility.Visible : Visibility.Collapsed;
@@ -85,7 +86,8 @@ public partial class RecognitionWindow : Window
                 }
                 var result = await OnnxImageRuntime.Shared.RemoveBackground(_image, settings, _operation.Token);
                 if (_closed) return; _cutout = result; _document = null; Boxes.Children.Clear(); ShowOriginal.IsChecked = false; SetPicture(result); CutoutButtons.IsEnabled = true; ResultTabs.SelectedIndex = 2;
-                Status.Text = L.Format("01BackgroundRemovedPreservingOriginalResolution", model.Id, settings.OnnxDevice); return;
+                Status.Text = L.Format("01BackgroundRemovedPreservingOriginalResolution", model.Id,
+                    settings.CutoutOnnxDevice is "CPU" or "DirectML" ? settings.CutoutOnnxDevice : settings.OnnxDevice); return;
             }
             RecognitionDocument document;
             if (Mode == "Formula") document = string.IsNullOrWhiteSpace(settings.FormulaRecognizerId)

@@ -90,7 +90,7 @@ internal static class ThirdPartyLicenseService
         foreach (var directory in Directory.GetDirectories(root))
         {
             var name = Path.GetFileName(directory);
-            if (name.StartsWith("ppocr-v4-zh-en-", StringComparison.Ordinal) ||
+            if (name.StartsWith("ppocr-v6-", StringComparison.Ordinal) || name.StartsWith("ppocr-v4-zh-en-", StringComparison.Ordinal) ||
                 name.StartsWith("tesseract-fast-", StringComparison.Ordinal) ||
                 name.StartsWith("slanet-zh-", StringComparison.Ordinal))
                 Copy(directory, "Apache-2.0.txt");
@@ -111,8 +111,10 @@ internal static class ThirdPartyLicenseService
         var translation = Path.Combine(root, "local-translation");
         if (Directory.Exists(translation))
         {
-            if (File.Exists(Path.Combine(translation, LocalTranslationSetupService.ModelName))) Copy(translation, "Apache-2.0.txt");
-            foreach (var directory in Directory.GetDirectories(translation, "llama-b12396-*")) Copy(directory, "llama.cpp-LICENSE.txt");
+            if (File.Exists(Path.Combine(translation, LocalTranslationSetupService.ModelName)) ||
+                LocalTranslationSetupService.Models.Any(model => File.Exists(Path.Combine(translation, model.FileName))))
+                Copy(translation, "Apache-2.0.txt");
+            foreach (var directory in Directory.GetDirectories(translation, "llama-b*")) Copy(directory, "llama.cpp-LICENSE.txt");
         }
         return failures;
     }

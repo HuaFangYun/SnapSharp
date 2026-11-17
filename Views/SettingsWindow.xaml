@@ -3,8 +3,8 @@
         xmlns:loc="http://wpflocalizeextension.codeplex.com"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Title="{loc:Loc SnapSharp.Core:Resources.Strings:SnapSharpSettings}" Width="1040" Height="820" MinWidth="640" MinHeight="420"
-        FontFamily="Segoe UI, Microsoft YaHei UI" FontSize="14" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display"
+        Title="{loc:Loc SnapSharp.Core:Resources.Strings:SnapSharpSettings}" Width="960" Height="720" MinWidth="640" MinHeight="420"
+        FontFamily="Segoe UI, Microsoft YaHei UI" FontSize="13" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display"
         WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackgroundBrush}" Foreground="{DynamicResource TextBrush}">
   <Window.Resources><ResourceDictionary>
     <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="SettingsStyles.xaml" /></ResourceDictionary.MergedDictionaries>
@@ -20,12 +20,12 @@
       </StackPanel></Border>
     </DataTemplate>
     <Style TargetType="TabItem">
-      <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Margin" Value="10,3" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Margin" Value="8,2" />
       <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabItem">
-        <Border x:Name="TabSurface" Background="Transparent" CornerRadius="8" BorderThickness="1" BorderBrush="Transparent" Padding="12,11">
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="22" /><ColumnDefinition Width="10" /><ColumnDefinition /></Grid.ColumnDefinitions>
-            <icons:PackIconLucide x:Name="TabIcon" Kind="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Width="18" Height="18" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" />
-            <TextBlock x:Name="TabLabel" Grid.Column="2" Text="{TemplateBinding Header}" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextWrapping="Wrap" LineHeight="20" />
+        <Border x:Name="TabSurface" Background="Transparent" CornerRadius="6" BorderThickness="1" BorderBrush="Transparent" Padding="10,8">
+          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="18" /><ColumnDefinition Width="8" /><ColumnDefinition /></Grid.ColumnDefinitions>
+            <icons:PackIconLucide x:Name="TabIcon" Kind="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Width="16" Height="16" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" />
+            <TextBlock x:Name="TabLabel" Grid.Column="2" Text="{TemplateBinding Header}" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextWrapping="Wrap" LineHeight="18" />
           </Grid>
         </Border>
         <ControlTemplate.Triggers>
@@ -35,22 +35,26 @@
         </ControlTemplate.Triggers>
       </ControlTemplate></Setter.Value></Setter>
     </Style>
+    <Style x:Key="HotkeyField" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+      <Setter Property="Width" Value="210" /><Setter Property="Margin" Value="0" /><Setter Property="HorizontalAlignment" Value="Right" />
+      <Setter Property="IsReadOnly" Value="True" /><Setter Property="Cursor" Value="Arrow" />
+    </Style>
   </ResourceDictionary></Window.Resources>
   <Grid x:Name="SettingsRoot" Background="{DynamicResource WindowBackgroundBrush}">
     <Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
     <TabControl x:Name="Categories" TabStripPlacement="Left" SelectedIndex="0" Background="Transparent" BorderThickness="0">
       <TabControl.Template><ControlTemplate TargetType="TabControl">
         <Grid>
-          <Grid.ColumnDefinitions><ColumnDefinition x:Name="NavigationColumn" Width="204" /><ColumnDefinition /></Grid.ColumnDefinitions>
+          <Grid.ColumnDefinitions><ColumnDefinition x:Name="NavigationColumn" Width="188" /><ColumnDefinition /></Grid.ColumnDefinitions>
           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
-            <DockPanel Margin="0,24,0,16">
-              <StackPanel DockPanel.Dock="Top" Margin="22,0,16,20"><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Preferences}" FontSize="19" FontWeight="SemiBold" /><TextBlock Text="SNAPSHARP" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,6,0,0" /></StackPanel>
+            <DockPanel Margin="0,18,0,12">
+              <StackPanel DockPanel.Dock="Top" Margin="18,0,14,14"><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Preferences}" FontSize="17" FontWeight="SemiBold" /><TextBlock Text="SNAPSHARP" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0" /></StackPanel>
               <ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False" Focusable="False"><TabPanel IsItemsHost="True" KeyboardNavigation.TabIndex="1" VerticalAlignment="Top" /></ScrollViewer>
             </DockPanel>
           </Border>
-          <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Column="1" ContentSource="SelectedContent" Margin="30,28,18,12" />
+          <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Column="1" ContentSource="SelectedContent" Margin="22,20,12,8" />
         </Grid>
-        <ControlTemplate.Triggers><DataTrigger Binding="{Binding CompactLayout, RelativeSource={RelativeSource AncestorType=Window}}" Value="True"><Setter TargetName="NavigationColumn" Property="Width" Value="176" /><Setter TargetName="PART_SelectedContentHost" Property="Margin" Value="16,20,10,8" /></DataTrigger></ControlTemplate.Triggers>
+        <ControlTemplate.Triggers><DataTrigger Binding="{Binding CompactLayout, RelativeSource={RelativeSource AncestorType=Window}}" Value="True"><Setter TargetName="NavigationColumn" Property="Width" Value="164" /><Setter TargetName="PART_SelectedContentHost" Property="Margin" Value="14,16,8,6" /></DataTrigger></ControlTemplate.Triggers>
       </ControlTemplate></TabControl.Template>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:General}" Tag="Settings"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:General}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:StartupBehaviorAndApplicationInformationChangesTake}" Style="{StaticResource Hint}" />
@@ -142,9 +146,9 @@
         <ContentControl ContentTemplate="{StaticResource ModelDownloadSourceSelector}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RecognitionEngine}" Style="{StaticResource SectionTitle}" />
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalOCREngineNoCloudOCRAPI}" /><ComboBox x:Name="OcrBackendBox"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:RecommendedLocalONNXPaddleOCRCPUOrGPU}" Tag="PaddleOCR" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:OptionalLocalWindowsOCRSystemLanguagePacks}" Tag="Windows" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:OptionalLocalTesseract5CPU}" Tag="Tesseract" /></ComboBox>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalOCREngineNoCloudOCRAPI}" /><ComboBox x:Name="OcrBackendBox" SelectionChanged="OcrBackend_Changed"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:RecommendedLocalONNXPaddleOCRCPUOrGPU}" Tag="PaddleOCR" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:OptionalLocalWindowsOCRSystemLanguagePacks}" Tag="Windows" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:OptionalLocalTesseract5CPU}" Tag="Tesseract" /></ComboBox>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalONNXIsRecommendedForEverydayOCR}" Style="{StaticResource Hint}" />
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ONNXDevicePaddleOCRAndBackgroundRemoval}" /><ComboBox x:Name="OnnxDeviceBox"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalCPUCompatibilityMode}" Tag="CPU" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalGPUDirectMLNVIDIAAMDIntel}" Tag="DirectML" /></ComboBox>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OcrOnnxDevice}" /><ComboBox x:Name="OnnxDeviceBox" SelectionChanged="OnnxDevice_Changed"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalCPUCompatibilityMode}" Tag="CPU" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalGPUDirectMLNVIDIAAMDIntel}" Tag="DirectML" /></ComboBox>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DirectMLGPUIndexDefault0Use1}" /><TextBox x:Name="OnnxGpuId" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DirectMLIsIncludedAndDoesNotRequire}" Style="{StaticResource Hint}" />
           <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:PaddleOCRWebsiteAndLicense}" Tag="PaddleOCR" Click="OpenProviderWebsite_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:DirectMLSystemRequirements}" Tag="DirectML" Click="OpenProviderWebsite_Click" Margin="10,0,0,0" /></WrapPanel>
@@ -155,8 +159,12 @@
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PaddleOCRModelsAndDictionary}" Style="{StaticResource SectionTitle}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalOCRModelPackageNetworkUsedOnly}" />
-          <ComboBox x:Name="OcrModelPackage" SelectedIndex="0"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:PPOCRv4ChineseEnglishRecommended}" /></ComboBox>
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SourceRapidOCR1324PyPIAbout}" Style="{StaticResource Hint}" />
+          <ComboBox x:Name="OcrModelPackage" SelectedValuePath="Tag">
+            <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:PPOCRv6Tiny}" Tag="tiny" />
+            <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:PPOCRv6SmallRecommended}" Tag="small" />
+            <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:PPOCRv6Medium}" Tag="medium" />
+          </ComboBox>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SourcePPOCRv6Official}" Style="{StaticResource Hint}" />
           <WrapPanel><Button x:Name="DownloadOcrButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpRecommendedONNXOCRDownloadModels}" Click="DownloadOcr_Click" /><Button x:Name="CancelOcrDownloadButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
           <TextBlock x:Name="OcrDownloadStatus" Style="{StaticResource Hint}" Text="{loc:Loc SnapSharp.Core:Resources.Strings:NetworkAccessOccursOnlyWhenDownloadingSave}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PaddleOCRDetectionModelDBOnnx}" /><DockPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Browse}" DockPanel.Dock="Right" Tag="OcrDetPath" Click="ModelBrowse_Click" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="OcrDetPath" /></DockPanel>
@@ -198,6 +206,8 @@
         <ContentControl ContentTemplate="{StaticResource ModelDownloadSourceSelector}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:BackgroundRemovalModels}" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CutoutOnnxDevice}" /><ComboBox x:Name="CutoutDeviceBox" SelectionChanged="CutoutDevice_Changed"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalCPUCompatibilityMode}" Tag="CPU" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalGPUDirectMLNVIDIAAMDIntel}" Tag="DirectML" /></ComboBox>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CutoutDeviceModelHint}" Style="{StaticResource Hint}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DefaultModelAppliesAfterSaving}" /><ComboBox x:Name="CutoutDefaultBox" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ModelToDownloadConfigure}" /><ComboBox x:Name="CutoutPackageBox" SelectionChanged="CutoutPackage_Changed" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SuggestedSetUNetForQuickCPU}" Style="{StaticResource Hint}" />
@@ -214,27 +224,31 @@
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationAPIsAndPrivacy}" Tag="Shield"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
-        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationOnlineAPIsAndPrivacy}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationRunsOnYourComputerWithout}" Style="{StaticResource Hint}" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationOnlineAPIsAndPrivacy}" Style="{StaticResource PageTitle}" />
         <ContentControl ContentTemplate="{StaticResource ModelDownloadSourceSelector}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TextTranslation}" Style="{StaticResource SectionTitle}" />
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:1ChooseALocalOrAPIEngine}" Style="{StaticResource Hint}" />
-          <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpSelectedEngineEnglishToChinese}" Click="ConfigureTranslation_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:TestTranslationConnection}" Click="TestTranslation_Click" Margin="10,0,0,0" /></WrapPanel>
-          <TextBlock x:Name="TranslationStatus" Style="{StaticResource Hint}" Text="{loc:Loc SnapSharp.Core:Resources.Strings:TheKeylessPresetUsesThePublicMyMemory}" />
-          <CheckBox x:Name="AllowTranslation" Content="{loc:Loc SnapSharp.Core:Resources.Strings:AllowOnlineTranslationAfterConfirmingEachRequest}" />
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationEngineLocalOrAPI}" /><ComboBox x:Name="TranslationProviderBox" SelectionChanged="TranslationProvider_Changed"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:APIMyMemoryLimitedPublicFreeQuotaSee}" Tag="MyMemory" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:APICustomLibreTranslateProviderSetsPricing}" Tag="LibreTranslate" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:APIGoogleWebAdapterUnofficialNoFree}" Tag="Google" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalQwen2515BLlamaCpp}" Tag="Local" /></ComboBox>
-          <TextBlock x:Name="TranslationPricing" Style="{StaticResource Hint}" />
-          <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ProviderWebsitePricingFreeQuota}" Click="OpenTranslationWebsite_Click" HorizontalAlignment="Left" />
-          <StackPanel x:Name="LocalTranslationPanel" Margin="0,12,0,0">
-            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationDevice}" /><ComboBox x:Name="LocalTranslationDeviceBox"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalCPUNoDedicatedGPUNeeded}" Tag="CPU" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalGPUVulkanNVIDIAAMDIntel}" Tag="Vulkan" /></ComboBox>
-            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DownloadsQwen2515BInstructQ4}" Style="{StaticResource Hint}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalQwenModelTitle}" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationRunsOnYourComputerWithout}" Style="{StaticResource Hint}" />
+            <RadioButton x:Name="TranslationModeLocal" GroupName="TranslationMode" Content="{loc:Loc SnapSharp.Core:Resources.Strings:UseLocalTranslationModel}" Checked="TranslationMode_Changed" />
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationDevice}" /><ComboBox x:Name="LocalTranslationDeviceBox" SelectionChanged="LocalTranslationDevice_Changed"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalCPUNoDedicatedGPUNeeded}" Tag="CPU" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalGPUVulkanNVIDIAAMDIntel}" Tag="Vulkan" /></ComboBox>
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SelectQwenLocalModel}" /><ComboBox x:Name="LocalTranslationModelBox" />
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Qwen35ModelSelectionHint}" Style="{StaticResource Hint}" TextWrapping="Wrap" />
             <WrapPanel><Button x:Name="DownloadLocalTranslationButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:DownloadAndConfigureLocalTranslation}" Click="DownloadLocalTranslation_Click" /><Button x:Name="CancelLocalTranslationButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
             <ProgressBar x:Name="LocalTranslationProgress" Height="8" Minimum="0" Maximum="100" Margin="0,8" Visibility="Collapsed" Background="{DynamicResource ControlBrush}" Foreground="{DynamicResource ToolbarActiveBrush}" BorderBrush="{DynamicResource BorderBrush}" />
             <TextBlock x:Name="LocalTranslationDownloadStatus" Style="{StaticResource Hint}" TextWrapping="Wrap" />
             <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalModelPathFilledAfterDownload}" /><TextBox x:Name="LocalTranslationModelPath" IsReadOnly="True" />
             <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalRuntimePathFilledAfterDownload}" /><TextBox x:Name="LocalTranslationRuntimePath" IsReadOnly="True" />
             <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpVCX64Runtime}" Click="RecordingSetup_Click" HorizontalAlignment="Left" />
-          </StackPanel>
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OnlineTranslationAPI}" Style="{StaticResource SectionTitle}" />
+          <RadioButton x:Name="TranslationModeApi" GroupName="TranslationMode" Content="{loc:Loc SnapSharp.Core:Resources.Strings:UseOnlineTranslationApi}" Checked="TranslationMode_Changed" />
+          <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpSelectedEngineEnglishToChinese}" Click="ConfigureTranslation_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:TestTranslationConnection}" Click="TestTranslation_Click" Margin="10,0,0,0" /></WrapPanel>
+          <TextBlock x:Name="TranslationStatus" Style="{StaticResource Hint}" Text="{loc:Loc SnapSharp.Core:Resources.Strings:TheKeylessPresetUsesThePublicMyMemory}" />
+          <CheckBox x:Name="AllowTranslation" Content="{loc:Loc SnapSharp.Core:Resources.Strings:AllowOnlineTranslationAfterConfirmingEachRequest}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationApiProvider}" /><ComboBox x:Name="TranslationProviderBox" SelectionChanged="TranslationProvider_Changed"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:APIMyMemoryLimitedPublicFreeQuotaSee}" Tag="MyMemory" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:APICustomLibreTranslateProviderSetsPricing}" Tag="LibreTranslate" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:APIGoogleWebAdapterUnofficialNoFree}" Tag="Google" /></ComboBox>
+          <TextBlock x:Name="TranslationPricing" Style="{StaticResource Hint}" />
+          <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ProviderWebsitePricingFreeQuota}" Click="OpenTranslationWebsite_Click" HorizontalAlignment="Left" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:APIProvidersAreNeverSwitchedAutomaticallyMyMemory}" Style="{StaticResource Hint}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CustomServicePOSTURLLibreTranslateOnlyProvide}" /><TextBox x:Name="TranslateUrl" />
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SourceLanguageDefaultEnAutoDetect}" /><TextBox x:Name="TranslateSource" />
@@ -249,15 +263,17 @@
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:KeyboardShortcuts}" Tag="Keyboard"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:KeyboardShortcuts}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FocusAFieldAndPressAShortcut}" Style="{StaticResource Hint}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CaptureShortcuts}" Style="{StaticResource SectionTitle}" />          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RegionCapture}" /><TextBox x:Name="RegionHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
-        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FullScreenCapture}" /><TextBox x:Name="FullScreenHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
-        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ActiveWindowCapture}" /><TextBox x:Name="ActiveWindowHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CaptureShortcuts}" Style="{StaticResource SectionTitle}" />
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RegionCapture}" VerticalAlignment="Center" /><TextBox x:Name="RegionHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FullScreenCapture}" VerticalAlignment="Center" /><TextBox x:Name="FullScreenHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ActiveWindowCapture}" VerticalAlignment="Center" /><TextBox x:Name="ActiveWindowHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
         </StackPanel></Border>
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PinShortcuts}" Style="{StaticResource SectionTitle}" />          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PinFromClipboardImageColorText}" /><TextBox x:Name="ClipboardPinHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
-        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:HideShowAllPins}" /><TextBox x:Name="TogglePinsHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
-        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RestoreLastClosedPin}" /><TextBox x:Name="RestorePinHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
-        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RestorePinMouseInteractionDisableClickThrough}" /><TextBox x:Name="RestoreInteractionHotkey" PreviewKeyDown="Hotkey_PreviewKeyDown" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PinShortcuts}" Style="{StaticResource SectionTitle}" />
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PinFromClipboardImageColorText}" VerticalAlignment="Center" /><TextBox x:Name="ClipboardPinHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:HideShowAllPins}" VerticalAlignment="Center" /><TextBox x:Name="TogglePinsHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RestoreLastClosedPin}" VerticalAlignment="Center" /><TextBox x:Name="RestorePinHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RestorePinMouseInteractionDisableClickThrough}" VerticalAlignment="Center" /><TextBox x:Name="RestoreInteractionHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:History}" Tag="History"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
@@ -298,7 +314,7 @@
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
     </TabControl>
-    <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="22,16">
+    <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="18,10">
       <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
         <TextBlock x:Name="FooterHint" Text="{loc:Loc SnapSharp.Core:Resources.Strings:ChangesApplyAfterSavingCancelToDiscard}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,20,0" FontSize="12" />
         <StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Cancel}" IsCancel="True" Margin="0,0,10,0" /><Button x:Name="SaveSettingsButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:SaveSettings}" Click="Save_Click" Background="{DynamicResource ToolbarActiveBrush}" Foreground="{DynamicResource AccentForegroundBrush}" /></StackPanel>

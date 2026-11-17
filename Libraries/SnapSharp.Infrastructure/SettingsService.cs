@@ -67,6 +67,7 @@ public sealed class SettingsService
         try { Current.Recording.Validate(); } catch (ArgumentException) { Current.Recording = new(); }
         Current.ImageQuality = Math.Clamp(Current.ImageQuality, 1, 100);
         if (Current.OcrBackend is not ("PaddleOCR" or "Windows" or "Tesseract")) Current.OcrBackend = "PaddleOCR";
+        if (Current.OcrModelPackage is not ("tiny" or "small" or "medium")) Current.OcrModelPackage = "small";
         Current.TesseractDataDirectory ??= "";
         if (string.IsNullOrWhiteSpace(Current.TesseractLanguages)) Current.TesseractLanguages = "chi_sim+eng";
         if (Current.TranslationProvider is not ("MyMemory" or "Google" or "LibreTranslate" or "Local"))
@@ -74,11 +75,17 @@ public sealed class SettingsService
             Current.TranslationProvider = "LibreTranslate";
             Current.AllowOnlineTranslation = false;
         }
+        if (Current.TranslationApiProvider is not ("MyMemory" or "Google" or "LibreTranslate"))
+            Current.TranslationApiProvider = Current.TranslationProvider is "MyMemory" or "Google" or "LibreTranslate" ? Current.TranslationProvider : "MyMemory";
         Current.OcrMaximumEdge = Math.Clamp(Current.OcrMaximumEdge, 320, 2048);
         Current.TableStructureModel ??= "";
         Current.FormulaModelDirectory ??= "";
         if (Current.OnnxDevice is not ("CPU" or "DirectML")) Current.OnnxDevice = "CPU";
         Current.OnnxDeviceId = Math.Clamp(Current.OnnxDeviceId, 0, 15);
+        if (!ModelDeviceSupport.OcrSupports(Current.OcrModelPackage, Current.OnnxDevice)) Current.OcrModelPackage = "small";
+        if (Current.CutoutOnnxDevice is not ("CPU" or "DirectML")) Current.CutoutOnnxDevice = Current.OnnxDevice;
+        if (Current.CutoutOnnxDeviceId < 0) Current.CutoutOnnxDeviceId = Current.OnnxDeviceId;
+        Current.CutoutOnnxDeviceId = Math.Clamp(Current.CutoutOnnxDeviceId, 0, 15);
         if (Current.LocalTranslationDevice is not ("CPU" or "Vulkan")) Current.LocalTranslationDevice = "CPU";
         Current.LocalTranslationModel ??= "";
         Current.LocalTranslationRuntime ??= "";
@@ -86,6 +93,8 @@ public sealed class SettingsService
         Current.RecognitionTimeoutSeconds = Math.Clamp(Current.RecognitionTimeoutSeconds, 1, 120);
         Current.CutoutInputSize = Math.Clamp(Current.CutoutInputSize, 32, 2048);
         CutoutModels.Migrate(Current);
+        var cutoutModels = CutoutModels.ForDevice(Current.CutoutOnnxDevice);
+        if (!cutoutModels.Any(model => model.Id == Current.CutoutDefaultModelId)) Current.CutoutDefaultModelId = cutoutModels[0].Id;
         ModelPathService.Resolve(Current, _executableDirectory);
         if (Current.CutoutProfile is not ("U2Net" or "ISNet" or "BiRefNet" or "BiRefNetMatting" or "BiRefNetAlpha")) Current.CutoutProfile = "U2Net";
         if (string.IsNullOrWhiteSpace(Current.FileNameTemplate)) Current.FileNameTemplate = OutputFileService.DefaultTemplate;

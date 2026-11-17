@@ -24,8 +24,11 @@ public sealed class AppSettings
     public string OutputFormat { get; set; } = ".png";
     public bool WebpLossless { get; set; } = true;
     public string OcrBackend { get; set; } = "PaddleOCR";
+    public string OcrModelPackage { get; set; } = "small";
     public string OnnxDevice { get; set; } = "CPU";
     public int OnnxDeviceId { get; set; }
+    public string CutoutOnnxDevice { get; set; } = "";
+    public int CutoutOnnxDeviceId { get; set; } = -1;
     public string OcrDetectionModel { get; set; } = "";
     public string OcrRecognitionModel { get; set; } = "";
     public string OcrDictionary { get; set; } = "";
@@ -48,6 +51,7 @@ public sealed class AppSettings
     public bool AllowOnlineTranslation { get; set; }
     public string TranslationEndpoint { get; set; } = "";
     public string TranslationProvider { get; set; } = "Local";
+    public string TranslationApiProvider { get; set; } = "MyMemory";
     public string LocalTranslationModel { get; set; } = "";
     public string LocalTranslationRuntime { get; set; } = "";
     public string LocalTranslationDevice { get; set; } = "CPU";

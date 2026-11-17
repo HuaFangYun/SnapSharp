@@ -2,7 +2,8 @@ using L = SnapSharp.Localization.UiText;
 namespace SnapSharp.Models;
 
 public sealed record CutoutModelDefinition(string Id, string LabelKey, string Profile, int InputSize,
-    string Asset, string Hash, long MaximumBytes, string? SourceOverride = null) : System.ComponentModel.INotifyPropertyChanged
+    string Asset, string Hash, long MaximumBytes, bool SupportsCpu = true, bool SupportsDirectML = true,
+    string? SourceOverride = null) : System.ComponentModel.INotifyPropertyChanged
 {
     public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
     public string Label => L.Get(LabelKey);
@@ -28,16 +29,19 @@ public static class CutoutModels
         new CutoutModelDefinition("birefnet-general-lite", "DefaultRefinementBiRefNetGeneralLite224MB", "BiRefNet", 1024,
             "BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx", "4fab47adc4ff364be1713e97b7e66334", 230_000_000),
         new CutoutModelDefinition("birefnet-portrait", "PortraitRefinementBiRefNetPortrait973MB", "BiRefNet", 1024,
-            "BiRefNet-portrait-epoch_150.onnx", "c3a64a6abf20250d090cd055f12a3b67", 980_000_000),
+            "BiRefNet-portrait-epoch_150.onnx", "c3a64a6abf20250d090cd055f12a3b67", 980_000_000, false),
         new CutoutModelDefinition("birefnet-matting", "HairGlassRefinementBiRefNetMatting941MB", "BiRefNetMatting", 1024,
-            "birefnet-matting.onnx", "f0843e38f6a4e88efc8c5fad4178ad7ed6c818346ce12f82e7b579324fe7e0c5", 950_000_000,
+            "birefnet-matting.onnx", "f0843e38f6a4e88efc8c5fad4178ad7ed6c818346ce12f82e7b579324fe7e0c5", 950_000_000, false, true,
             "https://huggingface.co/emrikol/birefnet-matting-onnx/resolve/0d58d809b3a360b44c556223d2f5812aeace9ba3/birefnet-matting.onnx"),
         new CutoutModelDefinition("birefnet-general", "HighQualityGeneralBiRefNetGeneralFull973", "BiRefNet", 1024,
-            "BiRefNet-general-epoch_244.onnx", "7a35a0141cbbc80de11d9c9a28f52697", 980_000_000),
+            "BiRefNet-general-epoch_244.onnx", "7a35a0141cbbc80de11d9c9a28f52697", 980_000_000, false),
         new CutoutModelDefinition("birefnet-hr-matting", "HighQualityHairTransparencyHRMatting2048", "BiRefNetAlpha", 2048,
-            "model.onnx", "a548a1f3307250766bef50b174026b3cfa39a695bc1e42ec131c14fe82797ffd", 940_000_000,
+            "model.onnx", "a548a1f3307250766bef50b174026b3cfa39a695bc1e42ec131c14fe82797ffd", 940_000_000, false, true,
             "https://huggingface.co/PinkPixel/birefnet-hr-matting-onnx/resolve/792518b9d4dfe9793891712677de25e554f948c6/model.onnx")
     };
+
+    public static IReadOnlyList<CutoutModelDefinition> ForDevice(string device) =>
+        All.Where(model => device == "DirectML" ? model.SupportsDirectML : model.SupportsCpu).ToArray();
 
     public static void Migrate(AppSettings settings)
     {

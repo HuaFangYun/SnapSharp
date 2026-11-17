@@ -31,10 +31,7 @@ internal static class LocalTranslationService
         {
             if (!await LocalTranslationSetupService.VerifyRuntime(settings.LocalTranslationRuntime, token))
                 throw new InvalidOperationException(L.Get("LocalTranslationRuntimeIsMissingOrFailed"));
-            if (!Path.IsPathFullyQualified(settings.LocalTranslationModel) || !File.Exists(settings.LocalTranslationModel) ||
-                new FileInfo(settings.LocalTranslationModel).Length != LocalTranslationSetupService.ModelSize ||
-                !string.Equals(await LocalTranslationSetupService.FileHash(settings.LocalTranslationModel, token),
-                    LocalTranslationSetupService.ModelHash, StringComparison.OrdinalIgnoreCase))
+            if (!await LocalTranslationSetupService.VerifyModel(settings.LocalTranslationModel, token))
                 throw new InvalidOperationException(L.Get("LocalTranslationModelIsMissingOrFailed"));
             return await Run(text, settings, token);
         }

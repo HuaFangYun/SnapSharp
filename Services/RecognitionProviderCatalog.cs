@@ -6,7 +6,7 @@ internal static class RecognitionProviderCatalog
     internal sealed record Information(string Notice, string Website);
     internal static Information Translation(string provider) => provider switch
     {
-        "Local" => new(L.Get("LocalInferenceHasNoAPIFeeQwen2"), "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF"),
+        "Local" => new(L.Get("LocalInferenceHasNoAPIFeeQwen2"), "https://huggingface.co/bartowski/Qwen_Qwen3.5-4B-GGUF"),
         "MyMemory" => new(L.Get("APILimitedPublicFreeQuotaAndPossible"), "https://mymemory.translated.net/doc/usagelimits.php"),
         "Google" => new(L.Get("APIGTranslateUsesAnUnofficialGoogleWeb"), "https://cloud.google.com/translate/pricing"),
         "LibreTranslate" => new(L.Get("APILibreTranslateBeingOpenSourceDoesNot"), "https://portal.libretranslate.com/"),

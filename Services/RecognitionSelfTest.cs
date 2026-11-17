@@ -19,7 +19,8 @@ internal static class RecognitionSelfTest
         var root = Path.Combine(AppPaths.Root, "models");
         var progress = new LocalTranslationSetupService.InlineProgress(value => File.WriteAllText(Path.Combine(AppPaths.DiagnosticsRoot, "specialist-model-test.txt"), value));
         var tablePath = Task.Run(() => SpecialistModelDownloadService.Install(root, true, progress, default, source)).GetAwaiter().GetResult();
-        var ocr = Directory.GetDirectories(root, "ppocr-v4-zh-en-*").FirstOrDefault(d => File.Exists(Path.Combine(d, "dictionary.txt")))
+        var ocr = Directory.GetDirectories(root, "ppocr-v6-small-*").FirstOrDefault(d => File.Exists(Path.Combine(d, "dictionary.txt")))
+            ?? Directory.GetDirectories(root, "ppocr-v4-zh-en-*").FirstOrDefault(d => File.Exists(Path.Combine(d, "dictionary.txt")))
             ?? throw new InvalidOperationException("先配置推荐 PaddleOCR 模型再运行专项自检。");
         var settings = new AppSettings { TableStructureModel = tablePath, OcrDetectionModel = Path.Combine(ocr, "detection.onnx"),
             OcrRecognitionModel = Path.Combine(ocr, "recognition.onnx"), OcrDictionary = Path.Combine(ocr, "dictionary.txt"), RecognitionTimeoutSeconds = 120, OnnxDevice = device };
@@ -146,7 +147,7 @@ internal static class RecognitionSelfTest
         var document = new LocalRecognitionService().RecognizePaddle(image, settings).GetAwaiter().GetResult();
         var text = string.Join(" ", document.Blocks.Select(x => x.Text));
         Require(text.Contains("Hello", StringComparison.OrdinalIgnoreCase) && text.Contains("世界") && text.Contains("123"), "Downloaded Chinese/English model recognition failed: " + text);
-        var report = new StringBuilder("PASS: downloaded PP-OCRv4 + matching dictionary; " + document.Backend + "; recognized " + text);
+        var report = new StringBuilder("PASS: downloaded PP-OCRv6 Small + matching dictionary; " + document.Backend + "; recognized " + text);
         foreach (var scale in new[] { 1d, 1.5d, 2d })
         {
             var sample = new DrawingVisual();
@@ -255,11 +256,22 @@ internal static class RecognitionSelfTest
         }
         Require(ScreenWordService.PopupRegion(new System.Drawing.Rectangle(0, 0, 320, 100), new System.Drawing.Rectangle(0, 0, 320, 100), 2) is null, "Screen-word must hide if no room outside capture.");
         TestStructureDecoders();
-        try { OcrModelDownloadService.ValidatePackage([1, 2, 3]); throw new Exception("Invalid package accepted."); } catch (InvalidDataException) { }
+        Require(OcrModelDownloadService.Packages.Select(x => x.Id).SequenceEqual(new[] { "tiny", "small", "medium" }) &&
+            OcrModelDownloadService.DefaultPackage.Id == "small" &&
+            OcrModelDownloadService.Packages.SelectMany(x => x.Assets).All(x => x.Size > 1_000 && x.Hash.Length == 64),
+            "PP-OCRv6 package catalog failed.");
         try { CutoutModelDownloadService.Install([1, 2, 3], directory, default); throw new Exception("Invalid cutout model accepted."); } catch (InvalidDataException) { }
         try { TesseractModelDownloadService.Validate(TesseractModelDownloadService.Models[0], [1, 2, 3]); throw new Exception("Invalid traineddata accepted."); } catch (InvalidDataException) { }
         try { LocalRecognitionService.ValidateTesseractData(directory, "../eng"); throw new Exception("Unsafe traineddata language accepted."); } catch (ArgumentException) { }
         Require(new AppSettings().TranslationSource == "en" && new AppSettings().TranslationTarget == "zh", "Translation defaults failed.");
+        Require(LocalTranslationSetupService.Models.Select(model => model.Id).SequenceEqual(
+                new[] { "qwen35-4b", "qwen35-2b", "qwen35-9b", "qwen35-27b-q4", "qwen35-27b-q5" }) &&
+            LocalTranslationSetupService.Models.All(model => model.Revision.Length == 40 && model.Hash.Length == 64 && model.Size > 1_000_000_000) &&
+            LocalTranslationSetupService.AvailableModels("CPU", 0, 8UL << 30).Select(model => model.Id).SequenceEqual(new[] { "qwen35-4b", "qwen35-2b" }) &&
+            LocalTranslationSetupService.AvailableModels("Vulkan", LocalTranslationSetupService.Q5MinimumVideoMemory, 0).Any(model => model.Id == "qwen35-27b-q5") &&
+            OcrModelDownloadService.SupportsDevice("tiny", "CPU") && !OcrModelDownloadService.SupportsDevice("tiny", "DirectML") &&
+            !OcrModelDownloadService.SupportsDevice("medium", "CPU") && OcrModelDownloadService.SupportsDevice("medium", "DirectML") &&
+            LocalTranslationSetupService.Version == "b12470", "Qwen3.5 local model catalog or hardware filter failed.");
         Task.Run(TestPrivacy).GetAwaiter().GetResult();
         Task.Run(async () =>
         {

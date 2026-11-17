@@ -30,6 +30,8 @@ public partial class SettingsWindow : Window
     private bool _ready;
     private Dictionary<string, CutoutModelConfiguration> _cutoutModels = new();
     private CutoutModelDefinition? _editingCutout;
+    private readonly ulong _dedicatedVideoMemory = LocalTranslationSetupService.DetectDedicatedVideoMemory();
+    private readonly ulong _availableMemory = LocalTranslationSetupService.DetectAvailableMemory();
 
     public SettingsWindow(SettingsService settings, StartupRegistrationService startup, GlobalHotkeyHost hotkey)
     {
@@ -82,6 +84,7 @@ public partial class SettingsWindow : Window
         DataDirectory.Text = AppPaths.DataLocation.SelectedDirectory;
         ActiveDataDirectory.Text = L.Format("ActiveDataDirectory", AppPaths.Root);
         OcrBackendBox.SelectedIndex = current.OcrBackend switch { "Windows" => 1, "Tesseract" => 2, _ => 0 };
+        OcrModelPackage.SelectedValue = current.OcrModelPackage is "tiny" or "medium" ? current.OcrModelPackage : OcrModelDownloadService.DefaultPackageId;
         OnnxDeviceBox.SelectedIndex = current.OnnxDevice == "DirectML" ? 1 : 0;
         OnnxGpuId.Text = current.OnnxDeviceId.ToString();
         TesseractDirectory.Text = _settings.StoreModelPath(current.TesseractDataDirectory); TesseractLanguages.Text = current.TesseractLanguages;
@@ -91,19 +94,23 @@ public partial class SettingsWindow : Window
         CutoutProfileBox.SelectedIndex = current.CutoutProfile switch { "ISNet" => 1, "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 };
         CutoutModels.Migrate(current);
         _cutoutModels = JsonSerializer.Deserialize<Dictionary<string, CutoutModelConfiguration>>(JsonSerializer.Serialize(current.CutoutModels))!;
-        CutoutDefaultBox.ItemsSource = CutoutModels.All;
-        CutoutDefaultBox.SelectedItem = CutoutModels.All.First(x => x.Id == current.CutoutDefaultModelId);
-        CutoutPackageBox.ItemsSource = CutoutModels.All;
-        CutoutPackageBox.SelectedItem = CutoutDefaultBox.SelectedItem;
+        CutoutDeviceBox.SelectedIndex = current.CutoutOnnxDevice == "DirectML" ? 1 : 0;
+        RefreshCutoutModels(current.CutoutDefaultModelId, current.CutoutDefaultModelId);
         TablePluginId.Text = current.TableRecognizerId; FormulaPluginId.Text = current.FormulaRecognizerId;
         TableModelPath.Text = _settings.StoreModelPath(current.TableStructureModel); FormulaDirectory.Text = _settings.StoreModelPath(current.FormulaModelDirectory);
         AllowTranslation.IsChecked = current.AllowOnlineTranslation; TranslateUrl.Text = current.TranslationEndpoint; TranslateTarget.Text = current.TranslationTarget; TranslateSource.Text = current.TranslationSource;
-        TranslationProviderBox.SelectedIndex = current.TranslationProvider switch { "Local" => 3, "MyMemory" => 0, "Google" => 2, _ => 1 };
+        var apiProvider = current.TranslationProvider == "Local" ? current.TranslationApiProvider : current.TranslationProvider;
+        TranslationProviderBox.SelectedIndex = apiProvider switch { "MyMemory" => 0, "Google" => 2, _ => 1 };
+        TranslationModeLocal.IsChecked = current.TranslationProvider == "Local";
+        TranslationModeApi.IsChecked = current.TranslationProvider != "Local";
         LocalTranslationModelPath.Text = _settings.StoreModelPath(current.LocalTranslationModel);
         LocalTranslationRuntimePath.Text = _settings.StoreModelPath(current.LocalTranslationRuntime);
         LocalTranslationDeviceBox.SelectedIndex = current.LocalTranslationDevice == "Vulkan" ? 1 : 0;
+        RefreshLocalTranslationModels(Path.GetFileName(current.LocalTranslationModel));
         AllowSearch.IsChecked = current.AllowImageSearchUpload; SearchUrl.Text = current.ImageSearchEndpoint;
         _ready = true;
+        RefreshOcrModelPackages();
+        OcrBackend_Changed(this, null!);
         TranslationProvider_Changed(this, null!);
         var recording = current.Recording;
         RecordingCaptureBackend.SelectedIndex = recording.CaptureBackend == "DXGI" ? 1 : 0;
@@ -183,7 +190,6 @@ public partial class SettingsWindow : Window
         if (HotkeyGesture.TryParse(string.Join('+', parts), out var gesture, out _)) ((TextBox)sender).Text = gesture!.DisplayText;
         e.Handled = true;
     }
-
     internal AppSettings BuildCandidate()
     {
         var candidate = JsonSerializer.Deserialize<AppSettings>(JsonSerializer.Serialize(_settings.Current))!;
@@ -236,7 +242,10 @@ public partial class SettingsWindow : Window
         candidate.OcrBackend = ((System.Windows.Controls.ComboBoxItem)OcrBackendBox.SelectedItem).Tag.ToString()!;
         candidate.OnnxDevice = ((System.Windows.Controls.ComboBoxItem)OnnxDeviceBox.SelectedItem).Tag.ToString()!;
         candidate.OnnxDeviceId = (int)Number(OnnxGpuId, 0, 15, L.Get("GPUIndex"), true);
+        candidate.CutoutOnnxDevice = ((System.Windows.Controls.ComboBoxItem)CutoutDeviceBox.SelectedItem).Tag.ToString()!;
+        candidate.CutoutOnnxDeviceId = candidate.OnnxDeviceId;
         candidate.OcrDetectionModel = ModelPath(OcrDetPath, candidate.OcrBackend == "PaddleOCR"); candidate.OcrRecognitionModel = ModelPath(OcrRecPath, candidate.OcrBackend == "PaddleOCR"); candidate.OcrDictionary = ModelPath(OcrDictPath, candidate.OcrBackend == "PaddleOCR");
+        candidate.OcrModelPackage = OcrModelPackage.SelectedValue as string ?? OcrModelDownloadService.DefaultPackageId;
         candidate.TesseractDataDirectory = _settings.ResolveModelPath(TesseractDirectory.Text); candidate.TesseractLanguages = TesseractLanguages.Text.Trim();
         if (candidate.OcrBackend == "Tesseract") LocalRecognitionService.ValidateTesseractData(candidate.TesseractDataDirectory, candidate.TesseractLanguages);
         candidate.WindowsOcrLanguage = OcrLanguage.Text.Trim(); candidate.OcrMaximumEdge = (int)Number(OcrMaxEdge, 320, 2048, L.Get("OCRLongestEdge"), true);
@@ -256,8 +265,9 @@ public partial class SettingsWindow : Window
             foreach (var name in new[] { "encoder.onnx", "decoder.onnx", "image_resizer.onnx", "tokenizer.json" })
                 OnnxImageRuntime.RequireFile(System.IO.Path.Combine(candidate.FormulaModelDirectory, name), L.Get("Formula") + name);
         }
-        candidate.AllowOnlineTranslation = AllowTranslation.IsChecked == true; candidate.TranslationEndpoint = TranslateUrl.Text.Trim(); candidate.TranslationTarget = TranslateTarget.Text.Trim(); candidate.TranslationSource = TranslateSource.Text.Trim();
-        candidate.TranslationProvider = ((System.Windows.Controls.ComboBoxItem)TranslationProviderBox.SelectedItem).Tag.ToString()!;
+        candidate.AllowOnlineTranslation = TranslationModeApi.IsChecked == true && AllowTranslation.IsChecked == true; candidate.TranslationEndpoint = TranslateUrl.Text.Trim(); candidate.TranslationTarget = TranslateTarget.Text.Trim(); candidate.TranslationSource = TranslateSource.Text.Trim();
+        candidate.TranslationApiProvider = ((System.Windows.Controls.ComboBoxItem)TranslationProviderBox.SelectedItem).Tag.ToString()!;
+        candidate.TranslationProvider = TranslationModeLocal.IsChecked == true ? "Local" : candidate.TranslationApiProvider;
         candidate.LocalTranslationModel = _settings.ResolveModelPath(LocalTranslationModelPath.Text);
         candidate.LocalTranslationRuntime = _settings.ResolveModelPath(LocalTranslationRuntimePath.Text);
         candidate.LocalTranslationDevice = ((System.Windows.Controls.ComboBoxItem)LocalTranslationDeviceBox.SelectedItem).Tag.ToString()!;
@@ -274,10 +284,10 @@ public partial class SettingsWindow : Window
         candidate.RegionHotkey = NormalizeHotkey(RegionHotkey.Text, L.Get("RegionCapture"));
         candidate.FullScreenHotkey = NormalizeHotkey(FullScreenHotkey.Text, L.Get("FullScreenCapture"));
         candidate.ActiveWindowHotkey = NormalizeHotkey(ActiveWindowHotkey.Text, L.Get("ActiveWindowCapture"));
-        candidate.ClipboardPinHotkey = NormalizeHotkey(ClipboardPinHotkey.Text, L.Get("PinClipboardContent"), true);
-        candidate.TogglePinsHotkey = NormalizeHotkey(TogglePinsHotkey.Text, L.Get("TogglePins"), true);
-        candidate.RestorePinHotkey = NormalizeHotkey(RestorePinHotkey.Text, L.Get("RestorePin"), true);
-        candidate.RestorePinInteractionHotkey = NormalizeHotkey(RestoreInteractionHotkey.Text, L.Get("RestoreInteraction"), true);
+        candidate.ClipboardPinHotkey = NormalizeHotkey(ClipboardPinHotkey.Text, L.Get("PinClipboardContent"));
+        candidate.TogglePinsHotkey = NormalizeHotkey(TogglePinsHotkey.Text, L.Get("TogglePins"));
+        candidate.RestorePinHotkey = NormalizeHotkey(RestorePinHotkey.Text, L.Get("RestorePin"));
+        candidate.RestorePinInteractionHotkey = NormalizeHotkey(RestoreInteractionHotkey.Text, L.Get("RestoreInteraction"));
         GlobalHotkeyHost.CreateRegistrations(candidate);
         return candidate;
         
@@ -353,15 +363,80 @@ public partial class SettingsWindow : Window
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ms-settings:regionlanguage") { UseShellExecute = true }); }
         catch (Exception ex) { WindowsOcrStatus.Text = L.Get("CouldNotOpenSystemSettingsGoTo") + ex.Message; }
     }
+    private static string SelectedTag(System.Windows.Controls.ComboBox box) =>
+        ((System.Windows.Controls.ComboBoxItem)box.SelectedItem).Tag.ToString()!;
+
+    private void OcrBackend_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (!_ready) return;
+        var onnx = SelectedTag(OcrBackendBox) == "PaddleOCR";
+        OnnxDeviceBox.IsEnabled = OnnxGpuId.IsEnabled = OcrModelPackage.IsEnabled = DownloadOcrButton.IsEnabled = onnx;
+        RefreshOcrModelPackages();
+    }
+
+    private void OnnxDevice_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (!_ready) return;
+        RefreshOcrModelPackages();
+    }
+
+    private void RefreshOcrModelPackages()
+    {
+        if (OnnxDeviceBox.SelectedItem is null) return;
+        var device = SelectedTag(OnnxDeviceBox);
+        foreach (var item in OcrModelPackage.Items.OfType<System.Windows.Controls.ComboBoxItem>())
+            item.Visibility = OcrModelDownloadService.SupportsDevice(item.Tag.ToString()!, device) ? Visibility.Visible : Visibility.Collapsed;
+        if (OcrModelPackage.SelectedItem is not System.Windows.Controls.ComboBoxItem selected || selected.Visibility != Visibility.Visible)
+            OcrModelPackage.SelectedItem = OcrModelPackage.Items.OfType<System.Windows.Controls.ComboBoxItem>().First(item => item.Visibility == Visibility.Visible);
+        OnnxGpuId.IsEnabled = device == "DirectML" && SelectedTag(OcrBackendBox) == "PaddleOCR";
+    }
+
+    private void CutoutDevice_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (!_ready) return;
+        try { StoreCutoutConfiguration(); }
+        catch (Exception ex) { CutoutDownloadStatus.Text = ex.Message; return; }
+        RefreshCutoutModels((CutoutDefaultBox.SelectedItem as CutoutModelDefinition)?.Id,
+            (CutoutPackageBox.SelectedItem as CutoutModelDefinition)?.Id);
+    }
+
+    private void RefreshCutoutModels(string? preferredDefault, string? preferredPackage)
+    {
+        if (CutoutDeviceBox.SelectedItem is null) return;
+        var models = CutoutModels.ForDevice(SelectedTag(CutoutDeviceBox));
+        CutoutPackageBox.SelectionChanged -= CutoutPackage_Changed;
+        CutoutDefaultBox.ItemsSource = models;
+        CutoutPackageBox.ItemsSource = models;
+        CutoutDefaultBox.SelectedItem = models.FirstOrDefault(model => model.Id == preferredDefault) ?? models[0];
+        CutoutPackageBox.SelectedItem = models.FirstOrDefault(model => model.Id == preferredPackage) ?? CutoutDefaultBox.SelectedItem;
+        CutoutPackageBox.SelectionChanged += CutoutPackage_Changed;
+        _editingCutout = (CutoutModelDefinition)CutoutPackageBox.SelectedItem;
+        var config = _cutoutModels.GetValueOrDefault(_editingCutout.Id);
+        CutoutPath.Text = _settings.StoreModelPath(config?.Path);
+        CutoutProfileBox.SelectedIndex = (config?.Profile ?? _editingCutout.Profile) switch { "ISNet" => 1, "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 };
+        CutoutSize.Text = (config?.InputSize ?? _editingCutout.InputSize).ToString();
+    }
+
+    private void LocalTranslationDevice_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (!_ready) return;
+        RefreshLocalTranslationModels((LocalTranslationModelBox.SelectedItem as LocalTranslationSetupService.Model)?.FileName);
+    }
+
+    private void RefreshLocalTranslationModels(string? preferredFile)
+    {
+        if (LocalTranslationDeviceBox.SelectedItem is null) return;
+        var models = LocalTranslationSetupService.AvailableModels(SelectedTag(LocalTranslationDeviceBox), _dedicatedVideoMemory, _availableMemory);
+        LocalTranslationModelBox.ItemsSource = models;
+        LocalTranslationModelBox.SelectedItem = models.FirstOrDefault(model => model.FileName.Equals(preferredFile, StringComparison.OrdinalIgnoreCase))
+            ?? models.FirstOrDefault(model => model.Id == "qwen35-4b") ?? models[0];
+    }
+
     private void ConfigureTranslation_Click(object sender, RoutedEventArgs e)
     {
         TranslateSource.Text = "en"; TranslateTarget.Text = "zh";
-        var provider = ((System.Windows.Controls.ComboBoxItem)TranslationProviderBox.SelectedItem).Tag.ToString();
-        if (provider == "Local")
-        {
-            DownloadLocalTranslation_Click(sender, e);
-            return;
-        }
+        TranslationModeApi.IsChecked = true;
+        var provider = SelectedTag(TranslationProviderBox);
         AllowTranslation.IsChecked = true;
         TranslationStatus.Text = provider == "LibreTranslate" ? L.Get("CustomEnglishToChineseServiceSelectedEnter")
             : L.Format("Configured0ForEnglishToChineseTranslation", provider);
@@ -369,11 +444,21 @@ public partial class SettingsWindow : Window
     private void TranslationProvider_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
         if (!_ready) return;
-        var provider = ((System.Windows.Controls.ComboBoxItem)TranslationProviderBox.SelectedItem).Tag.ToString();
-        TranslateUrl.IsEnabled = provider == "LibreTranslate";
-        LocalTranslationPanel.Visibility = provider == "Local" ? Visibility.Visible : Visibility.Collapsed;
-        AllowTranslation.IsEnabled = provider != "Local";
-        TranslationPricing.Text = RecognitionProviderCatalog.Translation(provider!).Notice;
+        UpdateTranslationMode();
+    }
+    private void TranslationMode_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_ready) return;
+        UpdateTranslationMode();
+    }
+    private void UpdateTranslationMode()
+    {
+        var local = TranslationModeLocal.IsChecked == true;
+        var provider = local ? "Local" : SelectedTag(TranslationProviderBox);
+        TranslationProviderBox.IsEnabled = !local;
+        TranslateUrl.IsEnabled = !local && provider == "LibreTranslate";
+        AllowTranslation.IsEnabled = !local;
+        TranslationPricing.Text = RecognitionProviderCatalog.Translation(provider).Notice;
         TranslationStatus.Text = provider switch
         {
             "Local" => L.Get("LocalTranslationChooseCPUOrVulkanGPU"),
@@ -420,8 +505,9 @@ public partial class SettingsWindow : Window
         if (ModelDownload is not null) { TranslationStatus.Text = L.Get("ADownloadIsInProgressWaitFor"); return; }
         using var cancellation = new CancellationTokenSource(); ModelDownload = cancellation;
         var device = ((System.Windows.Controls.ComboBoxItem)LocalTranslationDeviceBox.SelectedItem).Tag.ToString()!;
+        var model = (LocalTranslationSetupService.Model)LocalTranslationModelBox.SelectedItem;
         DownloadLocalTranslationButton.IsEnabled = false; CancelLocalTranslationButton.IsEnabled = true;
-        LocalTranslationDeviceBox.IsEnabled = TranslationProviderBox.IsEnabled = false;
+        LocalTranslationModelBox.IsEnabled = LocalTranslationDeviceBox.IsEnabled = TranslationProviderBox.IsEnabled = false;
         LocalTranslationProgress.Visibility = Visibility.Visible;
         LocalTranslationProgress.IsIndeterminate = true;
         LocalTranslationProgress.Value = 0;
@@ -430,7 +516,7 @@ public partial class SettingsWindow : Window
         try
         {
             var root = Path.Combine(AppPaths.Root, "models", "local-translation");
-            var install = await LocalTranslationSetupService.Install(root, device,
+            var install = await LocalTranslationSetupService.Install(root, device, model,
                 new Progress<string>(text =>
                 {
                     if (IsLoaded && ReferenceEquals(ModelDownload, cancellation)) LocalTranslationDownloadStatus.Text = text;
@@ -443,7 +529,7 @@ public partial class SettingsWindow : Window
             if (!IsLoaded) return;
             LocalTranslationModelPath.Text = _settings.StoreModelPath(install.Model); LocalTranslationRuntimePath.Text = _settings.StoreModelPath(install.Runtime);
             LocalTranslationDeviceBox.SelectedIndex = device == "Vulkan" ? 1 : 0;
-            TranslationProviderBox.SelectedIndex = 3;
+            TranslationModeLocal.IsChecked = true;
             LocalTranslationDownloadStatus.Text = TranslationStatus.Text = L.Format("LocalTranslationDownloaded", device);
             LocalTranslationProgress.Value = 100;
         }
@@ -460,7 +546,8 @@ public partial class SettingsWindow : Window
         {
             ModelDownload = null;
             LocalTranslationProgress.IsIndeterminate = false;
-            DownloadLocalTranslationButton.IsEnabled = LocalTranslationDeviceBox.IsEnabled = TranslationProviderBox.IsEnabled = true;
+            DownloadLocalTranslationButton.IsEnabled = LocalTranslationModelBox.IsEnabled = LocalTranslationDeviceBox.IsEnabled = true;
+            UpdateTranslationMode();
             CancelLocalTranslationButton.IsEnabled = false;
         }
     }
@@ -577,7 +664,8 @@ public partial class SettingsWindow : Window
         try
         {
             var root = System.IO.Path.Combine(AppPaths.Root, "models");
-            var paths = await new OcrModelDownloadService().Download(root, new Progress<string>(text => OcrDownloadStatus.Text = text), cancellation.Token, SelectedModelDownloadSource);
+            var packageId = OcrModelPackage.SelectedValue as string ?? OcrModelDownloadService.DefaultPackageId;
+            var paths = await new OcrModelDownloadService().Download(root, new Progress<string>(text => OcrDownloadStatus.Text = text), cancellation.Token, SelectedModelDownloadSource, packageId: packageId);
             if (!IsLoaded) return;
             OcrDetPath.Text = _settings.StoreModelPath(paths.Detection); OcrRecPath.Text = _settings.StoreModelPath(paths.Recognition); OcrDictPath.Text = _settings.StoreModelPath(paths.Dictionary);
             OcrBackendBox.SelectedIndex = 0;
@@ -664,9 +752,9 @@ public partial class SettingsWindow : Window
             MessageBox.Show(this, ex.Message, L.Get("CouldNotSaveSettings"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
-    private static string NormalizeHotkey(string value, string label, bool optional = false)
+    private static string NormalizeHotkey(string value, string label)
     {
-        if (optional && string.IsNullOrWhiteSpace(value)) return "";
+        if (string.IsNullOrWhiteSpace(value)) return "";
         if (HotkeyGesture.TryParse(value, out var gesture, out var error)) return gesture!.DisplayText;
         throw new ArgumentException(L.Format("InvalidShortcutFor01", label, error));
     }
@@ -678,6 +766,7 @@ public partial class SettingsWindow : Window
         var window = new SettingsWindow(settings, new StartupRegistrationService(), host);
         try
         {
+            window.CutoutDeviceBox.SelectedIndex = 1;
             var originalDefault = window.CutoutDefaultBox.SelectedItem;
             window.CutoutPackageBox.SelectedItem = CutoutModels.All.Single(x => x.Id == "birefnet-hr-matting");
             if (window.CutoutSize.Text != "2048" || ((System.Windows.Controls.ComboBoxItem)window.CutoutProfileBox.SelectedItem).Tag.ToString() != "BiRefNetAlpha" || window.CutoutDefaultBox.SelectedItem != originalDefault)
@@ -726,14 +815,15 @@ public partial class SettingsWindow : Window
             window.TranslationProviderBox.SelectedIndex = 1; window.TranslateUrl.Text = "https://example.com/translate";
             if (!window.TranslateUrl.IsEnabled || window.BuildCandidate().TranslationProvider != "LibreTranslate") return false;
             window.AllowTranslation.IsChecked = false;
-            window.TranslationProviderBox.SelectedIndex = 3;
+            window.TranslationModeLocal.IsChecked = true;
             window.OnnxDeviceBox.SelectedIndex = 1; window.OnnxGpuId.Text = "1";
             window.LocalTranslationDeviceBox.SelectedIndex = 1;
             var local = window.BuildCandidate();
             if (local.TranslationProvider != "Local" || local.AllowOnlineTranslation ||
                 local.OnnxDevice != "DirectML" || local.OnnxDeviceId != 1 ||
                 local.LocalTranslationDevice != "Vulkan" || window.AllowTranslation.IsEnabled ||
-                window.LocalTranslationPanel.Visibility != Visibility.Visible || window.TranslateUrl.IsEnabled) return false;
+                window.LocalTranslationModelBox.Visibility != Visibility.Visible || window.TranslateUrl.IsEnabled) return false;
+            if (window.TranslationProviderBox.Items.OfType<System.Windows.Controls.ComboBoxItem>().Any(item => Equals(item.Tag, "Local"))) return false;
             if (!window.TranslationPricing.Text.Contains("无 API 费用")) return false;
             window.TextWidth.Text = "600"; window.PinSnapDistance.Text = "18";
             window.ClipboardPinHotkey.Text = ""; window.TogglePinsHotkey.Text = "";
