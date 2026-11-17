@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -28,10 +29,10 @@ public sealed class ToolGroupButton : StackPanel
 
     private (AnnotationTool Tool, PackIconLucideKind Icon, string Label)[] Definitions => Group switch
     {
-        "Shapes" => [(AnnotationTool.Rectangle, PackIconLucideKind.Square, "矩形"), (AnnotationTool.Ellipse, PackIconLucideKind.Circle, "椭圆"), (AnnotationTool.Polygon, PackIconLucideKind.Pentagon, "多边形")],
-        "Ink" => [(AnnotationTool.Pen, PackIconLucideKind.Pencil, "画笔"), (AnnotationTool.Highlight, PackIconLucideKind.Highlighter, "荧光笔")],
-        "Text" => [(AnnotationTool.Text, PackIconLucideKind.Type, "文字"), (AnnotationTool.Bubble, PackIconLucideKind.MessageCircle, "气泡"), (AnnotationTool.Watermark, PackIconLucideKind.Stamp, "水印")],
-        "Effects" => [(AnnotationTool.Mosaic, PackIconLucideKind.Grid3x3, "马赛克"), (AnnotationTool.Blur, PackIconLucideKind.Droplets, "高斯模糊"), (AnnotationTool.Spotlight, PackIconLucideKind.Focus, "聚光灯"), (AnnotationTool.Magnifier, PackIconLucideKind.ZoomIn, "放大镜标注")],
+        "Shapes" => [(AnnotationTool.Rectangle, PackIconLucideKind.Square, L.Get("Rectangle")), (AnnotationTool.Ellipse, PackIconLucideKind.Circle, L.Get("Ellipse")), (AnnotationTool.Polygon, PackIconLucideKind.Pentagon, L.Get("Polygon"))],
+        "Ink" => [(AnnotationTool.Pen, PackIconLucideKind.Pencil, L.Get("Pen")), (AnnotationTool.Highlight, PackIconLucideKind.Highlighter, L.Get("Highlighter"))],
+        "Text" => [(AnnotationTool.Text, PackIconLucideKind.Type, L.Get("Text")), (AnnotationTool.Bubble, PackIconLucideKind.MessageCircle, L.Get("Callout")), (AnnotationTool.Watermark, PackIconLucideKind.Stamp, L.Get("Watermark"))],
+        "Effects" => [(AnnotationTool.Mosaic, PackIconLucideKind.Grid3x3, L.Get("Pixelate")), (AnnotationTool.Blur, PackIconLucideKind.Droplets, L.Get("GaussianBlur")), (AnnotationTool.Spotlight, PackIconLucideKind.Focus, L.Get("Spotlight")), (AnnotationTool.Magnifier, PackIconLucideKind.ZoomIn, L.Get("MagnifierAnnotation"))],
         _ => throw new InvalidOperationException("Unknown tool group: " + Group)
     };
 
@@ -49,7 +50,7 @@ public sealed class ToolGroupButton : StackPanel
         var chevron = new PackIconLucide { Kind = PackIconLucideKind.ChevronDown };
         chevron.SetResourceReference(StyleProperty, "ToolbarIcon"); chevron.Width = 14; chevron.Height = 14;
         _toggle.Content = chevron;
-        _toggle.ToolTip = "展开同类工具";
+        _toggle.ToolTip = L.Get("ExpandRelatedTools");
         _toggle.Checked += (_, _) => _popup.IsOpen = true;
         _toggle.Unchecked += (_, _) => _popup.IsOpen = false;
         _popup.Closed += (_, _) => _toggle.IsChecked = false;
@@ -101,7 +102,7 @@ public sealed class ToolGroupButton : StackPanel
     {
         if (Tools.Contains(tool)) CurrentTool = tool;
         var definition = Definitions.First(item => item.Tool == CurrentTool);
-        _icon.Kind = definition.Icon; _main.ToolTip = definition.Label + "（右侧展开同类工具）";
+        _icon.Kind = definition.Icon; _main.ToolTip = definition.Label + L.Get("ExpandRelatedToolsOnTheRight");
         if (active && Tools.Contains(tool)) _main.SetResourceReference(Control.BackgroundProperty, "ToolbarActiveBrush");
         else _main.Background = Brushes.Transparent;
         _main.SetResourceReference(Control.ForegroundProperty, active && Tools.Contains(tool) ? "AccentForegroundBrush" : "TextBrush");

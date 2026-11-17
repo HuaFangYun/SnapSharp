@@ -1,5 +1,6 @@
 <Window x:Class="SnapSharp.Views.SelectionWindow" Style="{StaticResource AppWindow}"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:loc="http://wpflocalizeextension.codeplex.com"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:SnapSharp.Views"
         xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
@@ -75,14 +76,14 @@
                        VerticalAlignment="Center" TextWrapping="NoWrap" />
             </StackPanel>
             <TextBlock x:Name="ColorFormatText" Foreground="#FFC7CDD6" FontSize="10.5" HorizontalAlignment="Center" Margin="0,0,0,4" />
-            <TextBlock Text="Shift：切换颜色格式" Foreground="White" FontSize="13" HorizontalAlignment="Center" />
-            <TextBlock Text="C：复制颜色值并退出截图" Foreground="White" FontSize="13" HorizontalAlignment="Center" />
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ShiftChangeColorFormat}" Foreground="White" FontSize="13" HorizontalAlignment="Center" />
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CCopyColorAndExitCapture}" Foreground="White" FontSize="13" HorizontalAlignment="Center" />
           </StackPanel>
         </Border>
       </Grid>
     </Border>
 
-    <TextBlock x:Name="Hint" Text="拖动选择区域  |  单击选中窗口  |  选区后右键重选  |  Tab 切换模式  |  Esc 取消" Foreground="{DynamicResource OverlayTextBrush}"
+    <TextBlock x:Name="Hint" Text="{loc:Loc SnapSharp.Core:Resources.Strings:DragToSelectClickToSelectWindow}" Foreground="{DynamicResource OverlayTextBrush}"
                Background="{DynamicResource OverlaySurfaceBrush}" Padding="12,7" HorizontalAlignment="Center"
                VerticalAlignment="Top" Margin="0,18,0,0" IsHitTestVisible="False" />
 
@@ -110,19 +111,19 @@
             Background="{DynamicResource OverlaySurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="1" CornerRadius="6" Padding="5">
       <StackPanel Orientation="Horizontal">
-        <ComboBox x:Name="CaptureModePicker" Width="82" SelectionChanged="CaptureMode_Changed" ToolTip="捕获模式">
-          <ComboBoxItem Content="区域" Tag="Region" IsSelected="True" />
-          <ComboBoxItem Content="窗口" Tag="Window" />
-          <ComboBoxItem Content="全屏" Tag="FullScreen" />
+        <ComboBox x:Name="CaptureModePicker" Width="82" SelectionChanged="CaptureMode_Changed" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:CaptureMode}">
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Region}" Tag="Region" IsSelected="True" />
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Window}" Tag="Window" />
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:FullScreen}" Tag="FullScreen" />
         </ComboBox>
-        <ComboBox x:Name="ShapePicker" Width="92" Margin="5,0,0,0" SelectionChanged="Shape_Changed" ToolTip="选区形状">
-          <ComboBoxItem Content="矩形" Tag="Rectangle" IsSelected="True" />
-          <ComboBoxItem Content="椭圆" Tag="Ellipse" />
-          <ComboBoxItem Content="自由套索" Tag="Lasso" />
-          <ComboBoxItem Content="多边形" Tag="Polygon" />
+        <ComboBox x:Name="ShapePicker" Width="92" Margin="5,0,0,0" SelectionChanged="Shape_Changed" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:SelectionShape}">
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Rectangle}" Tag="Rectangle" IsSelected="True" />
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Ellipse}" Tag="Ellipse" />
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:FreehandLasso}" Tag="Lasso" />
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Polygon}" Tag="Polygon" />
         </ComboBox>
-        <ComboBox x:Name="RatioPicker" Width="76" Margin="5,0,0,0" SelectionChanged="Ratio_Changed" ToolTip="锁定比例">
-          <ComboBoxItem Content="自由" Tag="Free" IsSelected="True" />
+        <ComboBox x:Name="RatioPicker" Width="76" Margin="5,0,0,0" SelectionChanged="Ratio_Changed" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:AspectRatio}">
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Free}" Tag="Free" IsSelected="True" />
           <ComboBoxItem Content="1:1" Tag="1" />
           <ComboBoxItem Content="4:3" Tag="1.333333333333" />
           <ComboBoxItem Content="16:9" Tag="1.777777777778" />
@@ -145,14 +146,14 @@
         <Style TargetType="iconPacks:PackIconLucide" BasedOn="{StaticResource ToolbarIcon}" />
       </Border.Resources>
       <WrapPanel x:Name="ToolButtons" Orientation="Horizontal" VerticalAlignment="Top">
-        <Button x:Name="MoveSelectionButton" Style="{StaticResource CaptureToolButton}" Click="MoveSelection_Click" ToolTip="移动选区"><iconPacks:PackIconLucide Kind="Move" /></Button>
+        <Button x:Name="MoveSelectionButton" Style="{StaticResource CaptureToolButton}" Click="MoveSelection_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:MoveSelection}"><iconPacks:PackIconLucide Kind="Move" /></Button>
         <Separator />
         <local:ToolGroupButton x:Name="ShapeTools" Group="Shapes" ToolSelected="ToolGroup_ToolSelected" />
-        <Button Style="{StaticResource CaptureToolButton}" Tag="Line" Click="Tool_Click" ToolTip="直线"><iconPacks:PackIconLucide Kind="Minus" /></Button>
-        <Button Style="{StaticResource CaptureToolButton}" Tag="Arrow" Click="Tool_Click" ToolTip="箭头"><iconPacks:PackIconLucide Kind="ArrowUpRight" /></Button>
+        <Button Style="{StaticResource CaptureToolButton}" Tag="Line" Click="Tool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Line}"><iconPacks:PackIconLucide Kind="Minus" /></Button>
+        <Button Style="{StaticResource CaptureToolButton}" Tag="Arrow" Click="Tool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Arrow}"><iconPacks:PackIconLucide Kind="ArrowUpRight" /></Button>
         <Grid Width="14" Height="32" Margin="-5,0,2,0">
           <ToggleButton x:Name="PrimaryArrowStyleDropDownToggle" Width="14" Height="32" Background="Transparent"
-                        BorderThickness="0" Cursor="Hand" ToolTip="选择箭头样式">
+                        BorderThickness="0" Cursor="Hand" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ChooseArrowStyle}">
             <ToggleButton.Template>
               <ControlTemplate TargetType="ToggleButton">
                 <Border x:Name="PrimaryArrowDropSurface" Background="{TemplateBinding Background}" CornerRadius="4">
@@ -173,16 +174,16 @@
                     CornerRadius="8" Padding="4">
               <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.58" Color="#000000" /></Border.Effect>
               <StackPanel x:Name="PrimaryArrowStyleMenu">
-                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="TaperedOutline" Click="PrimaryArrowStyleButton_Click" ToolTip="渐细空心箭头"><local:ArrowStylePreview ArrowStyle="TaperedOutline" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="TaperedFilled" Click="PrimaryArrowStyleButton_Click" ToolTip="渐细实心箭头"><local:ArrowStylePreview ArrowStyle="TaperedFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="EndOpen" Click="PrimaryArrowStyleButton_Click" ToolTip="单向箭头"><local:ArrowStylePreview ArrowStyle="EndOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="BothOpen" Click="PrimaryArrowStyleButton_Click" ToolTip="双向箭头"><local:ArrowStylePreview ArrowStyle="BothOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="StartOpen" Click="PrimaryArrowStyleButton_Click" ToolTip="反向箭头"><local:ArrowStylePreview ArrowStyle="StartOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="EndFilled" Click="PrimaryArrowStyleButton_Click" ToolTip="实心箭头"><local:ArrowStylePreview ArrowStyle="EndFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="BothFilled" Click="PrimaryArrowStyleButton_Click" ToolTip="双向实心箭头"><local:ArrowStylePreview ArrowStyle="BothFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="EndOpenStartBar" Click="PrimaryArrowStyleButton_Click" ToolTip="起点端线箭头"><local:ArrowStylePreview ArrowStyle="EndOpenStartBar" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="StartOpenEndBar" Click="PrimaryArrowStyleButton_Click" ToolTip="终点端线箭头"><local:ArrowStylePreview ArrowStyle="StartOpenEndBar" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="Bars" Click="PrimaryArrowStyleButton_Click" ToolTip="双端线"><local:ArrowStylePreview ArrowStyle="Bars" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="TaperedOutline" Click="PrimaryArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:TaperedOutlineArrow}"><local:ArrowStylePreview ArrowStyle="TaperedOutline" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="TaperedFilled" Click="PrimaryArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:TaperedFilledArrow}"><local:ArrowStylePreview ArrowStyle="TaperedFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="EndOpen" Click="PrimaryArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:SingleArrow}"><local:ArrowStylePreview ArrowStyle="EndOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="BothOpen" Click="PrimaryArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:DoubleArrow}"><local:ArrowStylePreview ArrowStyle="BothOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="StartOpen" Click="PrimaryArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ReverseArrow}"><local:ArrowStylePreview ArrowStyle="StartOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="EndFilled" Click="PrimaryArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:FilledArrow}"><local:ArrowStylePreview ArrowStyle="EndFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="BothFilled" Click="PrimaryArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:DoubleFilledArrow}"><local:ArrowStylePreview ArrowStyle="BothFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="EndOpenStartBar" Click="PrimaryArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ArrowWithStartBar}"><local:ArrowStylePreview ArrowStyle="EndOpenStartBar" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="StartOpenEndBar" Click="PrimaryArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ArrowWithEndBar}"><local:ArrowStylePreview ArrowStyle="StartOpenEndBar" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                <Button Style="{StaticResource PrimaryArrowOptionButton}" Tag="Bars" Click="PrimaryArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:BarsAtBothEnds}"><local:ArrowStylePreview ArrowStyle="Bars" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
               </StackPanel>
             </Border>
           </Popup>
@@ -191,7 +192,7 @@
         <local:ToolGroupButton x:Name="InkTools" Group="Ink" ToolSelected="ToolGroup_ToolSelected" />
         <Separator />
         <local:ToolGroupButton x:Name="TextTools" Group="Text" ToolSelected="ToolGroup_ToolSelected" />
-        <Button Style="{StaticResource CaptureToolButton}" Tag="Number" Click="Tool_Click" ToolTip="序号标注">
+        <Button Style="{StaticResource CaptureToolButton}" Tag="Number" Click="Tool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:NumberAnnotation}">
           <Viewbox Width="18" Height="18">
             <Canvas Width="24" Height="24">
               <Ellipse Canvas.Left="3" Canvas.Top="3" Width="18" Height="18" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" />
@@ -203,48 +204,48 @@
         <Separator />
         <local:ToolGroupButton x:Name="EffectTools" Group="Effects" ToolSelected="ToolGroup_ToolSelected" />
         <Separator />
-        <Button Style="{StaticResource CaptureToolButton}" Tag="Select" Click="Tool_Click" ToolTip="选择对象"><iconPacks:PackIconLucide Kind="MousePointer2" /></Button>
-        <Button Style="{StaticResource CaptureToolButton}" Tag="Eraser" Click="Tool_Click" ToolTip="删除标注"><iconPacks:PackIconLucide Kind="Eraser" /></Button>
+        <Button Style="{StaticResource CaptureToolButton}" Tag="Select" Click="Tool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:SelectObject}"><iconPacks:PackIconLucide Kind="MousePointer2" /></Button>
+        <Button Style="{StaticResource CaptureToolButton}" Tag="Eraser" Click="Tool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:DeleteAnnotation}"><iconPacks:PackIconLucide Kind="Eraser" /></Button>
         <Separator />
-        <Button Style="{StaticResource CaptureToolButton}" Click="Color_Click" ToolTip="标注颜色"><iconPacks:PackIconLucide Kind="Palette" /></Button>
-        <Button Style="{StaticResource CaptureToolButton}" Command="{Binding UndoCommand}" ToolTip="撤销 (Ctrl+Z)"><iconPacks:PackIconLucide Kind="Undo2" /></Button>
-        <Button Style="{StaticResource CaptureToolButton}" Command="{Binding RedoCommand}" ToolTip="重做 (Ctrl+Y)"><iconPacks:PackIconLucide Kind="Redo2" /></Button>
+        <Button Style="{StaticResource CaptureToolButton}" Click="Color_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:AnnotationColor}"><iconPacks:PackIconLucide Kind="Palette" /></Button>
+        <Button Style="{StaticResource CaptureToolButton}" Command="{Binding UndoCommand}" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:UndoCtrlZ}"><iconPacks:PackIconLucide Kind="Undo2" /></Button>
+        <Button Style="{StaticResource CaptureToolButton}" Command="{Binding RedoCommand}" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:RedoCtrlY2}"><iconPacks:PackIconLucide Kind="Redo2" /></Button>
         <Menu Visibility="Collapsed" Height="32" FontSize="13" Background="Transparent" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center">
           <Menu.Resources>
             <Style TargetType="Separator" BasedOn="{StaticResource AppMenuSeparator}" />
             <Style TargetType="MenuItem" BasedOn="{StaticResource AppMenuItem}" />
           </Menu.Resources>
-          <MenuItem Header="对象">
-            <MenuItem Header="复制对象 (Ctrl+C)" Click="ObjectCopy_Click" />
-            <MenuItem Header="粘贴对象 (Ctrl+V)" Click="ObjectPaste_Click" />
-            <MenuItem Header="删除对象 (Delete)" Click="ObjectDelete_Click" />
+          <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Objects}">
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:CopyObjectCtrlC}" Click="ObjectCopy_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:PasteObjectCtrlV}" Click="ObjectPaste_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:DeleteObjectDelete}" Click="ObjectDelete_Click" />
             <Separator />
-            <MenuItem Header="上移一层" Click="LayerUp_Click" />
-            <MenuItem Header="下移一层" Click="LayerDown_Click" />
-            <MenuItem Header="置于顶层" Click="LayerTop_Click" />
-            <MenuItem Header="置于底层" Click="LayerBottom_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:BringForward}" Click="LayerUp_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:SendBackward}" Click="LayerDown_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:BringToFront}" Click="LayerTop_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:SendToBack}" Click="LayerBottom_Click" />
           </MenuItem>
-          <MenuItem Header="图像">
-            <MenuItem Header="顺时针旋转 90°" Click="RotateClockwise_Click" />
-            <MenuItem Header="逆时针旋转 90°" Click="RotateCounterClockwise_Click" />
-            <MenuItem Header="水平翻转（文字保持可读）" Click="FlipHorizontal_Click" />
-            <MenuItem Header="垂直翻转（文字保持可读）" Click="FlipVertical_Click" />
-            <MenuItem Header="扩展画布…" Click="ExpandCanvas_Click" />
+          <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Image}">
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Rotate90Clockwise}" Click="RotateClockwise_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Rotate90Counterclockwise}" Click="RotateCounterClockwise_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:FlipHorizontallyKeepTextReadable}" Click="FlipHorizontal_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:FlipVerticallyKeepTextReadable}" Click="FlipVertical_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:ExpandCanvas2}" Click="ExpandCanvas_Click" />
           </MenuItem>
-          <MenuItem Header="模板">
-            <MenuItem Header="导出标注模板…" Click="SaveTemplate_Click" />
-            <MenuItem Header="导入标注模板…" Click="LoadTemplate_Click" />
+          <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Templates}">
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:ExportAnnotationTemplate}" Click="SaveTemplate_Click" />
+            <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:ImportAnnotationTemplate}" Click="LoadTemplate_Click" />
           </MenuItem>
         </Menu>
         <Separator />
-        <Button x:Name="ScrollCaptureButton" Style="{StaticResource CaptureToolButton}" Click="ScrollCapture_Click" ToolTip="滚动长截图"><iconPacks:PackIconLucide Kind="MoveVertical" /></Button>
-        <Button x:Name="PinCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Pin_Click" ToolTip="置顶贴图"><iconPacks:PackIconLucide Kind="Pin" /></Button>
-        <Button x:Name="RecognitionCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Recognition_Click" ToolTip="文字、条码与表格识别"><iconPacks:PackIconLucide Kind="ScanText" /></Button>
-        <Button x:Name="CutoutCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Cutout_Click" ToolTip="一键抠图（需配置 ONNX 模型）"><iconPacks:PackIconLucide Kind="Scissors" /></Button>
-        <Button x:Name="RecordingCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Recording_Click" ToolTip="录制这个区域（不包含截图标注）"><iconPacks:PackIconLucide Kind="Video" /></Button>
-        <Button x:Name="SaveCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Save_Click" ToolTip="保存"><iconPacks:PackIconLucide Kind="Download" /></Button>
-        <Button x:Name="PrimaryCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Copy_Click" ToolTip="复制到剪贴板" Background="{DynamicResource ToolbarActiveBrush}" Foreground="{DynamicResource AccentForegroundBrush}"><iconPacks:PackIconLucide Kind="Copy" /></Button>
-        <Button Style="{StaticResource CaptureToolButton}" Click="Cancel_Click" ToolTip="取消"><iconPacks:PackIconLucide Kind="X" /></Button>
+        <Button x:Name="ScrollCaptureButton" Style="{StaticResource CaptureToolButton}" Click="ScrollCapture_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ScrollingCapture2}"><iconPacks:PackIconLucide Kind="MoveVertical" /></Button>
+        <Button x:Name="PinCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Pin_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:PinImage}"><iconPacks:PackIconLucide Kind="Pin" /></Button>
+        <Button x:Name="RecognitionCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Recognition_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:RecognizeTextBarcodesAndTables}"><iconPacks:PackIconLucide Kind="ScanText" /></Button>
+        <Button x:Name="CutoutCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Cutout_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveBackgroundRequiresONNXModel}"><iconPacks:PackIconLucide Kind="Scissors" /></Button>
+        <Button x:Name="RecordingCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Recording_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:RecordThisRegionWithoutAnnotations}"><iconPacks:PackIconLucide Kind="Video" /></Button>
+        <Button x:Name="SaveCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Save_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Save}"><iconPacks:PackIconLucide Kind="Download" /></Button>
+        <Button x:Name="PrimaryCaptureButton" Style="{StaticResource CaptureToolButton}" Click="Copy_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:CopyToClipboard}" Background="{DynamicResource ToolbarActiveBrush}" Foreground="{DynamicResource AccentForegroundBrush}"><iconPacks:PackIconLucide Kind="Copy" /></Button>
+        <Button Style="{StaticResource CaptureToolButton}" Click="Cancel_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Cancel}"><iconPacks:PackIconLucide Kind="X" /></Button>
       </WrapPanel>
     </Border>
 
@@ -297,33 +298,33 @@
       <WrapPanel x:Name="SecondaryToolButtons" Orientation="Horizontal" VerticalAlignment="Top" MinHeight="32">
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
             <Border Width="4" Height="20" CornerRadius="2" Background="{DynamicResource ToolbarActiveBrush}" Margin="0,0,7,0" />
-            <TextBlock x:Name="SecondaryToolTitle" Text="工具设置" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <TextBlock x:Name="SecondaryToolTitle" Text="{loc:Loc SnapSharp.Core:Resources.Strings:ToolOptions}" FontWeight="SemiBold" VerticalAlignment="Center" />
             <Separator Style="{StaticResource SecondarySeparator}" />
           </StackPanel>
 
           <WrapPanel x:Name="NumberOptions" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
-            <TextBlock x:Name="NumberValueLabel" Text="起始" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,4,0" />
-            <Button Style="{StaticResource SecondaryButton}" Tag="-1" Click="NumberStep_Click" ToolTip="上一个序号"><iconPacks:PackIconLucide Kind="ChevronDown" /></Button>
+            <TextBlock x:Name="NumberValueLabel" Text="{loc:Loc SnapSharp.Core:Resources.Strings:StartAt}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,4,0" />
+            <Button Style="{StaticResource SecondaryButton}" Tag="-1" Click="NumberStep_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:PreviousNumber}"><iconPacks:PackIconLucide Kind="ChevronDown" /></Button>
             <TextBox x:Name="NumberValueBox" Width="48" Text="1" TextAlignment="Center"
                      LostKeyboardFocus="NumberValueBox_LostKeyboardFocus" PreviewKeyDown="NumberValueBox_KeyDown" />
-            <Button Style="{StaticResource SecondaryButton}" Tag="1" Click="NumberStep_Click" ToolTip="下一个序号"><iconPacks:PackIconLucide Kind="ChevronUp" /></Button>
+            <Button Style="{StaticResource SecondaryButton}" Tag="1" Click="NumberStep_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:NextNumber}"><iconPacks:PackIconLucide Kind="ChevronUp" /></Button>
             <ComboBox x:Name="NumberStylePicker" Width="82" Margin="6,0,0,0" SelectionChanged="NumberStyle_Changed">
               <ComboBoxItem Content="1, 2, 3" Tag="Arabic" IsSelected="True" />
               <ComboBoxItem Content="I, II, III" Tag="UpperRoman" />
               <ComboBoxItem Content="a, b, c" Tag="LowerAlpha" />
               <ComboBoxItem Content="A, B, C" Tag="UpperAlpha" />
             </ComboBox>
-            <CheckBox x:Name="ContinuousNumberToggle" Content="连续编号" Margin="8,0,0,0" VerticalAlignment="Center"
+            <CheckBox x:Name="ContinuousNumberToggle" Content="{loc:Loc SnapSharp.Core:Resources.Strings:ContinuousNumbering}" Margin="8,0,0,0" VerticalAlignment="Center"
                       IsChecked="True" Click="ContinuousNumber_Changed" />
             <Separator Style="{StaticResource SecondarySeparator}" />
           </WrapPanel>
 
           <WrapPanel x:Name="FillOptions" Orientation="Horizontal" VerticalAlignment="Center">
-            <CheckBox x:Name="FillToggle" Content="填充" Foreground="{DynamicResource TextBrush}" Margin="2,0,4,0"
+            <CheckBox x:Name="FillToggle" Content="{loc:Loc SnapSharp.Core:Resources.Strings:Fill}" Foreground="{DynamicResource TextBrush}" Margin="2,0,4,0"
                       VerticalAlignment="Center" Click="Fill_Changed" />
             <Grid Margin="4,0,0,0">
               <ToggleButton Style="{StaticResource ToolbarFieldToggle}" x:Name="FillOpacityDropDownToggle" Width="76" Height="32" Background="{DynamicResource ControlBrush}"
-                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="调整填充透明度"
+                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:AdjustFillOpacity}"
                             PreviewMouseWheel="FillOpacity_MouseWheel">
                 <Grid Margin="8,0,7,0">
                   <Grid.ColumnDefinitions><ColumnDefinition Width="22" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
@@ -346,14 +347,14 @@
                   <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="54" /><ColumnDefinition Width="*" /><ColumnDefinition Width="40" /></Grid.ColumnDefinitions>
-                    <TextBlock Text="透明度" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Opacity}" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Slider x:Name="FillOpacitySlider" Grid.Column="1" Style="{StaticResource ThicknessSliderStyle}"
                             Width="142" Minimum="0" Maximum="100" Value="38" TickFrequency="1"
                             IsSnapToTickEnabled="True" ValueChanged="FillOpacity_Changed"
                             PreviewMouseWheel="FillOpacity_MouseWheel" />
                     <TextBlock x:Name="FillOpacityPopupValue" Grid.Column="2" Text="38%" Foreground="{DynamicResource TextBrush}"
                                FontSize="13" TextAlignment="Right" VerticalAlignment="Center" />
-                    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="拖动滑块或使用鼠标滚轮调整"
+                    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{loc:Loc SnapSharp.Core:Resources.Strings:DragSliderOrUseMouseWheelTo}"
                                Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,7,0,0" />
                   </Grid>
                 </Border>
@@ -363,12 +364,12 @@
           </WrapPanel>
 
           <WrapPanel x:Name="ArrowOptions" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
-            <TextBlock Text="箭头" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="2,0,5,0" />
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Arrow}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="2,0,5,0" />
             <Border Width="96" Height="32" Background="{DynamicResource ControlBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                     BorderThickness="1" CornerRadius="6">
               <Grid>
                 <ToggleButton Style="{StaticResource ToolbarFieldToggle}" x:Name="ArrowStyleDropDownToggle" Width="94" Height="30" Background="Transparent"
-                              BorderThickness="0" Cursor="Hand" ToolTip="选择箭头样式">
+                              BorderThickness="0" Cursor="Hand" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ChooseArrowStyle}">
                   <Grid Margin="10,0,7,0">
                     <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="18" /></Grid.ColumnDefinitions>
                     <local:ArrowStylePreview x:Name="SelectedArrowPreview" Width="48" Height="20" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center" />
@@ -383,16 +384,16 @@
                           CornerRadius="9" Padding="4">
                     <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.58" Color="#000000" /></Border.Effect>
                     <StackPanel x:Name="ArrowStyleMenu">
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="TaperedOutline" Click="ArrowStyleButton_Click" ToolTip="渐细空心箭头"><local:ArrowStylePreview ArrowStyle="TaperedOutline" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="TaperedFilled" Click="ArrowStyleButton_Click" ToolTip="渐细实心箭头"><local:ArrowStylePreview ArrowStyle="TaperedFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="EndOpen" Click="ArrowStyleButton_Click" ToolTip="单向箭头"><local:ArrowStylePreview ArrowStyle="EndOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="BothOpen" Click="ArrowStyleButton_Click" ToolTip="双向箭头"><local:ArrowStylePreview ArrowStyle="BothOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="StartOpen" Click="ArrowStyleButton_Click" ToolTip="反向箭头"><local:ArrowStylePreview ArrowStyle="StartOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="EndFilled" Click="ArrowStyleButton_Click" ToolTip="实心箭头"><local:ArrowStylePreview ArrowStyle="EndFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="BothFilled" Click="ArrowStyleButton_Click" ToolTip="双向实心箭头"><local:ArrowStylePreview ArrowStyle="BothFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="EndOpenStartBar" Click="ArrowStyleButton_Click" ToolTip="起点端线箭头"><local:ArrowStylePreview ArrowStyle="EndOpenStartBar" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="StartOpenEndBar" Click="ArrowStyleButton_Click" ToolTip="终点端线箭头"><local:ArrowStylePreview ArrowStyle="StartOpenEndBar" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="Bars" Click="ArrowStyleButton_Click" ToolTip="双端线"><local:ArrowStylePreview ArrowStyle="Bars" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="TaperedOutline" Click="ArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:TaperedOutlineArrow}"><local:ArrowStylePreview ArrowStyle="TaperedOutline" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="TaperedFilled" Click="ArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:TaperedFilledArrow}"><local:ArrowStylePreview ArrowStyle="TaperedFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="EndOpen" Click="ArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:SingleArrow}"><local:ArrowStylePreview ArrowStyle="EndOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="BothOpen" Click="ArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:DoubleArrow}"><local:ArrowStylePreview ArrowStyle="BothOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="StartOpen" Click="ArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ReverseArrow}"><local:ArrowStylePreview ArrowStyle="StartOpen" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="EndFilled" Click="ArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:FilledArrow}"><local:ArrowStylePreview ArrowStyle="EndFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="BothFilled" Click="ArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:DoubleFilledArrow}"><local:ArrowStylePreview ArrowStyle="BothFilled" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="EndOpenStartBar" Click="ArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ArrowWithStartBar}"><local:ArrowStylePreview ArrowStyle="EndOpenStartBar" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="StartOpenEndBar" Click="ArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ArrowWithEndBar}"><local:ArrowStylePreview ArrowStyle="StartOpenEndBar" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="Bars" Click="ArrowStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:BarsAtBothEnds}"><local:ArrowStylePreview ArrowStyle="Bars" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></Button>
                     </StackPanel>
                   </Border>
                 </Popup>
@@ -402,12 +403,12 @@
           </WrapPanel>
 
           <WrapPanel x:Name="StrokeOptions" Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBlock x:Name="StrokeLabel" Text="线型" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="2,0,5,0" />
+            <TextBlock x:Name="StrokeLabel" Text="{loc:Loc SnapSharp.Core:Resources.Strings:LineStyle}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="2,0,5,0" />
             <Border x:Name="StrokeStyleGroup" Width="122" Height="32" Background="{DynamicResource ControlBrush}"
                     BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" CornerRadius="6">
               <Grid>
                 <ToggleButton Style="{StaticResource ToolbarFieldToggle}" x:Name="StrokeStyleDropDownToggle" Width="120" Height="30" Background="Transparent"
-                              BorderThickness="0" Cursor="Hand" ToolTip="选择线型">
+                              BorderThickness="0" Cursor="Hand" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ChooseLineStyle}">
                   <Grid Margin="13,0,9,0">
                     <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="20" /></Grid.ColumnDefinitions>
                     <Line x:Name="SelectedStrokePreview" X1="0" X2="76" Y1="0" Y2="0" Stroke="{DynamicResource TextBrush}"
@@ -435,12 +436,12 @@
                           CornerRadius="9" Padding="4">
                     <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.58" Color="#000000" /></Border.Effect>
                     <StackPanel x:Name="StrokeStyleMenu">
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="Solid" Click="StrokeStyleButton_Click" ToolTip="实线"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="Dash" Click="StrokeStyleButton_Click" ToolTip="虚线"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeDashArray="4,2" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="Dot" Click="StrokeStyleButton_Click" ToolTip="点线"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeDashArray="1,2" StrokeDashCap="Round" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="LongDash" Click="StrokeStyleButton_Click" ToolTip="长虚线"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeDashArray="8,2" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="DashDot" Click="StrokeStyleButton_Click" ToolTip="点划线"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeDashArray="5,2,1,2" /></Button>
-                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="DashDotDot" Click="StrokeStyleButton_Click" ToolTip="双点划线"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeDashArray="5,2,1,2,1,2" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="Solid" Click="StrokeStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Solid}"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="Dash" Click="StrokeStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Dashed}"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeDashArray="4,2" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="Dot" Click="StrokeStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Dotted}"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeDashArray="1,2" StrokeDashCap="Round" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="LongDash" Click="StrokeStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:LongDash}"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeDashArray="8,2" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="DashDot" Click="StrokeStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:DashDot}"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeDashArray="5,2,1,2" /></Button>
+                      <Button Style="{StaticResource LineStyleOptionButton}" Tag="DashDotDot" Click="StrokeStyleButton_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:DashDotDot}"><Line X1="0" X2="112" Y1="0" Y2="0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeDashArray="5,2,1,2,1,2" /></Button>
                     </StackPanel>
                   </Border>
                 </Popup>
@@ -448,7 +449,7 @@
             </Border>
             <Grid Margin="8,0,0,0">
               <ToggleButton Style="{StaticResource ToolbarFieldToggle}" x:Name="ThicknessDropDownToggle" Width="78" Height="32" Background="{DynamicResource ControlBrush}"
-                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="调整粗细"
+                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:AdjustThickness}"
                             PreviewMouseWheel="Thickness_MouseWheel">
                 <Grid Margin="8,0,7,0">
                   <Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
@@ -467,7 +468,7 @@
                   <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="54" /><ColumnDefinition Width="*" /><ColumnDefinition Width="36" /></Grid.ColumnDefinitions>
-                    <TextBlock x:Name="ThicknessPopupLabel" Text="粗细" Foreground="{DynamicResource TextBrush}"
+                    <TextBlock x:Name="ThicknessPopupLabel" Text="{loc:Loc SnapSharp.Core:Resources.Strings:Thickness}" Foreground="{DynamicResource TextBrush}"
                                FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Slider x:Name="ThicknessSlider" Grid.Column="1" Style="{StaticResource ThicknessSliderStyle}"
                             Width="142" Minimum="1" Maximum="48" Value="4" TickFrequency="1"
@@ -475,7 +476,7 @@
                             PreviewMouseWheel="Thickness_MouseWheel" />
                     <TextBlock x:Name="ThicknessPopupValue" Grid.Column="2" Text="4" Foreground="{DynamicResource TextBrush}"
                                FontSize="13" TextAlignment="Right" VerticalAlignment="Center" />
-                    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="拖动滑块或使用鼠标滚轮调整"
+                    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{loc:Loc SnapSharp.Core:Resources.Strings:DragSliderOrUseMouseWheelTo}"
                                Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,7,0,0" />
                   </Grid>
                 </Border>
@@ -485,23 +486,23 @@
           </WrapPanel>
 
           <WrapPanel x:Name="ColorOptions" Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBlock x:Name="ColorLabel" Text="线色" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="2,0,5,0" />
-            <Button Style="{StaticResource ColorSwatchButton}" Tag="#E84A3C" Click="PaletteColor_Click" ToolTip="红色" Background="#E84A3C" />
-            <Button Style="{StaticResource ColorSwatchButton}" Tag="#FF9F0A" Click="PaletteColor_Click" ToolTip="橙色" Background="#FF9F0A" />
-            <Button Style="{StaticResource ColorSwatchButton}" Tag="#FFD60A" Click="PaletteColor_Click" ToolTip="黄色" Background="#FFD60A" />
-            <Button Style="{StaticResource ColorSwatchButton}" Tag="#30D158" Click="PaletteColor_Click" ToolTip="绿色" Background="#30D158" />
-            <Button Style="{StaticResource ColorSwatchButton}" Tag="#0A84FF" Click="PaletteColor_Click" ToolTip="蓝色" Background="#0A84FF" />
-            <Button Style="{StaticResource ColorSwatchButton}" Tag="#BF5AF2" Click="PaletteColor_Click" ToolTip="紫色" Background="#BF5AF2" />
-            <Button Style="{StaticResource ColorSwatchButton}" Tag="#111111" Click="PaletteColor_Click" ToolTip="黑色" Background="#111111" BorderBrush="#77777C" />
-            <Button Style="{StaticResource ColorSwatchButton}" Tag="#FFFFFF" Click="PaletteColor_Click" ToolTip="白色" Background="#FFFFFF" BorderBrush="#77777C" />
-            <Button Style="{StaticResource SecondaryButton}" Click="Color_Click" ToolTip="自定义颜色"><iconPacks:PackIconLucide Kind="Palette" /></Button>
+            <TextBlock x:Name="ColorLabel" Text="{loc:Loc SnapSharp.Core:Resources.Strings:StrokeColor}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="2,0,5,0" />
+            <Button Style="{StaticResource ColorSwatchButton}" Tag="#E84A3C" Click="PaletteColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Red}" Background="#E84A3C" />
+            <Button Style="{StaticResource ColorSwatchButton}" Tag="#FF9F0A" Click="PaletteColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Orange}" Background="#FF9F0A" />
+            <Button Style="{StaticResource ColorSwatchButton}" Tag="#FFD60A" Click="PaletteColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Yellow}" Background="#FFD60A" />
+            <Button Style="{StaticResource ColorSwatchButton}" Tag="#30D158" Click="PaletteColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Green}" Background="#30D158" />
+            <Button Style="{StaticResource ColorSwatchButton}" Tag="#0A84FF" Click="PaletteColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Blue}" Background="#0A84FF" />
+            <Button Style="{StaticResource ColorSwatchButton}" Tag="#BF5AF2" Click="PaletteColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Purple}" Background="#BF5AF2" />
+            <Button Style="{StaticResource ColorSwatchButton}" Tag="#111111" Click="PaletteColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Black}" Background="#111111" BorderBrush="#77777C" />
+            <Button Style="{StaticResource ColorSwatchButton}" Tag="#FFFFFF" Click="PaletteColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:White}" Background="#FFFFFF" BorderBrush="#77777C" />
+            <Button Style="{StaticResource SecondaryButton}" Click="Color_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:CustomColor}"><iconPacks:PackIconLucide Kind="Palette" /></Button>
           </WrapPanel>
 
           <WrapPanel x:Name="FontOptions" Orientation="Horizontal" VerticalAlignment="Center">
             <Separator Style="{StaticResource SecondarySeparator}" />
             <Grid x:Name="FontFamilyControl" Margin="0,0,6,0">
               <ToggleButton Style="{StaticResource ToolbarFieldToggle}" x:Name="FontFamilyDropDownToggle" Width="154" Height="32" Background="{DynamicResource ControlBrush}"
-                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="选择字体"
+                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ChooseFont}"
                             Checked="FontFamilyDropDownToggle_Checked">
                 <Grid Margin="10,0,7,0">
                   <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="20" /></Grid.ColumnDefinitions>
@@ -521,7 +522,7 @@
                     <Grid.RowDefinitions><RowDefinition Height="40" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                     <TextBox x:Name="FontSearchBox" Height="32" Padding="8,3" Background="{DynamicResource ControlBrush}"
                              Foreground="{DynamicResource TextBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1"
-                             TextChanged="FontSearchBox_TextChanged" ToolTip="搜索字体" />
+                             TextChanged="FontSearchBox_TextChanged" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:SearchFonts}" />
                     <ListBox x:Name="FontFamilyList" Grid.Row="1" Margin="0,5,0,0"
                              Background="Transparent" BorderThickness="0" Foreground="{DynamicResource TextBrush}"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -555,7 +556,7 @@
             </Grid>
             <Grid>
               <ToggleButton Style="{StaticResource ToolbarFieldToggle}" x:Name="FontSizeDropDownToggle" Width="78" Height="32" Background="{DynamicResource ControlBrush}"
-                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="调整字号"
+                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:AdjustFontSize}"
                             PreviewMouseWheel="FontSize_MouseWheel">
                 <Grid Margin="8,0,7,0">
                   <Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
@@ -575,14 +576,14 @@
                   <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="54" /><ColumnDefinition Width="*" /><ColumnDefinition Width="36" /></Grid.ColumnDefinitions>
-                    <TextBlock Text="字号" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FontSize}" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Slider x:Name="FontSizeSlider" Grid.Column="1" Style="{StaticResource ThicknessSliderStyle}"
                             Width="142" Minimum="10" Maximum="96" Value="96" TickFrequency="2"
                             IsSnapToTickEnabled="True" ValueChanged="FontSize_Changed"
                             PreviewMouseWheel="FontSize_MouseWheel" />
                     <TextBlock x:Name="FontSizePopupValue" Grid.Column="2" Text="96" Foreground="{DynamicResource TextBrush}"
                                FontSize="13" TextAlignment="Right" VerticalAlignment="Center" />
-                    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="拖动滑块或使用鼠标滚轮调整"
+                    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{loc:Loc SnapSharp.Core:Resources.Strings:DragSliderOrUseMouseWheelTo}"
                                Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,7,0,0" />
                   </Grid>
                 </Border>
@@ -590,7 +591,7 @@
             </Grid>
             <Grid x:Name="TextOutlineControl" Margin="6,0,0,0">
               <ToggleButton Style="{StaticResource ToolbarFieldToggle}" x:Name="TextOutlineDropDownToggle" Width="32" Height="32" Background="{DynamicResource ControlBrush}"
-                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="文字描边"
+                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:TextOutline}"
                             PreviewMouseWheel="TextOutline_MouseWheel">
                 <TextBlock Text="T" Foreground="{DynamicResource TextBrush}" FontSize="18" FontWeight="SemiBold" />
               </ToggleButton>
@@ -604,7 +605,7 @@
                   <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="*" /><ColumnDefinition Width="38" /></Grid.ColumnDefinitions>
-                    <CheckBox x:Name="OutlineEnabledToggle" Content="描边" Foreground="{DynamicResource TextBrush}"
+                    <CheckBox x:Name="OutlineEnabledToggle" Content="{loc:Loc SnapSharp.Core:Resources.Strings:Outline}" Foreground="{DynamicResource TextBrush}"
                               VerticalAlignment="Center" Click="OutlineEnabled_Changed" />
                     <Slider x:Name="TextOutlineSlider" Grid.Column="1" Style="{StaticResource ThicknessSliderStyle}"
                             Width="146" Minimum="0.5" Maximum="12" Value="8" TickFrequency="0.5"
@@ -614,14 +615,14 @@
                                FontSize="13" TextAlignment="Right" VerticalAlignment="Center" />
                     <StackPanel x:Name="OutlineColorOptions" Grid.Row="1" Grid.ColumnSpan="3"
                                 Orientation="Horizontal" Margin="0,9,0,0">
-                      <TextBlock Text="颜色" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Width="42" VerticalAlignment="Center" />
-                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#FFFFFF" Click="OutlineColor_Click" ToolTip="白色" Background="#FFFFFF" BorderBrush="#77777C" />
-                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#E84A3C" Click="OutlineColor_Click" ToolTip="红色" Background="#E84A3C" />
-                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#FFD60A" Click="OutlineColor_Click" ToolTip="黄色" Background="#FFD60A" />
-                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#30D158" Click="OutlineColor_Click" ToolTip="绿色" Background="#30D158" />
-                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#0A84FF" Click="OutlineColor_Click" ToolTip="蓝色" Background="#0A84FF" />
-                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#111111" Click="OutlineColor_Click" ToolTip="黑色" Background="#111111" BorderBrush="#77777C" />
-                      <Button Style="{StaticResource SecondaryButton}" Click="OutlineCustomColor_Click" ToolTip="自定义描边颜色"><iconPacks:PackIconLucide Kind="Palette" /></Button>
+                      <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Color}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Width="42" VerticalAlignment="Center" />
+                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#FFFFFF" Click="OutlineColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:White}" Background="#FFFFFF" BorderBrush="#77777C" />
+                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#E84A3C" Click="OutlineColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Red}" Background="#E84A3C" />
+                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#FFD60A" Click="OutlineColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Yellow}" Background="#FFD60A" />
+                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#30D158" Click="OutlineColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Green}" Background="#30D158" />
+                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#0A84FF" Click="OutlineColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Blue}" Background="#0A84FF" />
+                      <Button Style="{StaticResource ColorSwatchButton}" Tag="#111111" Click="OutlineColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Black}" Background="#111111" BorderBrush="#77777C" />
+                      <Button Style="{StaticResource SecondaryButton}" Click="OutlineCustomColor_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:CustomOutlineColor}"><iconPacks:PackIconLucide Kind="Palette" /></Button>
                     </StackPanel>
                   </Grid>
                 </Border>
@@ -632,11 +633,11 @@
           <WrapPanel x:Name="EffectOptions" Orientation="Horizontal" VerticalAlignment="Center">
             <Grid>
               <ToggleButton Style="{StaticResource ToolbarFieldToggle}" x:Name="EffectDropDownToggle" Width="92" Height="32" Background="{DynamicResource ControlBrush}"
-                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="调整效果参数"
+                            BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" Cursor="Hand" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:AdjustEffect}"
                             PreviewMouseWheel="Effect_MouseWheel">
                 <Grid Margin="8,0,7,0">
                   <Grid.ColumnDefinitions><ColumnDefinition Width="42" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                  <TextBlock x:Name="EffectCompactLabel" Text="强度" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
+                  <TextBlock x:Name="EffectCompactLabel" Text="{loc:Loc SnapSharp.Core:Resources.Strings:Intensity}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
                              HorizontalAlignment="Center" VerticalAlignment="Center" />
                   <TextBlock x:Name="EffectText" Grid.Column="1" Text="8" Foreground="{DynamicResource TextBrush}"
                              FontSize="13" TextAlignment="Center" VerticalAlignment="Center" />
@@ -652,14 +653,14 @@
                   <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="54" /><ColumnDefinition Width="*" /><ColumnDefinition Width="40" /></Grid.ColumnDefinitions>
-                    <TextBlock x:Name="EffectLabel" Text="强度" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <TextBlock x:Name="EffectLabel" Text="{loc:Loc SnapSharp.Core:Resources.Strings:Intensity}" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Slider x:Name="EffectSlider" Grid.Column="1" Style="{StaticResource ThicknessSliderStyle}"
                             Width="142" Minimum="2" Maximum="48" Value="8" TickFrequency="1"
                             IsSnapToTickEnabled="True" ValueChanged="Effect_Changed"
                             PreviewMouseWheel="Effect_MouseWheel" />
                     <TextBlock x:Name="EffectPopupValue" Grid.Column="2" Text="8" Foreground="{DynamicResource TextBrush}"
                                FontSize="13" TextAlignment="Right" VerticalAlignment="Center" />
-                    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="拖动滑块或使用鼠标滚轮调整"
+                    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{loc:Loc SnapSharp.Core:Resources.Strings:DragSliderOrUseMouseWheelTo}"
                                Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,7,0,0" />
                   </Grid>
                 </Border>

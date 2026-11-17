@@ -7,6 +7,13 @@ distributed direct or transitive package to its accompanying material. The
 root Apache-2.0 `LICENSE` covers SnapSharp itself; it does not replace a third
 party's copyright notice or separate terms.
 
+## WPFLocalizeExtension 3.10.0
+
+- Project: https://github.com/XAMLMarkupExtensions/WPFLocalizationExtension
+- License: Microsoft Public License (Ms-PL); retained in `ThirdPartyLicenses/WPFLocalizeExtension-LICENSE.txt`.
+- Use: WPF resource bindings and runtime interface language switching.
+- Transitive XAMLMarkupExtensions 2.1.3 is also Ms-PL; its license is retained separately. System.Management 7.0.0 retains its MIT license and upstream third-party notices.
+
 ## ScreenRecorderLib 7.0.1
 
 - Project: https://github.com/sskodje/ScreenRecorderLib

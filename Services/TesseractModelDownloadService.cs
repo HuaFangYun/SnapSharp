@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using System.Net.Http;
 using System.Security.Cryptography;
 
@@ -17,13 +18,13 @@ internal sealed class TesseractModelDownloadService
     ];
     internal static Model[] Package(string languages)
     {
-        if (languages is not ("eng" or "chi_sim" or "chi_sim+eng")) throw new ArgumentException("内置下载支持英文、简体中文、简中＋英文；其他语言可选择现有字库目录。");
+        if (languages is not ("eng" or "chi_sim" or "chi_sim+eng")) throw new ArgumentException(L.Get("BuiltInDownloadsSupportEnglishSimplifiedChinese"));
         return languages.Split('+').Select(x => Models.Single(m => m.Language == x)).ToArray();
     }
     internal static void Validate(Model model, byte[] data)
     {
         if (data.Length != model.Size || !Convert.ToHexString(SHA256.HashData(data)).Equals(model.Sha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException(model.Language + " 字库 SHA256／大小校验失败，原配置未更改。");
+            throw new InvalidDataException(model.Language + L.Get("LanguageDataSHA256SizeVerificationFailedConfiguration"));
     }
     public async Task<string> Download(string root, string languages, IProgress<string> progress, CancellationToken token)
     {
@@ -32,22 +33,22 @@ internal sealed class TesseractModelDownloadService
         using var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false }) { Timeout = TimeSpan.FromMinutes(5) };
         foreach (var model in models)
         {
-            progress.Report("正在连接官方 " + model.Language + " 字库源…");
+            progress.Report(L.Get("ConnectingToOfficial") + model.Language + L.Get("LanguageDataSource"));
             using var response = await client.GetAsync(model.Url, HttpCompletionOption.ResponseHeadersRead, token);
             response.EnsureSuccessStatusCode();
-            if (response.Content.Headers.ContentLength is long size && size != model.Size) throw new InvalidDataException("字库下载大小不匹配。");
+            if (response.Content.Headers.ContentLength is long size && size != model.Size) throw new InvalidDataException(L.Get("LanguageDataDownloadSizeMismatch"));
             using var data = new MemoryStream(model.Size);
             await using var stream = await response.Content.ReadAsStreamAsync(token);
             var buffer = new byte[81920]; int read;
             while ((read = await stream.ReadAsync(buffer, token)) != 0)
             {
-                if (data.Length + read > model.Size) throw new InvalidDataException("字库超过预期大小。");
+                if (data.Length + read > model.Size) throw new InvalidDataException(L.Get("LanguageDataExceedsItsExpectedSize"));
                 await data.WriteAsync(buffer.AsMemory(0, read), token);
-                progress.Report($"{model.Language} 下载 {data.Length * 100 / model.Size}% · {data.Length / 1048576d:F1} / {model.Size / 1048576d:F1} MB");
+                progress.Report(L.Format("0Download12F13F1", model.Language, data.Length * 100 / model.Size, data.Length / 1048576d, model.Size / 1048576d));
             }
             var bytes = data.ToArray(); Validate(model, bytes); payload.Add(model.Language, bytes);
         }
-        progress.Report("SHA256 校验通过，正在验证 Tesseract 字库可加载…");
+        progress.Report(L.Get("SHA256VerifiedCheckingThatTesseractCanLoad"));
         return await Task.Run(() => Install(payload, root, languages, token), token);
     }
     internal static string Install(IReadOnlyDictionary<string, byte[]> payload, string root, string languages, CancellationToken token)

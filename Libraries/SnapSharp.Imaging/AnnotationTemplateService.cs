@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using System.Text.Json;
 using System.Windows;
@@ -67,8 +68,8 @@ public sealed class AnnotationTemplateService
     public IReadOnlyList<Annotation> Load(string path, double canvasWidth, double canvasHeight)
     {
         var document = JsonSerializer.Deserialize<TemplateDocument>(File.ReadAllText(path), JsonOptions)
-            ?? throw new InvalidDataException("标注模板无效。");
-        if (document.Version != 1) throw new InvalidDataException($"不支持标注模板版本 {document.Version}。");
+            ?? throw new InvalidDataException(L.Get("InvalidAnnotationTemplate"));
+        if (document.Version != 1) throw new InvalidDataException(L.Format("UnsupportedAnnotationTemplateVersion0", document.Version));
         return document.Items.Select(FromItem)
             .Select(annotation => AnnotationEditing.Transform(annotation,
                 point => new Point(point.X * canvasWidth, point.Y * canvasHeight), canvasWidth, canvasHeight))
@@ -112,7 +113,7 @@ public sealed class AnnotationTemplateService
                 item.TextOutlineThickness = x.TextOutlineThickness; item.FontFamilyName = x.FontFamilyName; break;
             case MagnifierAnnotation x:
                 item.Source = PointData(x.Source); item.Destination = RectData(x.Destination); item.Zoom = x.Zoom; break;
-            default: throw new NotSupportedException($"不支持模板对象 {annotation.GetType().Name}。");
+            default: throw new NotSupportedException(L.Format("UnsupportedTemplateObject0", annotation.GetType().Name));
         }
         return item;
     }
@@ -138,7 +139,7 @@ public sealed class AnnotationTemplateService
                 ParseOptionalColor(item.TextOutline), item.TextOutlineThickness)
                 { FontFamilyName = string.IsNullOrWhiteSpace(item.FontFamilyName) ? "Segoe UI" : item.FontFamilyName },
             nameof(MagnifierAnnotation) => new MagnifierAnnotation(PointValue(item.Source), RectValue(item.Destination), item.Zoom),
-            _ => throw new InvalidDataException($"未知模板对象 {item.Type}。")
+            _ => throw new InvalidDataException(L.Format("UnknownTemplateObject0", item.Type))
         };
         var strokeStyle = Enum.TryParse<AnnotationStrokeStyle>(item.StrokeStyle, out var parsed)
             ? parsed
@@ -152,12 +153,12 @@ public sealed class AnnotationTemplateService
     }
 
     private static AnnotationTool ParseTool(string? value) =>
-        Enum.TryParse<AnnotationTool>(value, out var tool) ? tool : throw new InvalidDataException($"未知标注工具 {value}。");
+        Enum.TryParse<AnnotationTool>(value, out var tool) ? tool : throw new InvalidDataException(L.Format("UnknownAnnotationTool0", value));
     private static double[] PointData(Point point) => [point.X, point.Y];
     private static double[] RectData(Rect rect) => [rect.X, rect.Y, rect.Width, rect.Height];
-    private static Point PointValue(double[]? values) => values is { Length: >= 2 } ? new Point(values[0], values[1]) : throw new InvalidDataException("模板点坐标无效。");
-    private static Point[] PointValues(double[][]? values) => values?.Select(PointValue).ToArray() ?? throw new InvalidDataException("模板点列表无效。");
-    private static Rect RectValue(double[]? values) => values is { Length: >= 4 } ? new Rect(values[0], values[1], values[2], values[3]) : throw new InvalidDataException("模板矩形无效。");
+    private static Point PointValue(double[]? values) => values is { Length: >= 2 } ? new Point(values[0], values[1]) : throw new InvalidDataException(L.Get("InvalidTemplatePointCoordinates"));
+    private static Point[] PointValues(double[][]? values) => values?.Select(PointValue).ToArray() ?? throw new InvalidDataException(L.Get("InvalidTemplatePointList"));
+    private static Rect RectValue(double[]? values) => values is { Length: >= 4 } ? new Rect(values[0], values[1], values[2], values[3]) : throw new InvalidDataException(L.Get("InvalidTemplateRectangle"));
     private static string ColorText(Color? color) => color is Color value ? $"#{value.A:X2}{value.R:X2}{value.G:X2}{value.B:X2}" : "";
     private static Color ParseColor(string value) => (Color)System.Windows.Media.ColorConverter.ConvertFromString(value);
     private static Color? ParseOptionalColor(string? value) => string.IsNullOrWhiteSpace(value) ? null : ParseColor(value);

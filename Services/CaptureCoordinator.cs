@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Views;
 
@@ -36,7 +37,7 @@ public sealed class CaptureCoordinator
         if (mode == CaptureMode.ActiveWindow)
         {
             var capture = _captureService.CaptureWindow(targetWindow);
-            if (capture is null) throw new InvalidOperationException("无法获取当前活动窗口。");
+            if (capture is null) throw new InvalidOperationException(L.Get("CouldNotGetTheActiveWindow"));
             CompleteDirectCapture(capture);
             return;
         }
@@ -84,7 +85,7 @@ public sealed class CaptureCoordinator
         if (_selectingScrollingRegion || app.Windows.OfType<SelectionWindow>().Any()) return null;
         if (app.Windows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing) ||
             app.Windows.OfType<RecordingWindow>().Any(x => x.IsRecording))
-            throw new InvalidOperationException("请先停止当前滚动采集或录屏，再选择长截图区域。");
+            throw new InvalidOperationException(L.Get("StopTheCurrentScrollingCaptureOrRecording"));
         _selectingScrollingRegion = true;
         var hidden = app.Windows.OfType<System.Windows.Window>().Where(x => x.IsVisible).ToArray();
         var settings = new SettingsService();

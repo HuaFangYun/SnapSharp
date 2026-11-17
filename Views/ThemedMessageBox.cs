@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -52,8 +53,8 @@ internal static class ThemedMessageBox
         panel.RowDefinitions.Add(new RowDefinition());
         panel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         var body = new StackPanel();
-        var label = icon switch { MessageBoxImage.Error => "错误", MessageBoxImage.Warning => "注意",
-            MessageBoxImage.Question => "请确认", MessageBoxImage.Information => "提示", _ => "" };
+        var label = icon switch { MessageBoxImage.Error => L.Get("Error"), MessageBoxImage.Warning => L.Get("Warning"),
+            MessageBoxImage.Question => L.Get("PleaseConfirm"), MessageBoxImage.Information => L.Get("Information"), _ => "" };
         if (label.Length > 0)
             body.Children.Add(new TextBlock { Text = label, FontSize = 17, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 12) });
         body.Children.Add(new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap });
@@ -64,7 +65,7 @@ internal static class ThemedMessageBox
         {
             var button = new Button
             {
-                Content = choice switch { MessageBoxResult.OK => "确定", MessageBoxResult.Cancel => "取消", MessageBoxResult.Yes => "是", _ => "否" },
+                Content = choice switch { MessageBoxResult.OK => L.Get("OK"), MessageBoxResult.Cancel => L.Get("Cancel"), MessageBoxResult.Yes => L.Get("Yes"), _ => L.Get("No") },
                 MinWidth = 80, Padding = new Thickness(16, 5, 16, 5),
                 Margin = new Thickness(8, 0, 0, 0), IsDefault = choice == focus, IsCancel = choice == cancel
             };

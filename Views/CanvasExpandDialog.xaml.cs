@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -40,7 +41,7 @@ public partial class CanvasExpandDialog : Window
         if (!int.TryParse(WidthBox.Text, out var width) || !int.TryParse(HeightBox.Text, out var height) ||
             width < _sourceWidth || height < _sourceHeight)
         {
-            MessageBox.Show(this, $"画布不能小于原图 {_sourceWidth} × {_sourceHeight}。", "扩展画布", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(this, L.Format("CanvasCannotBeSmallerThanTheOriginal", _sourceWidth, _sourceHeight), L.Get("ExpandCanvas"), MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
         CanvasWidth = width;

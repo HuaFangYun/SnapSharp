@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -53,7 +54,7 @@ internal sealed class ScreenWordService(Func<AppSettings> settings, Func<bool> s
                 body.SetResourceReference(TextBlock.ForegroundProperty, "TextBrush");
                 var border = new Border { CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Child = new ScrollViewer { Content = body } };
                 border.SetResourceReference(Border.BackgroundProperty, "SurfaceBrush"); border.SetResourceReference(Border.BorderBrushProperty, "BorderBrush");
-                _popup = new Window { Title = "屏幕取词", Width = 440, Height = 130, ShowActivated = false, ShowInTaskbar = false, Topmost = true,
+                _popup = new Window { Title = L.Get("ScreenTextCapture"), Width = 440, Height = 130, ShowActivated = false, ShowInTaskbar = false, Topmost = true,
                     WindowStyle = WindowStyle.None, AllowsTransparency = true, Background = Brushes.Transparent, ResizeMode = ResizeMode.NoResize, Content = border };
                 ThemeService.ApplyToWindow(_popup);
                 _popup.SourceInitialized += (_, _) =>

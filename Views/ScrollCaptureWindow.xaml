@@ -1,7 +1,8 @@
 <Window x:Class="SnapSharp.Views.ScrollCaptureWindow" Style="{StaticResource AppWindow}"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:loc="http://wpflocalizeextension.codeplex.com"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="长截图 · SnapSharp" Width="1180" Height="820" MinWidth="900" MinHeight="600"
+        Title="{loc:Loc SnapSharp.Core:Resources.Strings:ScrollingCaptureSnapSharp}" Width="1180" Height="820" MinWidth="900" MinHeight="600"
         WindowStartupLocation="CenterScreen" KeyDown="Window_KeyDown" UseLayoutRounding="True" SnapsToDevicePixels="True">
   <Window.Resources><ResourceDictionary>
     <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="ToolbarStyles.xaml" /></ResourceDictionary.MergedDictionaries>
@@ -15,12 +16,12 @@
     <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="18" /><ColumnDefinition Width="310" /></Grid.ColumnDefinitions>
     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
     <WrapPanel Grid.ColumnSpan="3" Margin="0,0,0,12">
-      <TextBlock Text="长截图预览" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,20,0" />
-      <Button Content="适应全图" Click="Fit_Click" /><Button Content="适应宽度" Click="FitWidth_Click" /><Button Content="100%" Click="ActualSize_Click" />
-      <Button x:Name="UndoButton" Content="撤销" ToolTip="撤销裁剪、接缝及重新匹配（Ctrl+Z）" Click="Undo_Click" IsEnabled="False" /><Button x:Name="RedoButton" Content="重做" ToolTip="重做（Ctrl+Y）" Click="Redo_Click" IsEnabled="False" />
+      <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ScrollingCapturePreview}" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,20,0" />
+      <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:FitEntireImage}" Click="Fit_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:FitWidth}" Click="FitWidth_Click" /><Button Content="100%" Click="ActualSize_Click" />
+      <Button x:Name="UndoButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:Undo}" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:UndoCropSeamOrRematchCtrlZ}" Click="Undo_Click" IsEnabled="False" /><Button x:Name="RedoButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:Redo}" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:RedoCtrlY}" Click="Redo_Click" IsEnabled="False" />
       <Slider x:Name="Zoom" Style="{StaticResource ParameterSlider}" Minimum="0.01" Maximum="4" Value="0.5" Width="120" ValueChanged="Zoom_Changed" />
       <TextBlock Text="{Binding ElementName=Zoom, Path=Value, StringFormat={}{0:P0}}" VerticalAlignment="Center" Margin="0,0,12,0" />
-      <CheckBox x:Name="ShowSeams" Content="显示接缝线" IsChecked="True" Checked="Seams_Changed" Unchecked="Seams_Changed" />
+      <CheckBox x:Name="ShowSeams" Content="{loc:Loc SnapSharp.Core:Resources.Strings:ShowSeamGuides}" IsChecked="True" Checked="Seams_Changed" Unchecked="Seams_Changed" />
     </WrapPanel>
     <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="4">
       <ScrollViewer x:Name="Scroller" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" PreviewMouseWheel="Preview_MouseWheel">
@@ -32,51 +33,51 @@
     </Border>
     <ScrollViewer Grid.Column="2" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
       <StackPanel x:Name="ControlsPanel" Margin="0,0,10,0">
-        <TextBlock Text="编辑长截图" FontSize="18" FontWeight="SemiBold" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:EditScrollingCapture}" FontSize="18" FontWeight="SemiBold" />
         <TextBlock x:Name="RegionInfo" Style="{StaticResource Hint}" />
-        <TextBlock Text="裁剪图片边缘" FontSize="16" FontWeight="SemiBold" Margin="0,8,0,8" />
-        <TextBlock Text="选择上、下、左或右边，在图片上点击或拖动确定分界处。红色区域从所选边缘延伸至分界处：上下删除整行，左右删除整列，不能从中间挖除。" Style="{StaticResource Hint}" />
-        <UniformGrid Columns="2" Margin="0,4,0,8"><RadioButton x:Name="RemoveTop" GroupName="CropEdge" Content="去掉上边" IsChecked="True" Margin="0,4,12,8" Checked="CropSide_Changed" /><RadioButton x:Name="RemoveBottom" GroupName="CropEdge" Content="去掉下边" Margin="0,4,0,8" Checked="CropSide_Changed" /><RadioButton x:Name="RemoveLeft" GroupName="CropEdge" Content="去掉左边" Margin="0,4,12,8" Checked="CropSide_Changed" /><RadioButton x:Name="RemoveRight" GroupName="CropEdge" Content="去掉右边" Margin="0,4,0,8" Checked="CropSide_Changed" /></UniformGrid>
-        <TextBlock x:Name="CropSelectionInfo" Text="尚未选择删除区域" Style="{StaticResource Hint}" />
-        <Button x:Name="DeleteRowsButton" Content="删除选中边缘区域" Click="DeleteRows_Click" IsEnabled="False" />
-        <Button Content="还原整张长截图" Click="ResetCrop_Click" />
-        <Expander x:Name="CaptureSettings" Header="重新采集（手动／自动）" Margin="0,12,0,0"><StackPanel>
-          <TextBlock Text="滚动方向" /><ComboBox x:Name="DirectionBox" SelectedIndex="0"><ComboBoxItem Content="自动识别（先下后右探测）" Tag="Auto" /><ComboBoxItem Content="垂直向下" Tag="Vertical" /><ComboBoxItem Content="水平向右" Tag="Horizontal" /></ComboBox>
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CropImageEdges}" FontSize="16" FontWeight="SemiBold" Margin="0,8,0,8" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ChooseAnEdgeThenClickOrDrag}" Style="{StaticResource Hint}" />
+        <UniformGrid Columns="2" Margin="0,4,0,8"><RadioButton x:Name="RemoveTop" GroupName="CropEdge" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveTop}" IsChecked="True" Margin="0,4,12,8" Checked="CropSide_Changed" /><RadioButton x:Name="RemoveBottom" GroupName="CropEdge" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveBottom}" Margin="0,4,0,8" Checked="CropSide_Changed" /><RadioButton x:Name="RemoveLeft" GroupName="CropEdge" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveLeft}" Margin="0,4,12,8" Checked="CropSide_Changed" /><RadioButton x:Name="RemoveRight" GroupName="CropEdge" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveRight}" Margin="0,4,0,8" Checked="CropSide_Changed" /></UniformGrid>
+        <TextBlock x:Name="CropSelectionInfo" Text="{loc:Loc SnapSharp.Core:Resources.Strings:NoCropAreaSelected}" Style="{StaticResource Hint}" />
+        <Button x:Name="DeleteRowsButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveSelectedEdgeArea}" Click="DeleteRows_Click" IsEnabled="False" />
+        <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:RestoreFullScrollingCapture}" Click="ResetCrop_Click" />
+        <Expander x:Name="CaptureSettings" Header="{loc:Loc SnapSharp.Core:Resources.Strings:CaptureAgainManualAutomatic}" Margin="0,12,0,0"><StackPanel>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ScrollDirection}" /><ComboBox x:Name="DirectionBox" SelectedIndex="0"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:DetectAutomaticallyDownThenRight}" Tag="Auto" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Down}" Tag="Vertical" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Right}" Tag="Horizontal" /></ComboBox>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
-            <StackPanel><TextBlock Text="帧间等待（毫秒）" /><TextBox x:Name="DelayBox" Text="600" /></StackPanel>
-            <StackPanel Grid.Column="1"><TextBlock Text="每次滚轮格数" /><TextBox x:Name="WheelBox" Text="2" /></StackPanel>
+            <StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FrameDelayMs}" /><TextBox x:Name="DelayBox" Text="600" /></StackPanel>
+            <StackPanel Grid.Column="1"><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WheelStepsPerScroll}" /><TextBox x:Name="WheelBox" Text="2" /></StackPanel>
           </Grid>
-          <TextBlock Text="最多帧数（2–80）" /><TextBox x:Name="FrameLimitBox" Text="40" />
-          <TextBlock Text="重新采集会先打开与普通截图相同的选区界面；取消选区保留当前预览。" Style="{StaticResource Hint}" />
-          <Button Content="选择区域并手动采集…" Click="ManualStart_Click" Background="{DynamicResource ToolbarActiveBrush}" Foreground="{DynamicResource AccentForegroundBrush}" />
-          <Button x:Name="StartButton" Content="选择区域并自动采集…" Click="Start_Click" />
-          <TextBlock Text="开始后会隐藏 SnapSharp 窗口，请勿移动目标窗口或操作页面。Esc 停止并保留已采集帧。选区内不要包含无关浮窗。" Style="{StaticResource Hint}" />
-          <TextBlock Text="手动支持向下或向右滚动（横向需目标应用支持横向滚轮）；自动会发送滚轮操作。新采集完成后替换预览并清空编辑撤销记录，取消则保留当前结果。" Style="{StaticResource Hint}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:MaximumFrames280}" /><TextBox x:Name="FrameLimitBox" Text="40" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CapturingAgainOpensTheStandardRegionSelector}" Style="{StaticResource Hint}" />
+          <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:SelectRegionAndCaptureManually}" Click="ManualStart_Click" Background="{DynamicResource ToolbarActiveBrush}" Foreground="{DynamicResource AccentForegroundBrush}" />
+          <Button x:Name="StartButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:SelectRegionAndCaptureAutomatically}" Click="Start_Click" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SnapSharpWindowsAreHiddenDuringCaptureDo}" Style="{StaticResource Hint}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ManualCaptureSupportsDownwardOrRightwardScrolling}" Style="{StaticResource Hint}" />
         </StackPanel></Expander>
-        <Expander Header="接缝与固定栏修正（可选）" Margin="0,18,0,0"><StackPanel>
-        <TextBlock Text="每帧四边固定栏排除（像素）" FontWeight="SemiBold" />
-        <TextBlock Text="纵向可排除顶部／底部固定栏，横向可排除左／右固定栏。重新匹配或采集时生效，原始帧保留；每帧至少保留 32 × 32 像素用于匹配。" Style="{StaticResource Hint}" />
-        <UniformGrid Columns="2"><StackPanel><TextBlock Text="左" /><TextBox x:Name="FrameLeft" Text="0" /></StackPanel><StackPanel><TextBlock Text="上" /><TextBox x:Name="FrameTop" Text="0" /></StackPanel><StackPanel><TextBlock Text="右" /><TextBox x:Name="FrameRight" Text="0" /></StackPanel><StackPanel><TextBlock Text="下" /><TextBox x:Name="FrameBottom" Text="0" /></StackPanel></UniformGrid>
-        <Button Content="按当前裁边重新自动匹配" Click="Rematch_Click" />
-        <TextBlock Text="接缝修正" FontSize="18" FontWeight="SemiBold" Margin="0,14,0,6" />
+        <Expander Header="{loc:Loc SnapSharp.Core:Resources.Strings:SeamsAndFixedBarsOptional}" Margin="0,18,0,0"><StackPanel>
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ExcludeFixedBarsFromEachFramePixels}" FontWeight="SemiBold" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ForVerticalCaptureExcludeTopBottomBars}" Style="{StaticResource Hint}" />
+        <UniformGrid Columns="2"><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Left}" /><TextBox x:Name="FrameLeft" Text="0" /></StackPanel><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Top}" /><TextBox x:Name="FrameTop" Text="0" /></StackPanel><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Right2}" /><TextBox x:Name="FrameRight" Text="0" /></StackPanel><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Bottom}" /><TextBox x:Name="FrameBottom" Text="0" /></StackPanel></UniformGrid>
+        <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:RematchUsingCurrentFrameMargins}" Click="Rematch_Click" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SeamCorrection}" FontSize="18" FontWeight="SemiBold" Margin="0,14,0,6" />
         <ComboBox x:Name="SeamBox" SelectionChanged="Seam_Changed" />
         <TextBlock x:Name="MatchInfo" Style="{StaticResource Hint}" />
         <DockPanel><Button Content="−1" DockPanel.Dock="Left" Tag="-1" Click="Nudge_Click" /><Button Content="+1" DockPanel.Dock="Right" Tag="1" Click="Nudge_Click" /><TextBox x:Name="OffsetBox" Text="0" Margin="0,5,6,4" /></DockPanel>
-        <TextBlock Text="位移 = 后帧比前帧前进的像素数；重叠 = 每帧有效长度 − 位移。" Style="{StaticResource Hint}" />
-        <WrapPanel><Button Content="应用位移" Click="ApplyOffset_Click" /><Button Content="查看两张原始帧" Click="RawFrames_Click" /></WrapPanel>
-        <TextBlock Text="四边删除量（原始结果像素）" FontWeight="SemiBold" Margin="0,14,0,6" />
-        <UniformGrid Columns="2"><StackPanel><TextBlock Text="左" /><TextBox x:Name="CropLeft" Text="0" /></StackPanel><StackPanel><TextBlock Text="上" /><TextBox x:Name="CropTop" Text="0" /></StackPanel><StackPanel><TextBlock Text="右" /><TextBox x:Name="CropRight" Text="0" /></StackPanel><StackPanel><TextBlock Text="下" /><TextBox x:Name="CropBottom" Text="0" /></StackPanel></UniformGrid>
-        <Button Content="应用修正" Click="ApplyCrop_Click" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OffsetPixelsAdvancedBetweenFramesOverlapUsable}" Style="{StaticResource Hint}" />
+        <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ApplyOffset}" Click="ApplyOffset_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ViewBothOriginalFrames}" Click="RawFrames_Click" /></WrapPanel>
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CropFromEachEdgeOriginalResultPixels}" FontWeight="SemiBold" Margin="0,14,0,6" />
+        <UniformGrid Columns="2"><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Left}" /><TextBox x:Name="CropLeft" Text="0" /></StackPanel><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Top}" /><TextBox x:Name="CropTop" Text="0" /></StackPanel><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Right2}" /><TextBox x:Name="CropRight" Text="0" /></StackPanel><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Bottom}" /><TextBox x:Name="CropBottom" Text="0" /></StackPanel></UniformGrid>
+        <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ApplyCorrections}" Click="ApplyCrop_Click" />
         </StackPanel></Expander>
-        <Separator Margin="0,12" /><WrapPanel><Button Content="保存拼接工程…" Click="SaveProject_Click" /><Button Content="打开工程…" Click="OpenProject_Click" /></WrapPanel>
-        <TextBlock Text="工程包含原始截图及已应用的位移、裁边与裁剪参数，可重新打开继续修正。修改数值后请先点击应用；注意截图中的隐私信息。" Style="{StaticResource Hint}" />
+        <Separator Margin="0,12" /><WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:SaveStitchingProject}" Click="SaveProject_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:OpenProject}" Click="OpenProject_Click" /></WrapPanel>
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ProjectsIncludeOriginalScreenshotsAndAppliedOffsets}" Style="{StaticResource Hint}" />
       </StackPanel>
     </ScrollViewer>
     <Grid Grid.Row="2" Grid.ColumnSpan="3" Margin="0,12,0,0">
       <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
       <TextBlock x:Name="Status" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
       <WrapPanel x:Name="OutputButtons" Grid.Row="1" HorizontalAlignment="Right" Margin="0,6,0,0">
-        <Button Content="识别" Tag="OCR" Click="Output_Click" /><Button Content="抠图" Tag="Cutout" Click="Output_Click" /><Button Content="继续标注" Click="Edit_Click" /><Button Content="置顶贴图" Tag="Pin" Click="Output_Click" /><Button Content="保存…" Tag="Save" Click="Output_Click" /><Button Content="复制图片" Tag="Copy" Click="Output_Click" /><Button Content="关闭" Click="Close_Click" />
+        <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Recognize}" Tag="OCR" Click="Output_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveBackground}" Tag="Cutout" Click="Output_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ContinueAnnotating}" Click="Edit_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:PinImage}" Tag="Pin" Click="Output_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Save2}" Tag="Save" Click="Output_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:CopyImage}" Tag="Copy" Click="Output_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Close}" Click="Close_Click" />
       </WrapPanel>
     </Grid>
   </Grid>

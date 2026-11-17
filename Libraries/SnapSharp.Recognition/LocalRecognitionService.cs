@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Plugins;
 using SkiaSharp;
@@ -22,19 +23,19 @@ public sealed partial class LocalRecognitionService
             "Windows" => RecognizeWindows(image, settings, token),
             "Tesseract" => RecognizeTesseract(image, settings, token),
             "PaddleOCR" => RecognizePaddle(image, settings, token),
-            _ => throw new ArgumentException("未知 OCR 引擎，请在设置中重新选择。")
+            _ => throw new ArgumentException(L.Get("UnknownOCREngineSelectAnEngineAgain"))
         };
 
     public Task<RecognitionDocument> RecognizePaddle(BitmapSource image, AppSettings settings, CancellationToken token = default) =>
         OnnxImageRuntime.Shared.Execute(settings, (models, cancellation) =>
         {
             OnnxImageRuntime.ValidateImage(image);
-            OnnxImageRuntime.RequireFile(settings.OcrDictionary, "PaddleOCR 字典");
-            if (new FileInfo(settings.OcrDictionary).Length > 16_000_000) throw new ArgumentException("OCR 字典过大。");
+            OnnxImageRuntime.RequireFile(settings.OcrDictionary, L.Get("PaddleOCRDictionary"));
+            if (new FileInfo(settings.OcrDictionary).Length > 16_000_000) throw new ArgumentException(L.Get("OCRDictionaryIsTooLarge"));
             var dictionary = File.ReadAllLines(settings.OcrDictionary, System.Text.Encoding.UTF8).Where(x => x.Length > 0).ToArray();
-            if (dictionary.Length < 2 || dictionary.Length > 200_000) throw new ArgumentException("OCR 字典条目数无效。");
-            var detector = models.Open(settings.OcrDetectionModel, "PaddleOCR 检测 ONNX 模型");
-            var recognizer = models.Open(settings.OcrRecognitionModel, "PaddleOCR 识别 ONNX 模型");
+            if (dictionary.Length < 2 || dictionary.Length > 200_000) throw new ArgumentException(L.Get("InvalidOCRDictionaryEntryCount"));
+            var detector = models.Open(settings.OcrDetectionModel, L.Get("PaddleOCRDetectionONNXModel"));
+            var recognizer = models.Open(settings.OcrRecognitionModel, L.Get("PaddleOCRRecognitionONNXModel"));
             using var source = _images.ToSkBitmap(image);
             var scale = Math.Min(1, Math.Clamp(settings.OcrMaximumEdge, 320, 2048) / (double)Math.Max(source.Width, source.Height));
             var size = OnnxImageRuntime.ModelAccess.Size(detector, Math.Max(32, (int)Math.Ceiling(source.Height * scale / 32) * 32), Math.Max(32, (int)Math.Ceiling(source.Width * scale / 32) * 32));
@@ -51,21 +52,21 @@ public sealed partial class LocalRecognitionService
                 var (text, confidence) = DecodeCtc(recognized.Data, recognized.Shape, dictionary);
                 if (!string.IsNullOrWhiteSpace(text)) blocks.Add(new RecognizedBlock(text, bounds, confidence));
             }
-            return new RecognitionDocument(ReadingOrder(blocks), "本地 PaddleOCR / ONNX " + models.DeviceLabel);
+            return new RecognitionDocument(ReadingOrder(blocks), L.Get("LocalPaddleOCRONNX") + models.DeviceLabel);
         }, token);
 
     public static (string Text, double Confidence) DecodeCtc(float[] values, int[] shape, string[] dictionary)
     {
-        if (shape.Length != 3 || shape[0] != 1 || shape[1] < 1) throw new NotSupportedException("PaddleOCR 识别输出需为 [1,T,C] 的 CTC 张量，暂不支持多输入 SVTR／自回归模型。");
+        if (shape.Length != 3 || shape[0] != 1 || shape[1] < 1) throw new NotSupportedException(L.Get("PaddleOCRRecognitionOutputMustBeA1"));
         var classes = shape[2];
         var labels = new[] { "" }.Concat(dictionary).ToList();
         if (classes == labels.Count + 1) labels.Add(" ");
-        if (classes != labels.Count || values.Length != shape[1] * classes) throw new InvalidDataException($"字典与识别模型不匹配：模型 {classes} 类，字典 {dictionary.Length} 条（另加 CTC 空白及可选空格）。");
+        if (classes != labels.Count || values.Length != shape[1] * classes) throw new InvalidDataException(L.Format("DictionaryModelMismatch0ModelClasses1", classes, dictionary.Length));
         var text = new System.Text.StringBuilder(); double confidence = 0; var count = 0; var previous = -1;
         for (var t = 0; t < shape[1]; t++)
         {
             var best = 0; var sum = 0d; var probabilities = true;
-            for (var c = 0; c < classes; c++) { var value = values[t * classes + c]; if (!float.IsFinite(value)) throw new InvalidDataException("识别输出包含无效数值。"); if (value > values[t * classes + best]) best = c; if (value < 0 || value > 1) probabilities = false; sum += value; }
+            for (var c = 0; c < classes; c++) { var value = values[t * classes + c]; if (!float.IsFinite(value)) throw new InvalidDataException(L.Get("RecognitionOutputContainsInvalidValues")); if (value > values[t * classes + best]) best = c; if (value < 0 || value > 1) probabilities = false; sum += value; }
             if (best != 0 && best != previous)
             {
                 text.Append(labels[best]);
@@ -81,7 +82,7 @@ public sealed partial class LocalRecognitionService
     private static Rect[] DetectBoxes(float[] values, int[] shape, int imageWidth, int imageHeight, CancellationToken token)
     {
         if (shape.Length != 4 || shape[0] != 1 || shape[1] != 1 || shape[2] < 1 || shape[3] < 1 || (long)shape[2] * shape[3] > 4_194_304 || values.Length != shape[2] * shape[3])
-            throw new NotSupportedException("检测输出需为 [1,1,H,W] 的 DB 概率图。");
+            throw new NotSupportedException(L.Get("DetectionOutputMustBeA11"));
         var height = shape[2]; var width = shape[3]; var visited = new bool[values.Length]; var queue = new Queue<int>(); var boxes = new List<Rect>();
         for (var index = 0; index < values.Length; index++)
         {
@@ -102,7 +103,7 @@ public sealed partial class LocalRecognitionService
             var left = Math.Max(0, (int)Math.Floor((minX - expand) * imageWidth / width)); var top = Math.Max(0, (int)Math.Floor((minY - expand) * imageHeight / height));
             var right = Math.Min(imageWidth, (int)Math.Ceiling((maxX + 1 + expand) * imageWidth / width)); var bottom = Math.Min(imageHeight, (int)Math.Ceiling((maxY + 1 + expand) * imageHeight / height));
             if (right > left && bottom > top) boxes.Add(new Rect(left, top, right - left, bottom - top));
-            if (boxes.Count > 256) throw new InvalidOperationException("文字区域超过 256 个，请分段识别。");
+            if (boxes.Count > 256) throw new InvalidOperationException(L.Get("MoreThan256TextRegionsRecognizeIn"));
         }
         return boxes.ToArray();
     }
@@ -122,7 +123,7 @@ public sealed partial class LocalRecognitionService
         OnnxImageRuntime.ValidateImage(image);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token); timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
         var engine = string.IsNullOrWhiteSpace(settings.WindowsOcrLanguage) ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language(settings.WindowsOcrLanguage));
-        if (engine is null) throw new InvalidOperationException("Windows OCR 语言包不可用，请安装对应 Windows 语言包或切换 PaddleOCR。");
+        if (engine is null) throw new InvalidOperationException(L.Get("WindowsOCRLanguagePackUnavailableInstallThe"));
         var maximum = (int)OcrEngine.MaxImageDimension;
         var input = Math.Max(image.PixelWidth, image.PixelHeight) > maximum ? _images.CreateThumbnail(image, maximum) : image;
         var converted = new FormatConvertedBitmap(input, PixelFormats.Bgra32, null, 0); var pixels = new byte[input.PixelWidth * input.PixelHeight * 4]; converted.CopyPixels(pixels, input.PixelWidth * 4, 0);
@@ -159,7 +160,7 @@ public sealed partial class LocalRecognitionService
 
 public sealed class OfflineRecognitionPlugin(Func<AppSettings> settings, bool barcode = false) : IRecognitionPlugin, ISnapSharpPlugin
 {
-    public PluginMetadata Metadata => new(Id, barcode ? "本地条码" : "离线 OCR", new Version(1, 0), "SnapSharp", [PluginCapability.Recognizer]);
+    public PluginMetadata Metadata => new(Id, barcode ? L.Get("LocalBarcodes") : L.Get("OfflineOCR"), new Version(1, 0), "SnapSharp", [PluginCapability.Recognizer]);
     public void Register(IPluginRegistry registry) => registry.RegisterRecognizer(this);
     public string Id => barcode ? "snapsharp.barcode" : "snapsharp.ocr";
     public async ValueTask<IReadOnlyList<RecognitionResult>> RecognizeAsync(BitmapSource image, PluginExecutionContext context, CancellationToken cancellationToken = default)

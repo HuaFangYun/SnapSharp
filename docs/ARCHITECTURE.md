@@ -167,6 +167,7 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 | [Tesseract](https://www.nuget.org/packages/Tesseract) | 可选离线 OCR 引擎 | Apache-2.0 | 已使用，原生引擎来自 Charles Weld 的 Tesseract NuGet 分发；官方 tessdata_fast 简中／英文字库按需下载并固定 SHA256 校验 |
 | [GTranslate](https://www.nuget.org/packages/GTranslate) | 可选 Google 在线翻译适配器 | MIT | 已使用，包随程序提供；不是离线翻译模型，服务可用性与额度由第三方决定；逐次确认接收地址与文字 |
 | [ZXing.Net](https://www.nuget.org/packages/ZXing.Net) | QR 与指定一维码离线解码 | Apache-2.0 | 已使用；限制格式、旋转重试及输入大小 |
+| [WPFLocalizeExtension](https://www.nuget.org/packages/WPFLocalizeExtension) | 中英文界面与运行时切换 | Ms-PL | 已使用；共享 RESX 资源位于 Core，新增语言及校验见[本地化](本地化.md)；传递依赖 XAMLMarkupExtensions 同为 Ms-PL |
 | [ScreenRecorderLib](https://www.nuget.org/packages/ScreenRecorderLib) | 连续 WGC／DXGI 录屏、WASAPI 音频、摄像头叠加和 Media Foundation 编码 | MIT | 已使用；VC++ x64 官方下载／签名验证和 N/KN 媒体组件系统安装提供一键配置；合成图实际编码检查；系统组件及编解码器许可独立 |
 
 版本由各 `.csproj` 和 NuGet 还原结果管理，文档不重复维护易过期的版本号。

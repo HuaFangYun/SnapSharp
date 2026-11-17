@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Services;
 using SnapSharp.Models;
 using System.IO;
@@ -37,7 +38,7 @@ public partial class SaveImageWindow : Window
         QualitySlider.Value = settings.Current.ImageQuality;
         WidthBox.Text = source.PixelWidth.ToString();
         HeightBox.Text = source.PixelHeight.ToString();
-        SourceInfo.Text = $"原图 {source.PixelWidth:N0} × {source.PixelHeight:N0} 像素";
+        SourceInfo.Text = L.Format("Original0N01N0Pixels", source.PixelWidth, source.PixelHeight);
         Preview.Source = _source;
         _timer.Tick += async (_, _) => { _timer.Stop(); await RefreshPreview(); };
         Closed += (_, _) => { _closed = true; _revision++; _timer.Stop(); };
@@ -58,7 +59,7 @@ public partial class SaveImageWindow : Window
     {
         if (!int.TryParse(WidthBox.Text, out var width) || !int.TryParse(HeightBox.Text, out var height) ||
             width < 1 || height < 1 || width > 16384 || height > 16384 || (long)width * height > 64_000_000)
-            throw new ArgumentException("尺寸需为 1–16384 像素，总像素不超过 6400 万。");
+            throw new ArgumentException(L.Get("DimensionsMustBe116384PixelsWith"));
         return (width, height);
     }
 
@@ -76,7 +77,7 @@ public partial class SaveImageWindow : Window
             var name = OutputFileService.NewName(TemplateBox.Text, size.Width, size.Height);
             NameBox.Text = Path.GetFileNameWithoutExtension(OutputFileService.AvailablePath(DirectoryBox.Text, name, Extension));
             _generatedName = true;
-            TemplatePreview.Text = "示例：" + TemplateName() + Extension;
+            TemplatePreview.Text = L.Get("Example") + TemplateName() + Extension;
         }
         catch (Exception ex) { TemplatePreview.Text = ex.Message; }
     }
@@ -85,7 +86,7 @@ public partial class SaveImageWindow : Window
     private void Template_Changed(object sender, TextChangedEventArgs e)
     {
         if (!_ready) return;
-        try { TemplatePreview.Text = "示例：" + TemplateName() + Extension; }
+        try { TemplatePreview.Text = L.Get("Example") + TemplateName() + Extension; }
         catch (Exception ex) { TemplatePreview.Text = ex.Message; }
     }
     private void ApplyTemplate_Click(object sender, RoutedEventArgs e) => GenerateName();
@@ -96,17 +97,17 @@ public partial class SaveImageWindow : Window
         LosslessBox.Visibility = webp ? Visibility.Visible : Visibility.Collapsed;
         var lossy = Extension == ".jpg" || (webp && LosslessBox.IsChecked != true);
         QualityPanel.Visibility = lossy ? Visibility.Visible : Visibility.Collapsed;
-        PreviewHint.Text = Extension == ".pdf" ? "左侧为完整图片预览，不是 PDF 分页预览；保存时按 A4 自动分页。"
-            : "预览使用实际编码结果；棋盘格表示透明区域。";
+        PreviewHint.Text = Extension == ".pdf" ? L.Get("ThePreviewShowsTheFullImageNot")
+            : L.Get("PreviewShowsTheEncodedImageTheCheckerboard");
         FormatHint.Text = Extension switch
         {
-            ".png" => "PNG 无损保存，支持透明；不使用有损质量参数。",
-            ".jpg" => "JPEG 有损压缩；不支持透明，透明区域会填充白色。",
-            ".webp" => lossy ? "WebP 有损压缩，保留透明通道；质量 100 不代表无损。" : "WebP 无损压缩，保留透明通道；质量参数不适用。",
-            ".tiff" => "TIFF 无损压缩，写入 300 DPI 信息，不改变设置的像素尺寸。",
-            ".bmp" => "BMP 无损位图，体积较大；透明区域会填充白色。",
-            ".pdf" => "PDF 使用 A4 纸张等比排版，长图自动分页；左侧为完整图片预览，透明区域填充白色。",
-            _ => "当前版本暂不支持此格式编码。"
+            ".png" => L.Get("PNGIsLosslessAndSupportsTransparencyLossy"),
+            ".jpg" => L.Get("JPEGUsesLossyCompressionWithoutTransparencyTransparent"),
+            ".webp" => lossy ? L.Get("LossyWebPPreservesAlphaQuality100Does") : L.Get("LosslessWebPPreservesAlphaQualitySettingsDo"),
+            ".tiff" => L.Get("TIFFUsesLosslessCompressionAndWrites300"),
+            ".bmp" => L.Get("BMPIsALargeLosslessBitmapTransparent"),
+            ".pdf" => L.Get("PDFFitsImagesProportionallyOnA4Pages"),
+            _ => L.Get("ThisVersionDoesNotSupportEncodingThis")
         };
         Template_Changed(this, null!);
         SchedulePreview();
@@ -137,7 +138,7 @@ public partial class SaveImageWindow : Window
         if (_generatedName) GenerateName();
         SchedulePreview();
     }
-    private void SchedulePreview() { _revision++; _timer.Stop(); _timer.Start(); SizeInfo.Text = "正在计算编码体积…"; }
+    private void SchedulePreview() { _revision++; _timer.Stop(); _timer.Start(); SizeInfo.Text = L.Get("CalculatingEncodedSize"); }
 
     private async Task<byte[]> EncodeCurrent(int? previewRevision = null)
     {
@@ -170,7 +171,7 @@ public partial class SaveImageWindow : Window
     }
     private void Browse_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = DirectoryBox.Text, Title = "选择输出目录" };
+        var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = DirectoryBox.Text, Title = L.Get("ChooseOutputFolder") };
         if (dialog.ShowDialog(this) == true) { DirectoryBox.Text = dialog.FolderName; if (_generatedName) GenerateName(); }
     }
     private async void Save_Click(object sender, RoutedEventArgs e) => await Save(false);
@@ -187,8 +188,8 @@ public partial class SaveImageWindow : Window
             var name = NameBox.Text.Trim();
             if (name.Length == 0 || name.Length > 180 || name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || name.EndsWith('.') ||
                 OutputFileService.ExpandTemplate(name, _nameTime, 1, 1, 1) != name)
-                throw new ArgumentException("文件名无效，请不要包含路径、保留名或模板字段。");
-            if (!Path.IsPathFullyQualified(DirectoryBox.Text)) throw new ArgumentException("请选择完整的保存目录路径。");
+                throw new ArgumentException(L.Get("InvalidFileNameDoNotIncludePaths"));
+            if (!Path.IsPathFullyQualified(DirectoryBox.Text)) throw new ArgumentException(L.Get("ChooseAnAbsoluteSaveFolderPath"));
             var extension = Extension;
             var path = Path.Combine(DirectoryBox.Text, name + extension);
             if (_generatedName) path = OutputFileService.AvailablePath(DirectoryBox.Text, name, extension);
@@ -203,10 +204,10 @@ public partial class SaveImageWindow : Window
                 if (dialog.ShowDialog(this) != true) return;
                 path = dialog.FileName;
                 extension = Path.GetExtension(path).ToLowerInvariant();
-                if (!OutputFormat.IsSupported(extension)) throw new ArgumentException("请选择列表中可用的输出格式扩展名。");
+                if (!OutputFormat.IsSupported(extension)) throw new ArgumentException(L.Get("ChooseAnAvailableOutputFormatExtensionFrom"));
             }
             var overwrite = File.Exists(path);
-            if (overwrite && MessageBox.Show(this, $"文件已存在，是否替换？\n{path}", "确认覆盖", MessageBoxButton.YesNo, MessageBoxImage.Warning,
+            if (overwrite && MessageBox.Show(this, L.Format("TheFileAlreadyExistsReplaceIt0", path), L.Get("ConfirmOverwrite"), MessageBoxButton.YesNo, MessageBoxImage.Warning,
                     MessageBoxResult.No) != MessageBoxResult.Yes) return;
             var size = Dimensions(); var quality = (int)QualitySlider.Value; var lossless = LosslessBox.IsChecked == true;
             await _encoding.WaitAsync();
@@ -222,13 +223,13 @@ public partial class SaveImageWindow : Window
             _settings.Current.WebpLossless = lossless;
             _settings.Current.OutputFormat = OutputFormat.NormalizeExtension(extension);
             _settings.Current.FileNameTemplate = TemplateBox.Text;
-            SavedPathText.Text = "已保存：" + _savedPath;
+            SavedPathText.Text = L.Get("Saved") + _savedPath;
             SavedActions.Visibility = Visibility.Visible;
-            StatusText.Text = "保存成功，可复制文件、复制路径或在资源管理器中定位。";
-            try { _settings.Save(); } catch (Exception ex) { StatusText.Text = "图片已保存，但设置未能持久化：" + ex.Message; }
+            StatusText.Text = L.Get("SavedYouCanCopyTheFileOr");
+            try { _settings.Save(); } catch (Exception ex) { StatusText.Text = L.Get("ImageSavedButSettingsCouldNotBe") + ex.Message; }
             if (_generatedName) GenerateName();
         }
-        catch (Exception ex) { StatusText.Text = "保存失败：" + ex.Message; }
+        catch (Exception ex) { StatusText.Text = L.Get("SaveFailed") + ex.Message; }
         finally { _saving = false; if (!_closed) SettingsPanel.IsEnabled = true; }
     }
 
@@ -236,11 +237,11 @@ public partial class SaveImageWindow : Window
     {
         try
         {
-            if (_savedPath is null || !File.Exists(_savedPath)) throw new FileNotFoundException("请先保存图片；已保存文件可能已被移动或删除。");
+            if (_savedPath is null || !File.Exists(_savedPath)) throw new FileNotFoundException(L.Get("SaveTheImageFirstAPreviouslySaved"));
             action(_savedPath);
-            StatusText.Text = "操作完成。";
+            StatusText.Text = L.Get("OperationComplete");
         }
-        catch (Exception ex) { StatusText.Text = "操作失败：" + ex.Message; }
+        catch (Exception ex) { StatusText.Text = L.Get("OperationFailed") + ex.Message; }
     }
     private void CopyFile_Click(object sender, RoutedEventArgs e) => SavedAction(OutputActions.CopyFile);
     private void CopyPath_Click(object sender, RoutedEventArgs e) => SavedAction(OutputActions.CopyPath);
@@ -254,7 +255,7 @@ public partial class SaveImageWindow : Window
             var image = extension == ".pdf" ? _images.Decode(await Task.Run(() => _images.Encode(_source, ".bmp", width: size.Width, height: size.Height))) : _images.Decode(bytes);
             if (!_closed) OutputActions.Print(image);
         }
-        catch (Exception ex) { StatusText.Text = "打印失败：" + ex.Message; }
+        catch (Exception ex) { StatusText.Text = L.Get("PrintFailed") + ex.Message; }
     }
 
     internal static bool RunLayoutSelfTest(BitmapSource source)

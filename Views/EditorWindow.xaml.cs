@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Services;
 using SnapSharp.ViewModels;
@@ -150,7 +151,7 @@ public partial class EditorWindow : Window
     {
         CaptureResult? selection;
         try { selection = await CaptureCoordinator.SelectScrollingRegionAsync(); }
-        catch (Exception ex) { MessageBox.Show(this, ex.Message, "长截图"); return; }
+        catch (Exception ex) { MessageBox.Show(this, ex.Message, L.Get("ScrollingCapture")); return; }
         if (selection is null || !IsLoaded) return;
         var region = new System.Drawing.Rectangle(selection.ScreenBounds.Left + selection.PixelRegion.Left,
             selection.ScreenBounds.Top + selection.PixelRegion.Top, selection.PixelRegion.Width, selection.PixelRegion.Height);

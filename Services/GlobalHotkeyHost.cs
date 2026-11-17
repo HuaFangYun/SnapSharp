@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Native;
 using System.ComponentModel;
@@ -80,21 +81,21 @@ public sealed class GlobalHotkeyHost : IDisposable
     {
         var desired = new Dictionary<int, (GlobalAction, HotkeyGesture)>
         {
-            [RegionHotkeyId] = (GlobalAction.Region, Parse(settings.RegionHotkey, "区域截图")),
-            [FullScreenHotkeyId] = (GlobalAction.FullScreen, Parse(settings.FullScreenHotkey, "全屏截图")),
-            [ActiveWindowHotkeyId] = (GlobalAction.ActiveWindow, Parse(settings.ActiveWindowHotkey, "当前窗口截图"))
+            [RegionHotkeyId] = (GlobalAction.Region, Parse(settings.RegionHotkey, L.Get("RegionCapture"))),
+            [FullScreenHotkeyId] = (GlobalAction.FullScreen, Parse(settings.FullScreenHotkey, L.Get("FullScreenCapture"))),
+            [ActiveWindowHotkeyId] = (GlobalAction.ActiveWindow, Parse(settings.ActiveWindowHotkey, L.Get("ActiveWindowCapture")))
         };
         var optional = new[]
         {
-            (GlobalAction.ClipboardPin, settings.ClipboardPinHotkey, "剪贴板贴图"),
-            (GlobalAction.TogglePins, settings.TogglePinsHotkey, "显示／隐藏贴图"),
-            (GlobalAction.RestorePin, settings.RestorePinHotkey, "恢复贴图"),
-            (GlobalAction.RestoreInteraction, settings.RestorePinInteractionHotkey, "恢复贴图交互")
+            (GlobalAction.ClipboardPin, settings.ClipboardPinHotkey, L.Get("PinClipboardContent")),
+            (GlobalAction.TogglePins, settings.TogglePinsHotkey, L.Get("ShowHidePins")),
+            (GlobalAction.RestorePin, settings.RestorePinHotkey, L.Get("RestorePin")),
+            (GlobalAction.RestoreInteraction, settings.RestorePinInteractionHotkey, L.Get("RestorePinInteraction"))
         };
         foreach (var (action, text, label) in optional)
             if (!string.IsNullOrWhiteSpace(text)) desired[0x5020 + (int)action] = (action, Parse(text, label));
         if (desired.Values.GroupBy(x => (x.Item2.Modifiers, x.Item2.VirtualKey)).Any(x => x.Count() > 1))
-            throw new InvalidOperationException("全局快捷键不能重复（包括截图与贴图快捷键）。");
+            throw new InvalidOperationException(L.Get("GlobalShortcutsMustBeUniqueIncludingCapture"));
         return desired;
     }
 
@@ -108,7 +109,7 @@ public sealed class GlobalHotkeyHost : IDisposable
             {
                 foreach (var registeredId in registeredIds)
                     NativeMethods.UnregisterHotKey(nint.Zero, registeredId);
-                throw new Win32Exception($"无法注册全局快捷键 {registration.Gesture.DisplayText}，它可能已被其他程序占用。");
+                throw new Win32Exception(L.Format("CouldNotRegisterGlobalShortcut0Another", registration.Gesture.DisplayText));
             }
             registeredIds.Add(id);
         }
@@ -117,7 +118,7 @@ public sealed class GlobalHotkeyHost : IDisposable
     private static HotkeyGesture Parse(string text, string label)
     {
         if (HotkeyGesture.TryParse(text, out var gesture, out var error)) return gesture!;
-        throw new InvalidOperationException($"{label}快捷键无效：{error}");
+        throw new InvalidOperationException(L.Format("Invalid0Shortcut1", label, error));
     }
 
     private void OnThreadMessage(ref MSG message, ref bool handled)

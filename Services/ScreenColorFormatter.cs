@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using System.Globalization;
 using System.Windows.Media;
 
@@ -28,15 +29,15 @@ internal static class ScreenColorFormatter
         {
             case ScreenColorFormat.Hex: return ($"#{color.R:X2}{color.G:X2}{color.B:X2}", "HEX");
             case ScreenColorFormat.Rgb: return ($"rgb({color.R}, {color.G}, {color.B})", "RGB");
-            case ScreenColorFormat.Rgba: return ($"rgba({color.R}, {color.G}, {color.B}, 1)", "RGBA · 屏幕像素 α = 1");
+            case ScreenColorFormat.Rgba: return ($"rgba({color.R}, {color.G}, {color.B}, 1)", L.Get("RGBAScreenPixel1"));
             case ScreenColorFormat.Hsl: return ($"hsl({h}, {N(saturation * 100)}%, {N(lightness * 100)}%)", "HSL");
             case ScreenColorFormat.Hsv: return ($"hsv({h}, {N((max == 0 ? 0 : delta / max) * 100)}%, {N(max * 100)}%)", "HSV / HSB");
             case ScreenColorFormat.Cmyk:
-                return ($"C{N((max == 0 ? 0 : (max - r) / max) * 100)} M{N((max == 0 ? 0 : (max - g) / max) * 100)} Y{N((max == 0 ? 0 : (max - b) / max) * 100)} K{N((1 - max) * 100)}", "CMYK · 简易换算，非印刷色彩配置");
+                return ($"C{N((max == 0 ? 0 : (max - r) / max) * 100)} M{N((max == 0 ? 0 : (max - g) / max) * 100)} Y{N((max == 0 ? 0 : (max - b) / max) * 100)} K{N((1 - max) * 100)}", L.Get("CMYKApproximateConversionNotAPrintColor"));
             case ScreenColorFormat.Name:
                 static int Distance(Color x, Color y) => (x.R - y.R) * (x.R - y.R) + (x.G - y.G) * (x.G - y.G) + (x.B - y.B) * (x.B - y.B);
                 var nearest = Names.MinBy(x => Distance(x.Color, color));
-                return (nearest.Name, Distance(nearest.Color, color) == 0 ? "颜色名称" : "颜色名称（近似）");
+                return (nearest.Name, Distance(nearest.Color, color) == 0 ? L.Get("ColorName") : L.Get("ColorNameApproximate"));
             default: throw new ArgumentOutOfRangeException(nameof(format));
         }
     }

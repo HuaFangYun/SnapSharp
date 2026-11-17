@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Native;
 using System.Windows;
@@ -23,24 +24,24 @@ public partial class RecordingToolbarWindow : Window
     {
         var active = starting || state is RecordingState.Starting or RecordingState.Recording or RecordingState.Paused or RecordingState.Stopping or RecordingState.Encoding;
         Clock.Text = elapsed.ToString(@"hh\:mm\:ss");
-        StateText.Text = countdown ? "即将开始" : state switch
+        StateText.Text = countdown ? L.Get("StartingShortly") : state switch
         {
-            RecordingState.Recording => $"录制中 · {fps:F0} FPS",
-            RecordingState.Paused => "已暂停",
-            RecordingState.Starting => "正在启动…",
-            RecordingState.Stopping or RecordingState.Encoding => "正在保存…",
-            _ => starting ? "准备开始…" : "准备录制"
+            RecordingState.Recording => L.Format("Recording0F0FPS", fps),
+            RecordingState.Paused => L.Get("Paused"),
+            RecordingState.Starting => L.Get("Starting"),
+            RecordingState.Stopping or RecordingState.Encoding => L.Get("Saving"),
+            _ => starting ? L.Get("PreparingToStart") : L.Get("ReadyToRecord")
         };
         StateDot.Fill = state == RecordingState.Paused ? Brushes.Orange : active ? Brushes.Tomato : (Brush)FindResource("ToolbarActiveBrush");
         RecordButton.IsEnabled = !active;
         PauseButton.IsEnabled = state is RecordingState.Recording or RecordingState.Paused;
         PauseIcon.Kind = state == RecordingState.Paused ? MahApps.Metro.IconPacks.PackIconLucideKind.Play : MahApps.Metro.IconPacks.PackIconLucideKind.Pause;
         StopButton.IsEnabled = countdown || state is RecordingState.Starting or RecordingState.Recording or RecordingState.Paused;
-        StopButton.ToolTip = countdown ? "取消开始" : "停止并保存";
+        StopButton.ToolTip = countdown ? L.Get("CancelStart") : L.Get("StopAndSave");
         ConfigurationButton.IsEnabled = !starting;
         CloseButton.IsEnabled = !active;
     }
-    internal void Countdown(int seconds) { Clock.Text = seconds + " 秒"; StateText.Text = "即将开始 · 点击停止可取消"; }
+    internal void Countdown(int seconds) { Clock.Text = seconds + L.Get("Seconds"); StateText.Text = L.Get("StartingShortlyClickStopToCancel"); }
     public void ShowForRegion(System.Drawing.Rectangle region)
     {
         _anchor = region;

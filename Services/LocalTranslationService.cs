@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using System.Diagnostics;
 using System.Net;
@@ -18,10 +19,10 @@ internal static class LocalTranslationService
 
     public static async Task<string> Translate(string text, AppSettings settings, CancellationToken token)
     {
-        if (string.IsNullOrWhiteSpace(text) || text.Length > 6000) throw new ArgumentException("本地翻译每次支持 1–6000 字符，请分段翻译。");
-        if (settings.LocalTranslationDevice is not ("CPU" or "Vulkan")) throw new ArgumentException("未知本地翻译计算设备。");
+        if (string.IsNullOrWhiteSpace(text) || text.Length > 6000) throw new ArgumentException(L.Get("LocalTranslationSupports16000CharactersPer"));
+        if (settings.LocalTranslationDevice is not ("CPU" or "Vulkan")) throw new ArgumentException(L.Get("UnknownLocalTranslationDevice"));
         if (!Regex.IsMatch(settings.TranslationSource, "^[a-zA-Z-]{2,20}$") ||
-            !Regex.IsMatch(settings.TranslationTarget, "^[a-zA-Z-]{2,20}$")) throw new ArgumentException("翻译语言代码无效。");
+            !Regex.IsMatch(settings.TranslationTarget, "^[a-zA-Z-]{2,20}$")) throw new ArgumentException(L.Get("InvalidTranslationLanguageCode"));
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
         timeout.CancelAfter(TimeSpan.FromMinutes(3));
         token = timeout.Token;
@@ -29,12 +30,12 @@ internal static class LocalTranslationService
         try
         {
             if (!await LocalTranslationSetupService.VerifyRuntime(settings.LocalTranslationRuntime, token))
-                throw new InvalidOperationException("本地翻译运行库未配置或校验失败，请在翻译设置中一键下载并配置。");
+                throw new InvalidOperationException(L.Get("LocalTranslationRuntimeIsMissingOrFailed"));
             if (!Path.IsPathFullyQualified(settings.LocalTranslationModel) || !File.Exists(settings.LocalTranslationModel) ||
                 new FileInfo(settings.LocalTranslationModel).Length != LocalTranslationSetupService.ModelSize ||
                 !string.Equals(await LocalTranslationSetupService.FileHash(settings.LocalTranslationModel, token),
                     LocalTranslationSetupService.ModelHash, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("本地翻译模型未配置或校验失败，请使用一键下载的 Qwen2.5 1.5B 模型。");
+                throw new InvalidOperationException(L.Get("LocalTranslationModelIsMissingOrFailed"));
             return await Run(text, settings, token);
         }
         finally { Gate.Release(); }
@@ -59,7 +60,7 @@ internal static class LocalTranslationService
         foreach (var variable in start.Environment.Keys.Where(k => k.StartsWith("LLAMA_", StringComparison.OrdinalIgnoreCase)).ToArray())
             start.Environment.Remove(variable);
         foreach (var argument in arguments) start.ArgumentList.Add(argument);
-        using var process = Process.Start(start) ?? throw new InvalidOperationException("无法启动本地翻译引擎。");
+        using var process = Process.Start(start) ?? throw new InvalidOperationException(L.Get("CouldNotStartTheLocalTranslationEngine"));
         var gpuLayers = 0;
         // Drain pipes continuously; keep no prompts, generated text or raw diagnostics in logs.
         async Task Drain(StreamReader reader, bool detectGpu)
@@ -90,7 +91,7 @@ internal static class LocalTranslationService
             while (true)
             {
                 token.ThrowIfCancellationRequested();
-                if (process.HasExited) throw new InvalidOperationException("本地翻译引擎启动失败。请检查 VC++ x64 运行库；GPU 模式还需 Vulkan 显卡驱动，可切换 CPU 重试。");
+                if (process.HasExited) throw new InvalidOperationException(L.Get("LocalTranslationEngineFailedToStartCheck"));
                 try
                 {
                     using var response = await client.GetAsync("health", token);
@@ -100,7 +101,7 @@ internal static class LocalTranslationService
                 await Task.Delay(250, token);
             }
             if (settings.LocalTranslationDevice == "Vulkan" && Volatile.Read(ref gpuLayers) == 0)
-                throw new InvalidOperationException("未检测到模型层成功加载到 Vulkan GPU。请更新显卡驱动，或明确选择 CPU；本次未自动回退。");
+                throw new InvalidOperationException(L.Get("NoModelLayersWereLoadedOntoThe"));
             using var reply = await client.PostAsJsonAsync("v1/chat/completions", new
             {
                 model = "local", temperature = 0, max_tokens = 1024, stream = false,
@@ -115,13 +116,13 @@ internal static class LocalTranslationService
             using var output = new MemoryStream();
             var bytes = new byte[8192]; int read;
             while ((read = await input.ReadAsync(bytes, token)) > 0)
-            { if (output.Length + read > 1_000_000) throw new InvalidDataException("本地翻译输出过大。"); output.Write(bytes, 0, read); }
+            { if (output.Length + read > 1_000_000) throw new InvalidDataException(L.Get("LocalTranslationOutputIsTooLarge")); output.Write(bytes, 0, read); }
             using var json = JsonDocument.Parse(output.ToArray(), new JsonDocumentOptions { MaxDepth = 32 });
             var choice = json.RootElement.GetProperty("choices")[0];
             if (choice.TryGetProperty("finish_reason", out var reason) && reason.GetString() == "length")
-                throw new InvalidOperationException("译文达到生成长度限制，请缩短原文后重试。");
+                throw new InvalidOperationException(L.Get("TranslationReachedTheGenerationLimitShortenThe"));
             var translated = choice.GetProperty("message").GetProperty("content").GetString()?.Trim();
-            return !string.IsNullOrWhiteSpace(translated) ? translated : throw new InvalidDataException("本地模型未生成译文。");
+            return !string.IsNullOrWhiteSpace(translated) ? translated : throw new InvalidDataException(L.Get("TheLocalModelDidNotProduceA"));
         }
         finally
         {

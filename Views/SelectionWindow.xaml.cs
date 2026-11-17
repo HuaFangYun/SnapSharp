@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Native;
 using System.Drawing;
@@ -131,7 +132,7 @@ public partial class SelectionWindow : Window
         if (_selection.IsEmpty || _selection.Width <= 0 || _selection.Height <= 0)
         {
             SelectionBorder.Visibility = Visibility.Collapsed;
-            InfoText.Text = "选择区域";
+            InfoText.Text = L.Get("SelectRegion");
         }
         else
         {

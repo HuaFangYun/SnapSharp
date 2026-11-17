@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using Microsoft.Win32;
 
 namespace SnapSharp.Services;
@@ -17,7 +18,7 @@ public sealed class StartupRegistrationService
     public void SetEnabled(bool enabled)
     {
         using var key = Registry.CurrentUser.CreateSubKey(RunKeyPath, writable: true)
-            ?? throw new InvalidOperationException("无法打开 Windows 启动项注册表项。");
+            ?? throw new InvalidOperationException(L.Get("CouldNotOpenTheWindowsStartupRegistry"));
 
         if (enabled)
         {
@@ -33,7 +34,7 @@ public sealed class StartupRegistrationService
     {
         var executable = Environment.ProcessPath;
         if (string.IsNullOrWhiteSpace(executable))
-            throw new InvalidOperationException("无法确定 SnapSharp 可执行文件路径。");
+            throw new InvalidOperationException(L.Get("CouldNotDetermineTheSnapSharpExecutablePath"));
         return $"\"{executable}\"";
     }
 }

@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using System.IO.Compression;
 using System.Text;
@@ -19,17 +20,17 @@ public static class RecognitionExport
     }
     public static (int Rows, int Columns) Validate(IReadOnlyList<RecognizedCell> cells)
     {
-        if (cells.Count == 0 || cells.Count > 10000) throw new ArgumentException("表格需包含 1–10000 个单元格。");
+        if (cells.Count == 0 || cells.Count > 10000) throw new ArgumentException(L.Get("TableMustContain110000Cells"));
         var occupied = new HashSet<(int, int)>(); var rows = 0; var columns = 0;
         foreach (var cell in cells)
         {
             if (cell.Row < 1 || cell.Column < 1 || cell.RowSpan < 1 || cell.ColumnSpan < 1 || (long)cell.Row + cell.RowSpan > 2001 || (long)cell.Column + cell.ColumnSpan > 2001)
-                throw new ArgumentException("行列从 1 开始，合并跨度至少为 1；范围最多 2000 行／列。");
+                throw new ArgumentException(L.Get("RowsColumnsStartAt1AndSpans"));
             for (var r = cell.Row; r < cell.Row + cell.RowSpan; r++) for (var c = cell.Column; c < cell.Column + cell.ColumnSpan; c++)
-            { if (!occupied.Add((r, c))) throw new ArgumentException("单元格或合并范围有重叠，请先修正。"); if (occupied.Count > 100000) throw new ArgumentException("表格范围超过 100000 格。"); }
+            { if (!occupied.Add((r, c))) throw new ArgumentException(L.Get("CellOrMergedRangesOverlapCorrectThem")); if (occupied.Count > 100000) throw new ArgumentException(L.Get("TableRangeExceeds100000Cells")); }
             rows = Math.Max(rows, cell.Row + cell.RowSpan - 1); columns = Math.Max(columns, cell.Column + cell.ColumnSpan - 1);
         }
-        if ((long)rows * columns > 100000) throw new ArgumentException("表格范围超过 100000 格。");
+        if ((long)rows * columns > 100000) throw new ArgumentException(L.Get("TableRangeExceeds100000Cells"));
         return (rows, columns);
     }
     public static byte[] Csv(IReadOnlyList<RecognizedCell> cells)
@@ -69,7 +70,7 @@ public static class RecognitionExport
                 new XElement(content + "Override", new XAttribute("PartName", "/xl/workbook.xml"), new XAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml")),
                 new XElement(content + "Override", new XAttribute("PartName", "/xl/worksheets/sheet1.xml"), new XAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml")))));
             Write("_rels/.rels", new XDocument(new XElement(package + "Relationships", new XElement(package + "Relationship", new XAttribute("Id", "rId1"), new XAttribute("Type", rel.NamespaceName + "/officeDocument"), new XAttribute("Target", "xl/workbook.xml")))));
-            Write("xl/workbook.xml", new XDocument(new XElement(ns + "workbook", new XElement(ns + "sheets", new XElement(ns + "sheet", new XAttribute("name", "识别结果"), new XAttribute("sheetId", "1"), new XAttribute(rel + "id", "rId1"))))));
+            Write("xl/workbook.xml", new XDocument(new XElement(ns + "workbook", new XElement(ns + "sheets", new XElement(ns + "sheet", new XAttribute("name", L.Get("RecognitionResults")), new XAttribute("sheetId", "1"), new XAttribute(rel + "id", "rId1"))))));
             Write("xl/_rels/workbook.xml.rels", new XDocument(new XElement(package + "Relationships", new XElement(package + "Relationship", new XAttribute("Id", "rId1"), new XAttribute("Type", rel.NamespaceName + "/worksheet"), new XAttribute("Target", "worksheets/sheet1.xml")))));
             Write("xl/worksheets/sheet1.xml", new XDocument(sheet));
         }

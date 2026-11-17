@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using SnapSharp.Models;
@@ -20,14 +21,14 @@ public sealed class OnnxImageRuntime : IDisposable
         timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
         await _gate.WaitAsync(timeout.Token).ConfigureAwait(false);
         try { return await Task.Run(() => operation(new ModelAccess(this, Math.Clamp(settings.RecognitionThreads, 1, 8), settings.OnnxDevice, settings.OnnxDeviceId), timeout.Token), timeout.Token).ConfigureAwait(false); }
-        catch (OnnxRuntimeException) when (timeout.IsCancellationRequested) { throw new OperationCanceledException("本地推理已取消或超时。", timeout.Token); }
+        catch (OnnxRuntimeException) when (timeout.IsCancellationRequested) { throw new OperationCanceledException(L.Get("LocalInferenceCanceledOrTimedOut"), timeout.Token); }
         finally { _gate.Release(); }
     }
     public static void RequireFile(string path, string label)
     {
         if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path) || !File.Exists(path))
-            throw new FileNotFoundException($"缺少{label}，请在设置 → OCR 与识别／一键抠图中点击一键下载并配置，然后保存设置。");
-        if (new FileInfo(path).Length > 2_000_000_000) throw new ArgumentException($"{label}过大。");
+            throw new FileNotFoundException(L.Format("Missing0OpenSettingsOCRAndRecognition", label));
+        if (new FileInfo(path).Length > 2_000_000_000) throw new ArgumentException(L.Format("0IsTooLarge", label));
     }
     public sealed class ModelAccess
     {
@@ -36,7 +37,7 @@ public sealed class OnnxImageRuntime : IDisposable
         private readonly HashSet<string> _opened = [];
         internal ModelAccess(OnnxImageRuntime owner, int threads, string device, int deviceId)
         { _owner = owner; _threads = threads; _device = device; _deviceId = deviceId; }
-        public string DeviceLabel => _device == "DirectML" ? $"DirectML GPU #{_deviceId}（不支持的算子可在 CPU 执行）" : "CPU";
+        public string DeviceLabel => _device == "DirectML" ? L.Format("DirectMLGPU0UnsupportedOperatorsMayRun", _deviceId) : "CPU";
         public InferenceSession Open(string path, string label, bool imageInput = true)
         {
             RequireFile(path, label);
@@ -46,7 +47,7 @@ public sealed class OnnxImageRuntime : IDisposable
             if (_owner._sessions.Count >= 4)
             {
                 var oldest = _owner._sessions.FirstOrDefault(x => !_opened.Contains(x.Key));
-                if (oldest.Key is null) throw new InvalidOperationException("单次推理最多使用四个模型会话。");
+                if (oldest.Key is null) throw new InvalidOperationException(L.Get("AtMostFourModelSessionsPerInference"));
                 oldest.Value.Dispose(); _owner._sessions.Remove(oldest.Key);
             }
             using var options = new SessionOptions { IntraOpNumThreads = _threads, InterOpNumThreads = 1, GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL };
@@ -55,20 +56,20 @@ public sealed class OnnxImageRuntime : IDisposable
                 options.EnableMemoryPattern = false;
                 options.ExecutionMode = ExecutionMode.ORT_SEQUENTIAL;
                 try { options.AppendExecutionProvider_DML(_deviceId); }
-                catch (Exception ex) { throw new InvalidOperationException("DirectML GPU 初始化失败。请更新显卡驱动、检查 GPU 编号，或主动切换 CPU。", ex); }
+                catch (Exception ex) { throw new InvalidOperationException(L.Get("DirectMLGPUInitializationFailedUpdateYourDriver"), ex); }
             }
-            else if (_device != "CPU") throw new ArgumentException("未知 ONNX 计算设备。");
+            else if (_device != "CPU") throw new ArgumentException(L.Get("UnknownONNXDevice"));
             var session = new InferenceSession(path, options);
             if (imageInput && (session.InputMetadata.Count != 1 || session.InputMetadata.First().Value.ElementType != typeof(float)))
-            { session.Dispose(); throw new NotSupportedException("此模型需要单个 float32 NCHW 图像输入；多输入／量化模型不受当前适配器支持。"); }
+            { session.Dispose(); throw new NotSupportedException(L.Get("ThisModelRequiresOneFloat32NCHWImage")); }
             _owner._sessions.Add(key, session); return session;
         }
         public static (int Height, int Width) Size(InferenceSession session, int height, int width)
         {
             var shape = session.InputMetadata.First().Value.Dimensions;
-            if (shape.Length != 4 || shape[0] > 1 || shape[1] is not (3 or -1)) throw new NotSupportedException("模型输入需为 [1,3,H,W] 的 NCHW 图像。");
+            if (shape.Length != 4 || shape[0] > 1 || shape[1] is not (3 or -1)) throw new NotSupportedException(L.Get("ModelInputMustBeA13"));
             height = shape[2] > 0 ? shape[2] : height; width = shape[3] > 0 ? shape[3] : width;
-            if (height is < 16 or > 2048 || width is < 16 or > 2048) throw new NotSupportedException("模型输入尺寸需在 16–2048 范围内。");
+            if (height is < 16 or > 2048 || width is < 16 or > 2048) throw new NotSupportedException(L.Get("ModelInputDimensionsMustBeWithin16"));
             return (height, width);
         }
         public static (float[] Data, int[] Shape) Run(InferenceSession session, DenseTensor<float> tensor, CancellationToken token)
@@ -97,7 +98,7 @@ public sealed class OnnxImageRuntime : IDisposable
         var tensor = new DenseTensor<float>(new[] { 1, 3, height, width });
         var drawWidth = padWidth ? Math.Min(width, Math.Max(1, (int)Math.Ceiling(bitmap.Width * (double)height / bitmap.Height))) : width;
         using var resized = bitmap.Resize(new SKImageInfo(drawWidth, height, SKColorType.Bgra8888, SKAlphaType.Premul), new SKSamplingOptions(SKFilterMode.Linear))
-            ?? throw new InvalidOperationException("图像预处理失败。");
+            ?? throw new InvalidOperationException(L.Get("ImagePreprocessingFailed"));
         var mean = normalization == "ImageNet" ? new[] { .485f, .456f, .406f } : new[] { .5f, .5f, .5f };
         var std = normalization == "ImageNet" ? new[] { .229f, .224f, .225f } : normalization == "MinusOne" ? new[] { .5f, .5f, .5f } : new[] { 1f, 1f, 1f };
         for (var y = 0; y < height; y++) for (var x = 0; x < drawWidth; x++)
@@ -116,17 +117,17 @@ public sealed class OnnxImageRuntime : IDisposable
     {
         ValidateImage(image);
         if (settings.CutoutProfile is not ("U2Net" or "ISNet" or "BiRefNet" or "BiRefNetMatting" or "BiRefNetAlpha"))
-            throw new NotSupportedException("未知抠图模型契约，请在设置中重新配置。");
-        var session = models.Open(settings.CutoutModel, "抠图 ONNX 模型");
+            throw new NotSupportedException(L.Get("UnknownBackgroundRemovalModelContractReconfigureIt"));
+        var session = models.Open(settings.CutoutModel, L.Get("BackgroundRemovalONNXModel"));
         var size = ModelAccess.Size(session, Math.Clamp(settings.CutoutInputSize, 32, 2048), Math.Clamp(settings.CutoutInputSize, 32, 2048));
         using var source = _images.ToSkBitmap(image);
         var output = ModelAccess.Run(session, Tensor(source, size.Height, size.Width, settings.CutoutProfile == "ISNet" ? "Half" : "ImageNet"), cancellation);
         var shape = output.Shape;
-        if (shape.Length < 2 || shape.Length > 4 || shape.Take(shape.Length - 2).Any(x => x != 1)) throw new NotSupportedException("抠图输出需为单通道 [1,1,H,W]、[1,H,W] 或 [H,W]。");
+        if (shape.Length < 2 || shape.Length > 4 || shape.Take(shape.Length - 2).Any(x => x != 1)) throw new NotSupportedException(L.Get("BackgroundRemovalOutputMustBeASingle"));
         var height = shape[^2]; var width = shape[^1];
-        if (height < 1 || width < 1 || (long)height * width > 16_000_000 || output.Data.Length != height * width) throw new InvalidDataException("抠图蒙版尺寸无效。");
+        if (height < 1 || width < 1 || (long)height * width > 16_000_000 || output.Data.Length != height * width) throw new InvalidDataException(L.Get("InvalidBackgroundRemovalMaskDimensions"));
         var minimum = output.Data.Min(); var maximum = output.Data.Max();
-        if (!float.IsFinite(minimum) || !float.IsFinite(maximum)) throw new InvalidDataException("抠图模型输出包含无效数值。");
+        if (!float.IsFinite(minimum) || !float.IsFinite(maximum)) throw new InvalidDataException(L.Get("BackgroundRemovalModelOutputContainsInvalidValues"));
         static float Sigmoid(float value) => 1f / (1f + MathF.Exp(-value));
         var probabilityMinimum = Sigmoid(minimum); var probabilityMaximum = Sigmoid(maximum);
         using var mask = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Opaque);
@@ -158,7 +159,7 @@ public sealed class OnnxImageRuntime : IDisposable
     public static void ValidateImage(BitmapSource image)
     {
         if (image.PixelWidth < 1 || image.PixelHeight < 1 || (long)image.PixelWidth * image.PixelHeight > 16_000_000)
-            throw new ArgumentException("识别／抠图输入不超过 1600 万像素，请先裁剪或缩小图像。");
+            throw new ArgumentException(L.Get("RecognitionBackgroundRemovalInputIsLimitedTo"));
     }
     public void Dispose() { foreach (var session in _sessions.Values) session.Dispose(); _sessions.Clear(); }
 }

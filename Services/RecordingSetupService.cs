@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -26,38 +27,38 @@ internal sealed class RecordingSetupService
         var edition = key?.GetValue("EditionID") as string ?? "";
         var n = edition.EndsWith("N", StringComparison.OrdinalIgnoreCase);
         return new(supported, vc, media, n,
-            $"Windows 10 2004+／x64：{(supported ? "通过" : "不满足")}\nVisual C++ x64：{(vc ? "已就绪" : "缺少运行库")}\nMedia Foundation：{(media ? "已就绪" : "缺少媒体组件")}\n系统版本：{edition}\n录屏引擎 ScreenRecorderLib 已随程序提供，无需另装 NuGet 或 FFmpeg。");
+            L.Format("Windows102004X640VisualC", (supported ? L.Get("CheckPassed") : L.Get("CheckFailed")), (vc ? L.Get("ComponentReady") : L.Get("MissingRuntime")), (media ? L.Get("ComponentReady") : L.Get("MissingMediaComponents")), edition));
     }
 
     public async Task<string> Configure(IProgress<string> progress, CancellationToken token)
     {
-        if (!await SetupGate.WaitAsync(0, token)) throw new InvalidOperationException("另一处正在配置录屏环境，请稍后重新检查。");
+        if (!await SetupGate.WaitAsync(0, token)) throw new InvalidOperationException(L.Get("RecordingSetupIsAlreadyInProgressElsewhere"));
         try
         {
             var state = Check();
-            if (!state.Supported) throw new NotSupportedException("录屏需要 Windows 10 2004 及以上版本和 x64 程序。");
+            if (!state.Supported) throw new NotSupportedException(L.Get("RecordingRequiresWindows102004OrLater"));
             var restart = false;
             if (!state.VisualCpp)
             {
                 var installer = await DownloadVisualCpp(progress, token);
                 token.ThrowIfCancellationRequested();
-                progress.Report("微软签名验证通过，正在安装 Visual C++ x64。请确认 Windows 管理员授权；安装过程中请等待。");
+                progress.Report(L.Get("MicrosoftSignatureVerifiedInstallingVisualCX64"));
                 restart = await Install(installer, "/install /passive /norestart", token);
                 state = Check();
-                if (!restart && !state.VisualCpp) throw new InvalidOperationException("安装已结束，但运行库仍未就绪。请重启 Windows 后重新检查。");
+                if (!restart && !state.VisualCpp) throw new InvalidOperationException(L.Get("InstallationFinishedButTheRuntimeIsNot"));
             }
             if (!state.MediaFoundation)
             {
-                if (!state.IsNEdition) throw new InvalidOperationException("此系统缺少 Media Foundation。请在 Windows 可选功能中修复媒体组件；Windows Server 需管理员安装 Server-Media-Foundation。可点击下方“Windows 可选功能”。");
-                progress.Report("正在通过 Windows 安装 Media Feature Pack。请确认管理员授权；系统会自行下载匹配当前 Windows 版本的组件。");
+                if (!state.IsNEdition) throw new InvalidOperationException(L.Get("MediaFoundationIsMissingRepairMediaComponents"));
+                progress.Report(L.Get("InstallingMediaFeaturePackThroughWindowsApprove"));
                 restart |= await Install(Path.Combine(Environment.SystemDirectory, "Dism.exe"), "/Online /Add-Capability /CapabilityName:Media.MediaFeaturePack~~~~0.0.1.0 /NoRestart", token);
                 state = Check();
             }
-            if (restart) return "依赖安装完成，需要重启 Windows 后再录屏。请先保存其他工作；程序不会自动重启系统。";
-            if (!state.Ready) throw new InvalidOperationException("组件尚未就绪，请重启 Windows 后重新检查，或打开 Windows 可选功能确认安装结果。");
-            progress.Report("组件已就绪，正在用生成的测试图检查 H.264 编码器，不录制桌面或设备…");
+            if (restart) return L.Get("DependenciesInstalledRestartWindowsBeforeRecordingSave");
+            if (!state.Ready) throw new InvalidOperationException(L.Get("ComponentsAreNotReadyRestartWindowsAnd"));
+            progress.Report(L.Get("ComponentsAreReadyTestingH264Encoding"));
             var probe = await Task.Run(() => RecordingEncoderProbe.Check(token), token);
-            return "录屏环境已就绪。" + probe + "可返回录屏窗口直接开始；麦克风／摄像头需本次勾选并允许系统访问。";
+            return L.Get("RecordingRequirementsAreReady") + probe + L.Get("ReturnToTheRecordingWindowToStart");
         }
         finally { SetupGate.Release(); }
     }
@@ -74,31 +75,31 @@ internal sealed class RecordingSetupService
             var address = new Uri(VisualCppUrl);
             for (var redirects = 0; redirects < 8; redirects++)
             {
-                if (!IsMicrosoftDownload(address)) throw new InvalidDataException("运行库下载被重定向到非微软地址，已中止。");
-                progress.Report("正在从微软官方源连接 Visual C++ x64…");
+                if (!IsMicrosoftDownload(address)) throw new InvalidDataException(L.Get("RuntimeDownloadRedirectedToANonMicrosoft"));
+                progress.Report(L.Get("ConnectingToMicrosoftSVisualCX64"));
                 using var response = await client.GetAsync(address, HttpCompletionOption.ResponseHeadersRead, token);
                 if ((int)response.StatusCode is >= 300 and < 400 && response.Headers.Location is { } next) { address = new Uri(address, next); continue; }
                 response.EnsureSuccessStatusCode();
-                if (response.Content.Headers.ContentLength is > 100_000_000) throw new InvalidDataException("运行库安装包超过大小限制。");
+                if (response.Content.Headers.ContentLength is > 100_000_000) throw new InvalidDataException(L.Get("RuntimeInstallerExceedsTheSizeLimit"));
                 await using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
                 await using (var input = await response.Content.ReadAsStreamAsync(token))
                 {
                     var buffer = new byte[81920]; int read;
                     while ((read = await input.ReadAsync(buffer, token)) != 0)
                     {
-                        if (output.Length + read > 100_000_000) throw new InvalidDataException("运行库安装包超过大小限制。");
+                        if (output.Length + read > 100_000_000) throw new InvalidDataException(L.Get("RuntimeInstallerExceedsTheSizeLimit"));
                         await output.WriteAsync(buffer.AsMemory(0, read), token);
                         var total = response.Content.Headers.ContentLength;
-                        progress.Report($"Visual C++ x64 下载 {output.Length / 1048576d:F1} MB" + (total > 0 ? $" / {total / 1048576d:F1} MB" : ""));
+                        progress.Report(L.Format("VisualCX64Download0F1MB", output.Length / 1048576d) + (total > 0 ? $" / {total / 1048576d:F1} MB" : ""));
                     }
                 }
                 token.ThrowIfCancellationRequested();
-                progress.Report("正在验证安装包的 Windows 信任签名与微软发布者…");
+                progress.Report(L.Get("VerifyingInstallerWindowsTrustAndMicrosoftPublisher"));
                 await Task.Run(() => MicrosoftInstallerSignature.Verify(temporary), token);
                 File.Move(temporary, installer);
                 return installer;
             }
-            throw new InvalidDataException("运行库下载重定向次数过多。");
+            throw new InvalidDataException(L.Get("TooManyRuntimeDownloadRedirects"));
         }
         catch
         {
@@ -116,16 +117,16 @@ internal sealed class RecordingSetupService
         try
         {
             using var process = Process.Start(new ProcessStartInfo(executable, arguments) { UseShellExecute = true, Verb = "runas" })
-                ?? throw new InvalidOperationException("无法启动系统安装程序。");
+                ?? throw new InvalidOperationException(L.Get("CouldNotStartTheSystemInstaller"));
             // Never kill Windows servicing or a runtime installer on cancellation.
             await process.WaitForExitAsync();
             return process.ExitCode switch
             {
                 0 or 1638 => false,
                 3010 or 1641 => true,
-                _ => throw new InvalidOperationException($"系统组件安装失败，退出代码 {process.ExitCode}。请检查 Windows Update 或手动重试。")
+                _ => throw new InvalidOperationException(L.Format("SystemComponentInstallationFailedWithExitCode", process.ExitCode))
             };
         }
-        catch (Win32Exception ex) when (ex.NativeErrorCode == 1223) { throw new OperationCanceledException("已取消 Windows 管理员授权，未完成安装。", ex, token); }
+        catch (Win32Exception ex) when (ex.NativeErrorCode == 1223) { throw new OperationCanceledException(L.Get("WindowsAdministratorApprovalWasCanceledInstallationIs"), ex, token); }
     }
 }

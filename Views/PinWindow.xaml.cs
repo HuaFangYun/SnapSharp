@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Native;
 using SnapSharp.Services;
@@ -272,7 +273,7 @@ public partial class PinWindow : Window
     private void Copy_Click(object sender, RoutedEventArgs e)
     {
         try { CopyCurrentImage(); }
-        catch (Exception ex) { MessageBox.Show(this, ex.Message, "复制失败", MessageBoxButton.OK, MessageBoxImage.Warning); }
+        catch (Exception ex) { MessageBox.Show(this, ex.Message, L.Get("CopyFailed"), MessageBoxButton.OK, MessageBoxImage.Warning); }
     }
     internal void CopyCurrentImage() => _clipboard.SetImage(OutputImage());
     private void ToggleTopmost_Click(object sender, RoutedEventArgs e) => Topmost = !Topmost;
@@ -329,23 +330,23 @@ public partial class PinWindow : Window
     private void CopyColor(bool rgb)
     {
         try { if (ContentInfo.Color is { } color) OutputActions.CopyText(rgb ? PinContentService.Rgb(color) : PinContentService.Hex(color)); }
-        catch (Exception ex) { MessageBox.Show(this, ex.Message, "复制颜色失败"); }
+        catch (Exception ex) { MessageBox.Show(this, ex.Message, L.Get("CouldNotCopyColor")); }
     }
     private void Menu_Opened(object sender, RoutedEventArgs e)
     {
         var menu = (System.Windows.Controls.ContextMenu)sender;
         var groups = (MenuItem)menu.Items.OfType<MenuItem>().First(x => Equals(x.Tag, "Groups"));
         groups.Items.Clear();
-        var create = new MenuItem { Header = "新建分组…" };
+        var create = new MenuItem { Header = L.Get("NewGroup") };
         create.Click += (_, _) =>
         {
-            var dialog = new TextInputDialog { Owner = this, Title = "新建贴图分组", InitialText = "新分组" };
+            var dialog = new TextInputDialog { Owner = this, Title = L.Get("NewPinGroup"), InitialText = L.Get("NewGroup2") };
             if (dialog.ShowDialog() != true) return;
             try { _workspace.Assign(this, dialog.ResultText); }
-            catch (Exception ex) { MessageBox.Show(this, ex.Message, "分组名称无效"); }
+            catch (Exception ex) { MessageBox.Show(this, ex.Message, L.Get("InvalidGroupName")); }
         };
         groups.Items.Add(create);
-        var ungroup = new MenuItem { Header = "不分组", IsCheckable = true, IsChecked = GroupName is null };
+        var ungroup = new MenuItem { Header = L.Get("Ungrouped"), IsCheckable = true, IsChecked = GroupName is null };
         ungroup.Click += (_, _) => _workspace.Assign(this, null);
         groups.Items.Add(ungroup);
         foreach (var group in _workspace.Groups)

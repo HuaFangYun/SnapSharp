@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using Microsoft.ML.OnnxRuntime;
 using SnapSharp.Models;
 using System.Net.Http;
@@ -27,11 +28,11 @@ internal sealed class CutoutModelDownloadService
                 {
                     address = new Uri(address, location);
                     if (address.Scheme != "https" || !string.IsNullOrEmpty(address.UserInfo) || !address.IsDefaultPort || address.Host is not ("github.com" or "release-assets.githubusercontent.com" or "objects.githubusercontent.com" or "huggingface.co" or "cas-bridge.xethub.hf.co" or "us.aws.cdn.hf.co" or "cdn-lfs.huggingface.co" or "cdn-lfs-us-1.hf.co"))
-                        throw new InvalidDataException("模型源重定向到不受信任的地址。");
+                        throw new InvalidDataException(L.Get("ModelSourceRedirectedToAnUntrustedAddress"));
                     continue;
                 }
                 response.EnsureSuccessStatusCode();
-                if (response.Content.Headers.ContentLength > model.MaximumBytes) throw new InvalidDataException("模型超过预期大小。");
+                if (response.Content.Headers.ContentLength > model.MaximumBytes) throw new InvalidDataException(L.Get("ModelExceedsItsExpectedSize"));
                 await using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true))
                 await using (var stream = await response.Content.ReadAsStreamAsync(token))
                 {
@@ -39,15 +40,15 @@ internal sealed class CutoutModelDownloadService
                     while ((read = await stream.ReadAsync(buffer, token)) != 0)
                     {
                         total += read;
-                        if (total > model.MaximumBytes) throw new InvalidDataException("模型超过预期大小。");
+                        if (total > model.MaximumBytes) throw new InvalidDataException(L.Get("ModelExceedsItsExpectedSize"));
                         await output.WriteAsync(buffer.AsMemory(0, read), token);
-                        progress.Report($"正在下载 {model.Id} · {total / 1048576d:F1} MB");
+                        progress.Report(L.Format("Downloading01F1MB", model.Id, total / 1048576d));
                     }
                 }
-                progress.Report("正在校验文件与 ONNX 契约（大模型可能需要片刻）…");
+                progress.Report(L.Get("VerifyingFilesAndONNXContractLargeModels"));
                 return await Task.Run(() => InstallFile(model, temporary, root, token), token);
             }
-            throw new InvalidDataException("模型下载重定向次数过多。");
+            throw new InvalidDataException(L.Get("TooManyRedirectsWhileDownloadingTheModel"));
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
@@ -55,7 +56,7 @@ internal sealed class CutoutModelDownloadService
     internal static string Install(byte[] data, string root, CancellationToken token)
     {
         if (!Convert.ToHexString(SHA256.HashData(data)).Equals(Sha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("抠图模型 SHA256 校验失败，原配置未更改。");
+            throw new InvalidDataException(L.Get("BackgroundRemovalModelSHA256VerificationFailedExisting"));
         Directory.CreateDirectory(root);
         var temporary = Path.Combine(root, Guid.NewGuid().ToString("N") + ".tmp");
         try { File.WriteAllBytes(temporary, data); return InstallFile(CutoutModels.All[0], temporary, root, token); }
@@ -67,10 +68,10 @@ internal sealed class CutoutModelDownloadService
         token.ThrowIfCancellationRequested();
         using (var stream = File.OpenRead(temporary))
         {
-            if (stream.Length > model.MaximumBytes) throw new InvalidDataException("模型超过预期大小。");
+            if (stream.Length > model.MaximumBytes) throw new InvalidDataException(L.Get("ModelExceedsItsExpectedSize"));
             using HashAlgorithm hash = model.Hash.Length == 64 ? SHA256.Create() : MD5.Create();
             if (!Convert.ToHexString(hash.ComputeHash(stream)).Equals(model.Hash, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException("模型校验失败，原配置未更改。");
+                throw new InvalidDataException(L.Get("ModelVerificationFailedExistingConfigurationWasPreserved"));
         }
         token.ThrowIfCancellationRequested();
         using (var options = new SessionOptions { IntraOpNumThreads = 1, InterOpNumThreads = 1, GraphOptimizationLevel = GraphOptimizationLevel.ORT_DISABLE_ALL })
@@ -82,7 +83,7 @@ internal sealed class CutoutModelDownloadService
                 dimensions.Skip(2).All(x => x == -1 || x == model.InputSize);
             if (session.InputMetadata.Count != 1 || input.ElementType != typeof(float) || !Matches(input.Dimensions, 3) ||
                 output.ElementType != typeof(float) || !Matches(output.Dimensions, 1))
-                throw new InvalidDataException("抠图模型输入输出与预设不匹配。");
+                throw new InvalidDataException(L.Get("BackgroundRemovalModelInputsOutputsDoNot"));
         }
         token.ThrowIfCancellationRequested();
         var directory = Path.Combine(root, model.Id + "-" + Guid.NewGuid().ToString("N"));

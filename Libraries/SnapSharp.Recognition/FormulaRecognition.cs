@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using SnapSharp.Models;
@@ -17,13 +18,13 @@ public sealed partial class LocalRecognitionService
             OnnxImageRuntime.ValidateImage(image);
             var directory = settings.FormulaModelDirectory;
             if (string.IsNullOrWhiteSpace(directory) || !Path.IsPathFullyQualified(directory))
-                throw new InvalidOperationException("请在设置 → OCR 与识别中一键下载并配置公式模型。");
-            var encoder = models.Open(Path.Combine(directory, "encoder.onnx"), "公式编码器", false);
-            var decoder = models.Open(Path.Combine(directory, "decoder.onnx"), "公式解码器", false);
-            var resizer = models.Open(Path.Combine(directory, "image_resizer.onnx"), "公式尺寸预测模型", false);
+                throw new InvalidOperationException(L.Get("DownloadAndConfigureFormulaModelsInSettings"));
+            var encoder = models.Open(Path.Combine(directory, "encoder.onnx"), L.Get("FormulaEncoder"), false);
+            var decoder = models.Open(Path.Combine(directory, "decoder.onnx"), L.Get("FormulaDecoder"), false);
+            var resizer = models.Open(Path.Combine(directory, "image_resizer.onnx"), L.Get("FormulaSizePredictionModel"), false);
             var vocabularyPath = Path.Combine(directory, "tokenizer.json");
-            OnnxImageRuntime.RequireFile(vocabularyPath, "公式词表");
-            if (new FileInfo(vocabularyPath).Length > 2_000_000) throw new InvalidDataException("公式词表过大。");
+            OnnxImageRuntime.RequireFile(vocabularyPath, L.Get("FormulaVocabulary"));
+            if (new FileInfo(vocabularyPath).Length > 2_000_000) throw new InvalidDataException(L.Get("FormulaVocabularyIsTooLarge"));
             using var vocabulary = JsonDocument.Parse(File.ReadAllText(vocabularyPath));
             var labels = vocabulary.RootElement.GetProperty("model").GetProperty("vocab").EnumerateObject().ToDictionary(x => x.Value.GetInt32(), x => x.Name);
             using var bitmap = _images.ToSkBitmap(image);
@@ -57,30 +58,30 @@ public sealed partial class LocalRecognitionService
                     ? NamedOnnxValue.CreateFromTensor(x.Key, tokens)
                     : x.Value.ElementType == typeof(bool) ? NamedOnnxValue.CreateFromTensor(x.Key, mask)
                     : x.Value.ElementType == typeof(float) ? NamedOnnxValue.CreateFromTensor(x.Key, context)
-                    : throw new NotSupportedException("公式解码器输入类型不受支持。")).ToArray();
+                    : throw new NotSupportedException(L.Get("UnsupportedFormulaDecoderInputType"))).ToArray();
                 var output = OnnxImageRuntime.ModelAccess.RunAll(decoder, inputs, cancellation).Values.First();
                 if (output.Shape.Length != 3 || output.Shape[0] != 1 || output.Shape[2] < 3 || output.Shape[1] < 1)
-                    throw new InvalidDataException("公式解码器需返回 [1,T,V] logits。");
+                    throw new InvalidDataException(L.Get("FormulaDecoderMustReturn1TV"));
                 var count = output.Shape[2];
                 var next = ArgMax(output.Data.AsSpan(output.Data.Length - count, count));
                 if (next == 2) { ended = true; break; }
-                if (next is 0 or 1 || !labels.ContainsKey(next)) throw new InvalidDataException("公式模型生成无效词元，请裁剪到单个公式后重试。");
+                if (next is 0 or 1 || !labels.ContainsKey(next)) throw new InvalidDataException(L.Get("FormulaModelGeneratedAnInvalidTokenCrop"));
                 ids.Add(next); decoded.Add(next);
             }
-            if (!ended) throw new InvalidDataException("公式超过 512 个词元或未正常结束，请缩小识别区域。");
+            if (!ended) throw new InvalidDataException(L.Get("FormulaExceeds512TokensOrDidNot"));
             var latex = DecodeFormulaTokens(decoded, labels);
-            if (string.IsNullOrWhiteSpace(latex)) throw new InvalidDataException("未识别到公式，请框选单个清晰公式。");
+            if (string.IsNullOrWhiteSpace(latex)) throw new InvalidDataException(L.Get("NoFormulaRecognizedSelectASingleClear"));
             return new RecognitionDocument([new RecognizedBlock(latex, new Rect(0, 0, image.PixelWidth, image.PixelHeight), Kind: "latex")],
-                "本地 LaTeX-OCR / ONNX " + models.DeviceLabel);
+                L.Get("LocalLaTeXOCRONNX") + models.DeviceLabel);
         }, token);
 
     private static int ArgMax(ReadOnlySpan<float> values)
     {
-        if (values.Length == 0) throw new InvalidDataException("模型输出为空。");
+        if (values.Length == 0) throw new InvalidDataException(L.Get("ModelOutputIsEmpty"));
         var best = 0;
         for (var i = 0; i < values.Length; i++)
         {
-            if (!float.IsFinite(values[i])) throw new InvalidDataException("模型输出包含无效值。");
+            if (!float.IsFinite(values[i])) throw new InvalidDataException(L.Get("ModelOutputContainsInvalidValues"));
             if (values[i] > values[best]) best = i;
         }
         return best;
@@ -92,7 +93,7 @@ public sealed partial class LocalRecognitionService
         foreach (var id in ids)
         {
             if (id is 0 or 1 or 2) continue;
-            if (!labels.TryGetValue(id, out var value)) throw new InvalidDataException("公式词表与模型不匹配。");
+            if (!labels.TryGetValue(id, out var value)) throw new InvalidDataException(L.Get("FormulaVocabularyDoesNotMatchTheModel"));
             text.Append(value);
         }
         return text.ToString().Replace("Ġ", " ").Replace("Ċ", "\n").Trim();
@@ -108,7 +109,7 @@ public sealed partial class LocalRecognitionService
             var value = (byte)Math.Clamp((int)Math.Round((.299 * p.Red + .587 * p.Green + .114 * p.Blue) * alpha + 255 * (1 - alpha)), 0, 255);
             gray[y * source.Width + x] = value; min = Math.Min(min, value); max = Math.Max(max, value);
         }
-        if (max == min) throw new InvalidDataException("公式图像没有可识别的前景。");
+        if (max == min) throw new InvalidDataException(L.Get("FormulaImageContainsNoRecognizableForeground"));
         for (var i = 0; i < gray.Length; i++) { gray[i] = (byte)((gray[i] - min) * 255 / (max - min)); total += gray[i]; }
         var invert = total / (double)gray.Length < 128;
         var left = source.Width; var right = -1; var top = source.Height; var bottom = -1;
@@ -119,7 +120,7 @@ public sealed partial class LocalRecognitionService
             if (value >= 128) continue;
             left = Math.Min(left, x); right = Math.Max(right, x); top = Math.Min(top, y); bottom = Math.Max(bottom, y);
         }
-        if (right < left) throw new InvalidDataException("公式图像没有可识别的前景。");
+        if (right < left) throw new InvalidDataException(L.Get("FormulaImageContainsNoRecognizableForeground"));
         using var cropped = new SKBitmap(right - left + 1, bottom - top + 1);
         for (var y = 0; y < cropped.Height; y++) for (var x = 0; x < cropped.Width; x++)
         { var v = gray[(top + y) * source.Width + left + x]; cropped.SetPixel(x, y, new SKColor(v, v, v)); }

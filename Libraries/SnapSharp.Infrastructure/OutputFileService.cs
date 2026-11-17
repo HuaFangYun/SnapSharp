@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -12,7 +13,7 @@ public static class OutputFileService
 
     public static string ExpandTemplate(string template, DateTime time, int width, int height, long sequence)
     {
-        if (string.IsNullOrWhiteSpace(template)) throw new ArgumentException("命名模板不能为空。");
+        if (string.IsNullOrWhiteSpace(template)) throw new ArgumentException(L.Get("NamingTemplateCannotBeEmpty"));
         var values = new Dictionary<string, string>
         {
             ["date"] = time.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
@@ -22,10 +23,10 @@ public static class OutputFileService
             ["seq"] = sequence.ToString("D4", CultureInfo.InvariantCulture)
         };
         var name = Regex.Replace(template, @"\{([^{}]*)\}", match => values.TryGetValue(match.Groups[1].Value, out var value)
-            ? value : throw new ArgumentException($"未知模板字段：{match.Value}"));
-        if (name.Contains('{') || name.Contains('}')) throw new ArgumentException("模板花括号不完整。");
+            ? value : throw new ArgumentException(L.Format("UnknownTemplateField0", match.Value)));
+        if (name.Contains('{') || name.Contains('}')) throw new ArgumentException(L.Get("UnbalancedBracesInTemplate"));
         name = string.Concat(name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c)).Trim().TrimEnd('.', ' ');
-        if (name is "" or "." or "..") throw new ArgumentException("模板未生成有效文件名。");
+        if (name is "" or "." or "..") throw new ArgumentException(L.Get("TemplateDidNotProduceAValidFile"));
         if (Regex.IsMatch(name, @"^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])($|\.)", RegexOptions.IgnoreCase)) name = "_" + name;
         if (name.Length > 180) name = name[..180].TrimEnd('.', ' ');
         return name;
@@ -69,6 +70,6 @@ public static class OutputFileService
             try { Write(path, bytes); return path; }
             catch (IOException) when (File.Exists(path)) { }
         }
-        throw new IOException("文件名冲突过多，请选择其他目录。");
+        throw new IOException(L.Get("TooManyFileNameConflictsChooseAnother"));
     }
 }

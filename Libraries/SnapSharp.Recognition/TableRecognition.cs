@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using SnapSharp.Models;
@@ -19,9 +20,9 @@ public sealed partial class LocalRecognitionService
         var structure = await OnnxImageRuntime.Shared.Execute(settings, (models, cancellation) =>
         {
             OnnxImageRuntime.ValidateImage(image);
-            var session = models.Open(settings.TableStructureModel, "SLANet 表格结构模型");
+            var session = models.Open(settings.TableStructureModel, L.Get("SLANetTableStructureModel"));
             if (!session.ModelMetadata.CustomMetadataMap.TryGetValue("character", out var vocabulary))
-                throw new InvalidDataException("表格模型缺少 character 字典，请一键下载配套 SLANet 模型。");
+                throw new InvalidDataException(L.Get("TableModelIsMissingTheCharacterDictionary"));
             var labels = vocabulary.Split('\n').Select(x => x.TrimEnd('\r')).Where(x => x.Length > 0 && x != "<td>").ToList();
             if (!labels.Contains("<td></td>")) labels.Add("<td></td>");
             labels.Insert(0, "sos"); labels.Add("eos");
@@ -51,7 +52,7 @@ public sealed partial class LocalRecognitionService
         var cells = structure.Select(x => x.Cell).ToArray();
         RecognitionExport.Validate(cells);
         return new TableResult(new RecognitionDocument(structure.Select(x => new RecognizedBlock(x.Cell.Text, x.Bounds, Kind: "cell")).ToArray(),
-            "本地 PP-Structure / SLANet + " + ocr.Backend), cells);
+            L.Get("LocalPPStructureSLANet") + ocr.Backend), cells);
     }
 
     private static DenseTensor<float> TableTensor(SKBitmap source)
@@ -78,14 +79,14 @@ public sealed partial class LocalRecognitionService
     {
         if (shape.Length != 3 || shape[0] != 1 || shape[2] != labels.Count || shape[1] > 4096 || probabilities.Length != shape[1] * shape[2] ||
             boxShape.Length != 3 || boxShape[0] != 1 || boxShape[1] != shape[1] || boxShape[2] is not (4 or 8) || boxes.Length != boxShape[1] * boxShape[2])
-            throw new InvalidDataException("SLANet 输出结构不匹配。");
+            throw new InvalidDataException(L.Get("SLANetOutputStructureMismatch"));
         var tokens = new List<(string Text, int Step)>();
         for (var t = 0; t < shape[1]; t++)
         {
             var best = 0;
             for (var c = 0; c < shape[2]; c++)
             {
-                if (!float.IsFinite(probabilities[t * shape[2] + c])) throw new InvalidDataException("表格输出包含无效值。");
+                if (!float.IsFinite(probabilities[t * shape[2] + c])) throw new InvalidDataException(L.Get("TableOutputContainsInvalidValues"));
                 if (probabilities[t * shape[2] + c] > probabilities[t * shape[2] + best]) best = c;
             }
             if (labels[best] == "eos") break;
@@ -97,12 +98,12 @@ public sealed partial class LocalRecognitionService
             var (text, step) = tokens[i];
             if (text == "<tr>") { row++; column = 1; continue; }
             if (text is not ("<td>" or "<td" or "<td></td>")) continue;
-            if (row < 1) throw new InvalidDataException("表格模型返回单元格但没有行结构。");
+            if (row < 1) throw new InvalidDataException(L.Get("TableModelReturnedCellsWithoutRowStructure"));
             var tag = new StringBuilder(text);
             if (text == "<td")
             {
                 while (i + 1 < tokens.Count && !tag.ToString().Contains('>')) tag.Append(tokens[++i].Text);
-                if (!tag.ToString().Contains('>')) throw new InvalidDataException("表格单元格标签不完整。");
+                if (!tag.ToString().Contains('>')) throw new InvalidDataException(L.Get("IncompleteTableCellTags"));
             }
             int Span(string name)
             {
@@ -111,17 +112,17 @@ public sealed partial class LocalRecognitionService
             }
             while (occupied.Contains((row, column))) column++;
             var cell = new RecognizedCell { Row = row, Column = column, RowSpan = Span("rowspan"), ColumnSpan = Span("colspan") };
-            if (row + cell.RowSpan > 2001 || column + cell.ColumnSpan > 2001) throw new InvalidDataException("表格合并范围过大。");
+            if (row + cell.RowSpan > 2001 || column + cell.ColumnSpan > 2001) throw new InvalidDataException(L.Get("MergedTableRangeIsTooLarge"));
             for (var r = row; r < row + cell.RowSpan; r++) for (var c = column; c < column + cell.ColumnSpan; c++)
-                if (!occupied.Add((r, c)) || occupied.Count > 100000) throw new InvalidDataException("表格合并范围重叠或过大。");
+                if (!occupied.Add((r, c)) || occupied.Count > 100000) throw new InvalidDataException(L.Get("MergedTableRangesOverlapOrAreToo"));
             var coords = boxes.AsSpan(step * boxShape[2], boxShape[2]).ToArray();
-            if (coords.Any(x => !float.IsFinite(x))) throw new InvalidDataException("表格单元格坐标无效。");
+            if (coords.Any(x => !float.IsFinite(x))) throw new InvalidDataException(L.Get("InvalidTableCellCoordinates"));
             var xs = coords.Where((_, n) => n % 2 == 0).Select(x => Math.Clamp(x * width, 0, width)).ToArray();
             var ys = coords.Where((_, n) => n % 2 == 1).Select(y => Math.Clamp(y * height, 0, height)).ToArray();
             var bounds = new Rect(xs.Min(), ys.Min(), xs.Max() - xs.Min(), ys.Max() - ys.Min());
             result.Add(new TableCellRegion(cell, bounds)); column += cell.ColumnSpan;
         }
-        if (result.Count == 0) throw new InvalidDataException("未检测到表格结构，请裁剪到单张表格后重试。");
+        if (result.Count == 0) throw new InvalidDataException(L.Get("NoTableStructureDetectedCropToOne"));
         return result.ToArray();
     }
 }

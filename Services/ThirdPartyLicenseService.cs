@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 namespace SnapSharp.Services;
 
 using System.Text.Json;
@@ -12,10 +13,10 @@ internal static class ThirdPartyLicenseService
         var sources = names.Select(name =>
         {
             if (string.IsNullOrWhiteSpace(name) || Path.GetFileName(name) != name)
-                throw new ArgumentException("许可证文件名无效。", nameof(names));
+                throw new ArgumentException(L.Get("InvalidLicenseFileName"), nameof(names));
             var source = Path.Combine(sourceDirectory, name);
             if (!File.Exists(source) || new FileInfo(source).Length == 0)
-                throw new InvalidDataException("发行包缺少第三方许可证文件：" + name);
+                throw new InvalidDataException(L.Get("DistributionIsMissingAThirdPartyLicense") + name);
             return (Name: name, Source: source);
         }).ToArray();
 

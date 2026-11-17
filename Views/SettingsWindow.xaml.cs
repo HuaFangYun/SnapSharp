@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Services;
 using System.Globalization;
@@ -28,12 +29,15 @@ public partial class SettingsWindow : Window
         var informationalVersion = typeof(SettingsWindow).Assembly
             .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion;
-        AboutVersion.Text = "版本 " + (informationalVersion?.Split('+')[0] ?? typeof(SettingsWindow).Assembly.GetName().Version?.ToString(3) ?? "未知");
+        AboutVersion.Text = L.Format("AboutVersion", informationalVersion?.Split('+')[0] ?? typeof(SettingsWindow).Assembly.GetName().Version?.ToString(3) ?? L.Get("Unknown"));
         DialogLayoutService.Attach(this);
         SizeChanged += (_, _) => { CompactLayout = ActualWidth < 840; FooterHint.Visibility = ActualWidth < 700 ? Visibility.Collapsed : Visibility.Visible; };
         Categories.SelectionChanged += (_, e) => { if (ReferenceEquals(e.OriginalSource, Categories)) BringSelectedCategoryIntoView(); };
         Loaded += (_, _) => BringSelectedCategoryIntoView();
         var current = settings.Current;
+        InterfaceLanguageBox.ItemsSource = LocalizationService.Languages;
+        InterfaceLanguageBox.SelectedValue = LocalizationService.Languages.Any(x => x.Code == current.InterfaceLanguage)
+            ? current.InterfaceLanguage : "";
         SaveDirectory.Text = current.SaveDirectory;
         Quality.Value = current.ImageQuality;
         OutputFormatBox.ItemsSource = OutputFormat.All.Where(x => x.IsAvailable).ToArray();
@@ -103,13 +107,13 @@ public partial class SettingsWindow : Window
             _modelDownload?.Cancel();
             _translationTest?.Cancel();
             try { _hotkey.Resume(); }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "快捷键恢复失败，请重新打开设置检查冲突", MessageBoxButton.OK, MessageBoxImage.Warning); }
+            catch (Exception ex) { MessageBox.Show(ex.Message, L.Get("ShortcutRestorationFailedReopenSettingsToCheck"), MessageBoxButton.OK, MessageBoxImage.Warning); }
         };
     }
 
     private void Browse_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = SaveDirectory.Text, Title = "选择默认保存目录" };
+        var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = SaveDirectory.Text, Title = L.Get("ChooseDefaultSaveFolder") };
         if (dialog.ShowDialog(this) == true) SaveDirectory.Text = dialog.FolderName;
     }
     private void Output_Changed(object sender, RoutedEventArgs e)
@@ -122,7 +126,7 @@ public partial class SettingsWindow : Window
     private void Template_Changed(object sender, System.Windows.Controls.TextChangedEventArgs e)
     {
         if (!_ready) return;
-        try { TemplatePreview.Text = "示例：" + OutputFileService.ExpandTemplate(FileNameTemplate.Text, DateTime.Now, 1920, 1080, 1); }
+        try { TemplatePreview.Text = L.Get("Example") + OutputFileService.ExpandTemplate(FileNameTemplate.Text, DateTime.Now, 1920, 1080, 1); }
         catch (Exception ex) { TemplatePreview.Text = ex.Message; }
     }
     private void PickColor_Click(object sender, RoutedEventArgs e)
@@ -156,19 +160,20 @@ public partial class SettingsWindow : Window
     internal AppSettings BuildCandidate()
     {
         var candidate = JsonSerializer.Deserialize<AppSettings>(JsonSerializer.Serialize(_settings.Current))!;
-        if (!System.IO.Path.IsPathFullyQualified(SaveDirectory.Text)) throw new ArgumentException("输出与文件：请选择完整的保存目录路径。");
+        candidate.InterfaceLanguage = InterfaceLanguageBox.SelectedValue as string ?? "";
+        if (!System.IO.Path.IsPathFullyQualified(SaveDirectory.Text)) throw new ArgumentException(L.Get("OutputAndFilesChooseAnAbsoluteSave"));
         _ = OutputFileService.ExpandTemplate(FileNameTemplate.Text, DateTime.Now, 1920, 1080, 1);
         candidate.SaveDirectory = SaveDirectory.Text.Trim();
         candidate.ImageQuality = (int)Quality.Value;
         candidate.Recording = new RecordingPreferences
         {
             CaptureBackend = ((System.Windows.Controls.ComboBoxItem)RecordingCaptureBackend.SelectedItem).Tag.ToString()!,
-            BitrateKbps = (int)Number(RecordingBitrate, 0, 100000, "录屏码率", true), CountdownSeconds = (int)Number(RecordingCountdown, 0, 10, "开始倒计时", true),
+            BitrateKbps = (int)Number(RecordingBitrate, 0, 100000, L.Get("RecordingBitrate"), true), CountdownSeconds = (int)Number(RecordingCountdown, 0, 10, L.Get("StartCountdown"), true),
             Format = ((System.Windows.Controls.ComboBoxItem)RecordingFormat.SelectedItem).Content.ToString()!,
             FrameRate = int.Parse(((System.Windows.Controls.ComboBoxItem)RecordingFps.SelectedItem).Content.ToString()!),
-            Quality = ((System.Windows.Controls.ComboBoxItem)RecordingQuality.SelectedItem).Content.ToString()!,
+            Quality = ((System.Windows.Controls.ComboBoxItem)RecordingQuality.SelectedItem).Tag.ToString()!,
             HardwareEncoding = RecordingHardware.IsChecked == true, IncludeCursor = RecordingCursor.IsChecked == true, HighlightClicks = RecordingClicks.IsChecked == true,
-            StopAfterSeconds = (int)Number(RecordingStop, 0, 86400, "录屏定时停止", true), GifMaximumEdge = (int)Number(RecordingGifEdge, 160, 800, "GIF 最长边", true)
+            StopAfterSeconds = (int)Number(RecordingStop, 0, 86400, L.Get("RecordingStopTime"), true), GifMaximumEdge = (int)Number(RecordingGifEdge, 160, 800, L.Get("GIFLongestEdge"), true)
         };
         candidate.Recording.Validate();
         candidate.OutputFormat = ((OutputFormat)OutputFormatBox.SelectedItem).Extension;
@@ -176,15 +181,15 @@ public partial class SettingsWindow : Window
         candidate.AutoSaveImages = AutoSaveImages.IsChecked == true;
         candidate.ArchiveByDate = ArchiveByDate.IsChecked == true;
         candidate.FileNameTemplate = FileNameTemplate.Text;
-        candidate.HistoryLimit = (int)Number(HistoryLimit, 0, 1000, "历史条数", integer: true);
+        candidate.HistoryLimit = (int)Number(HistoryLimit, 0, 1000, L.Get("HistoryLimit"), integer: true);
         candidate.DefaultPinOpacity = PinOpacity.Value;
         candidate.PinSnapToEdges = PinSnapToEdges.IsChecked == true;
-        candidate.PinSnapDistance = Number(PinSnapDistance, 0, 48, "吸附距离");
-        candidate.TextPinFontSize = Number(TextFontSize, 10, 64, "文本字号");
-        candidate.TextPinWidth = (int)Number(TextWidth, 200, 1200, "文本宽度", integer: true);
+        candidate.PinSnapDistance = Number(PinSnapDistance, 0, 48, L.Get("SnapDistance"));
+        candidate.TextPinFontSize = Number(TextFontSize, 10, 64, L.Get("TextFontSize"));
+        candidate.TextPinWidth = (int)Number(TextWidth, 200, 1200, L.Get("TextWidth"), integer: true);
         candidate.TextPinFontFamily = TextFontFamily.Text.Trim();
-        if (string.IsNullOrWhiteSpace(candidate.TextPinFontFamily)) throw new ArgumentException("贴图：字体名称不能为空。");
-        if (!PinContentService.TryParseColor(TextForeground.Text, out var fg) || !PinContentService.TryParseColor(TextBackground.Text, out var bg)) throw new ArgumentException("贴图：文本或背景颜色无效。");
+        if (string.IsNullOrWhiteSpace(candidate.TextPinFontFamily)) throw new ArgumentException(L.Get("PinsFontNameCannotBeEmpty"));
+        if (!PinContentService.TryParseColor(TextForeground.Text, out var fg) || !PinContentService.TryParseColor(TextBackground.Text, out var bg)) throw new ArgumentException(L.Get("PinsInvalidTextOrBackgroundColor"));
         candidate.TextPinForeground = PinContentService.Hex(fg); candidate.TextPinBackground = PinContentService.Hex(bg);
         candidate.SaveHistory = SaveHistory.IsChecked == true;
         candidate.StartWithWindows = StartWithWindows.IsChecked == true;
@@ -194,13 +199,13 @@ public partial class SettingsWindow : Window
         candidate.RequireSignedPlugins = RequireSignedPlugins.IsChecked == true;
         candidate.OcrBackend = ((System.Windows.Controls.ComboBoxItem)OcrBackendBox.SelectedItem).Tag.ToString()!;
         candidate.OnnxDevice = ((System.Windows.Controls.ComboBoxItem)OnnxDeviceBox.SelectedItem).Tag.ToString()!;
-        candidate.OnnxDeviceId = (int)Number(OnnxGpuId, 0, 15, "GPU 编号", true);
+        candidate.OnnxDeviceId = (int)Number(OnnxGpuId, 0, 15, L.Get("GPUIndex"), true);
         candidate.OcrDetectionModel = ModelPath(OcrDetPath, candidate.OcrBackend == "PaddleOCR"); candidate.OcrRecognitionModel = ModelPath(OcrRecPath, candidate.OcrBackend == "PaddleOCR"); candidate.OcrDictionary = ModelPath(OcrDictPath, candidate.OcrBackend == "PaddleOCR");
         candidate.TesseractDataDirectory = TesseractDirectory.Text.Trim(); candidate.TesseractLanguages = TesseractLanguages.Text.Trim();
         if (candidate.OcrBackend == "Tesseract") LocalRecognitionService.ValidateTesseractData(candidate.TesseractDataDirectory, candidate.TesseractLanguages);
-        candidate.WindowsOcrLanguage = OcrLanguage.Text.Trim(); candidate.OcrMaximumEdge = (int)Number(OcrMaxEdge, 320, 2048, "OCR 最长边", true);
-        candidate.RecognitionThreads = (int)Number(ModelThreads, 1, 8, "模型线程数", true); candidate.RecognitionTimeoutSeconds = (int)Number(ModelTimeout, 1, 120, "推理超时", true);
-        candidate.BarcodeRotate = BarcodeRotate.IsChecked == true; candidate.CutoutModel = ModelPath(CutoutPath); candidate.CutoutInputSize = (int)Number(CutoutSize, 32, 2048, "抠图输入尺寸", true);
+        candidate.WindowsOcrLanguage = OcrLanguage.Text.Trim(); candidate.OcrMaximumEdge = (int)Number(OcrMaxEdge, 320, 2048, L.Get("OCRLongestEdge"), true);
+        candidate.RecognitionThreads = (int)Number(ModelThreads, 1, 8, L.Get("ModelThreads"), true); candidate.RecognitionTimeoutSeconds = (int)Number(ModelTimeout, 1, 120, L.Get("InferenceTimeout"), true);
+        candidate.BarcodeRotate = BarcodeRotate.IsChecked == true; candidate.CutoutModel = ModelPath(CutoutPath); candidate.CutoutInputSize = (int)Number(CutoutSize, 32, 2048, L.Get("BackgroundRemovalInputSize"), true);
         candidate.CutoutProfile = ((System.Windows.Controls.ComboBoxItem)CutoutProfileBox.SelectedItem).Tag.ToString()!;
         StoreCutoutConfiguration();
         candidate.CutoutModels = JsonSerializer.Deserialize<Dictionary<string, CutoutModelConfiguration>>(JsonSerializer.Serialize(_cutoutModels))!;
@@ -213,30 +218,30 @@ public partial class SettingsWindow : Window
         if (candidate.FormulaModelDirectory.Length > 0)
         {
             foreach (var name in new[] { "encoder.onnx", "decoder.onnx", "image_resizer.onnx", "tokenizer.json" })
-                OnnxImageRuntime.RequireFile(System.IO.Path.Combine(candidate.FormulaModelDirectory, name), "公式 " + name);
+                OnnxImageRuntime.RequireFile(System.IO.Path.Combine(candidate.FormulaModelDirectory, name), L.Get("Formula") + name);
         }
         candidate.AllowOnlineTranslation = AllowTranslation.IsChecked == true; candidate.TranslationEndpoint = TranslateUrl.Text.Trim(); candidate.TranslationTarget = TranslateTarget.Text.Trim(); candidate.TranslationSource = TranslateSource.Text.Trim();
         candidate.TranslationProvider = ((System.Windows.Controls.ComboBoxItem)TranslationProviderBox.SelectedItem).Tag.ToString()!;
         candidate.LocalTranslationModel = LocalTranslationModelPath.Text.Trim();
         candidate.LocalTranslationRuntime = LocalTranslationRuntimePath.Text.Trim();
         candidate.LocalTranslationDevice = ((System.Windows.Controls.ComboBoxItem)LocalTranslationDeviceBox.SelectedItem).Tag.ToString()!;
-        if (!System.Text.RegularExpressions.Regex.IsMatch(candidate.TranslationSource, "^[a-zA-Z-]{2,20}$")) throw new ArgumentException("源语言代码无效，可填写 en、zh 或 auto。");
+        if (!System.Text.RegularExpressions.Regex.IsMatch(candidate.TranslationSource, "^[a-zA-Z-]{2,20}$")) throw new ArgumentException(L.Get("InvalidSourceLanguageCodeUseEnZh"));
         candidate.AllowImageSearchUpload = AllowSearch.IsChecked == true; candidate.ImageSearchEndpoint = SearchUrl.Text.Trim();
-        if (!System.Text.RegularExpressions.Regex.IsMatch(candidate.TranslationTarget, "^[a-zA-Z-]{2,20}$")) throw new ArgumentException("目标语言代码无效。");
+        if (!System.Text.RegularExpressions.Regex.IsMatch(candidate.TranslationTarget, "^[a-zA-Z-]{2,20}$")) throw new ArgumentException(L.Get("InvalidTargetLanguageCode"));
         if (candidate.AllowOnlineTranslation && candidate.TranslationProvider != "Local")
         {
             OnlineRecognitionService.TranslationUri(candidate);
-            if (candidate.TranslationProvider == "MyMemory" && candidate.TranslationSource == "auto") throw new ArgumentException("MyMemory 需指定源语言，例如 en 或 zh；auto 仅适用于支持它的自定义服务。");
-            if (!System.Text.RegularExpressions.Regex.IsMatch(candidate.TranslationTarget, "^[a-zA-Z-]{2,20}$")) throw new ArgumentException("目标语言代码无效。");
+            if (candidate.TranslationProvider == "MyMemory" && candidate.TranslationSource == "auto") throw new ArgumentException(L.Get("MyMemoryRequiresASourceLanguageSuchAs"));
+            if (!System.Text.RegularExpressions.Regex.IsMatch(candidate.TranslationTarget, "^[a-zA-Z-]{2,20}$")) throw new ArgumentException(L.Get("InvalidTargetLanguageCode"));
         }
         if (candidate.AllowImageSearchUpload) OnlineRecognitionService.Endpoint(candidate.ImageSearchEndpoint);
-        candidate.RegionHotkey = NormalizeHotkey(RegionHotkey.Text, "区域截图");
-        candidate.FullScreenHotkey = NormalizeHotkey(FullScreenHotkey.Text, "全屏截图");
-        candidate.ActiveWindowHotkey = NormalizeHotkey(ActiveWindowHotkey.Text, "当前窗口截图");
-        candidate.ClipboardPinHotkey = NormalizeHotkey(ClipboardPinHotkey.Text, "剪贴板贴图", true);
-        candidate.TogglePinsHotkey = NormalizeHotkey(TogglePinsHotkey.Text, "切换贴图", true);
-        candidate.RestorePinHotkey = NormalizeHotkey(RestorePinHotkey.Text, "恢复贴图", true);
-        candidate.RestorePinInteractionHotkey = NormalizeHotkey(RestoreInteractionHotkey.Text, "恢复交互", true);
+        candidate.RegionHotkey = NormalizeHotkey(RegionHotkey.Text, L.Get("RegionCapture"));
+        candidate.FullScreenHotkey = NormalizeHotkey(FullScreenHotkey.Text, L.Get("FullScreenCapture"));
+        candidate.ActiveWindowHotkey = NormalizeHotkey(ActiveWindowHotkey.Text, L.Get("ActiveWindowCapture"));
+        candidate.ClipboardPinHotkey = NormalizeHotkey(ClipboardPinHotkey.Text, L.Get("PinClipboardContent"), true);
+        candidate.TogglePinsHotkey = NormalizeHotkey(TogglePinsHotkey.Text, L.Get("TogglePins"), true);
+        candidate.RestorePinHotkey = NormalizeHotkey(RestorePinHotkey.Text, L.Get("RestorePin"), true);
+        candidate.RestorePinInteractionHotkey = NormalizeHotkey(RestoreInteractionHotkey.Text, L.Get("RestoreInteraction"), true);
         GlobalHotkeyHost.CreateRegistrations(candidate);
         return candidate;
         
@@ -244,33 +249,33 @@ public partial class SettingsWindow : Window
     private static double Number(TextBox field, double min, double max, string label, bool integer = false)
     {
         if (double.TryParse(field.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var number) && double.IsFinite(number) && number >= min && number <= max && (!integer || number == Math.Truncate(number))) return number;
-        throw new ArgumentException($"{label}需为 {min}–{max} 的有效{(integer ? "整数" : "数值")}。");
+        throw new ArgumentException(L.Format("0MustBeAValid3Between", label, min, max, (integer ? L.Get("IntegerValue") : L.Get("NumericValue"))));
     }
     private static string ModelPath(TextBox field, bool validate = true)
     {
         var path = field.Text.Trim();
-        if (validate && path.Length != 0 && (!System.IO.Path.IsPathFullyQualified(path) || !System.IO.File.Exists(path))) throw new ArgumentException("模型或字典文件不存在：" + path);
+        if (validate && path.Length != 0 && (!System.IO.Path.IsPathFullyQualified(path) || !System.IO.File.Exists(path))) throw new ArgumentException(L.Get("ModelOrDictionaryFileNotFound") + path);
         return path;
     }
     private void ModelBrowse_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not FrameworkElement { Tag: string name } || FindName(name) is not TextBox field) return;
-        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = name == "OcrDictPath" ? "UTF-8 字典|*.txt|所有文件|*.*" : "ONNX 模型|*.onnx" };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = name == "OcrDictPath" ? L.Get("UTF8DictionaryTxtAllFiles") : L.Get("ONNXModelOnnx") };
         if (dialog.ShowDialog(this) == true) field.Text = dialog.FileName;
     }
     private void CancelOcrDownload_Click(object sender, RoutedEventArgs e) => _modelDownload?.Cancel();
     private void BrowseFormulaDirectory_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = "选择 LaTeX-OCR 模型目录" };
+        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = L.Get("ChooseLaTeXOCRModelFolder") };
         if (dialog.ShowDialog(this) == true) FormulaDirectory.Text = dialog.FolderName;
     }
     private async void DownloadSpecialist_Click(object sender, RoutedEventArgs e)
     {
-        if (_modelDownload is not null) { SpecialistStatus.Text = "已有下载进行中，请等待或取消后重试。"; return; }
+        if (_modelDownload is not null) { SpecialistStatus.Text = L.Get("ADownloadIsInProgressWaitOr"); return; }
         var table = (sender as FrameworkElement)?.Tag as string == "Table";
         using var cancellation = new CancellationTokenSource(); _modelDownload = cancellation;
         DownloadTableButton.IsEnabled = DownloadFormulaButton.IsEnabled = false; CancelSpecialistButton.IsEnabled = true;
-        SpecialistStatus.Text = "正在下载并校验配套本地模型…";
+        SpecialistStatus.Text = L.Get("DownloadingAndVerifyingMatchingLocalModels");
         try
         {
             var root = System.IO.Path.Combine(AppPaths.Root, "models");
@@ -287,10 +292,10 @@ public partial class SettingsWindow : Window
                 if (ocr is not null) { OcrDetPath.Text = ocr.Detection; OcrRecPath.Text = ocr.Recognition; OcrDictPath.Text = ocr.Dictionary; }
             }
             else { FormulaDirectory.Text = path; FormulaPluginId.Text = ""; }
-            SpecialistStatus.Text = "下载及 SHA256、模型加载校验通过，已选择内置本地识别并填好路径。点击保存后使用。";
+            SpecialistStatus.Text = L.Get("DownloadSHA256AndModelLoadingChecksPassed");
         }
-        catch (OperationCanceledException) { SpecialistStatus.Text = "已取消，原配置保留。"; }
-        catch (Exception ex) { SpecialistStatus.Text = "配置未完成，原配置保留，可重试：" + ex.GetBaseException().Message; }
+        catch (OperationCanceledException) { SpecialistStatus.Text = L.Get("CanceledExistingConfigurationPreserved"); }
+        catch (Exception ex) { SpecialistStatus.Text = L.Get("SetupIncompleteExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
         finally { _modelDownload = null; DownloadTableButton.IsEnabled = DownloadFormulaButton.IsEnabled = true; CancelSpecialistButton.IsEnabled = false; }
     }
     private void RecordingSetup_Click(object sender, RoutedEventArgs e) => RecordingSetupWindow.Open(this);
@@ -301,16 +306,16 @@ public partial class SettingsWindow : Window
             var languages = Windows.Media.Ocr.OcrEngine.AvailableRecognizerLanguages;
             var language = languages.FirstOrDefault(x => x.LanguageTag.Equals(OcrLanguage.Text.Trim(), StringComparison.OrdinalIgnoreCase))
                 ?? languages.FirstOrDefault(x => x.LanguageTag.StartsWith("zh", StringComparison.OrdinalIgnoreCase)) ?? languages.FirstOrDefault();
-            if (language is null) { WindowsOcrStatus.Text = "没有可用 Windows OCR 语言包。请点击安装语言包，或使用 PaddleOCR 一键下载。"; return; }
+            if (language is null) { WindowsOcrStatus.Text = L.Get("NoWindowsOCRLanguagePacksAvailableInstall"); return; }
             OcrLanguage.Text = language.LanguageTag; OcrBackendBox.SelectedIndex = 1;
-            WindowsOcrStatus.Text = "已选择可用语言：" + language.DisplayName + "（" + language.LanguageTag + "）。请保存设置。";
+            WindowsOcrStatus.Text = L.Format("SelectedOcrLanguage", language.DisplayName, language.LanguageTag);
         }
-        catch (Exception ex) { WindowsOcrStatus.Text = "读取系统 OCR 语言失败：" + ex.GetBaseException().Message; }
+        catch (Exception ex) { WindowsOcrStatus.Text = L.Get("CouldNotReadSystemOCRLanguages") + ex.GetBaseException().Message; }
     }
     private void OpenLanguageSettings_Click(object sender, RoutedEventArgs e)
     {
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ms-settings:regionlanguage") { UseShellExecute = true }); }
-        catch (Exception ex) { WindowsOcrStatus.Text = "无法打开系统设置，请手动进入 Windows 设置 → 时间和语言 → 语言：" + ex.Message; }
+        catch (Exception ex) { WindowsOcrStatus.Text = L.Get("CouldNotOpenSystemSettingsGoTo") + ex.Message; }
     }
     private void ConfigureTranslation_Click(object sender, RoutedEventArgs e)
     {
@@ -322,8 +327,8 @@ public partial class SettingsWindow : Window
             return;
         }
         AllowTranslation.IsChecked = true;
-        TranslationStatus.Text = provider == "LibreTranslate" ? "已设为自定义服务英译中，请填写可用端点，再测试并保存设置。此选项不会自动安装服务器。"
-            : $"已配置 {provider} 英译中，无需下载模型或密钥。可先测试连接，再保存设置；每次发送仍需确认。";
+        TranslationStatus.Text = provider == "LibreTranslate" ? L.Get("CustomEnglishToChineseServiceSelectedEnter")
+            : L.Format("Configured0ForEnglishToChineseTranslation", provider);
     }
     private void TranslationProvider_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
@@ -335,10 +340,10 @@ public partial class SettingsWindow : Window
         TranslationPricing.Text = RecognitionProviderCatalog.Translation(provider!).Notice;
         TranslationStatus.Text = provider switch
         {
-            "Local" => "本地翻译：请选择 CPU 或 Vulkan GPU，然后一键下载、测试并保存。无需允许在线翻译；推理不会向外部服务发送文字。",
-            "Google" => "Google / GTranslate：包已内置，无需模型或密钥。支持 auto；单次最多 5000 字符。需联网，接口可能限流或不可达。选择不会发送内容。",
-            "MyMemory" => "MyMemory：无需模型或密钥；需指定源语言，不支持 auto。单次最多 500 UTF-8 字节，有公共免费额度。选择不会发送内容。",
-            _ => "LibreTranslate：使用你的兼容端点，不会下载或部署服务器。服务商可能要求密钥（当前不支持）；支持 auto 取决于服务能力。"
+            "Local" => L.Get("LocalTranslationChooseCPUOrVulkanGPU"),
+            "Google" => L.Get("GoogleGTranslateIncludedNoModelOrKey"),
+            "MyMemory" => L.Get("MyMemoryNoModelOrKeyNeededRequires"),
+            _ => L.Get("LibreTranslateUsesYourCompatibleEndpointWithoutDownloading")
         };
     }
     private void OpenTranslationWebsite_Click(object sender, RoutedEventArgs e) =>
@@ -350,7 +355,7 @@ public partial class SettingsWindow : Window
         if (sender is not System.Windows.Documents.Hyperlink { NavigateUri: not null } link) return;
         var website = link.NavigateUri.AbsoluteUri;
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(website) { UseShellExecute = true }); }
-        catch (Exception ex) { MessageBox.Show(this, "无法打开链接，请手动访问：" + website + Environment.NewLine + ex.Message, "打开链接失败", MessageBoxButton.OK, MessageBoxImage.Error); }
+        catch (Exception ex) { MessageBox.Show(this, L.Get("CouldNotOpenTheLinkVisitManually") + website + Environment.NewLine + ex.Message, L.Get("CouldNotOpenLink"), MessageBoxButton.OK, MessageBoxImage.Error); }
     }
     private void AboutDocument_Click(object sender, RoutedEventArgs e)
     {
@@ -364,19 +369,19 @@ public partial class SettingsWindow : Window
         };
         try
         {
-            if (path.Length == 0 || !File.Exists(path) && !Directory.Exists(path)) throw new FileNotFoundException("发行包中未找到对应的许可材料。", path);
+            if (path.Length == 0 || !File.Exists(path) && !Directory.Exists(path)) throw new FileNotFoundException(L.Get("TheCorrespondingLicenseMaterialWasNotFound"), path);
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
         }
-        catch (Exception ex) { MessageBox.Show(this, ex.GetBaseException().Message, "无法打开许可材料", MessageBoxButton.OK, MessageBoxImage.Error); }
+        catch (Exception ex) { MessageBox.Show(this, ex.GetBaseException().Message, L.Get("CouldNotOpenLicenseMaterial"), MessageBoxButton.OK, MessageBoxImage.Error); }
     }
     private void OpenWebsite(string website)
     {
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(website) { UseShellExecute = true }); }
-        catch (Exception ex) { TranslationStatus.Text = "无法打开官网，请手动访问：" + website + " · " + ex.Message; }
+        catch (Exception ex) { TranslationStatus.Text = L.Get("CouldNotOpenTheWebsiteVisitManually") + website + " · " + ex.Message; }
     }
     private async void DownloadLocalTranslation_Click(object sender, RoutedEventArgs e)
     {
-        if (_modelDownload is not null) { TranslationStatus.Text = "已有下载进行中，请等待完成或先取消。"; return; }
+        if (_modelDownload is not null) { TranslationStatus.Text = L.Get("ADownloadIsInProgressWaitFor"); return; }
         using var cancellation = new CancellationTokenSource(); _modelDownload = cancellation;
         var device = ((System.Windows.Controls.ComboBoxItem)LocalTranslationDeviceBox.SelectedItem).Tag.ToString()!;
         DownloadLocalTranslationButton.IsEnabled = false; CancelLocalTranslationButton.IsEnabled = true;
@@ -389,15 +394,15 @@ public partial class SettingsWindow : Window
             LocalTranslationModelPath.Text = install.Model; LocalTranslationRuntimePath.Text = install.Runtime;
             LocalTranslationDeviceBox.SelectedIndex = device == "Vulkan" ? 1 : 0;
             TranslationProviderBox.SelectedIndex = 3;
-            TranslationStatus.Text = "已下载并配置本地 " + device + " 翻译，SHA256 校验通过。请测试并保存设置。";
+            TranslationStatus.Text = L.Format("LocalTranslationDownloaded", device);
         }
-        catch (OperationCanceledException) { TranslationStatus.Text = "本地翻译下载已取消，原配置保留。"; }
-        catch (Exception ex) { TranslationStatus.Text = "本地翻译下载失败，可重试：" + ex.GetBaseException().Message; }
+        catch (OperationCanceledException) { TranslationStatus.Text = L.Get("LocalTranslationDownloadCanceledExistingConfigurationPreserved"); }
+        catch (Exception ex) { TranslationStatus.Text = L.Get("LocalTranslationDownloadFailedYouCanRetry") + ex.GetBaseException().Message; }
         finally { _modelDownload = null; DownloadLocalTranslationButton.IsEnabled = true; CancelLocalTranslationButton.IsEnabled = false; }
     }
     private void TesseractBrowse_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = "选择包含 .traineddata 的 Tesseract 字库目录" };
+        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = L.Get("ChooseATesseractLanguageDataFolderContaining") };
         if (dialog.ShowDialog(this) == true) TesseractDirectory.Text = dialog.FolderName;
     }
     private async void DownloadTesseract_Click(object sender, RoutedEventArgs e)
@@ -413,10 +418,10 @@ public partial class SettingsWindow : Window
             var directory = await new TesseractModelDownloadService().Download(root, languages, new Progress<string>(text => TesseractDownloadStatus.Text = text), cancellation.Token);
             if (!IsLoaded) return;
             TesseractDirectory.Text = directory; TesseractLanguages.Text = languages; OcrBackendBox.SelectedIndex = 2;
-            TesseractDownloadStatus.Text = "下载、SHA256 与引擎加载检查通过，已配置 Tesseract 路径和语言。请保存设置。";
+            TesseractDownloadStatus.Text = L.Get("DownloadSHA256AndEngineLoadingChecksPassed");
         }
-        catch (OperationCanceledException) { TesseractDownloadStatus.Text = "下载已取消，原配置未更改。"; }
-        catch (Exception ex) { TesseractDownloadStatus.Text = "下载失败，原配置未更改，可重试：" + ex.GetBaseException().Message; }
+        catch (OperationCanceledException) { TesseractDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
+        catch (Exception ex) { TesseractDownloadStatus.Text = L.Get("DownloadFailedExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
         finally
         {
             _modelDownload = null;
@@ -435,19 +440,19 @@ public partial class SettingsWindow : Window
             var candidate = BuildCandidate();
             if (candidate.TranslationProvider == "Local")
             {
-                button.IsEnabled = false; TranslationStatus.Text = "正在本机加载模型并翻译 Hello，不向外部 API 发送内容…";
+                button.IsEnabled = false; TranslationStatus.Text = L.Get("TestLocalTranslationLoading");
                 var local = await LocalTranslationService.Translate("Hello", candidate, cancellation.Token);
-                if (IsLoaded) TranslationStatus.Text = "本地 " + candidate.LocalTranslationDevice + " 测试成功：Hello → " + local + "。请保存设置。";
+                if (IsLoaded) TranslationStatus.Text = L.Format("TestLocalTranslationSucceeded", candidate.LocalTranslationDevice, local);
                 return;
             }
-            if (!candidate.AllowOnlineTranslation) throw new InvalidOperationException("请先一键配置或勾选允许翻译。");
+            if (!candidate.AllowOnlineTranslation) throw new InvalidOperationException(L.Get("AllowTranslationBeforeTesting"));
             if (!PrivacyConsentDialog.Confirm(this, OnlineRecognitionService.TranslationUri(candidate), "Hello", null)) return;
-            button.IsEnabled = false; TranslationStatus.Text = "正在用 Hello 测试翻译，不发送截图或识别文本…";
+            button.IsEnabled = false; TranslationStatus.Text = L.Get("TestTranslationSendingHello");
             using var service = new OnlineRecognitionService();
             var translated = await service.Translate("Hello", candidate, true, cancellation.Token);
-            if (IsLoaded) TranslationStatus.Text = "连接成功：Hello → " + translated + "。请保存设置后使用。";
+            if (IsLoaded) TranslationStatus.Text = L.Format("TestTranslationSucceeded", translated);
         }
-        catch (Exception ex) { if (IsLoaded) TranslationStatus.Text = "连接测试失败：" + ex.GetBaseException().Message; }
+        catch (Exception ex) { if (IsLoaded) TranslationStatus.Text = L.Format("TestTranslationFailed", ex.GetBaseException().Message); }
         finally { _translationTest = null; button.IsEnabled = true; }
     }
     private async void DownloadCutout_Click(object sender, RoutedEventArgs e)
@@ -457,7 +462,7 @@ public partial class SettingsWindow : Window
         CutoutPackageBox.IsEnabled = false;
         using var cancellation = new CancellationTokenSource(); _modelDownload = cancellation;
         DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = false; CancelCutoutButton.IsEnabled = true;
-        CutoutDownloadStatus.Text = "正在连接官方模型源…";
+        CutoutDownloadStatus.Text = L.Get("ConnectingToTheOfficialModelSource");
         try
         {
             var root = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapSharp", "models");
@@ -465,10 +470,10 @@ public partial class SettingsWindow : Window
             if (!IsLoaded) return;
             CutoutPath.Text = path; CutoutProfileBox.SelectedIndex = model.Profile switch { "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 }; CutoutSize.Text = model.InputSize.ToString();
             StoreCutoutConfiguration();
-            CutoutDownloadStatus.Text = $"{model.Id} 下载与校验完成，模型路径、预处理和尺寸已配置。请点击“保存设置”。";
+            CutoutDownloadStatus.Text = L.Format("0DownloadAndVerificationCompleteModelPath", model.Id);
         }
-        catch (OperationCanceledException) { CutoutDownloadStatus.Text = "下载已取消，原配置未更改。"; }
-        catch (Exception ex) { CutoutDownloadStatus.Text = "下载失败，原配置未更改，可重试：" + ex.GetBaseException().Message; }
+        catch (OperationCanceledException) { CutoutDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
+        catch (Exception ex) { CutoutDownloadStatus.Text = L.Get("DownloadFailedExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
         finally { _modelDownload = null; CutoutPackageBox.IsEnabled = true; DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = true; CancelCutoutButton.IsEnabled = false; }
     }
     private void StoreCutoutConfiguration()
@@ -478,7 +483,7 @@ public partial class SettingsWindow : Window
         {
             Path = ModelPath(CutoutPath),
             Profile = ((System.Windows.Controls.ComboBoxItem)CutoutProfileBox.SelectedItem).Tag.ToString()!,
-            InputSize = (int)Number(CutoutSize, 32, 2048, "抠图输入尺寸", true)
+            InputSize = (int)Number(CutoutSize, 32, 2048, L.Get("BackgroundRemovalInputSize"), true)
         };
     }
     private void CutoutPackage_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -504,7 +509,7 @@ public partial class SettingsWindow : Window
         if (_modelDownload is not null) return;
         using var cancellation = new CancellationTokenSource(); _modelDownload = cancellation;
         DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = OcrModelPackage.IsEnabled = false; CancelOcrDownloadButton.IsEnabled = true;
-        OcrDownloadStatus.Text = "正在连接 PyPI 模型源…";
+        OcrDownloadStatus.Text = L.Get("ConnectingToThePyPIModelSource");
         try
         {
             var root = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapSharp", "models");
@@ -512,10 +517,10 @@ public partial class SettingsWindow : Window
             if (!IsLoaded) return;
             OcrDetPath.Text = paths.Detection; OcrRecPath.Text = paths.Recognition; OcrDictPath.Text = paths.Dictionary;
             OcrBackendBox.SelectedIndex = 0;
-            OcrDownloadStatus.Text = "中英文模型与字典已下载并通过校验，路径已填入。点击“保存设置”后生效。";
+            OcrDownloadStatus.Text = L.Get("ChineseEnglishModelsAndDictionaryDownloadedAnd");
         }
-        catch (OperationCanceledException) { OcrDownloadStatus.Text = "下载已取消，原配置未更改。"; }
-        catch (Exception ex) { OcrDownloadStatus.Text = "下载未完成，原配置未更改：" + ex.GetBaseException().Message; }
+        catch (OperationCanceledException) { OcrDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
+        catch (Exception ex) { OcrDownloadStatus.Text = L.Get("DownloadIncompleteExistingConfigurationPreserved") + ex.GetBaseException().Message; }
         finally { _modelDownload = null; DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = OcrModelPackage.IsEnabled = true; CancelOcrDownloadButton.IsEnabled = false; }
     }
     private async void CheckModels_Click(object sender, RoutedEventArgs e)
@@ -527,26 +532,26 @@ public partial class SettingsWindow : Window
             if (candidate.OcrBackend == "Tesseract")
             {
                 await Task.Run(() => LocalRecognitionService.CheckTesseract(candidate.TesseractDataDirectory, candidate.TesseractLanguages));
-                ModelStatus.Text = "Tesseract 引擎和所选语言字库可加载。真实截图精度需实际识别确认。"; return;
+                ModelStatus.Text = L.Get("TesseractEngineAndSelectedLanguageDataCan"); return;
             }
             if (candidate.OcrBackend == "Windows")
             {
                 var engine = string.IsNullOrWhiteSpace(candidate.WindowsOcrLanguage) ? Windows.Media.Ocr.OcrEngine.TryCreateFromUserProfileLanguages()
                     : Windows.Media.Ocr.OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language(candidate.WindowsOcrLanguage));
-                ModelStatus.Text = engine is null ? "Windows OCR 语言包不可用，请安装语言包或选择其他引擎。" : "Windows OCR 可用：" + engine.RecognizerLanguage.DisplayName;
+                ModelStatus.Text = engine is null ? L.Get("WindowsOCRLanguagePackIsUnavailableInstall") : L.Get("WindowsOCRAvailable") + engine.RecognizerLanguage.DisplayName;
                 return;
             }
             await OnnxImageRuntime.Shared.Execute(candidate, (models, token) =>
-            { models.Open(candidate.OcrDetectionModel, "检测模型"); models.Open(candidate.OcrRecognitionModel, "识别模型"); OnnxImageRuntime.RequireFile(candidate.OcrDictionary, "字典"); return true; }, CancellationToken.None);
-            ModelStatus.Text = "本地 ONNX " + candidate.OnnxDevice + " #" + candidate.OnnxDeviceId + " 可加载模型，字典存在。GPU 不支持的算子可能在 CPU 执行；精度需实际识别确认。";
+            { models.Open(candidate.OcrDetectionModel, L.Get("DetectionModel")); models.Open(candidate.OcrRecognitionModel, L.Get("RecognitionModel")); OnnxImageRuntime.RequireFile(candidate.OcrDictionary, L.Get("Dictionary")); return true; }, CancellationToken.None);
+            ModelStatus.Text = L.Get("LocalONNX") + candidate.OnnxDevice + " #" + candidate.OnnxDeviceId + L.Get("ModelsCanBeLoadedAndTheDictionary");
         }
         catch (Exception ex) { ModelStatus.Text = ex.GetBaseException().Message; }
         finally { button.IsEnabled = true; }
     }
     public void SelectCategory(string header)
     {
-        if (header == "在线服务与隐私") header = "翻译、API 与隐私";
-        var item = Categories.Items.Cast<System.Windows.Controls.TabItem>().FirstOrDefault(x => Equals(x.Header, header));
+        if (header == L.Get("OnlineServicesAndPrivacy")) header = L.Get("TranslationAPIsAndPrivacy");
+        var item = Categories.Items.Cast<System.Windows.Controls.TabItem>().FirstOrDefault(x => Equals(x.Tag, header) || Equals(x.Header, header));
         if (item is not null) Categories.SelectedItem = item;
     }
     private void BringSelectedCategoryIntoView()
@@ -558,7 +563,7 @@ public partial class SettingsWindow : Window
     {
         if (_modelDownload is not null)
         {
-            MessageBox.Show(this, "请等待模型下载完成，或先取消下载，再保存设置。", "模型下载中", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(this, L.Get("WaitForTheModelDownloadToFinish"), L.Get("ModelDownloadInProgress"), MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
         var previous = _settings.Current;
@@ -569,20 +574,21 @@ public partial class SettingsWindow : Window
             _hotkey.Register(candidate);
             if (candidate.StartWithWindows != previousStartup) _startup.SetEnabled(candidate.StartWithWindows);
             _settings.Update(candidate);
+            LocalizationService.Apply(candidate.InterfaceLanguage);
             DialogResult = true;
         }
         catch (Exception ex)
         {
             try { _hotkey.Register(previous); } catch { }
             try { if (_startup.IsEnabled() != previousStartup) _startup.SetEnabled(previousStartup); } catch { }
-            MessageBox.Show(this, ex.Message, "设置保存失败", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(this, ex.Message, L.Get("CouldNotSaveSettings"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
     private static string NormalizeHotkey(string value, string label, bool optional = false)
     {
         if (optional && string.IsNullOrWhiteSpace(value)) return "";
         if (HotkeyGesture.TryParse(value, out var gesture, out var error)) return gesture!.DisplayText;
-        throw new ArgumentException($"快捷键：{label}无效：{error}");
+        throw new ArgumentException(L.Format("InvalidShortcutFor01", label, error));
     }
 
     internal static bool RunLayoutSelfTest()

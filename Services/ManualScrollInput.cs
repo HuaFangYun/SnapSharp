@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
@@ -28,7 +29,7 @@ internal sealed class ManualScrollInput : IDisposable
         };
         _mouse = SetWindowsHookEx(14, _mouseProc, GetModuleHandle(null), 0);
         _keyboard = SetWindowsHookEx(13, _keyProc, GetModuleHandle(null), 0);
-        if (_mouse == 0 || _keyboard == 0) { Dispose(); throw new InvalidOperationException("无法监听滚轮／Esc，长截图未启动。"); }
+        if (_mouse == 0 || _keyboard == 0) { Dispose(); throw new InvalidOperationException(L.Get("CouldNotMonitorWheelEscInputScrolling")); }
     }
     public void Preview() { _preview = true; _wheel.Writer.TryWrite(true); }
     public async Task<bool> Wait(CancellationToken token) { await _wheel.Reader.ReadAsync(token); return !_preview; }

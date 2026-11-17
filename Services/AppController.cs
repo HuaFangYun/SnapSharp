@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Views;
 using SnapSharp.Native;
@@ -30,10 +31,11 @@ public sealed class AppController : IDisposable
 
     public AppController()
     {
-        _tray = new TrayService();
-        _hotkey = new GlobalHotkeyHost();
         _settings = new SettingsService();
         _settings.Load();
+        LocalizationService.Apply(_settings.Current.InterfaceLanguage);
+        _tray = new TrayService();
+        _hotkey = new GlobalHotkeyHost();
         var licenseFailures = ThirdPartyLicenseService.BackfillManagedModelLicenses();
         if (licenseFailures.Count > 0)
         {
@@ -59,16 +61,16 @@ public sealed class AppController : IDisposable
         _tray.ScrollingCaptureRequested += (_, _) => RequestCapture(CaptureMode.Region, true);
         _screenWords = new ScreenWordService(() => _settings.Current, () => _capture.IsActive || _settingsWindow is not null || _openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing) || Application.Current.Windows.OfType<Window>().Any(x => x.IsActive));
         _tray.ScreenWordsRequested += enabled => _screenWords.SetEnabled(enabled);
-        _screenWords.Failed += error => { _tray.SetScreenWordsChecked(false); _tray.ShowMessage("屏幕取词已停止", error, System.Windows.Forms.ToolTipIcon.Warning); };
+        _screenWords.Failed += error => { _tray.SetScreenWordsChecked(false); _tray.ShowMessage(L.Get("ScreenTextCaptureStopped"), error, System.Windows.Forms.ToolTipIcon.Warning); };
         _tray.RecognitionClipboardRequested += (_, _) =>
         {
             try
             {
-                var image = _clipboard.GetImage() ?? throw new InvalidOperationException("剪贴板中没有可读取的图片。请先复制图片内容（不是图片链接或文件路径），再点击“识别粘贴板图片”。");
+                var image = _clipboard.GetImage() ?? throw new InvalidOperationException(L.Get("NoReadableImageInTheClipboardCopy"));
                 OnnxImageRuntime.ValidateImage(image);
                 OpenRecognitionCore(image, null, "OCR", false);
             }
-            catch (Exception ex) { _tray.ShowMessage("识别粘贴板图片", ex.GetBaseException().Message); }
+            catch (Exception ex) { _tray.ShowMessage(L.Get("RecognizeClipboardImage"), ex.GetBaseException().Message); }
         };
         _tray.DelayedScreenshotRequested += ScheduleDelayedScreenshot;
         _tray.CancelDelayedScreenshotRequested += CancelDelayedScreenshot;
@@ -104,14 +106,14 @@ public sealed class AppController : IDisposable
         _capture.CaptureCompleted += OnCaptureCompleted;
         _tray.UpdateHotkeyLabels(_settings.Current);
         if (_plugins.Failures.Count > 0)
-            _tray.ShowMessage("插件加载", $"有 {_plugins.Failures.Count} 个插件未能加载。",
+            _tray.ShowMessage(L.Get("PluginLoading"), L.Format("0PluginsCouldNotBeLoaded", _plugins.Failures.Count),
                 System.Windows.Forms.ToolTipIcon.Warning);
         Application.Current.Dispatcher.BeginInvoke(_tray.Show,
             System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         try
         {
             _hotkey.Register(_settings.Current);
-            _tray.ShowMessage("SnapSharp", $"已启动，按 {_settings.Current.RegionHotkey} 开始区域截图");
+            _tray.ShowMessage("SnapSharp", L.Format("StartedPress0ToCaptureARegion", _settings.Current.RegionHotkey));
         }
         catch (Exception ex)
         {
@@ -121,7 +123,7 @@ public sealed class AppController : IDisposable
                 File.WriteAllText(Path.Combine(AppPaths.Root, "startup-error.log"), ex.ToString());
             }
             catch { }
-            _tray.ShowMessage("快捷键注册失败", ex.Message, System.Windows.Forms.ToolTipIcon.Warning);
+            _tray.ShowMessage(L.Get("ShortcutRegistrationFailed"), ex.Message, System.Windows.Forms.ToolTipIcon.Warning);
         }
     }
 
@@ -129,9 +131,9 @@ public sealed class AppController : IDisposable
 
     private async void RequestCapture(CaptureMode mode, bool scrolling = false)
     {
-        if (_recordingWindow?.IsRecording == true) { _tray.ShowMessage("录屏", "正在录制或保存，请先从托盘停止录屏。"); return; }
-        if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage("长截图", "正在滚动采集，请先按 Esc 或从托盘停止。"); return; }
-        if (_settingsWindow is not null) { _tray.ShowMessage("设置", "请先关闭设置窗口再开始截图。"); return; }
+        if (_recordingWindow?.IsRecording == true) { _tray.ShowMessage(L.Get("Recording"), L.Get("RecordingOrSavingIsInProgressStop")); return; }
+        if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("ScrollingCapture"), L.Get("ScrollingCaptureIsInProgressPressEsc")); return; }
+        if (_settingsWindow is not null) { _tray.ShowMessage(L.Get("Settings"), L.Get("CloseSettingsBeforeStartingACapture")); return; }
         CancelDelayedScreenshot(showMessage: false);
         if (_capture.IsActive) return;
         try
@@ -173,7 +175,7 @@ public sealed class AppController : IDisposable
                 File.WriteAllText(Path.Combine(AppPaths.Root, "capture-error.log"), ex.ToString());
             }
             catch { }
-            _tray.ShowMessage("截图启动失败", ex.Message, System.Windows.Forms.ToolTipIcon.Error);
+            _tray.ShowMessage(L.Get("CouldNotStartCapture"), ex.Message, System.Windows.Forms.ToolTipIcon.Error);
         }
     }
 
@@ -194,7 +196,7 @@ public sealed class AppController : IDisposable
         var cancellation = new CancellationTokenSource();
         _delayedScreenshot = cancellation;
         _tray.SetDelayedScreenshotPending(true);
-        _tray.ShowMessage("延时截图", $"将在 {seconds} 秒后开始截图，可从托盘菜单取消。");
+        _tray.ShowMessage(L.Get("DelayedCapture"), L.Format("CaptureStartsIn0SecondsCancelFrom", seconds));
 
         try
         {
@@ -219,7 +221,7 @@ public sealed class AppController : IDisposable
     {
         if (!LaunchCommand.TryParse(args, out var command, out var error))
         {
-            _tray.ShowMessage("命令行参数错误", error, System.Windows.Forms.ToolTipIcon.Warning);
+            _tray.ShowMessage(L.Get("InvalidCommandLineArguments"), error, System.Windows.Forms.ToolTipIcon.Warning);
             return;
         }
 
@@ -238,7 +240,7 @@ public sealed class AppController : IDisposable
         if (cancellation is null) return;
         cancellation.Cancel();
         _tray.SetDelayedScreenshotPending(false);
-        if (showMessage) _tray.ShowMessage("延时截图", "已取消延时截图。");
+        if (showMessage) _tray.ShowMessage(L.Get("DelayedCapture"), L.Get("DelayedCaptureCanceled"));
     }
 
     private void OnCaptureCompleted(object? sender, CaptureResult result)
@@ -258,15 +260,15 @@ public sealed class AppController : IDisposable
                 var bytes = _images.Encode(result.Image, options.OutputFormat, options.ImageQuality, options.WebpLossless);
                 OutputFileService.WriteUnique(OutputFileService.AutomaticDirectory(options, DateTime.Now), name, options.OutputFormat, bytes);
             }
-            catch (Exception ex) { _tray.ShowMessage("自动保存失败", ex.Message, System.Windows.Forms.ToolTipIcon.Warning); }
+            catch (Exception ex) { _tray.ShowMessage(L.Get("AutomaticSaveFailed"), ex.Message, System.Windows.Forms.ToolTipIcon.Warning); }
         }
         try { _history.Add(result.Image); }
-        catch (Exception ex) { _tray.ShowMessage("历史记录失败", ex.Message, System.Windows.Forms.ToolTipIcon.Warning); }
+        catch (Exception ex) { _tray.ShowMessage(L.Get("HistoryCouldNotBeSaved"), ex.Message, System.Windows.Forms.ToolTipIcon.Warning); }
 
         if (result.Action == CaptureAction.Copy)
         {
             _clipboard.SetImage(result.Image);
-            _tray.ShowMessage("截图完成", "图片已复制到剪贴板");
+            _tray.ShowMessage(L.Get("CaptureComplete"), L.Get("ImageCopiedToClipboard"));
             return;
         }
 
@@ -288,7 +290,7 @@ public sealed class AppController : IDisposable
             new System.Drawing.Rectangle(0, 0, region.Width, region.Height), action));
         window.EditRequested += image =>
         {
-            try { _history.Add(image); } catch (Exception ex) { _tray.ShowMessage("历史记录失败", ex.Message, System.Windows.Forms.ToolTipIcon.Warning); }
+            try { _history.Add(image); } catch (Exception ex) { _tray.ShowMessage(L.Get("HistoryCouldNotBeSaved"), ex.Message, System.Windows.Forms.ToolTipIcon.Warning); }
             var editor = new EditorWindow(new CaptureResult(image, region, new System.Drawing.Rectangle(0, 0, region.Width, region.Height)), OpenPin, _clipboard);
             _openWindows.Add(editor); editor.Closed += (_, _) => _openWindows.Remove(editor); editor.Show();
         };
@@ -296,15 +298,15 @@ public sealed class AppController : IDisposable
     }
     private void OpenScrolling(CaptureResult result)
     {
-        if (_recordingWindow?.IsRecording == true) { _tray.ShowMessage("录屏", "请先停止录屏，再开始长截图。"); return; }
+        if (_recordingWindow?.IsRecording == true) { _tray.ShowMessage(L.Get("Recording"), L.Get("StopRecordingBeforeStartingAScrollingCapture")); return; }
         var region = new System.Drawing.Rectangle(result.ScreenBounds.Left + result.PixelRegion.Left,
             result.ScreenBounds.Top + result.PixelRegion.Top, result.PixelRegion.Width, result.PixelRegion.Height);
         CreateScrollWindow(region, result.Image).BeginManualCapture();
     }
     private async void OpenScrollProject()
     {
-        if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage("长截图", "请先停止当前采集。"); return; }
-        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "SnapSharp 长截图工程|*.ssscroll" };
+        if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("ScrollingCapture"), L.Get("StopTheCurrentCaptureFirst")); return; }
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("SnapSharpScrollingCaptureProjectSsscroll") };
         if (dialog.ShowDialog() != true) return;
         var placeholder = BitmapSource.Create(32, 32, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, new byte[32 * 32 * 4], 32 * 4); placeholder.Freeze();
         var window = CreateScrollWindow(System.Drawing.Rectangle.Empty, placeholder);
@@ -331,13 +333,13 @@ public sealed class AppController : IDisposable
 
     private void CreatePin(PinCommand command)
     {
-        if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage("长截图", "请先停止采集后再操作贴图。"); return; }
+        if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("ScrollingCapture"), L.Get("StopCaptureBeforeUsingPins")); return; }
         try
         {
             if (command == PinCommand.CloseAll) { foreach (var pin in _pins.ToArray()) pin.Close(); return; }
             if (command == PinCommand.Clipboard && System.Windows.Clipboard.ContainsImage())
             {
-                var image = System.Windows.Clipboard.GetImage() ?? throw new InvalidOperationException("无法读取剪贴板图片。");
+                var image = System.Windows.Clipboard.GetImage() ?? throw new InvalidOperationException(L.Get("CouldNotReadTheClipboardImage"));
                 image.Freeze(); OpenPin(image); return;
             }
             var text = System.Windows.Clipboard.ContainsText() ? System.Windows.Clipboard.GetText() : "";
@@ -349,18 +351,18 @@ public sealed class AppController : IDisposable
             }
             var dialog = new TextInputDialog
             {
-                Title = command == PinCommand.Text ? "新建文本贴图" : "新建颜色贴图（#HEX 或 rgb(R, G, B)）",
+                Title = command == PinCommand.Text ? L.Get("NewTextPin") : L.Get("NewColorPinHEXOrRgbR"),
                 InitialText = command == PinCommand.Text ? text : PinContentService.TryParseColor(text, out _) ? text : "#3B82F6"
             };
             if (dialog.ShowDialog() != true) return;
             if (command == PinCommand.Text) OpenPinContent(PinContentService.FromText(dialog.ResultText, _settings.Current));
             else
             {
-                if (!PinContentService.TryParseColor(dialog.ResultText, out var color)) throw new ArgumentException("请输入 #RGB、#RRGGBB、#AARRGGBB 或 rgb(0–255, 0–255, 0–255)。");
+                if (!PinContentService.TryParseColor(dialog.ResultText, out var color)) throw new ArgumentException(L.Get("EnterRGBRRGGBBAARRGGBBOrRgb0"));
                 OpenPinContent(PinContentService.FromColor(color));
             }
         }
-        catch (Exception ex) { _tray.ShowMessage("创建贴图失败", ex.Message, System.Windows.Forms.ToolTipIcon.Warning); }
+        catch (Exception ex) { _tray.ShowMessage(L.Get("CouldNotCreatePin"), ex.Message, System.Windows.Forms.ToolTipIcon.Warning); }
     }
 
     private void ShowHistory()
@@ -389,7 +391,7 @@ public sealed class AppController : IDisposable
     private void OpenRecording(System.Drawing.Rectangle region)
     {
         if (_recordingWindow is not null) { _recordingWindow.ShowRecordingTools(); return; }
-        if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage("录屏", "请先停止长截图采集。"); return; }
+        if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("Recording"), L.Get("StopTheScrollingCaptureFirst")); return; }
         var window = new RecordingWindow(region, _settings); _recordingWindow = window;
         _screenWords?.SetEnabled(false); _tray.SetScreenWordsChecked(false);
         _openWindows.Add(window); window.Closed += (_, _) => { _recordingWindow = null; _openWindows.Remove(window); }; window.ShowRecordingTools();
@@ -397,7 +399,7 @@ public sealed class AppController : IDisposable
 
     private void ShowSettings(string? category = null)
     {
-        if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage("长截图", "请先停止采集后再打开设置。"); return; }
+        if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("ScrollingCapture"), L.Get("StopCaptureBeforeOpeningSettings")); return; }
         if (_settingsWindow is not null) { _settingsWindow.Activate(); return; }
         var window = new SettingsWindow(_settings, _startup, _hotkey);
         if (category is not null) window.SelectCategory(category);
@@ -426,7 +428,7 @@ public sealed class AppController : IDisposable
     private void RestorePin()
     {
         if (_closedPins.TryPop(out var pin)) OpenPinContent(pin.Content, pin.Group);
-        else _tray.ShowMessage("贴图", "没有可恢复的贴图");
+        else _tray.ShowMessage(L.Get("Pins"), L.Get("NoClosedPinToRestore"));
     }
 
     private void RestorePinInteraction()

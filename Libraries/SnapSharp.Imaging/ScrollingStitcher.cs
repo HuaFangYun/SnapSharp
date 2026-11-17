@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SkiaSharp;
 using System.Windows;
@@ -41,9 +42,9 @@ public sealed class ScrollingStitcher
 
     public ScrollMatch Match(BitmapSource first, BitmapSource second, ScrollDirection direction = ScrollDirection.Auto)
     {
-        if (!Enum.IsDefined(direction)) throw new ArgumentException("匹配方向无效。");
+        if (!Enum.IsDefined(direction)) throw new ArgumentException(L.Get("InvalidMatchingDirection"));
         var a = new GrayImage(first); var b = new GrayImage(second);
-        if (a.Width != b.Width || a.Height != b.Height) throw new ArgumentException("捕获帧尺寸不一致。");
+        if (a.Width != b.Width || a.Height != b.Height) throw new ArgumentException(L.Get("CapturedFrameDimensionsAreInconsistent"));
         var choices = direction == ScrollDirection.Auto ? new[] { ScrollDirection.Vertical, ScrollDirection.Horizontal } : [direction];
         return choices.Select(axis => MatchAxis(a, b, axis)).OrderByDescending(x => x.Reliable).ThenBy(x => x.Error).First();
     }
@@ -91,26 +92,26 @@ public sealed class ScrollingStitcher
     {
         trim ??= new();
         if (session.Frames.Count is < 1 or > 80 || session.Offsets.Count != session.Frames.Count - 1 || session.Direction is not (ScrollDirection.Vertical or ScrollDirection.Horizontal))
-            throw new ArgumentException("拼接工程的帧数、偏移或方向无效。");
+            throw new ArgumentException(L.Get("InvalidStitchingProjectFrameCountOffsetsOr"));
         var first = session.Frames[0];
         if (trim.Left < 0 || trim.Top < 0 || trim.Right < 0 || trim.Bottom < 0 ||
             (long)trim.Left + trim.Right > first.PixelWidth - 16 || (long)trim.Top + trim.Bottom > first.PixelHeight - 16)
-            throw new ArgumentException("每帧裁边后至少需保留 16 × 16 像素。");
+            throw new ArgumentException(L.Get("AtLeast1616PixelsPerFrame"));
         var width = first.PixelWidth - trim.Left - trim.Right; var height = first.PixelHeight - trim.Top - trim.Bottom;
-        if (trim.Left < 0 || trim.Top < 0 || trim.Right < 0 || trim.Bottom < 0 || width < 16 || height < 16) throw new ArgumentException("每帧裁边后至少需保留 16 × 16 像素。");
+        if (trim.Left < 0 || trim.Top < 0 || trim.Right < 0 || trim.Bottom < 0 || width < 16 || height < 16) throw new ArgumentException(L.Get("AtLeast1616PixelsPerFrame"));
         var vertical = session.Direction == ScrollDirection.Vertical;
         var length = vertical ? height : width;
-        if (session.Offsets.Any(x => x < 1 || x > length)) throw new ArgumentException($"帧间位移需为 1–{length} 像素；过大的裁边可能让相邻帧失去重叠。");
+        if (session.Offsets.Any(x => x < 1 || x > length)) throw new ArgumentException(L.Format("FrameOffsetMustBe10Pixels", length));
         var total = (long)length + session.Offsets.Sum(x => (long)x);
         var resultWidth = vertical ? width : total; var resultHeight = vertical ? total : height;
-        if (resultWidth > MaximumEdge || resultHeight > MaximumEdge || resultWidth * resultHeight > MaximumPixels) throw new ArgumentException("拼接结果超过 16384 像素边长或 6400 万像素上限，请分段采集。");
+        if (resultWidth > MaximumEdge || resultHeight > MaximumEdge || resultWidth * resultHeight > MaximumPixels) throw new ArgumentException(L.Get("StitchedOutputExceeds16384PixelsPerEdge"));
         using var surface = SKSurface.Create(new SKImageInfo((int)resultWidth, (int)resultHeight, SKColorType.Bgra8888, SKAlphaType.Premul));
         surface.Canvas.Clear(SKColors.Transparent);
         var cursor = length; var start = 0; var seams = new List<int>(); var starts = new List<int> { 0 };
         for (var index = 0; index < session.Frames.Count; index++)
         {
             var frame = session.Frames[index];
-            if (frame.PixelWidth != first.PixelWidth || frame.PixelHeight != first.PixelHeight) throw new ArgumentException("原始帧尺寸不一致。");
+            if (frame.PixelWidth != first.PixelWidth || frame.PixelHeight != first.PixelHeight) throw new ArgumentException(L.Get("OriginalFrameDimensionsAreInconsistent"));
             using var bitmap = _images.ToSkBitmap(frame);
             if (index == 0)
             {

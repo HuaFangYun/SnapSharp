@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Services;
 using ScreenRecorderLib;
@@ -33,21 +34,21 @@ public partial class RecordingWindow : Window
         StopAfterBox.Text = p.StopAfterSeconds.ToString(); GifEdgeBox.Text = p.GifMaximumEdge.ToString();
         CaptureBackendBox.SelectedIndex = p.CaptureBackend == "DXGI" ? 1 : 0;
         BitrateBox.Text = p.BitrateKbps.ToString(); CountdownBox.Text = p.CountdownSeconds.ToString();
-        RegionLabel.Text = $"物理像素区域：X {_region.X}，Y {_region.Y} · {_region.Width} × {_region.Height}";
+        RegionLabel.Text = L.Format("PhysicalPixelRegionX0Y1", _region.X, _region.Y, _region.Width, _region.Height);
         Closed += (_, _) => CloseTools();
         Loaded += async (_, _) =>
         {
             var environment = RecordingSetupService.Check();
-            if (!environment.Ready) { StatusLabel.Text = "首次使用请点击“一键配置录屏环境”，安装缺失组件。"; return; }
+            if (!environment.Ready) { StatusLabel.Text = L.Get("ForFirstUseRunRecordingSetupTo"); return; }
             try { Recorder.SetExcludeFromCapture(new WindowInteropHelper(this).Handle, true); await RefreshDevices(); }
-            catch (Exception ex) { StatusLabel.Text = "录屏组件不可用：" + ex.GetBaseException().Message + "。请检查 VC++ x64 运行库及 Windows Media Foundation。"; }
+            catch (Exception ex) { StatusLabel.Text = L.Get("RecordingComponentsUnavailable") + ex.GetBaseException().Message + L.Get("CheckTheVCX64RuntimeAndWindows"); }
         };
     }
     private RecordingPreferences Candidate()
     {
-        if (!int.TryParse(StopAfterBox.Text, out var stop) || !int.TryParse(GifEdgeBox.Text, out var edge)) throw new ArgumentException("定时停止和 GIF 尺寸必须为整数。");
-        if (!int.TryParse(BitrateBox.Text, out var bitrate) || !int.TryParse(CountdownBox.Text, out var countdown)) throw new ArgumentException("码率和倒计时必须为整数。");
-        var value = new RecordingPreferences { Format = ((ComboBoxItem)FormatBox.SelectedItem).Tag.ToString()!, FrameRate = int.Parse(((ComboBoxItem)FrameRateBox.SelectedItem).Tag.ToString()!), Quality = ((ComboBoxItem)QualityBox.SelectedItem).Content.ToString()!, HardwareEncoding = HardwareBox.IsChecked == true, IncludeCursor = CursorBox.IsChecked == true, HighlightClicks = ClicksBox.IsChecked == true, StopAfterSeconds = stop, GifMaximumEdge = edge };
+        if (!int.TryParse(StopAfterBox.Text, out var stop) || !int.TryParse(GifEdgeBox.Text, out var edge)) throw new ArgumentException(L.Get("StopTimeAndGIFDimensionsMustBe"));
+        if (!int.TryParse(BitrateBox.Text, out var bitrate) || !int.TryParse(CountdownBox.Text, out var countdown)) throw new ArgumentException(L.Get("BitrateAndCountdownMustBeIntegers"));
+        var value = new RecordingPreferences { Format = ((ComboBoxItem)FormatBox.SelectedItem).Tag.ToString()!, FrameRate = int.Parse(((ComboBoxItem)FrameRateBox.SelectedItem).Tag.ToString()!), Quality = ((ComboBoxItem)QualityBox.SelectedItem).Tag.ToString()!, HardwareEncoding = HardwareBox.IsChecked == true, IncludeCursor = CursorBox.IsChecked == true, HighlightClicks = ClicksBox.IsChecked == true, StopAfterSeconds = stop, GifMaximumEdge = edge };
         value.CaptureBackend = ((ComboBoxItem)CaptureBackendBox.SelectedItem).Tag.ToString()!;
         value.BitrateKbps = bitrate; value.CountdownSeconds = countdown;
         value.Validate(); return value;
@@ -68,9 +69,9 @@ public partial class RecordingWindow : Window
             var devices = await Task.Run(() => (ReadDevices(RecordingService.Microphones), ReadDevices(RecordingService.Speakers), ReadDevices(RecordingService.Cameras)));
             SetDevices(MicDevices, MicBox, devices.Item1.Devices); SetDevices(SpeakerDevices, SpeakerBox, devices.Item2.Devices); SetDevices(CameraDevices, CameraBox, devices.Item3.Devices);
             var errors = new[] { devices.Item1.Error, devices.Item2.Error, devices.Item3.Error }.Where(x => x is not null);
-            StatusLabel.Text = $"已找到麦克风 {devices.Item1.Devices.Length}、系统声音 {devices.Item2.Devices.Length}、摄像头 {devices.Item3.Devices.Length}。仅录屏无需勾选设备。" + string.Join("；", errors);
+            StatusLabel.Text = L.Format("Found0Microphones1SystemAudioDevices", devices.Item1.Devices.Length, devices.Item2.Devices.Length, devices.Item3.Devices.Length) + string.Join("；", errors);
         }
-        catch (Exception ex) { StatusLabel.Text = "设备枚举失败：" + ex.GetBaseException().Message; }
+        catch (Exception ex) { StatusLabel.Text = L.Get("DeviceEnumerationFailed") + ex.GetBaseException().Message; }
         finally { _refreshing = false; RefreshButton.IsEnabled = true; UpdateState(); }
     }
     private static (RecordingDevice[] Devices, string? Error) ReadDevices(Func<RecordingDevice[]> read)
@@ -90,12 +91,12 @@ public partial class RecordingWindow : Window
         RecordingSetupWindow.Open(this);
         if (!RecordingSetupService.Check().Ready) return;
         try { Recorder.SetExcludeFromCapture(new WindowInteropHelper(this).Handle, true); await RefreshDevices(); }
-        catch (Exception ex) { StatusLabel.Text = "录屏组件加载失败：" + ex.GetBaseException().Message + "。安装后可能需要重启程序或 Windows。"; }
+        catch (Exception ex) { StatusLabel.Text = L.Get("RecordingComponentsFailedToLoad") + ex.GetBaseException().Message + L.Get("RestartingSnapSharpOrWindowsMayBeRequired"); }
     }
     private static string? Selected(System.Windows.Controls.CheckBox check, System.Windows.Controls.ComboBox devices)
     {
         if (check.IsChecked != true) return null;
-        return (devices.SelectedItem as RecordingDevice)?.Id ?? throw new ArgumentException("所选音频／摄像头设备不可用，请刷新或关闭该设备。");
+        return (devices.SelectedItem as RecordingDevice)?.Id ?? throw new ArgumentException(L.Get("TheSelectedAudioCameraDeviceIsUnavailable"));
     }
     private async void Start_Click(object sender, RoutedEventArgs e)
     {
@@ -111,22 +112,22 @@ public partial class RecordingWindow : Window
             {
                 if (!IsVisible) { Show(); WindowState = WindowState.Normal; }
                 RecordingSetupWindow.Open(this);
-                if (!RecordingSetupService.Check().Ready) throw new InvalidOperationException("录屏环境尚未就绪，请完成一键配置后重试。");
+                if (!RecordingSetupService.Check().Ready) throw new InvalidOperationException(L.Get("RecordingRequirementsAreNotReadyCompleteSetup"));
             }
             var p = Candidate(); var mic = Selected(MicBox, MicDevices); var speaker = Selected(SpeakerBox, SpeakerDevices); var camera = Selected(CameraBox, CameraDevices);
             var screen = System.Windows.Forms.Screen.FromRectangle(_region);
-            if (!screen.Bounds.Contains(_region)) throw new ArgumentException("录屏选区必须位于单个显示器内，请重新选择。");
-            var dialog = new Microsoft.Win32.SaveFileDialog { Filter = p.Format == "GIF" ? "GIF 动图|*.gif" : "MP4 视频|*.mp4", FileName = "SnapSharp-record-" + DateTime.Now.ToString("yyyyMMdd-HHmmss"), InitialDirectory = _settings.Current.SaveDirectory, OverwritePrompt = true };
+            if (!screen.Bounds.Contains(_region)) throw new ArgumentException(L.Get("RecordingRegionMustFitWithinASingle"));
+            var dialog = new Microsoft.Win32.SaveFileDialog { Filter = p.Format == "GIF" ? L.Get("GIFAnimationGif") : L.Get("MP4VideoMp4"), FileName = "SnapSharp-record-" + DateTime.Now.ToString("yyyyMMdd-HHmmss"), InitialDirectory = _settings.Current.SaveDirectory, OverwritePrompt = true };
             var accepted = IsVisible ? dialog.ShowDialog(this) : _toolbar?.IsVisible == true ? dialog.ShowDialog(_toolbar) : dialog.ShowDialog();
             if (accepted != true) return;
-            if (File.Exists(dialog.FileName)) throw new IOException("为保护已有录屏，请选择一个新的文件名。");
+            if (File.Exists(dialog.FileName)) throw new IOException(L.Get("ChooseANewFileNameToProtect"));
             var candidate = System.Text.Json.JsonSerializer.Deserialize<AppSettings>(System.Text.Json.JsonSerializer.Serialize(_settings.Current))!;
             candidate.Recording = p.Copy(); _settings.Update(candidate);
             _service = null;
             using var countdown = new CancellationTokenSource(); _countdown = countdown; UpdateState();
             for (var seconds = p.CountdownSeconds; seconds > 0; seconds--)
             {
-                StatusLabel.Text = $"{seconds} 秒后开始录制。点击“取消开始”可取消；尚未采集屏幕或设备。";
+                StatusLabel.Text = L.Format("RecordingStartsIn0SecondsClickCancel", seconds);
                 _toolbar?.Countdown(seconds);
                 await Task.Delay(1000, countdown.Token);
             }
@@ -134,11 +135,11 @@ public partial class RecordingWindow : Window
             _countdown = null;
             var currentScreen = System.Windows.Forms.Screen.FromRectangle(_region);
             if (currentScreen.DeviceName != screen.DeviceName || currentScreen.Bounds != screen.Bounds || !currentScreen.Bounds.Contains(_region))
-                throw new InvalidOperationException("倒计时期间显示器布局已改变，请重新选择录屏区域。");
+                throw new InvalidOperationException(L.Get("MonitorLayoutChangedDuringTheCountdownSelect"));
             _service = new RecordingService(Dispatcher); _service.Changed += UpdateState;
             _service.Start(_region, screen.Bounds, screen.DeviceName, dialog.FileName, p, mic, speaker, camera);
         }
-        catch (OperationCanceledException) { StatusLabel.Text = "录屏开始已取消，未采集屏幕或设备。"; WindowState = WindowState.Normal; }
+        catch (OperationCanceledException) { StatusLabel.Text = L.Get("RecordingStartCanceledScreenAndDevicesWere"); WindowState = WindowState.Normal; }
         catch (Exception ex)
         {
             if (_service?.State == RecordingState.Ready) { _service.Changed -= UpdateState; _service = null; }
@@ -151,14 +152,14 @@ public partial class RecordingWindow : Window
         UpdateTools();
         RunningConfigurationHint.Visibility = IsRecording ? Visibility.Visible : Visibility.Collapsed;
         SetupButton.IsEnabled = !IsRecording;
-        StopButton.Content = _countdown is null ? "停止并保存" : "取消开始";
+        StopButton.Content = _countdown is null ? L.Get("StopAndSave") : L.Get("CancelStart");
         if (_starting || _service is null)
         {
             StartButton.IsEnabled = !_starting && !_refreshing; OptionsPanel.IsEnabled = !_starting;
             PauseButton.IsEnabled = false; StopButton.IsEnabled = _countdown is not null; return;
         }
-        ClockLabel.Text = _service.Elapsed.ToString(@"hh\:mm\:ss"); FrameLabel.Text = $"{_service.FrameCount:N0} 帧 · {_service.AverageFrameRate:F1} / {_service.TargetFrameRate} fps · {_service.OutputBytes / 1048576d:F1} MB" +
-            (_service.IsFrameRateLimited ? " · 帧率不足，建议降低帧率／尺寸或更换编码方式" : "");
+        ClockLabel.Text = _service.Elapsed.ToString(@"hh\:mm\:ss"); FrameLabel.Text = L.Format("0N0Frames1F12Fps", _service.FrameCount, _service.AverageFrameRate, _service.TargetFrameRate, _service.OutputBytes / 1048576d) +
+            (_service.IsFrameRateLimited ? L.Get("LowFrameRateReduceFrameRateDimensions") : "");
         StatusLabel.Text = _service.Status; StartButton.IsEnabled = !_service.IsActive; OptionsPanel.IsEnabled = !_service.IsActive;
         PauseButton.IsEnabled = _service.State is RecordingState.Recording or RecordingState.Paused;
         StopButton.IsEnabled = _service.State is RecordingState.Starting or RecordingState.Recording or RecordingState.Paused;
@@ -207,9 +208,9 @@ public partial class RecordingWindow : Window
     public void PauseRecording() { try { _service?.PauseOrResume(); } catch (Exception ex) { StatusLabel.Text = ex.Message; } }
     public async Task<bool> StopAndWait()
     {
-        if (_starting) { MessageBox.Show(this, "录屏正在启动，请稍后再试。"); return false; }
+        if (_starting) { MessageBox.Show(this, L.Get("RecordingIsStartingTryAgainShortly")); return false; }
         if (_service?.IsActive != true) return true;
-        if (MessageBox.Show(this, "停止当前录屏并等待文件保存后退出？", "结束录屏", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return false;
+        if (MessageBox.Show(this, L.Get("StopRecordingWaitForTheFileTo"), L.Get("EndRecording"), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return false;
         _service.Stop(); await _service.Completion; return _service.SavedPath is not null;
     }
     private void Pause_Click(object sender, RoutedEventArgs e) => PauseRecording();

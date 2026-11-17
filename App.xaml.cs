@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Services;
 using SnapSharp.Models;
 using SnapSharp.ViewModels;
@@ -23,6 +24,24 @@ public partial class App : Application
         base.OnStartup(e);
         EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent,
             new RoutedEventHandler(OnWindowLoaded));
+        var localizationTest = Array.FindIndex(e.Args, argument => argument.Equals("--localization-self-test", StringComparison.OrdinalIgnoreCase));
+        if (localizationTest >= 0)
+        {
+            var directory = localizationTest + 1 < e.Args.Length ? Path.GetFullPath(e.Args[localizationTest + 1]) : AppPaths.DiagnosticsRoot;
+            Directory.CreateDirectory(directory);
+            try
+            {
+                using var theme = new ThemeService(); theme.Start();
+                File.WriteAllText(Path.Combine(directory, "localization-self-test.txt"), LocalizationSelfTest.Run(directory));
+                Shutdown(0);
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText(Path.Combine(directory, "localization-self-test.txt"), ex.ToString());
+                Shutdown(1);
+            }
+            return;
+        }
         if (e.Args.Contains("--license-self-test", StringComparer.OrdinalIgnoreCase))
         {
             Directory.CreateDirectory(AppPaths.DiagnosticsRoot);
@@ -181,7 +200,7 @@ public partial class App : Application
         if (!ownsMutex)
         {
             if (!SingleInstanceChannel.TrySend(e.Args))
-                MessageBox.Show("SnapSharp 已经在运行，但无法唤醒现有实例。", "SnapSharp",
+                MessageBox.Show(L.Get("SnapSharpIsAlreadyRunningButTheExisting"), "SnapSharp",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             Shutdown();
             return;
@@ -212,6 +231,8 @@ public partial class App : Application
 
     private static int RunSelfTest()
     {
+        // Existing UI fixtures assert Chinese text; localization has its own bilingual checks.
+        LocalizationService.Apply("zh-CN");
         var testDirectory = Path.Combine(Path.GetTempPath(), "SnapSharp-SelfTest-" + Guid.NewGuid().ToString("N"));
         try
         {

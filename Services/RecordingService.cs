@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using ScreenRecorderLib;
 using SnapSharp.Models;
 using System.IO;
@@ -38,7 +39,7 @@ internal sealed class RecordingService
     public string? RecoveryDirectory => State == RecordingState.Failed && Directory.Exists(_workDirectory) ? _workDirectory : null;
     public Task Completion => _completion.Task;
     public string? SavedPath { get; private set; }
-    public string Status { get; private set; } = "准备就绪";
+    public string Status { get; private set; } = L.Get("Ready");
     public event Action? Changed;
     public RecordingService(Dispatcher dispatcher)
     {
@@ -49,15 +50,15 @@ internal sealed class RecordingService
     public static RecordingDevice[] Cameras() => RecordingDeviceService.Cameras();
     public void Start(System.Drawing.Rectangle region, System.Drawing.Rectangle monitor, string display, string destination, RecordingPreferences preferences, string? microphone, string? speaker, string? camera)
     {
-        if (State != RecordingState.Ready) throw new InvalidOperationException("录屏会话不可重复启动。");
+        if (State != RecordingState.Ready) throw new InvalidOperationException(L.Get("ARecordingSessionCannotBeStartedTwice"));
         preferences.Validate();
-        if (!monitor.Contains(region) || region.Width < 16 || region.Height < 16 || region.Width > 7680 || region.Height > 4320 || (long)region.Width * region.Height > 16_600_000) throw new ArgumentException("选区需在单个显示器内，至少 16×16，最大 7680×4320／1660 万像素。");
-        if (!Path.IsPathFullyQualified(destination) || File.Exists(destination) || !string.Equals(Path.GetExtension(destination), preferences.Format == "GIF" ? ".gif" : ".mp4", StringComparison.OrdinalIgnoreCase)) throw new IOException("请选择扩展名匹配且尚不存在的输出文件，录屏不会覆盖已有文件。");
+        if (!monitor.Contains(region) || region.Width < 16 || region.Height < 16 || region.Width > 7680 || region.Height > 4320 || (long)region.Width * region.Height > 16_600_000) throw new ArgumentException(L.Get("TheRegionMustFitWithinOneMonitor"));
+        if (!Path.IsPathFullyQualified(destination) || File.Exists(destination) || !string.Equals(Path.GetExtension(destination), preferences.Format == "GIF" ? ".gif" : ".mp4", StringComparison.OrdinalIgnoreCase)) throw new IOException(L.Get("ChooseANewOutputFileWithThe"));
         _preferences = preferences.Copy(); _destination = destination;
         _microphone = microphone; _speaker = speaker;
         _display = display; _monitor = monitor;
         var gif = preferences.Format == "GIF";
-        if (gif && (microphone is not null || speaker is not null)) throw new ArgumentException("GIF 不支持音频，请关闭麦克风与系统声音。");
+        if (gif && (microphone is not null || speaker is not null)) throw new ArgumentException(L.Get("GIFDoesNotSupportAudioDisableMicrophone"));
         var width = region.Width & ~1; var height = region.Height & ~1;
         if (gif) { var scale = Math.Min(1, preferences.GifMaximumEdge / (double)Math.Max(width, height)); width = Math.Max(2, (int)(width * scale) & ~1); height = Math.Max(2, (int)(height * scale) & ~1); }
         var audio = new List<AudioSourceBase>();
@@ -79,7 +80,7 @@ internal sealed class RecordingService
         Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
         _workDirectory = Path.Combine(Path.GetDirectoryName(destination)!, ".SnapSharp-record-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_workDirectory);
-        SetState(RecordingState.Starting, "正在初始化采集与编码器…");
+        SetState(RecordingState.Starting, L.Get("InitializingCaptureAndEncoder"));
         try { CreateNative(); } catch (Exception ex) { NativeFailure(ex.Message); }
         if (IsActive) _timer.Start();
     }
@@ -91,7 +92,7 @@ internal sealed class RecordingService
         {
             if (_recorder != recorder || _finishing) return;
             if (e.Status == RecorderStatus.Recording && State == RecordingState.Starting)
-            { _clock.Start(); SetState(RecordingState.Recording, "录制中；暂停不计入输出时长。"); }
+            { _clock.Start(); SetState(RecordingState.Recording, L.Get("RecordingPausedTimeIsExcludedFromOutput")); }
         });
         recorder.OnFrameRecorded += (_, _) => { if (_recorder == recorder) Interlocked.Increment(ref _frameCount); };
         recorder.OnRecordingComplete += (_, e) => Dispatch(() => { if (_recorder == recorder) _ = Finish(e.FrameInfos); });
@@ -112,53 +113,53 @@ internal sealed class RecordingService
         var previous = _recorder; _recorder = null;
         try { previous?.Dispose(); } catch { }
         _options!.VideoEncoderOptions.IsHardwareEncodingEnabled = false; _clock = new RecordingClock();
-        SetState(RecordingState.Starting, "硬件编码初始化失败，正在尝试系统软件编码器…");
+        SetState(RecordingState.Starting, L.Get("HardwareEncoderInitializationFailedTryingTheSystem"));
         try { CreateNative(); } catch (Exception ex) { Fail(ex.Message); }
     }
     private void Dispatch(Action action) { if (!_dispatcher.HasShutdownStarted) _dispatcher.BeginInvoke(action); }
     private async void Tick(object? sender, EventArgs e)
     {
         Changed?.Invoke();
-        if (State == RecordingState.Starting && System.Diagnostics.Stopwatch.GetElapsedTime(_stateTimestamp).TotalSeconds > 30) { Fail("采集初始化超过 30 秒。请检查显示器、设备权限及系统编码器。"); return; }
-        if (State == RecordingState.Stopping && System.Diagnostics.Stopwatch.GetElapsedTime(_stateTimestamp).TotalSeconds > 60) { Fail("编码器收尾超过 60 秒。请检查保留的临时文件。"); return; }
+        if (State == RecordingState.Starting && System.Diagnostics.Stopwatch.GetElapsedTime(_stateTimestamp).TotalSeconds > 30) { Fail(L.Get("CaptureInitializationExceeded30SecondsCheckThe")); return; }
+        if (State == RecordingState.Stopping && System.Diagnostics.Stopwatch.GetElapsedTime(_stateTimestamp).TotalSeconds > 60) { Fail(L.Get("EncoderFinalizationExceeded60SecondsCheckThe")); return; }
         if (State is not (RecordingState.Recording or RecordingState.Paused)) return;
         var limit = _preferences.Format == "GIF" ? Math.Min(60, _preferences.StopAfterSeconds == 0 ? 60 : _preferences.StopAfterSeconds) : _preferences.StopAfterSeconds;
-        if (State == RecordingState.Recording && limit > 0 && Elapsed.TotalSeconds >= limit) { Stop($"已达到 {limit} 秒有效录制时长"); return; }
+        if (State == RecordingState.Recording && limit > 0 && Elapsed.TotalSeconds >= limit) { Stop(L.Format("Reached0SecondsOfRecordedTime", limit)); return; }
         if (++_ticks % 8 != 0 || _diskCheck) return;
         _diskCheck = true;
         try
         {
             if (!System.Windows.Forms.Screen.AllScreens.Any(x => x.DeviceName == _display && x.Bounds == _monitor))
-            { Stop("录制显示器已断开或布局已改变"); return; }
+            { Stop(L.Get("TheRecordedMonitorDisconnectedOrItsLayout")); return; }
             var bytes = await Task.Run(() => Directory.EnumerateFiles(_workDirectory, "*", SearchOption.AllDirectories).Sum(path => new FileInfo(path).Length));
             if (!IsActive || _finishing) return;
             OutputBytes = bytes;
             var disk = new DriveInfo(Path.GetPathRoot(_workDirectory)!);
-            if (disk.IsReady && disk.AvailableFreeSpace < 200_000_000) { Stop("磁盘可用空间不足 200 MB"); return; }
-            if (_preferences.Format == "GIF" && bytes > 300_000_000) { Stop("GIF 临时数据达到 300 MB"); return; }
+            if (disk.IsReady && disk.AvailableFreeSpace < 200_000_000) { Stop(L.Get("LessThan200MBOfDiskSpace")); return; }
+            if (_preferences.Format == "GIF" && bytes > 300_000_000) { Stop(L.Get("GIFTemporaryDataReached300MB")); return; }
             var camera = _camera?.DeviceName; var microphone = _microphone; var speaker = _speaker;
             if (camera is not null || microphone is not null || speaker is not null)
             {
-                var missing = await Task.Run(() => camera is not null && !Cameras().Any(x => x.Id == camera) ? "摄像头已断开"
-                    : microphone is not null && !Microphones().Any(x => x.Id == microphone) ? "麦克风已断开"
-                    : speaker is not null && !Speakers().Any(x => x.Id == speaker) ? "系统声音设备已断开" : null);
-                if (missing is not null && State is RecordingState.Recording or RecordingState.Paused) Stop(missing + "，为保留当前录制自动停止");
+                var missing = await Task.Run(() => camera is not null && !Cameras().Any(x => x.Id == camera) ? L.Get("CameraDisconnected")
+                    : microphone is not null && !Microphones().Any(x => x.Id == microphone) ? L.Get("MicrophoneDisconnected")
+                    : speaker is not null && !Speakers().Any(x => x.Id == speaker) ? L.Get("SystemAudioDeviceDisconnected") : null);
+                if (missing is not null && State is RecordingState.Recording or RecordingState.Paused) Stop(missing + L.Get("RecordingStoppedAutomaticallyToPreserveTheCurrent"));
             }
         }
-        catch (Exception ex) { if (IsActive && !_finishing) { Status = "设备／磁盘检查：" + ex.Message; Changed?.Invoke(); } }
+        catch (Exception ex) { if (IsActive && !_finishing) { Status = L.Get("DeviceDiskCheck") + ex.Message; Changed?.Invoke(); } }
         finally { _diskCheck = false; }
     }
     public void PauseOrResume()
     {
-        if (State == RecordingState.Recording) { _recorder!.Pause(); _clock.Pause(); SetState(RecordingState.Paused, "已暂停；点击继续录制。"); }
-        else if (State == RecordingState.Paused) { _recorder!.Resume(); _clock.Resume(); SetState(RecordingState.Recording, "录制中"); }
+        if (State == RecordingState.Recording) { _recorder!.Pause(); _clock.Pause(); SetState(RecordingState.Paused, L.Get("PausedClickResumeToContinueRecording")); }
+        else if (State == RecordingState.Paused) { _recorder!.Resume(); _clock.Resume(); SetState(RecordingState.Recording, L.Get("Recording2")); }
     }
     public void Stop() => Stop("");
     private void Stop(string reason)
     {
         if (State is not (RecordingState.Recording or RecordingState.Paused or RecordingState.Starting)) return;
         _stopReason = reason;
-        _clock.Stop(); SetState(RecordingState.Stopping, (reason.Length > 0 ? reason + "。" : "") + "正在停止并写入文件索引，请勿退出…");
+        _clock.Stop(); SetState(RecordingState.Stopping, (reason.Length > 0 ? reason + "。" : "") + L.Get("StoppingAndWritingTheFileIndexPlease"));
         try { _recorder!.Stop(); } catch (Exception ex) { Fail(ex.Message); }
     }
     private async Task Finish(List<FrameData> frames)
@@ -170,23 +171,23 @@ internal sealed class RecordingService
             var result = Path.Combine(_workDirectory, _preferences.Format == "GIF" ? "result.gif" : _retried ? "software.mp4" : "video.mp4");
             if (_preferences.Format == "GIF")
             {
-                SetState(RecordingState.Encoding, "正在逐帧量化并生成 GIF…");
+                SetState(RecordingState.Encoding, L.Get("QuantizingFramesAndGeneratingGIF"));
                 await Task.Run(() => EncodeGif(frames, result, _workDirectory));
             }
-            if (!File.Exists(result) || new FileInfo(result).Length == 0) throw new IOException("编码器未生成有效文件。");
+            if (!File.Exists(result) || new FileInfo(result).Length == 0) throw new IOException(L.Get("TheEncoderDidNotProduceAValid"));
             OutputBytes = new FileInfo(result).Length;
             File.Move(result, _destination, overwrite: false); SavedPath = _destination;
             // Only this session's newly-created directory; never remove an arbitrary caller path.
             var cleanup = "";
-            try { Directory.Delete(_workDirectory, recursive: true); } catch (IOException) { cleanup = "；临时帧清理未完成：" + _workDirectory; } catch (UnauthorizedAccessException) { cleanup = "；临时帧清理未完成：" + _workDirectory; }
-            SetState(RecordingState.Completed, (_stopReason.Length > 0 ? _stopReason + "。" : "") + "已保存：" + _destination + cleanup);
+            try { Directory.Delete(_workDirectory, recursive: true); } catch (IOException) { cleanup = L.Get("TemporaryFrameCleanupIncomplete") + _workDirectory; } catch (UnauthorizedAccessException) { cleanup = L.Get("TemporaryFrameCleanupIncomplete") + _workDirectory; }
+            SetState(RecordingState.Completed, (_stopReason.Length > 0 ? _stopReason + "。" : "") + L.Get("Saved") + _destination + cleanup);
         }
-        catch (Exception ex) { SetState(RecordingState.Failed, "收尾失败：" + ex.Message + "；临时数据保留于：" + _workDirectory); }
+        catch (Exception ex) { SetState(RecordingState.Failed, L.Get("FinalizationFailed") + ex.Message + L.Get("TemporaryDataRetainedAt") + _workDirectory); }
         finally { _completion.TrySetResult(); }
     }
     internal static void EncodeGif(IReadOnlyList<FrameData> frames, string result, string workDirectory)
     {
-        if (frames.Count is < 1 or > 1000) throw new IOException("GIF 帧数需为 1–1000。");
+        if (frames.Count is < 1 or > 1000) throw new IOException(L.Get("GIFRequires11000Frames"));
         using var stream = new FileStream(result, FileMode.CreateNew, FileAccess.Write, FileShare.None);
         StreamingGifWriter? writer = null; double elapsed = 0; var writtenTicks = 0;
         try
@@ -194,11 +195,11 @@ internal sealed class RecordingService
             foreach (var frame in frames)
             {
                 var path = Path.GetFullPath(frame.Path);
-                if (!path.StartsWith(Path.GetFullPath(workDirectory) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) throw new IOException("编码器返回的帧路径不在本次临时目录内。");
+                if (!path.StartsWith(Path.GetFullPath(workDirectory) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) throw new IOException(L.Get("TheEncoderReturnedAFramePathOutside"));
                 var bitmap = new BitmapImage(); bitmap.BeginInit(); bitmap.CacheOption = BitmapCacheOption.OnLoad; bitmap.UriSource = new Uri(path); bitmap.EndInit(); bitmap.Freeze();
                 writer ??= new StreamingGifWriter(stream, bitmap.PixelWidth, bitmap.PixelHeight);
                 elapsed += Math.Clamp(frame.Delay, 10, 1000) / 10d; var end = (int)Math.Round(elapsed); writer.Frame(bitmap, Math.Max(1, end - writtenTicks)); writtenTicks = end;
-                if (stream.Position > 100_000_000) throw new IOException("GIF 已达到 100 MB 上限，保留临时帧，请缩短时长或降低尺寸。");
+                if (stream.Position > 100_000_000) throw new IOException(L.Get("GIFReachedThe100MBLimitTemporary"));
             }
         }
         finally { writer?.Dispose(); }
@@ -207,7 +208,7 @@ internal sealed class RecordingService
     {
         if (_finishing) return; _finishing = true; _timer.Stop(); _clock.Stop();
         try { _recorder?.Dispose(); } catch { } _recorder = null;
-        SetState(RecordingState.Failed, "录制失败：" + reason + "；临时数据保留于：" + _workDirectory); _completion.TrySetResult();
+        SetState(RecordingState.Failed, L.Get("RecordingFailed") + reason + L.Get("TemporaryDataRetainedAt") + _workDirectory); _completion.TrySetResult();
     }
     private void SetState(RecordingState state, string status) { State = state; _stateTimestamp = System.Diagnostics.Stopwatch.GetTimestamp(); Status = status; Changed?.Invoke(); }
 }

@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Native;
 using System.Windows;
 using System.Windows.Interop;
@@ -14,7 +15,7 @@ internal sealed class ScrollCaptureRegionWindow : Window
 
     public ScrollCaptureRegionWindow(System.Drawing.Rectangle region)
     {
-        if (region.Width < 1 || region.Height < 1) throw new ArgumentException("长截图区域不能为空。");
+        if (region.Width < 1 || region.Height < 1) throw new ArgumentException(L.Get("ScrollingCaptureRegionCannotBeEmpty"));
         _region = region;
         Style = (Style)Application.Current.FindResource("AppWindow");
         WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize;

@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
@@ -17,14 +18,14 @@ public sealed partial class LocalRecognitionService
     public static void ValidateTesseractData(string directory, string languages)
     {
         if (string.IsNullOrWhiteSpace(directory) || !Path.IsPathFullyQualified(directory) || !Directory.Exists(directory))
-            throw new ArgumentException("请在设置 → OCR 与识别中一键下载 Tesseract 字库，或选择现有字库目录。");
+            throw new ArgumentException(L.Get("DownloadTesseractLanguageDataInSettingsOCR"));
         if (!Regex.IsMatch(languages, "^[a-z_]{2,20}(\\+[a-z_]{2,20}){0,7}$", RegexOptions.CultureInvariant))
-            throw new ArgumentException("Tesseract 语言使用 chi_sim、eng 或 chi_sim+eng 等字库名（最多 8 种）。");
+            throw new ArgumentException(L.Get("UseTesseractDataNamesSuchAsChi"));
         foreach (var language in languages.Split('+'))
         {
             var path = Path.Combine(directory, language + ".traineddata");
             if (!File.Exists(path) || new FileInfo(path).Length is < 1000 or > 100_000_000)
-                throw new FileNotFoundException("缺少或无效的 Tesseract 字库：" + language + "。请一键下载对应字库。", path);
+                throw new FileNotFoundException(L.Get("MissingOrInvalidTesseractLanguageData") + language + L.Get("DownloadTheMatchingLanguageDataUsingSetup"), path);
         }
     }
 

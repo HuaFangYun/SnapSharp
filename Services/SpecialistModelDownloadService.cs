@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using Microsoft.ML.OnnxRuntime;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -26,10 +27,10 @@ internal static class SpecialistModelDownloadService
 
     internal static async Task Validate(string path, Asset asset, CancellationToken token)
     {
-        if (!File.Exists(path) || new FileInfo(path).Length != asset.Size) throw new InvalidDataException(asset.Name + " 大小校验失败。");
+        if (!File.Exists(path) || new FileInfo(path).Length != asset.Size) throw new InvalidDataException(asset.Name + L.Get("SizeVerificationFailed"));
         await using var stream = File.OpenRead(path);
         var hash = Convert.ToHexString(await SHA256.HashDataAsync(stream, token));
-        if (!hash.Equals(asset.Hash, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException(asset.Name + " SHA256 校验失败，未修改配置。");
+        if (!hash.Equals(asset.Hash, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException(asset.Name + L.Get("SHA256VerificationFailedConfigurationWasPreserved"));
     }
 
     internal static async Task<string> Install(string root, bool table, IProgress<string> progress, CancellationToken token, string? localSource = null)
@@ -59,7 +60,7 @@ internal static class SpecialistModelDownloadService
                     if (new Uri(asset.Url).Host == "api.github.com") request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
                     using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
                     response.EnsureSuccessStatusCode();
-                    if (response.Content.Headers.ContentLength is long length && length != asset.Size) throw new InvalidDataException(asset.Name + " 下载长度不匹配。");
+                    if (response.Content.Headers.ContentLength is long length && length != asset.Size) throw new InvalidDataException(asset.Name + L.Get("DownloadLengthMismatch"));
                     await using var input = await response.Content.ReadAsStreamAsync(token);
                     await using (var output = new FileStream(target, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true))
                     {
@@ -67,7 +68,7 @@ internal static class SpecialistModelDownloadService
                         while ((read = await input.ReadAsync(buffer, token)) > 0)
                         {
                             total += read;
-                            if (total > asset.Size) throw new InvalidDataException("下载超过固定大小。");
+                            if (total > asset.Size) throw new InvalidDataException(L.Get("DownloadExceedsThePinnedSize"));
                             await output.WriteAsync(buffer.AsMemory(0, read), token);
                             progress.Report($"{asset.Name} · {total * 100 / asset.Size}% · {total / 1048576d:F1} / {asset.Size / 1048576d:F1} MB");
                         }
@@ -79,7 +80,7 @@ internal static class SpecialistModelDownloadService
                     {
                         using var options = new SessionOptions { IntraOpNumThreads = 1, InterOpNumThreads = 1 };
                         using var session = new InferenceSession(target, options);
-                        if (session.InputMetadata.Count == 0 || session.OutputMetadata.Count == 0) throw new InvalidDataException("模型没有输入输出。");
+                        if (session.InputMetadata.Count == 0 || session.OutputMetadata.Count == 0) throw new InvalidDataException(L.Get("TheModelHasNoInputsOrOutputs"));
                     }, token);
             }
             var manifest = Path.Combine(directory, "source.txt"); created.Add(manifest);

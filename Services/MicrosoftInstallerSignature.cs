@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 
@@ -16,7 +17,7 @@ internal static class MicrosoftInstallerSignature
         try
         {
             var result = WinVerifyTrust(new nint(-1), ref action, ref data);
-            if (result != 0) throw new InvalidDataException($"安装包 Windows 信任签名校验失败（0x{result:X8}），不会执行。");
+            if (result != 0) throw new InvalidDataException(L.Format("InstallerWindowsTrustVerificationFailed0x0", result));
             // X509CertificateLoader loads certificate encodings, not Authenticode PE files.
             // This legacy extraction API is used only after WinVerifyTrust validates the PE signature.
 #pragma warning disable SYSLIB0057
@@ -24,7 +25,7 @@ internal static class MicrosoftInstallerSignature
 #pragma warning restore SYSLIB0057
             using var certificate = X509CertificateLoader.LoadCertificate(signed.GetRawCertData());
             if (!certificate.GetNameInfo(X509NameType.SimpleName, false).Equals("Microsoft Corporation", StringComparison.Ordinal))
-                throw new InvalidDataException("安装包发布者不是 Microsoft Corporation，不会执行。");
+                throw new InvalidDataException(L.Get("InstallerPublisherIsNotMicrosoftCorporationIt"));
         }
         finally
         {

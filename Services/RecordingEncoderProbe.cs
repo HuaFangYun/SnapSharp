@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using ScreenRecorderLib;
 using SnapSharp.Models;
 using System.Windows.Media;
@@ -45,7 +46,7 @@ internal static class RecordingEncoderProbe
                 recorder.OnRecordingComplete += (_, _) => completed.TrySetResult();
                 recorder.OnRecordingFailed += (_, e) =>
                 {
-                    var error = new InvalidOperationException("系统 H.264 编码器检查失败：" + e.Error);
+                    var error = new InvalidOperationException(L.Get("SystemH264EncoderCheckFailed") + e.Error);
                     started.TrySetException(error); completed.TrySetException(error);
                 };
                 try
@@ -63,8 +64,8 @@ internal static class RecordingEncoderProbe
             var properties = clip.GetVideoEncodingProperties();
             var fps = properties.FrameRate.Denominator > 0 ? properties.FrameRate.Numerator / (double)properties.FrameRate.Denominator : 0;
             if (properties.Width != 160 || properties.Height != 96 || clip.OriginalDuration <= TimeSpan.Zero || Math.Abs(fps - frameRate) > .1)
-                throw new InvalidDataException("MP4 编码输出的尺寸、时长或帧率不符合请求，无法确认编码器可用。");
-            return $"H.264 软件编码已通过实际文件检查（{properties.Width}×{properties.Height}，{fps:F0} fps）。";
+                throw new InvalidDataException(L.Get("EncodedMP4DimensionsDurationOrFrameRate"));
+            return L.Format("H264SoftwareEncodingVerifiedWithA", properties.Width, properties.Height, fps);
         }
         finally
         {

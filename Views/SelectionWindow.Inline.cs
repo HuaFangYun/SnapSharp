@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Native;
 using SnapSharp.Services;
@@ -58,11 +59,11 @@ public partial class SelectionWindow : Window
         _scrollingSelection = scrollingSelection;
         if (scrollingSelection)
         {
-            Title = "选择长截图区域";
-            Hint.Text = "拖动选择长截图区域  |  调整后点击“开始长截图”或按 Enter  |  Esc 取消";
-            PrimaryCaptureButton.Content = new TextBlock { Text = "开始长截图 ↵" };
+            Title = L.Get("SelectScrollingCaptureRegion");
+            Hint.Text = L.Get("DragToSelectAScrollingRegionAdjust");
+            PrimaryCaptureButton.Content = new TextBlock { Text = L.Get("StartScrollingCapture") };
             PrimaryCaptureButton.Width = double.NaN;
-            PrimaryCaptureButton.ToolTip = "确认区域并开始滚动长截图（Enter）；Esc 取消";
+            PrimaryCaptureButton.ToolTip = L.Get("ConfirmRegionAndStartScrollingCaptureEnter");
             foreach (var button in new[] { ScrollCaptureButton, PinCaptureButton, RecognitionCaptureButton, CutoutCaptureButton, RecordingCaptureButton, SaveCaptureButton })
                 button.Visibility = Visibility.Collapsed;
             ShapePicker.IsEnabled = false;
@@ -639,12 +640,12 @@ public partial class SelectionWindow : Window
         GuidanceOptions.Visibility = guidance ? Visibility.Visible : Visibility.Collapsed;
         NumberOptions.Visibility = numberOptions ? Visibility.Visible : Visibility.Collapsed;
         SecondaryToolPanel.Visibility = tool == AnnotationTool.Select ? Visibility.Collapsed : Visibility.Visible;
-        SecondaryToolTitle.Text = selected is not null ? $"{ToolDisplayName(tool)} · 已选中" : ToolDisplayName(tool);
-        GuidanceText.Text = tool == AnnotationTool.Eraser ? "单击要删除的标注" : string.Empty;
+        SecondaryToolTitle.Text = selected is not null ? L.Format("0Selected", ToolDisplayName(tool)) : ToolDisplayName(tool);
+        GuidanceText.Text = tool == AnnotationTool.Eraser ? L.Get("ClickAnAnnotationToDeleteIt") : string.Empty;
         var supportsStrokeStyle = tool != AnnotationTool.Number;
         StrokeLabel.Visibility = supportsStrokeStyle ? Visibility.Visible : Visibility.Collapsed;
         StrokeStyleGroup.Visibility = supportsStrokeStyle ? Visibility.Visible : Visibility.Collapsed;
-        ThicknessPopupLabel.Text = tool == AnnotationTool.Number ? "大小" : "粗细";
+        ThicknessPopupLabel.Text = tool == AnnotationTool.Number ? L.Get("Size") : L.Get("Thickness");
 
         var selectedColor = selected?.Color ?? _editor.SelectedColor;
         var selectedThickness = selected switch
@@ -696,7 +697,7 @@ public partial class SelectionWindow : Window
             if (numberOptions)
             {
                 var selectedNumber = selected as NumberAnnotation;
-                NumberValueLabel.Text = selectedNumber is null ? "起始" : "序号";
+                NumberValueLabel.Text = selectedNumber is null ? L.Get("StartAt") : L.Get("Number");
                 NumberValueBox.Text = $"{selectedNumber?.Number ?? _editor.NextNumber}";
                 var numberStyle = selectedNumber?.NumberStyle ?? _editor.NumberStyle;
                 foreach (var item in NumberStylePicker.Items.OfType<ComboBoxItem>())
@@ -724,7 +725,7 @@ public partial class SelectionWindow : Window
 
             FillToggle.IsChecked = selectedFill is not null;
             var editingFillColor = fill && selectedFill is not null;
-            ColorLabel.Text = editingFillColor ? "填充色" : stroke ? "线色" : "颜色";
+            ColorLabel.Text = editingFillColor ? L.Get("FillColor") : stroke ? L.Get("StrokeColor") : L.Get("Color");
             var fillOpacity = selectedFill is Color fillColor ? fillColor.A / 255d * 100 : tool == AnnotationTool.Bubble ? 95 : 38;
             FillOpacitySlider.Value = Math.Clamp(fillOpacity, FillOpacitySlider.Minimum, FillOpacitySlider.Maximum);
             FillOpacitySlider.IsEnabled = true;
@@ -799,7 +800,7 @@ public partial class SelectionWindow : Window
             if (tool is AnnotationTool.Mosaic or AnnotationTool.Blur)
             {
                 var strength = selected is RegionEffectAnnotation selectedEffect ? selectedEffect.Strength : _editor.EffectStrength;
-                EffectLabel.Text = "强度"; EffectCompactLabel.Text = "强度"; EffectSlider.Minimum = 2; EffectSlider.Maximum = 48;
+                EffectLabel.Text = L.Get("Intensity"); EffectCompactLabel.Text = L.Get("Intensity"); EffectSlider.Minimum = 2; EffectSlider.Maximum = 48;
                 EffectSlider.Value = Math.Clamp(strength, 2, 48);
                 EffectText.Text = $"{strength:0}";
                 EffectPopupValue.Text = EffectText.Text;
@@ -807,7 +808,7 @@ public partial class SelectionWindow : Window
             else if (tool == AnnotationTool.Spotlight)
             {
                 var darkness = selected is SpotlightAnnotation selectedSpotlight ? selectedSpotlight.Darkness : _editor.SpotlightDarkness;
-                EffectLabel.Text = "暗度"; EffectCompactLabel.Text = "暗度"; EffectSlider.Minimum = 10; EffectSlider.Maximum = 90;
+                EffectLabel.Text = L.Get("Darkness"); EffectCompactLabel.Text = L.Get("Darkness"); EffectSlider.Minimum = 10; EffectSlider.Maximum = 90;
                 EffectSlider.Value = Math.Clamp(darkness * 100, 10, 90);
                 EffectText.Text = $"{darkness:P0}";
                 EffectPopupValue.Text = EffectText.Text;
@@ -815,7 +816,7 @@ public partial class SelectionWindow : Window
             else if (tool == AnnotationTool.Magnifier)
             {
                 var zoom = selected is MagnifierAnnotation selectedMagnifier ? selectedMagnifier.Zoom : _editor.MagnifierZoom;
-                EffectLabel.Text = "倍数"; EffectCompactLabel.Text = "倍数"; EffectSlider.Minimum = 15; EffectSlider.Maximum = 80;
+                EffectLabel.Text = L.Get("Magnification"); EffectCompactLabel.Text = L.Get("Magnification"); EffectSlider.Minimum = 15; EffectSlider.Maximum = 80;
                 EffectSlider.Value = Math.Clamp(zoom * 10, 15, 80);
                 EffectText.Text = $"{zoom:0.0}x";
                 EffectPopupValue.Text = EffectText.Text;
@@ -827,23 +828,23 @@ public partial class SelectionWindow : Window
 
     private static string ToolDisplayName(AnnotationTool tool) => tool switch
     {
-        AnnotationTool.Rectangle => "矩形",
-        AnnotationTool.Ellipse => "椭圆",
-        AnnotationTool.Line => "直线",
-        AnnotationTool.Arrow => "箭头",
-        AnnotationTool.Pen => "画笔",
-        AnnotationTool.Highlight => "荧光笔",
-        AnnotationTool.Text => "文字",
-        AnnotationTool.Watermark => "水印",
-        AnnotationTool.Number => "序号",
-        AnnotationTool.Mosaic => "马赛克",
-        AnnotationTool.Blur => "模糊",
-        AnnotationTool.Spotlight => "聚光灯",
-        AnnotationTool.Bubble => "气泡",
-        AnnotationTool.Magnifier => "放大镜",
-        AnnotationTool.Polygon => "多边形",
-        AnnotationTool.Eraser => "删除标注",
-        _ => "工具设置"
+        AnnotationTool.Rectangle => L.Get("Rectangle"),
+        AnnotationTool.Ellipse => L.Get("Ellipse"),
+        AnnotationTool.Line => L.Get("Line"),
+        AnnotationTool.Arrow => L.Get("Arrow"),
+        AnnotationTool.Pen => L.Get("Pen"),
+        AnnotationTool.Highlight => L.Get("Highlighter"),
+        AnnotationTool.Text => L.Get("Text"),
+        AnnotationTool.Watermark => L.Get("Watermark"),
+        AnnotationTool.Number => L.Get("Number"),
+        AnnotationTool.Mosaic => L.Get("Pixelate"),
+        AnnotationTool.Blur => L.Get("Blur"),
+        AnnotationTool.Spotlight => L.Get("Spotlight"),
+        AnnotationTool.Bubble => L.Get("Callout"),
+        AnnotationTool.Magnifier => L.Get("Magnifier"),
+        AnnotationTool.Polygon => L.Get("Polygon"),
+        AnnotationTool.Eraser => L.Get("DeleteAnnotation"),
+        _ => L.Get("ToolOptions")
     };
 
     private void NumberStep_Click(object sender, RoutedEventArgs e)
@@ -1319,7 +1320,7 @@ public partial class SelectionWindow : Window
     private void SaveTemplate_Click(object sender, RoutedEventArgs e)
     {
         if (_editor is null || _editor.Annotations.Count == 0) return;
-        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "SnapSharp 标注模板|*.sstemplate", DefaultExt = ".sstemplate" };
+        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = L.Get("SnapSharpAnnotationTemplateSstemplate"), DefaultExt = ".sstemplate" };
         if (dialog.ShowDialog(this) == true)
             _templates.Save(dialog.FileName, _editor.Annotations, _editor.Image.PixelWidth, _editor.Image.PixelHeight);
     }
@@ -1327,7 +1328,7 @@ public partial class SelectionWindow : Window
     private void LoadTemplate_Click(object sender, RoutedEventArgs e)
     {
         if (_editor is null) return;
-        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "SnapSharp 标注模板|*.sstemplate" };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("SnapSharpAnnotationTemplateSstemplate") };
         if (dialog.ShowDialog(this) != true) return;
         try
         {
@@ -1335,7 +1336,7 @@ public partial class SelectionWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, ex.Message, "导入标注模板", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(this, ex.Message, L.Get("ImportAnnotationTemplate2"), MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -1346,16 +1347,16 @@ public partial class SelectionWindow : Window
     private void Cutout_Click(object sender, RoutedEventArgs e) => Complete(CaptureAction.Cutout);
     private void Recording_Click(object sender, RoutedEventArgs e)
     {
-        if (_shape != SelectionShape.Rectangle) { MessageBox.Show(this, "录屏仅支持矩形区域，请切换为矩形选区。"); return; }
+        if (_shape != SelectionShape.Rectangle) { MessageBox.Show(this, L.Get("RecordingSupportsRectangularRegionsOnlySwitchTo")); return; }
         if (_editor is null) return;
         CaptureAccepted?.Invoke(this, new CaptureResult(_editor.Image, _screen.Bounds, _pixelSelection.ToDrawingRectangle(), CaptureAction.Recording));
     }
     private void ScrollCapture_Click(object sender, RoutedEventArgs e)
     {
-        if (_shape != SelectionShape.Rectangle) { MessageBox.Show(this, "长截图需要矩形区域，请先切换为矩形选区。", "长截图"); return; }
+        if (_shape != SelectionShape.Rectangle) { MessageBox.Show(this, L.Get("ScrollingCaptureRequiresARectangularRegionSwitch"), L.Get("ScrollingCapture")); return; }
         if (_editor is null) return;
         if (_pixelSelection.Width < 32 || _pixelSelection.Height < 32)
-        { MessageBox.Show(this, "长截图区域至少需要 32 × 32 像素，请重新选择或调整区域。", "长截图"); return; }
+        { MessageBox.Show(this, L.Get("ScrollingCaptureRequiresAtLeast3232"), L.Get("ScrollingCapture")); return; }
         var initial = _skia.Crop(_screen.Image, _pixelSelection.ToInt32Rect());
         CaptureAccepted?.Invoke(this, new CaptureResult(initial, _screen.Bounds, _pixelSelection.ToDrawingRectangle(), CaptureAction.Scrolling));
     }
@@ -1449,7 +1450,7 @@ public partial class SelectionWindow : Window
         try { write(_sampledColor); }
         catch (System.Runtime.InteropServices.ExternalException)
         {
-            Hint.Text = "剪贴板暂时被占用，未退出截图；请再次按 C 复制颜色。";
+            Hint.Text = L.Get("ClipboardIsBusyCaptureRemainsOpenPress");
             return;
         }
         // Finish the entire multi-monitor capture session without producing an image.
@@ -1515,7 +1516,7 @@ public partial class SelectionWindow : Window
         if (!IsValidSelection())
         {
             SelectionBorder.Visibility = Visibility.Collapsed;
-            InfoText.Text = "选择区域";
+            InfoText.Text = L.Get("SelectRegion");
         }
         else
         {

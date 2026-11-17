@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
@@ -27,7 +28,7 @@ public static class OutputActions
 
     public static void Reveal(string path)
     {
-        if (!File.Exists(path)) throw new FileNotFoundException("文件已被移动或删除。", path);
+        if (!File.Exists(path)) throw new FileNotFoundException(L.Get("TheFileHasBeenMovedOrDeleted"), path);
         var start = new ProcessStartInfo("explorer.exe") { UseShellExecute = false };
         start.ArgumentList.Add("/select,");
         start.ArgumentList.Add(Path.GetFullPath(path));
@@ -50,9 +51,9 @@ public static class OutputActions
         var area = dialog.PrintQueue.GetPrintCapabilities(dialog.PrintTicket).PageImageableArea;
         var printable = area is null ? new Rect(0, 0, dialog.PrintableAreaWidth, dialog.PrintableAreaHeight)
             : new Rect(area.OriginWidth, area.OriginHeight, area.ExtentWidth, area.ExtentHeight);
-        if (printable.Width <= 0 || printable.Height <= 0) throw new InvalidOperationException("打印机未提供有效的可打印区域。");
+        if (printable.Width <= 0 || printable.Height <= 0) throw new InvalidOperationException(L.Get("ThePrinterDidNotProvideAValid"));
         var visual = new DrawingVisual();
         using (var context = visual.RenderOpen()) context.DrawImage(image, FitPrintRect(image.PixelWidth, image.PixelHeight, printable));
-        dialog.PrintVisual(visual, "SnapSharp 截图");
+        dialog.PrintVisual(visual, L.Get("SnapSharpScreenshot"));
     }
 }

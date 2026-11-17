@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -19,7 +20,7 @@ internal static class LocalTranslationSetupService
 
     public static async Task<Installation> Install(string root, string device, IProgress<string> progress, CancellationToken token)
     {
-        if (device is not ("CPU" or "Vulkan")) throw new ArgumentException("未知本地翻译设备。");
+        if (device is not ("CPU" or "Vulkan")) throw new ArgumentException(L.Get("UnknownLocalTranslationDevice2"));
         await Gate.WaitAsync(token);
         try
         {
@@ -46,11 +47,11 @@ internal static class LocalTranslationSetupService
                 {
                     token.ThrowIfCancellationRequested();
                     total += entry.Length;
-                    if (total > 800_000_000) throw new InvalidDataException("运行包解压大小超出限制。");
+                    if (total > 800_000_000) throw new InvalidDataException(L.Get("ExtractedRuntimePackageExceedsTheSizeLimit"));
                     var relative = entry.FullName[prefix.Length..];
                     var target = Path.GetFullPath(Path.Combine(directory, relative));
                     if (!target.StartsWith(directory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-                        throw new InvalidDataException("运行包包含无效路径。");
+                        throw new InvalidDataException(L.Get("RuntimePackageContainsAnInvalidPath"));
                     Directory.CreateDirectory(Path.GetDirectoryName(target)!);
                     await using (var input = entry.Open())
                     await using (var output = new FileStream(target, FileMode.CreateNew))
@@ -59,14 +60,14 @@ internal static class LocalTranslationSetupService
                 }
                 server = Path.Combine(directory, "llama-server.exe");
                 await File.WriteAllTextAsync(Path.Combine(directory, "verified-files.json"), JsonSerializer.Serialize(manifest), token);
-                if (!await VerifyRuntime(server, token)) throw new InvalidDataException("本地翻译运行库完整性检查失败。");
+                if (!await VerifyRuntime(server, token)) throw new InvalidDataException(L.Get("LocalTranslationRuntimeIntegrityCheckFailed"));
             }
             ThirdPartyLicenseService.CopyTo(directory, "llama.cpp-LICENSE.txt");
             var model = Path.Combine(root, ModelName);
             await Download($"https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/{ModelRevision}/{ModelName}",
                 model, ModelHash, ModelSize, progress, token);
             ThirdPartyLicenseService.CopyTo(root, "Apache-2.0.txt");
-            progress.Report("模型和运行库 SHA256 校验通过，已配置本地 " + device + " 翻译。请测试并保存设置。");
+            progress.Report(L.Format("LocalTranslationConfigured", device));
             return new(server, model);
         }
         finally { Gate.Release(); }
@@ -104,7 +105,7 @@ internal static class LocalTranslationSetupService
     {
         if (File.Exists(target) && new FileInfo(target).Length == size &&
             string.Equals(await FileHash(target, token), hash, StringComparison.OrdinalIgnoreCase)) return;
-        if (File.Exists(target)) throw new InvalidDataException("已存在的下载文件校验失败，请移走该文件后重试：" + target);
+        if (File.Exists(target)) throw new InvalidDataException(L.Get("AnExistingDownloadFailedVerificationMoveThe") + target);
         using var handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
         using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) };
         var uri = new Uri(source);
@@ -114,7 +115,7 @@ internal static class LocalTranslationSetupService
         {
             for (var redirects = 0; ; redirects++)
             {
-                if (!Allowed(uri) || redirects > 6) throw new InvalidDataException("下载重定向离开官方分发站点。");
+                if (!Allowed(uri) || redirects > 6) throw new InvalidDataException(L.Get("DownloadRedirectedOutsideOfficialDistributionSites"));
                 response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
                 if ((int)response.StatusCode is >= 300 and < 400 && response.Headers.Location is Uri next)
                 { uri = next.IsAbsoluteUri ? next : new Uri(uri, next); response.Dispose(); continue; }
@@ -128,15 +129,15 @@ internal static class LocalTranslationSetupService
                 while ((read = await input.ReadAsync(buffer, token)) > 0)
                 {
                     received += read;
-                    if (received > size) throw new InvalidDataException("下载超过固定文件大小。");
+                    if (received > size) throw new InvalidDataException(L.Get("DownloadExceedsThePinnedFileSize"));
                     await output.WriteAsync(buffer.AsMemory(0, read), token);
                     var percent = (int)(received * 100 / size);
                     if (percent != last) { last = percent; progress.Report($"{Path.GetFileName(target)}：{percent}% · {received / 1048576d:F1}/{size / 1048576d:F1} MB"); }
                 }
-                if (received != size) throw new InvalidDataException("文件下载不完整。");
+                if (received != size) throw new InvalidDataException(L.Get("FileDownloadIsIncomplete"));
             }
             if (!string.Equals(await FileHash(temporary, token), hash, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException("SHA256 校验失败，未应用配置。");
+                throw new InvalidDataException(L.Get("SHA256VerificationFailedConfigurationWasNotApplied"));
             File.Move(temporary, target);
         }
         finally { response?.Dispose(); if (File.Exists(temporary)) File.Delete(temporary); }

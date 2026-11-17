@@ -1,7 +1,8 @@
 <Window x:Class="SnapSharp.Views.SaveImageWindow" Style="{StaticResource AppWindow}"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:loc="http://wpflocalizeextension.codeplex.com"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="输出图片 · SnapSharp" Width="1040" Height="740" MinWidth="820" MinHeight="540"
+        Title="{loc:Loc SnapSharp.Core:Resources.Strings:SaveImageSnapSharp}" Width="1040" Height="740" MinWidth="820" MinHeight="540"
         WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackgroundBrush}">
   <Window.Resources>
     <ResourceDictionary>
@@ -66,50 +67,50 @@
     <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
     <Grid>
       <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-      <StackPanel Margin="0,0,0,14"><TextBlock Text="图片预览" FontSize="20" FontWeight="SemiBold" /><TextBlock x:Name="SourceInfo" Margin="0,6,0,0" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+      <StackPanel Margin="0,0,0,14"><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ImagePreview}" FontSize="20" FontWeight="SemiBold" /><TextBlock x:Name="SourceInfo" Margin="0,6,0,0" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
       <Border Grid.Row="1" Background="{StaticResource Checker}" CornerRadius="8" ClipToBounds="True" Padding="16">
         <Image x:Name="Preview" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
       </Border>
       <StackPanel Grid.Row="2" Margin="0,12,0,0">
-        <TextBlock x:Name="SizeInfo" FontSize="15" FontWeight="SemiBold" Text="正在计算编码体积…" />
-        <TextBlock x:Name="PreviewHint" Text="预览使用实际编码结果；棋盘格表示透明区域。" Margin="0,6" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
-        <WrapPanel><Button Content="打印…" Click="Print_Click" /><Button Content="关闭" IsCancel="True" /></WrapPanel>
+        <TextBlock x:Name="SizeInfo" FontSize="15" FontWeight="SemiBold" Text="{loc:Loc SnapSharp.Core:Resources.Strings:CalculatingEncodedSize}" />
+        <TextBlock x:Name="PreviewHint" Text="{loc:Loc SnapSharp.Core:Resources.Strings:PreviewShowsTheEncodedImageTheCheckerboard}" Margin="0,6" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+        <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Print}" Click="Print_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Close}" IsCancel="True" /></WrapPanel>
       </StackPanel>
     </Grid>
     <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
       <StackPanel x:Name="SettingsPanel" Margin="0,0,10,0">
-        <TextBlock Text="保存设置" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,14" />
-        <TextBlock Text="保存到" />
-        <DockPanel><Button Content="浏览…" DockPanel.Dock="Right" MinWidth="64" Click="Browse_Click" Margin="6,5,0,10" Height="34" /><TextBox x:Name="DirectoryBox" /></DockPanel>
-        <TextBlock Text="文件名（不含扩展名）" /><TextBox x:Name="NameBox" TextChanged="Name_Changed" />
-        <TextBlock Text="输出格式" /><ComboBox x:Name="FormatBox" Style="{StaticResource OutputFormatPicker}" SelectionChanged="Options_Changed" />
-        <Expander Header="自动命名模板" Margin="0,0,0,10">
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SaveSettings}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,14" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SaveTo}" />
+        <DockPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Browse}" DockPanel.Dock="Right" MinWidth="64" Click="Browse_Click" Margin="6,5,0,10" Height="34" /><TextBox x:Name="DirectoryBox" /></DockPanel>
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FileNameWithoutExtension}" /><TextBox x:Name="NameBox" TextChanged="Name_Changed" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OutputFormat}" /><ComboBox x:Name="FormatBox" Style="{StaticResource OutputFormatPicker}" SelectionChanged="Options_Changed" />
+        <Expander Header="{loc:Loc SnapSharp.Core:Resources.Strings:AutomaticNamingTemplate}" Margin="0,0,0,10">
           <StackPanel><TextBox x:Name="TemplateBox" TextChanged="Template_Changed" />
-            <TextBlock Text="支持 {date} {time} {width} {height} {seq}；非法文件名字符会替换为下划线。" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SupportsDateTimeWidthHeightSeqInvalid}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
             <TextBlock x:Name="TemplatePreview" Margin="0,6" TextWrapping="Wrap" />
-            <Button Content="应用模板生成文件名" Click="ApplyTemplate_Click" HorizontalAlignment="Left" />
+            <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:GenerateFileNameFromTemplate}" Click="ApplyTemplate_Click" HorizontalAlignment="Left" />
           </StackPanel>
         </Expander>
-        <TextBlock Text="输出尺寸（像素）" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OutputDimensionsPixels}" />
         <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="24" /><ColumnDefinition /></Grid.ColumnDefinitions>
           <TextBox x:Name="WidthBox" TextChanged="Dimensions_Changed" /><TextBlock Grid.Column="1" Text="×" HorizontalAlignment="Center" VerticalAlignment="Center" /><TextBox Grid.Column="2" x:Name="HeightBox" TextChanged="Dimensions_Changed" />
         </Grid>
-        <DockPanel Margin="0,0,0,6"><Button Content="还原尺寸" DockPanel.Dock="Right" Click="Reset_Click" /><CheckBox x:Name="LockRatio" Content="锁定原图比例" IsChecked="True" /></DockPanel>
-        <CheckBox x:Name="LosslessBox" Content="WebP 无损编码（保留透明通道）" Checked="Options_Changed" Unchecked="Options_Changed" />
+        <DockPanel Margin="0,0,0,6"><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ResetSize}" DockPanel.Dock="Right" Click="Reset_Click" /><CheckBox x:Name="LockRatio" Content="{loc:Loc SnapSharp.Core:Resources.Strings:LockAspectRatio}" IsChecked="True" /></DockPanel>
+        <CheckBox x:Name="LosslessBox" Content="{loc:Loc SnapSharp.Core:Resources.Strings:LosslessWebPPreserveAlpha}" Checked="Options_Changed" Unchecked="Options_Changed" />
         <StackPanel x:Name="QualityPanel" Margin="0,4,0,6">
-          <DockPanel><TextBlock Text="有损质量" /><TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right" Text="{Binding ElementName=QualitySlider, Path=Value, StringFormat={}{0:F0}}" /></DockPanel>
+          <DockPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LossyQuality}" /><TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right" Text="{Binding ElementName=QualitySlider, Path=Value, StringFormat={}{0:F0}}" /></DockPanel>
           <Slider x:Name="QualitySlider" Style="{StaticResource ParameterSlider}" Minimum="1" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1" ValueChanged="Options_Changed" Margin="0,8" />
         </StackPanel>
         <TextBlock x:Name="FormatHint" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12" />
-        <Button x:Name="SaveButton" Content="保存图片" Click="Save_Click" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource AccentForegroundBrush}" HorizontalAlignment="Stretch" />
-        <Button Content="使用系统“另存为”…" Click="SystemSave_Click" HorizontalAlignment="Stretch" />
+        <Button x:Name="SaveButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:SaveImage2}" Click="Save_Click" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource AccentForegroundBrush}" HorizontalAlignment="Stretch" />
+        <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:UseSystemSaveAs}" Click="SystemSave_Click" HorizontalAlignment="Stretch" />
         <Border x:Name="SavedActions" Visibility="Collapsed" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="0,12,0,0" Padding="0,10,0,0">
           <StackPanel><TextBlock x:Name="SavedPathText" TextWrapping="Wrap" />
-            <WrapPanel><Button Content="复制文件" Click="CopyFile_Click" /><Button Content="复制路径" Click="CopyPath_Click" /><Button Content="定位文件" Click="Reveal_Click" /></WrapPanel>
+            <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:CopyFile}" Click="CopyFile_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:CopyPath}" Click="CopyPath_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ShowInFolder}" Click="Reveal_Click" /></WrapPanel>
           </StackPanel>
         </Border>
       </StackPanel>
     </ScrollViewer>
-    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" x:Name="StatusText" TextWrapping="Wrap" Margin="0,16,0,0" Foreground="{DynamicResource TextSecondaryBrush}" Text="保存前可调整格式和尺寸；关闭窗口不会创建文件。" />
+    <TextBlock Grid.Row="1" Grid.ColumnSpan="3" x:Name="StatusText" TextWrapping="Wrap" Margin="0,16,0,0" Foreground="{DynamicResource TextSecondaryBrush}" Text="{loc:Loc SnapSharp.Core:Resources.Strings:AdjustTheFormatAndSizeBeforeSaving}" />
   </Grid>
 </Window>

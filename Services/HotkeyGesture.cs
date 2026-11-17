@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Native;
 using System.Windows.Input;
 
@@ -11,7 +12,7 @@ public sealed record HotkeyGesture(uint Modifiers, uint VirtualKey, string Displ
         error = string.Empty;
         if (string.IsNullOrWhiteSpace(text))
         {
-            error = "快捷键不能为空。";
+            error = L.Get("ShortcutCannotBeEmpty");
             return false;
         }
 
@@ -43,7 +44,7 @@ public sealed record HotkeyGesture(uint Modifiers, uint VirtualKey, string Displ
                 default:
                     if (key is not null)
                     {
-                        error = "快捷键只能包含一个普通按键。";
+                        error = L.Get("AShortcutCanContainOnlyOneRegular");
                         return false;
                     }
                     try
@@ -52,7 +53,7 @@ public sealed record HotkeyGesture(uint Modifiers, uint VirtualKey, string Displ
                     }
                     catch
                     {
-                        error = $"无法识别按键“{rawPart}”。";
+                        error = L.Format("UnrecognizedKey0", rawPart);
                         return false;
                     }
                     break;
@@ -61,19 +62,19 @@ public sealed record HotkeyGesture(uint Modifiers, uint VirtualKey, string Displ
 
         if (key is null || key is Key.None or Key.LeftCtrl or Key.RightCtrl or Key.LeftShift or Key.RightShift or Key.LeftAlt or Key.RightAlt or Key.LWin or Key.RWin)
         {
-            error = "快捷键必须包含一个普通按键。";
+            error = L.Get("AShortcutMustContainARegularKey");
             return false;
         }
         if ((modifiers & ~NativeMethods.ModNoRepeat) == 0)
         {
-            error = "快捷键至少需要 Ctrl、Shift、Alt 或 Win 中的一个修饰键。";
+            error = L.Get("AShortcutRequiresAtLeastOneModifier");
             return false;
         }
 
         var virtualKey = (uint)KeyInterop.VirtualKeyFromKey(key.Value);
         if (virtualKey == 0)
         {
-            error = "该按键不能注册为全局快捷键。";
+            error = L.Get("ThisKeyCannotBeRegisteredAsA");
             return false;
         }
         normalized.Add(key.Value.ToString());

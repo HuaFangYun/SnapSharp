@@ -25,6 +25,9 @@ an explicit notice refresh instead of silently distributing mismatched files.
 | Vortice.Mathematics | 2.1.0 | `Vortice.Windows-LICENSE.txt` |
 | SharpGen.Runtime / SharpGen.Runtime.COM | 2.4.2-beta | `SharpGenTools-LICENSE.txt` |
 | GTranslate | 2.4.0 | `GTranslate-LICENSE.txt` |
+| WPFLocalizeExtension | 3.10.0 | `WPFLocalizeExtension-LICENSE.txt` (Ms-PL) |
+| XAMLMarkupExtensions | 2.1.3 | `XAMLMarkupExtensions-LICENSE.txt` (Ms-PL) |
+| System.Management | 7.0.0 | `System.Management-LICENSE.txt`, `System.Management-THIRD-PARTY-NOTICES.txt` |
 | ZXing.Net | 0.16.11 | `Apache-2.0.txt` |
 | Tesseract .NET wrapper and native Tesseract | 5.2.0 | `Apache-2.0.txt` |
 | Leptonica native library | Tesseract 5.2.0 package dependency | `Leptonica-LICENSE.txt` |

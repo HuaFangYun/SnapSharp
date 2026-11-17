@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -32,8 +33,8 @@ public static class PinContentService
 
     public static PinContent FromText(string text, AppSettings settings)
     {
-        if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException("文本不能为空。");
-        if (text.Length > 50_000) throw new ArgumentException("文本过长，最多支持 50000 个字符，请分段创建贴图。");
+        if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException(L.Get("TextCannotBeEmpty"));
+        if (text.Length > 50_000) throw new ArgumentException(L.Get("TextExceeds50000CharactersSplitItInto"));
         var width = Math.Clamp(settings.TextPinWidth, 200, 1200);
         var fontSize = Math.Clamp(settings.TextPinFontSize, 10, 64);
         var foreground = TryParseColor(settings.TextPinForeground, out var fg) ? fg : Colors.Black;
@@ -42,7 +43,7 @@ public static class PinContentService
             new Typeface(new FontFamily(settings.TextPinFontFamily), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal), fontSize, new SolidColorBrush(foreground), 1)
         { MaxTextWidth = width - 40, Trimming = TextTrimming.None };
         var height = Math.Max(80, (int)Math.Ceiling(formatted.Height) + 40);
-        if (height > 16384 || (long)width * height > 16_000_000) throw new ArgumentException("排版后的文本过长，请分段创建贴图或增加文本宽度。");
+        if (height > 16384 || (long)width * height > 16_000_000) throw new ArgumentException(L.Get("LaidOutTextIsTooLongSplit"));
         var visual = new DrawingVisual();
         using (var dc = visual.RenderOpen())
         {

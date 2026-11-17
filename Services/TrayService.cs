@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using H.NotifyIcon;
 using H.NotifyIcon.Core;
 using SkiaSharp;
@@ -53,65 +54,65 @@ public sealed class TrayService : IDisposable
     public TrayService()
     {
         var menu = new WpfContextMenu();
-        _regionItem = AddItem(menu, "区域截图", () => CaptureRequested?.Invoke(this,
+        _regionItem = AddLocalizedItem(menu, "RegionCapture", () => CaptureRequested?.Invoke(this,
             new CaptureModeEventArgs(Models.CaptureMode.Region)));
-        _fullScreenItem = AddItem(menu, "全屏截图", () => CaptureRequested?.Invoke(this,
+        _fullScreenItem = AddLocalizedItem(menu, "FullScreenCapture", () => CaptureRequested?.Invoke(this,
             new CaptureModeEventArgs(Models.CaptureMode.FullScreen)));
-        _activeWindowItem = AddItem(menu, "当前窗口截图", () => CaptureRequested?.Invoke(this,
+        _activeWindowItem = AddLocalizedItem(menu, "ActiveWindowCapture", () => CaptureRequested?.Invoke(this,
             new CaptureModeEventArgs(Models.CaptureMode.ActiveWindow)));
-        AddItem(menu, "识别粘贴板图片…", () => RecognitionClipboardRequested?.Invoke(this, EventArgs.Empty));
+        AddLocalizedItem(menu, "RecognizeClipboardImage2", () => RecognitionClipboardRequested?.Invoke(this, EventArgs.Empty));
 
-        _screenWordsItem = new MenuItem { Header = "屏幕取词（本次会话）", IsCheckable = true };
+        _screenWordsItem = LocalizedMenu("ScreenTextCaptureThisSession", isCheckable: true);
         _screenWordsItem.Click += (_, _) => ScreenWordsRequested?.Invoke(_screenWordsItem.IsChecked);
         menu.Items.Add(_screenWordsItem);
 
-        var delayed = new MenuItem { Header = "延时截图" };
+        var delayed = LocalizedMenu("DelayedCapture");
         foreach (var seconds in new[] { 3, 5, 10 })
-            AddItem(delayed, $"{seconds} 秒", () => DelayedScreenshotRequested?.Invoke(this,
-                new DelayedScreenshotEventArgs(seconds)));
+            AddLocalizedItem(delayed, "0Seconds", () => DelayedScreenshotRequested?.Invoke(this,
+                new DelayedScreenshotEventArgs(seconds)), seconds);
         delayed.Items.Add(new Separator());
-        _cancelDelayedItem = AddItem(delayed, "取消延时截图",
+        _cancelDelayedItem = AddLocalizedItem(delayed, "CancelDelayedCapture",
             () => CancelDelayedScreenshotRequested?.Invoke(this, EventArgs.Empty));
         _cancelDelayedItem.IsEnabled = false;
         menu.Items.Add(delayed);
 
-        AddItem(menu, "截图历史", () => HistoryRequested?.Invoke(this, EventArgs.Empty));
-        var scrolling = new MenuItem { Header = "长截图" };
-        AddItem(scrolling, "选择区域并开始长截图…", () => ScrollingCaptureRequested?.Invoke(this, EventArgs.Empty));
-        AddItem(scrolling, "停止当前采集并预览", () => StopScrollingRequested?.Invoke(this, EventArgs.Empty));
-        AddItem(scrolling, "打开拼接工程…", () => OpenScrollProjectRequested?.Invoke(this, EventArgs.Empty));
+        AddLocalizedItem(menu, "CaptureHistory", () => HistoryRequested?.Invoke(this, EventArgs.Empty));
+        var scrolling = LocalizedMenu("ScrollingCapture");
+        AddLocalizedItem(scrolling, "SelectRegionAndStartScrollingCapture", () => ScrollingCaptureRequested?.Invoke(this, EventArgs.Empty));
+        AddLocalizedItem(scrolling, "StopCaptureAndPreview", () => StopScrollingRequested?.Invoke(this, EventArgs.Empty));
+        AddLocalizedItem(scrolling, "OpenStitchingProject", () => OpenScrollProjectRequested?.Invoke(this, EventArgs.Empty));
         menu.Items.Add(scrolling);
-        var recording = new MenuItem { Header = "录屏" };
-        AddItem(recording, "选择区域（选区工具栏中点击录像图标）", () => CaptureRequested?.Invoke(this,
+        var recording = LocalizedMenu("Recording");
+        AddLocalizedItem(recording, "SelectRegionThenClickTheVideoIcon", () => CaptureRequested?.Invoke(this,
             new CaptureModeEventArgs(Models.CaptureMode.Region)));
-        AddItem(recording, "录制当前显示器／显示工具栏", () => RecordingRequested?.Invoke(this, EventArgs.Empty));
-        AddItem(recording, "暂停／继续", () => PauseRecordingRequested?.Invoke(this, EventArgs.Empty));
-        AddItem(recording, "停止并保存", () => StopRecordingRequested?.Invoke(this, EventArgs.Empty));
+        AddLocalizedItem(recording, "RecordCurrentMonitorShowToolbar", () => RecordingRequested?.Invoke(this, EventArgs.Empty));
+        AddLocalizedItem(recording, "PauseResume", () => PauseRecordingRequested?.Invoke(this, EventArgs.Empty));
+        AddLocalizedItem(recording, "StopAndSave", () => StopRecordingRequested?.Invoke(this, EventArgs.Empty));
         menu.Items.Add(recording);
 
         menu.Items.Add(new Separator());
-        _pinsItem = new MenuItem { Header = "贴图" };
-        _clipboardPinItem = AddItem(_pinsItem, "从剪贴板贴图", () => PinRequested?.Invoke(PinCommand.Clipboard));
-        AddItem(_pinsItem, "新建文本贴图…", () => PinRequested?.Invoke(PinCommand.Text));
-        AddItem(_pinsItem, "新建颜色贴图…", () => PinRequested?.Invoke(PinCommand.Color));
+        _pinsItem = LocalizedMenu("Pins");
+        _clipboardPinItem = AddLocalizedItem(_pinsItem, "PinFromClipboard", () => PinRequested?.Invoke(PinCommand.Clipboard));
+        AddLocalizedItem(_pinsItem, "NewTextPin2", () => PinRequested?.Invoke(PinCommand.Text));
+        AddLocalizedItem(_pinsItem, "NewColorPin", () => PinRequested?.Invoke(PinCommand.Color));
         _pinsItem.Items.Add(new Separator());
-        _togglePinsItem = AddItem(_pinsItem, "隐藏/显示全部贴图", () => TogglePinsRequested?.Invoke(this, EventArgs.Empty));
-        _restorePinItem = AddItem(_pinsItem, "恢复最近关闭的贴图", () => RestorePinRequested?.Invoke(this, EventArgs.Empty));
-        _restoreInteractionItem = AddItem(_pinsItem, "关闭贴图鼠标穿透", () => RestorePinInteractionRequested?.Invoke(this, EventArgs.Empty));
-        _pinGroupsItem = new MenuItem { Header = "贴图分组", IsEnabled = false };
+        _togglePinsItem = AddLocalizedItem(_pinsItem, "HideShowAllPins2", () => TogglePinsRequested?.Invoke(this, EventArgs.Empty));
+        _restorePinItem = AddLocalizedItem(_pinsItem, "RestoreLastClosedPin", () => RestorePinRequested?.Invoke(this, EventArgs.Empty));
+        _restoreInteractionItem = AddLocalizedItem(_pinsItem, "DisablePinClickThrough", () => RestorePinInteractionRequested?.Invoke(this, EventArgs.Empty));
+        _pinGroupsItem = LocalizedMenu("PinGroups", isEnabled: false);
         _pinsItem.Items.Add(_pinGroupsItem);
         _pinsItem.Items.Add(new Separator());
-        AddItem(_pinsItem, "关闭全部贴图", () => PinRequested?.Invoke(PinCommand.CloseAll));
+        AddLocalizedItem(_pinsItem, "CloseAllPins", () => PinRequested?.Invoke(PinCommand.CloseAll));
         menu.Items.Add(_pinsItem);
         menu.Items.Add(new Separator());
-        AddItem(menu, "设置", () => SettingsRequested?.Invoke(this, EventArgs.Empty));
+        AddLocalizedItem(menu, "Settings", () => SettingsRequested?.Invoke(this, EventArgs.Empty));
         menu.Items.Add(new Separator());
-        AddItem(menu, "退出", () => ExitRequested?.Invoke(this, EventArgs.Empty));
+        AddLocalizedItem(menu, "Exit", () => ExitRequested?.Invoke(this, EventArgs.Empty));
 
         _notifyIcon = new TaskbarIcon
         {
             IconSource = CreateTrayIconSource(ThemeService.IsDarkMode),
-            ToolTipText = "SnapSharp - Ctrl+Shift+A 区域截图",
+            ToolTipText = L.Get("SnapSharpCtrlShiftARegionCapture"),
             ContextMenu = menu
         };
         _notifyIcon.TrayMouseDoubleClick += (_, _) => CaptureRequested?.Invoke(this,
@@ -155,7 +156,7 @@ public sealed class TrayService : IDisposable
         _togglePinsItem.InputGestureText = settings.TogglePinsHotkey;
         _restorePinItem.InputGestureText = settings.RestorePinHotkey;
         _restoreInteractionItem.InputGestureText = settings.RestorePinInteractionHotkey;
-        _notifyIcon.ToolTipText = $"SnapSharp - {settings.RegionHotkey} 区域截图";
+        LocalizationService.Bind(_notifyIcon, TaskbarIcon.ToolTipTextProperty, "SnapSharp0RegionCapture", settings.RegionHotkey);
     }
 
     public void UpdatePinGroups(IEnumerable<string> groups)
@@ -164,9 +165,9 @@ public sealed class TrayService : IDisposable
         foreach (var group in groups)
         {
             var item = new MenuItem { Header = group };
-            AddItem(item, "显示本组", () => PinGroupRequested?.Invoke(group, "show"));
-            AddItem(item, "隐藏本组", () => PinGroupRequested?.Invoke(group, "hide"));
-            AddItem(item, "关闭本组", () => PinGroupRequested?.Invoke(group, "close"));
+            AddLocalizedItem(item, "ShowGroup", () => PinGroupRequested?.Invoke(group, "show"));
+            AddLocalizedItem(item, "HideGroup", () => PinGroupRequested?.Invoke(group, "hide"));
+            AddLocalizedItem(item, "CloseGroup", () => PinGroupRequested?.Invoke(group, "close"));
             _pinGroupsItem.Items.Add(item);
         }
         _pinGroupsItem.IsEnabled = _pinGroupsItem.HasItems;
@@ -216,6 +217,39 @@ public sealed class TrayService : IDisposable
                groups.SequenceEqual(new[] { "参考组:show", "参考组:hide", "参考组:close" });
     }
 
+    internal static bool RunLocalizationSelfTest()
+    {
+        LocalizationService.Apply("en");
+        using var tray = new TrayService();
+        tray.UpdatePinGroups(["User group / 用户分组"]);
+        tray.UpdateHotkeyLabels(new Models.AppSettings());
+        bool Check() => Equals(tray._regionItem.Header, L.Get("RegionCapture")) &&
+            Equals(tray._pinsItem.Header, L.Get("Pins")) &&
+            Equals(tray._pinGroupsItem.Header, L.Get("PinGroups")) &&
+            Equals(((MenuItem)tray._pinGroupsItem.Items[0]).Header, "User group / 用户分组") &&
+            Equals(((MenuItem)((MenuItem)tray._pinGroupsItem.Items[0]).Items[0]).Header, L.Get("ShowGroup"));
+        if (!Check()) return false;
+        LocalizationService.Apply("zh-CN");
+        Application.Current.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        return Check();
+    }
+
+    private static MenuItem LocalizedMenu(string key, bool isCheckable = false, bool isEnabled = true)
+    {
+        var item = new MenuItem { IsCheckable = isCheckable, IsEnabled = isEnabled };
+        LocalizationService.Bind(item, MenuItem.HeaderProperty, key);
+        return item;
+    }
+
+    private static MenuItem AddLocalizedItem(ItemsControl parent, string key, Action action, params object?[] arguments)
+    {
+        var item = new MenuItem();
+        LocalizationService.Bind(item, MenuItem.HeaderProperty, key, arguments);
+        item.Click += (_, _) => action();
+        parent.Items.Add(item);
+        return item;
+    }
+
     private static MenuItem AddItem(ItemsControl parent, string header, Action action)
     {
         var item = new MenuItem { Header = header };
@@ -243,6 +277,7 @@ public sealed class TrayService : IDisposable
     public void Dispose()
     {
         ThemeService.ThemeChanged -= OnThemeChanged;
+        System.Windows.Data.BindingOperations.ClearAllBindings(_notifyIcon);
         _notifyIcon.Dispose();
     }
 

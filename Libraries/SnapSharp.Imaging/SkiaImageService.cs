@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SkiaSharp;
 using System.IO;
@@ -156,11 +157,11 @@ public sealed class SkiaImageService
         int? width = null, int? height = null)
     {
         extension = OutputFormat.NormalizeExtension(extension);
-        if (!OutputFormat.IsSupported(extension)) throw new ArgumentException("不支持此输出格式。");
+        if (!OutputFormat.IsSupported(extension)) throw new ArgumentException(L.Get("UnsupportedOutputFormat"));
         var targetWidth = width ?? source.PixelWidth;
         var targetHeight = height ?? source.PixelHeight;
         if (targetWidth < 1 || targetHeight < 1 || targetWidth > 16384 || targetHeight > 16384 ||
-            (long)targetWidth * targetHeight > 64_000_000) throw new ArgumentException("输出尺寸需为 1–16384 像素，总像素不超过 6400 万。");
+            (long)targetWidth * targetHeight > 64_000_000) throw new ArgumentException(L.Get("OutputDimensionsMustBe116384Pixels"));
         using var bitmap = ToSkBitmap(source);
         using var surface = SKSurface.Create(new SKImageInfo(targetWidth, targetHeight, SKColorType.Bgra8888, SKAlphaType.Premul));
         // JPEG has no alpha; composite on white instead of leaving transparent pixels black.
@@ -214,16 +215,16 @@ public sealed class SkiaImageService
             using var pixmap = resized.PeekPixels();
             using var webp = pixmap.Encode(new SKWebpEncoderOptions(webpLossless ? SKWebpEncoderCompression.Lossless : SKWebpEncoderCompression.Lossy,
                 webpLossless ? 100 : Math.Clamp(quality, 1, 100)));
-            return webp?.ToArray() ?? throw new IOException("WebP 编码失败。");
+            return webp?.ToArray() ?? throw new IOException(L.Get("WebPEncodingFailed"));
         }
         var format = extension.ToLowerInvariant() switch
         {
             ".jpg" or ".jpeg" => SKEncodedImageFormat.Jpeg,
             ".png" => SKEncodedImageFormat.Png,
-            _ => throw new ArgumentException("仅支持 PNG、JPEG、WebP。")
+            _ => throw new ArgumentException(L.Get("OnlyPNGJPEGAndWebPAreSupported"))
         };
         using var encoded = resized.Encode(format, Math.Clamp(quality, 1, 100));
-        return encoded?.ToArray() ?? throw new IOException("图像编码失败。");
+        return encoded?.ToArray() ?? throw new IOException(L.Get("ImageEncodingFailed"));
     }
 
     public BitmapSource Decode(byte[] data)

@@ -23,6 +23,8 @@ public sealed class MenuIconConverter : IValueConverter
 
 internal static class MenuIcons
 {
+    private static string? _rulesCulture;
+    private static (string Prefix, PackIconLucideKind Icon)[] _localizedRules = [];
     private static readonly (string Prefix, PackIconLucideKind Icon)[] Rules =
     [
         ("取消", PackIconLucideKind.CircleX), ("关闭贴图鼠标穿透", PackIconLucideKind.MousePointer2),
@@ -67,6 +69,23 @@ internal static class MenuIcons
     internal static PackIconLucideKind Kind(string? header)
     {
         var text = (header ?? "").Replace("_", "").Replace("&", "");
+        if (_rulesCulture != SnapSharp.Localization.UiText.Culture.Name)
+        {
+            var resources = SnapSharp.Localization.UiText.Resources;
+            var chinese = resources.GetResourceSet(CultureInfo.GetCultureInfo("zh-CN"), true, true)!;
+            var translated = new List<(string Prefix, PackIconLucideKind Icon)>();
+            foreach (System.Collections.DictionaryEntry entry in chinese)
+            {
+                var original = (string)entry.Value!;
+                var rule = Rules.FirstOrDefault(rule => original.StartsWith(rule.Prefix, StringComparison.Ordinal));
+                if (rule.Prefix is not null)
+                    translated.Add((SnapSharp.Localization.UiText.Get((string)entry.Key).Replace("_", "").Replace("&", ""), rule.Icon));
+            }
+            _localizedRules = translated.OrderByDescending(rule => rule.Prefix.Length).ToArray();
+            _rulesCulture = SnapSharp.Localization.UiText.Culture.Name;
+        }
+        foreach (var (prefix, icon) in _localizedRules)
+            if (text.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) return icon;
         foreach (var (prefix, icon) in Rules)
             if (text.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) return icon;
         // User-defined pin group names have no fixed text.

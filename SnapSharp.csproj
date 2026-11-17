@@ -20,6 +20,7 @@
     <!-- Direct dependency imports the native copy target in the x64 app,
          rather than relying on the OS copy of DirectML.dll. -->
     <PackageReference Include="Microsoft.AI.DirectML" Version="1.15.4" />
+    <PackageReference Include="WPFLocalizeExtension" Version="3.10.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Libraries\SnapSharp.Core\SnapSharp.Core.csproj" />

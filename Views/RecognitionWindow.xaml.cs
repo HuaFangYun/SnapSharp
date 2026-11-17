@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Plugins;
 using SnapSharp.Services;
@@ -42,7 +43,7 @@ public partial class RecognitionWindow : Window
         void UpdateMode()
         {
             CutoutModelBox.Visibility = Mode == "Cutout" ? Visibility.Visible : Visibility.Collapsed;
-            RunButton.Content = Mode == "Cutout" ? "一键抠图／重新运行" : "开始／重新运行";
+            RunButton.Content = Mode == "Cutout" ? L.Get("RemoveBackgroundRunAgain") : L.Get("StartRunAgain");
             if (Mode == "Cutout") ResultTabs.SelectedIndex = 2;
         }
         ModeBox.SelectionChanged += (_, _) => UpdateMode();
@@ -55,7 +56,7 @@ public partial class RecognitionWindow : Window
             await Dispatcher.InvokeAsync(FitImage, System.Windows.Threading.DispatcherPriority.Loaded);
             if (_closed) return;
             if (autoRun) await Run();
-            else Status.Text = "已读取剪贴板图片。选择顶部模式后点击开始；抠图可直接选择模型运行，翻译请先 OCR 识别文字再点击“翻译…”。";
+            else Status.Text = L.Get("ClipboardImageLoadedChooseAModeAbove");
         };
         Closed += (_, _) => { _closed = true; _operation?.Cancel(); };
     }
@@ -67,24 +68,24 @@ public partial class RecognitionWindow : Window
     {
         if (_busy) return;
         CellsGrid.CommitEdit();
-        if (HasEdits && MessageBox.Show(this, "重新运行将替换手动编辑的文字或表格，继续吗？", "确认", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        if (HasEdits && MessageBox.Show(this, L.Get("RunningAgainWillReplaceManuallyEditedText"), L.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
         SetBusy(true); _operation = new CancellationTokenSource();
         _pluginCells = null;
         try
         {
-            var settings = _settings.Current; var service = new LocalRecognitionService(); Status.Text = "正在本地处理，可点击停止…";
+            var settings = _settings.Current; var service = new LocalRecognitionService(); Status.Text = L.Get("ProcessingLocallyClickStopToCancel");
             if (Mode == "Cutout")
             {
                 var model = (CutoutModelDefinition)CutoutModelBox.SelectedItem;
                 settings = CutoutModels.ForModel(settings, model.Id);
                 if (string.IsNullOrWhiteSpace(settings.CutoutModel) || !File.Exists(settings.CutoutModel))
                 {
-                    Status.Text = $"{model.Id} 尚未配置或文件不存在。请点“一键配置／更换引擎…”下载该模型并保存，再点一键抠图。也可选择已配置的快速模型。";
+                    Status.Text = L.Format("0IsNotConfiguredOrItsFile", model.Id);
                     return;
                 }
                 var result = await OnnxImageRuntime.Shared.RemoveBackground(_image, settings, _operation.Token);
                 if (_closed) return; _cutout = result; _document = null; Boxes.Children.Clear(); ShowOriginal.IsChecked = false; SetPicture(result); CutoutButtons.IsEnabled = true; ResultTabs.SelectedIndex = 2;
-                Status.Text = $"{model.Id} / {settings.OnnxDevice} 抠图完成，输出保留原分辨率和原有透明度；请检查边缘。"; return;
+                Status.Text = L.Format("01BackgroundRemovedPreservingOriginalResolution", model.Id, settings.OnnxDevice); return;
             }
             RecognitionDocument document;
             if (Mode == "Formula") document = string.IsNullOrWhiteSpace(settings.FormulaRecognizerId)
@@ -100,7 +101,7 @@ public partial class RecognitionWindow : Window
                 if (Mode != "Barcode" && settings.OcrBackend == "PaddleOCR" &&
                     new[] { settings.OcrDetectionModel, settings.OcrRecognitionModel, settings.OcrDictionary }.Any(path => string.IsNullOrWhiteSpace(path) || !File.Exists(path)))
                 {
-                    Status.Text = "默认使用本地 ONNX / PaddleOCR。首次请点击“一键配置／更换引擎…”→ 一键配置推荐 ONNX OCR → 保存，再点击开始；Windows OCR、Tesseract 可按需选择。";
+                    Status.Text = L.Get("LocalONNXPaddleOCRIsTheDefaultOpen");
                     return;
                 }
                 document = await (Mode == "Barcode" ? service.Barcodes(_image, settings, _operation.Token) : service.Recognize(_image, settings, _operation.Token));
@@ -110,11 +111,11 @@ public partial class RecognitionWindow : Window
             BlocksGrid.ItemsSource = document.Blocks; _cells = new ObservableCollection<RecognizedCell>(_pluginCells ?? RecognitionExport.Draft(document)); _pluginCells = null; CellsGrid.ItemsSource = _cells;
             _tableBaseline = TableSnapshot; _cutout = null; CutoutButtons.IsEnabled = false;
             ResultTabs.SelectedIndex = Mode == "Table" ? 1 : 0; DrawBoxes();
-            Status.Text = document.Blocks.Count == 0 ? "未识别到内容。可切换后端、检查模型字典或缩小识别区域。" : $"{document.Backend} · {document.Blocks.Count} 个区域。点击区域或原始识别行可双向定位。";
-            if (Mode == "Table") Status.Text += " 已识别行列与合并结构，请核对后导出；可手动修正单元格。";
+            Status.Text = document.Blocks.Count == 0 ? L.Get("NoContentRecognizedTryAnotherEngineCheck") : L.Format("01RegionsClickAnImageRegion", document.Backend, document.Blocks.Count);
+            if (Mode == "Table") Status.Text += L.Get("RowsColumnsAndMergedCellsRecognizedReview");
         }
-        catch (OperationCanceledException) { if (!_closed) Status.Text = "处理已停止或超时，原有结果保留。"; }
-        catch (Exception ex) { if (!_closed) Status.Text = "处理失败：" + ex.GetBaseException().Message; }
+        catch (OperationCanceledException) { if (!_closed) Status.Text = L.Get("ProcessingStoppedOrTimedOutExistingResults"); }
+        catch (Exception ex) { if (!_closed) Status.Text = L.Get("ProcessingFailed") + ex.GetBaseException().Message; }
         finally { _operation?.Dispose(); _operation = null; SetBusy(false); }
     }
     private RecognizedCell[]? _pluginCells;
@@ -124,12 +125,12 @@ public partial class RecognitionWindow : Window
         var mode = Mode;
         var id = mode == "Formula" ? settings.FormulaRecognizerId : settings.TableRecognizerId;
         if (string.IsNullOrWhiteSpace(id) || _plugins is null || !_plugins.TryGetRecognizer(id, out var plugin) || plugin is null)
-            throw new InvalidOperationException(Mode == "Formula" ? "尚未配置公式识别插件。请安装能输出 latex 的本地模型插件，并在设置中填写 ID；普通 OCR 不等同于公式识别。" : "表格模型插件未加载，请检查 ID、插件安全设置及插件所需模型。");
+            throw new InvalidOperationException(Mode == "Formula" ? L.Get("NoFormulaRecognitionPluginIsConfiguredInstall") : L.Get("TableModelPluginIsNotLoadedCheck"));
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token); timeout.CancelAfter(TimeSpan.FromSeconds(settings.RecognitionTimeoutSeconds));
         var result = await Task.Run(async () => await plugin.RecognizeAsync(_image, new PluginExecutionContext(new EmptyServices(), new Dictionary<string, object?> { ["task"] = mode }), timeout.Token), timeout.Token).WaitAsync(timeout.Token);
-        if (result is null || result.Any(x => x is null || x.Text is null || x.Kind is null || x.Metadata is null)) throw new InvalidDataException("插件返回了无效结果。");
-        if (result.Count > 10000 || result.Sum(x => (long)x.Text.Length) > 500000) throw new InvalidDataException("插件返回结果过大。");
-        if (Mode == "Formula" && !result.Any(x => x.Kind.Equals("latex", StringComparison.OrdinalIgnoreCase))) throw new InvalidDataException("公式插件未返回 latex 类型结果。");
+        if (result is null || result.Any(x => x is null || x.Text is null || x.Kind is null || x.Metadata is null)) throw new InvalidDataException(L.Get("ThePluginReturnedAnInvalidResult"));
+        if (result.Count > 10000 || result.Sum(x => (long)x.Text.Length) > 500000) throw new InvalidDataException(L.Get("PluginResultIsTooLarge"));
+        if (Mode == "Formula" && !result.Any(x => x.Kind.Equals("latex", StringComparison.OrdinalIgnoreCase))) throw new InvalidDataException(L.Get("TheFormulaPluginDidNotReturnA"));
         double Meta(RecognitionResult value, string key, double fallback) => value.Metadata.TryGetValue(key, out var item) && double.TryParse(item?.ToString(), out var number) && double.IsFinite(number) ? number : fallback;
         if (Mode == "Table")
             _pluginCells = result.Select(x => new RecognizedCell { Text = x.Text, Row = (int)Meta(x, "row", 1), Column = (int)Meta(x, "column", 1), RowSpan = (int)Meta(x, "rowSpan", 1), ColumnSpan = (int)Meta(x, "columnSpan", 1) }).ToArray();
@@ -138,7 +139,7 @@ public partial class RecognitionWindow : Window
             var x = Math.Clamp(Meta(value, "x", 0), 0, _image.PixelWidth - 1); var y = Math.Clamp(Meta(value, "y", 0), 0, _image.PixelHeight - 1);
             return new RecognizedBlock(value.Text, new Rect(x, y, Math.Clamp(Meta(value, "width", _image.PixelWidth), 1, _image.PixelWidth - x), Math.Clamp(Meta(value, "height", _image.PixelHeight), 1, _image.PixelHeight - y)), Kind: value.Kind);
         }).ToArray();
-        return new RecognitionDocument(blocks, "模型插件：" + id);
+        return new RecognitionDocument(blocks, L.Get("ModelPlugin") + id);
     }
     private void SetBusy(bool busy)
     {
@@ -146,7 +147,7 @@ public partial class RecognitionWindow : Window
         CutoutModelBox.IsEnabled = !busy;
     }
     private void Cancel_Click(object sender, RoutedEventArgs e) => _operation?.Cancel();
-    private void Settings_Click(object sender, RoutedEventArgs e) => SettingsRequested?.Invoke(Mode == "Cutout" ? "一键抠图" : "OCR 与识别");
+    private void Settings_Click(object sender, RoutedEventArgs e) => SettingsRequested?.Invoke(Mode == "Cutout" ? "Scissors" : "ScanText");
     private void Original_Changed(object sender, RoutedEventArgs e) { if (Picture is not null) SetPicture(Mode != "Cutout" || ShowOriginal.IsChecked == true || _cutout is null ? _image : _cutout); }
     private void DrawBoxes()
     {
@@ -182,18 +183,18 @@ public partial class RecognitionWindow : Window
             offset += block.Text.Length + Environment.NewLine.Length;
         }
     }
-    private void Text_Changed(object sender, TextChangedEventArgs e) { if (!_syncing && Status is not null && !_busy) Status.Text = "文本已编辑。复制／导出将使用编辑后的内容；原始识别框仍对应原图。"; }
-    private void CopyText_Click(object sender, RoutedEventArgs e) { try { OutputActions.CopyText(TextEditor.Text); _baseline = TextEditor.Text; Status.Text = "已复制当前文本。"; } catch (Exception ex) { Status.Text = ex.Message; } }
+    private void Text_Changed(object sender, TextChangedEventArgs e) { if (!_syncing && Status is not null && !_busy) Status.Text = L.Get("TextEditedCopyExportUsesTheEdited"); }
+    private void CopyText_Click(object sender, RoutedEventArgs e) { try { OutputActions.CopyText(TextEditor.Text); _baseline = TextEditor.Text; Status.Text = L.Get("CurrentTextCopied"); } catch (Exception ex) { Status.Text = ex.Message; } }
     private void CopyTranslation_Click(object sender, RoutedEventArgs e) { try { OutputActions.CopyText(TranslatedText.Text); } catch (Exception ex) { Status.Text = ex.Message; } }
     private void ExportText_Click(object sender, RoutedEventArgs e)
     {
-        if (SaveBytes(Encoding.UTF8.GetBytes(TextEditor.Text), Mode == "Formula" ? "LaTeX|*.tex|文本|*.txt" : "文本|*.txt", "SnapSharp-text")) _baseline = TextEditor.Text;
+        if (SaveBytes(Encoding.UTF8.GetBytes(TextEditor.Text), Mode == "Formula" ? L.Get("LaTeXTexTextTxt") : L.Get("TextTxt"), "SnapSharp-text")) _baseline = TextEditor.Text;
     }
     private void ExportTable_Click(object sender, RoutedEventArgs e)
     {
         try
         {
-            if (!CellsGrid.CommitEdit(DataGridEditingUnit.Cell, true) || !CellsGrid.CommitEdit(DataGridEditingUnit.Row, true)) throw new ArgumentException("请先修正表格中的无效数值。");
+            if (!CellsGrid.CommitEdit(DataGridEditingUnit.Cell, true) || !CellsGrid.CommitEdit(DataGridEditingUnit.Row, true)) throw new ArgumentException(L.Get("CorrectInvalidTableValuesFirst"));
             var csv = ((FrameworkElement)sender).Tag.ToString() == "csv";
             if (SaveBytes(csv ? RecognitionExport.Csv(_cells) : RecognitionExport.Xlsx(_cells), csv ? "CSV|*.csv" : "Excel|*.xlsx", "SnapSharp-table")) _tableBaseline = TableSnapshot;
         }
@@ -206,8 +207,8 @@ public partial class RecognitionWindow : Window
             var dialog = new Microsoft.Win32.SaveFileDialog { Filter = filter, FileName = name, OverwritePrompt = false };
             if (dialog.ShowDialog(this) != true) return false;
             var overwrite = File.Exists(dialog.FileName);
-            if (overwrite && MessageBox.Show(this, "文件已存在，是否替换？", "确认覆盖", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return false;
-            OutputFileService.Write(dialog.FileName, bytes, overwrite); Status.Text = "已导出：" + dialog.FileName; return true;
+            if (overwrite && MessageBox.Show(this, L.Get("TheFileAlreadyExistsReplaceIt"), L.Get("ConfirmOverwrite"), MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return false;
+            OutputFileService.Write(dialog.FileName, bytes, overwrite); Status.Text = L.Get("Exported") + dialog.FileName; return true;
         }
         catch (Exception ex) { Status.Text = ex.Message; return false; }
     }
@@ -222,7 +223,7 @@ public partial class RecognitionWindow : Window
         }
         catch (Exception ex) { Status.Text = ex.Message; }
     }
-    private void TranslationSettings_Click(object sender, RoutedEventArgs e) => SettingsRequested?.Invoke("在线服务与隐私");
+    private void TranslationSettings_Click(object sender, RoutedEventArgs e) => SettingsRequested?.Invoke("Shield");
     private async void Translate_Click(object sender, RoutedEventArgs e)
     {
         if (_busy) return;
@@ -232,24 +233,24 @@ public partial class RecognitionWindow : Window
             var local = settings.TranslationProvider == "Local";
             if (local && (!File.Exists(settings.LocalTranslationModel) || !File.Exists(settings.LocalTranslationRuntime)))
             {
-                Status.Text = "本地翻译使用 Qwen / llama.cpp（不是 ONNX）。请在翻译设置中选择 CPU/GPU，一键下载并配置后保存，再回到这里翻译；也可按需选择 API。";
-                SettingsRequested?.Invoke("翻译、API 与隐私"); return;
+                Status.Text = L.Get("LocalTranslationUsesQwenLlamaCppNot");
+                SettingsRequested?.Invoke("Shield"); return;
             }
             if (!local && (!settings.AllowOnlineTranslation || settings.TranslationProvider == "LibreTranslate" && string.IsNullOrWhiteSpace(settings.TranslationEndpoint)))
             {
-                Status.Text = "请在打开的设置中选择翻译引擎，点击“一键配置所选引擎 · 英译中”，保存后回到这里再次点击翻译。";
-                SettingsRequested?.Invoke("在线服务与隐私"); return;
+                Status.Text = L.Get("InSettingsChooseATranslationEngineClick");
+                SettingsRequested?.Invoke("Shield"); return;
             }
             var text = TextEditor.SelectionLength > 0 ? TextEditor.SelectedText : TextEditor.Text;
-            if (string.IsNullOrWhiteSpace(text)) throw new InvalidOperationException("没有可翻译的文字，请先运行 OCR 或在文字框粘贴文本。");
+            if (string.IsNullOrWhiteSpace(text)) throw new InvalidOperationException(L.Get("NoTextToTranslateRunOCROr"));
             if (!local && !PrivacyConsentDialog.Confirm(this, OnlineRecognitionService.TranslationUri(settings), text, null)) return;
             SetBusy(true); _operation = new CancellationTokenSource(); using var service = new OnlineRecognitionService();
-            Status.Text = local ? "正在本机加载模型并翻译 · " + settings.LocalTranslationDevice + "（首次加载较慢）…" : "正在调用已确认的翻译 API…";
+            Status.Text = local ? L.Get("LoadingModelAndTranslatingLocally") + settings.LocalTranslationDevice + L.Get("FirstLoadMayBeSlow") : L.Get("CallingTheConfirmedTranslationAPI");
             var translated = local ? await LocalTranslationService.Translate(text, settings, _operation.Token)
                 : await service.Translate(text, settings, true, _operation.Token);
-            if (!_closed) { TranslatedText.Text = translated; ResultTabs.SelectedIndex = 3; Status.Text = (local ? "本地翻译完成，未上传外部服务。" : "API 翻译完成。") + "原文未更改。"; }
+            if (!_closed) { TranslatedText.Text = translated; ResultTabs.SelectedIndex = 3; Status.Text = (local ? L.Get("LocalTranslationCompleteNothingWasUploadedTo") : L.Get("APITranslationComplete")) + L.Get("SourceTextWasPreserved"); }
         }
-        catch (Exception ex) { if (!_closed) Status.Text = "翻译未完成，原文保留：" + ex.GetBaseException().Message; }
+        catch (Exception ex) { if (!_closed) Status.Text = L.Get("TranslationIncompleteSourceTextPreserved") + ex.GetBaseException().Message; }
         finally { _operation?.Dispose(); _operation = null; SetBusy(false); }
     }
     private async void Search_Click(object sender, RoutedEventArgs e)
@@ -258,7 +259,7 @@ public partial class RecognitionWindow : Window
         try
         {
             var settings = _settings.Current;
-            if (!settings.AllowImageSearchUpload) throw new InvalidOperationException("请先在“在线服务与隐私”中配置并允许识图上传。");
+            if (!settings.AllowImageSearchUpload) throw new InvalidOperationException(L.Get("ConfigureAndAllowImageSearchUploadsIn"));
             var endpoint = OnlineRecognitionService.Endpoint(settings.ImageSearchEndpoint);
             if (!PrivacyConsentDialog.Confirm(this, endpoint, null, _image)) return;
             SetBusy(true); _operation = new CancellationTokenSource(); using var service = new OnlineRecognitionService();
@@ -266,13 +267,13 @@ public partial class RecognitionWindow : Window
             var url = await service.Search(png, settings, true, _operation.Token);
             if (!_closed) Process.Start(new ProcessStartInfo(url.AbsoluteUri) { UseShellExecute = true });
         }
-        catch (Exception ex) { if (!_closed) Status.Text = "识图未完成：" + ex.GetBaseException().Message; }
+        catch (Exception ex) { if (!_closed) Status.Text = L.Get("ImageSearchIncomplete") + ex.GetBaseException().Message; }
         finally { _operation?.Dispose(); _operation = null; SetBusy(false); }
     }
     private void Window_Closing(object? sender, CancelEventArgs e)
     {
         CellsGrid.CommitEdit();
-        if (HasEdits && MessageBox.Show(this, "修改后的文字或表格尚未复制或导出，确定关闭吗？", "放弃更改", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) e.Cancel = true;
+        if (HasEdits && MessageBox.Show(this, L.Get("EditedTextOrTablesHaveNotBeen"), L.Get("DiscardChanges"), MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) e.Cancel = true;
     }
     internal static bool RunLayoutSelfTest(BitmapSource source)
     {

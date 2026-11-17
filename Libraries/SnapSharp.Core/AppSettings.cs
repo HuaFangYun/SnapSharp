@@ -2,6 +2,8 @@ namespace SnapSharp.Models;
 
 public sealed class AppSettings
 {
+    // Empty means follow the OS UI language. This is separate from OCR/translation languages.
+    public string InterfaceLanguage { get; set; } = "";
     public RecordingPreferences Recording { get; set; } = new();
     public string SaveDirectory { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
     public int ImageQuality { get; set; } = 92;

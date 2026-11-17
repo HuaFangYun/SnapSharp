@@ -8,6 +8,8 @@ Writing a tutorial means marking the important parts of a screenshot. Reading a 
 
 Alongside screenshots, annotations, and desktop pins, it uses local models for OCR, table recognition, formula recognition, background removal, and translation. Continue processing a fresh capture, or import an image you have copied from another application.
 
+The interface supports English and Simplified Chinese. Open Settings → General → Interface language, choose Follow system, 简体中文 or English, then save. See the [localization guide](docs/本地化.md) to add another language.
+
 <p align="center">
   <img src="Screenshot/Blog/00-cover.png" alt="SnapSharp feature collage: annotations, OCR, translation, background removal, and recording" width="1000">
 </p>

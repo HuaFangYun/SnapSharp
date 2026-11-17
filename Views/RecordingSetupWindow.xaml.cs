@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Services;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -22,7 +23,7 @@ public partial class RecordingSetupWindow : Window
     private void Refresh()
     {
         try { EnvironmentStatus.Text = RecordingSetupService.Check().Description; }
-        catch (Exception ex) { EnvironmentStatus.Text = "环境检测失败：" + ex.GetBaseException().Message; }
+        catch (Exception ex) { EnvironmentStatus.Text = L.Get("EnvironmentCheckFailed") + ex.GetBaseException().Message; }
     }
     private void Refresh_Click(object sender, RoutedEventArgs e) => Refresh();
     private async void Configure_Click(object sender, RoutedEventArgs e)
@@ -34,14 +35,14 @@ public partial class RecordingSetupWindow : Window
         {
             SetupStatus.Text = await new RecordingSetupService().Configure(new Progress<string>(message => SetupStatus.Text = message), cancellation.Token);
         }
-        catch (OperationCanceledException) { SetupStatus.Text = "配置已取消，可重新一键配置。已经安装的组件不会回退；系统安装已启动时会等待完成。"; }
-        catch (Exception ex) { SetupStatus.Text = "配置未完成：" + ex.GetBaseException().Message; }
+        catch (OperationCanceledException) { SetupStatus.Text = L.Get("SetupCanceledYouCanRunSetupAgain"); }
+        catch (Exception ex) { SetupStatus.Text = L.Get("SetupIncomplete") + ex.GetBaseException().Message; }
         finally { _operation = null; ConfigureButton.IsEnabled = RefreshButton.IsEnabled = true; CancelDownloadButton.IsEnabled = false; Refresh(); }
     }
     private void Cancel_Click(object sender, RoutedEventArgs e)
     {
         _operation?.Cancel(); CancelDownloadButton.IsEnabled = false;
-        SetupStatus.Text = "正在取消下载；若系统安装已启动，请等待安装结束，不会强制中断 Windows 安装。";
+        SetupStatus.Text = L.Get("CancelingDownloadIfSystemInstallationHasStarted");
     }
     private void SystemSettings_Click(object sender, RoutedEventArgs e)
     {
@@ -50,12 +51,12 @@ public partial class RecordingSetupWindow : Window
             if (sender is FrameworkElement { Tag: string uri } && uri is "ms-settings:privacy-microphone" or "ms-settings:privacy-webcam" or "ms-settings:optionalfeatures")
                 Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true });
         }
-        catch (Exception ex) { SetupStatus.Text = "无法打开系统设置：" + ex.GetBaseException().Message; }
+        catch (Exception ex) { SetupStatus.Text = L.Get("CouldNotOpenSystemSettings") + ex.GetBaseException().Message; }
     }
     private void Window_Closing(object? sender, CancelEventArgs e)
     {
         if (_operation is null) return;
-        e.Cancel = true; SetupStatus.Text = "请先取消下载并等待；系统安装已启动时需等待安装完成。";
+        e.Cancel = true; SetupStatus.Text = L.Get("CancelTheDownloadAndWaitFirstAny");
     }
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
     internal static bool RunLayoutSelfTest()

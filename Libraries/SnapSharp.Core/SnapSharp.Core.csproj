@@ -3,5 +3,6 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>SnapSharp.Core</AssemblyName>
     <RootNamespace>SnapSharp</RootNamespace>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 </Project>

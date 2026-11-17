@@ -1,5 +1,6 @@
-<Window x:Class="SnapSharp.Views.RecognitionWindow" Style="{StaticResource AppWindow}" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="OCR、识别与抠图 · SnapSharp" Width="1140" Height="790" MinWidth="880" MinHeight="560" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
+<Window x:Class="SnapSharp.Views.RecognitionWindow" Style="{StaticResource AppWindow}" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:loc="http://wpflocalizeextension.codeplex.com"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{loc:Loc SnapSharp.Core:Resources.Strings:OCRRecognitionBackgroundRemovalSnapSharp}" Width="1140" Height="790" MinWidth="880" MinHeight="560" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
   <Window.Resources><ResourceDictionary>
     <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="ToolbarStyles.xaml" /></ResourceDictionary.MergedDictionaries>
     <Style TargetType="Button" BasedOn="{StaticResource DialogButton}"><Setter Property="Width" Value="Auto" /><Setter Property="Padding" Value="12,5" /><Setter Property="Margin" Value="0,4,6,4" /></Style>
@@ -18,11 +19,11 @@
   <Grid Margin="18">
     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
     <WrapPanel Margin="0,0,0,12">
-      <ComboBox x:Name="ModeBox" Width="160" Margin="0,4,12,4"><ComboBoxItem Content="文字 OCR" Tag="OCR" /><ComboBoxItem Content="二维码／一维码" Tag="Barcode" /><ComboBoxItem Content="表格识别（本地）" Tag="Table" /><ComboBoxItem Content="公式（本地 LaTeX）" Tag="Formula" /><ComboBoxItem Content="一键抠图（ONNX）" Tag="Cutout" /></ComboBox>
-      <ComboBox x:Name="CutoutModelBox" Width="310" Margin="0,4,12,4" ToolTip="选择抠图模型，再点一键抠图；不改变设置中的默认模型。" />
-      <Button x:Name="RunButton" Content="开始／重新运行" Click="Run_Click" Background="{DynamicResource ToolbarActiveBrush}" Foreground="{DynamicResource AccentForegroundBrush}" />
-      <Button x:Name="CancelButton" Content="停止" Click="Cancel_Click" IsEnabled="False" /><Button Content="一键配置／更换引擎…" Click="Settings_Click" />
-      <Button Content="适应图片" Click="Fit_Click" /><Slider x:Name="Zoom" Style="{StaticResource ParameterSlider}" Minimum="0.02" Maximum="4" Value="0.5" Width="100" /><TextBlock Text="{Binding ElementName=Zoom, Path=Value, StringFormat={}{0:P0}}" VerticalAlignment="Center" />
+      <ComboBox x:Name="ModeBox" MinWidth="160" Margin="0,4,12,4"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:TextOCR}" Tag="OCR" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:QRBarcodes}" Tag="Barcode" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:TablesLocal}" Tag="Table" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:FormulasLocalLaTeX}" Tag="Formula" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveBackgroundONNX}" Tag="Cutout" /></ComboBox>
+      <ComboBox x:Name="CutoutModelBox" Width="310" Margin="0,4,12,4" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:ChooseAModelThenRemoveTheBackground}" />
+      <Button x:Name="RunButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:StartRunAgain}" Click="Run_Click" Background="{DynamicResource ToolbarActiveBrush}" Foreground="{DynamicResource AccentForegroundBrush}" />
+      <Button x:Name="CancelButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:Stop}" Click="Cancel_Click" IsEnabled="False" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpChangeEngine}" Click="Settings_Click" />
+      <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:FitImage}" Click="Fit_Click" /><Slider x:Name="Zoom" Style="{StaticResource ParameterSlider}" Minimum="0.02" Maximum="4" Value="0.5" Width="100" /><TextBlock Text="{Binding ElementName=Zoom, Path=Value, StringFormat={}{0:P0}}" VerticalAlignment="Center" />
     </WrapPanel>
     <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="16" /><ColumnDefinition /></Grid.ColumnDefinitions>
       <Grid><Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
@@ -34,30 +35,30 @@
             </Grid>
           </ScrollViewer>
         </Border>
-        <CheckBox x:Name="ShowOriginal" Grid.Row="1" Content="查看原图（抠图模式）" Checked="Original_Changed" Unchecked="Original_Changed" Margin="0,10" />
+        <CheckBox x:Name="ShowOriginal" Grid.Row="1" Content="{loc:Loc SnapSharp.Core:Resources.Strings:ViewOriginalBackgroundRemoval}" Checked="Original_Changed" Unchecked="Original_Changed" Margin="0,10" />
       </Grid>
       <TabControl x:Name="ResultTabs" Grid.Column="2" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}">
-        <TabItem Header="文字／条码"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition /><RowDefinition Height="180" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+        <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:TextBarcodes}"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition /><RowDefinition Height="180" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
           <TextBox x:Name="TextEditor" AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="10" FontSize="16" SelectionChanged="Text_SelectionChanged" TextChanged="Text_Changed" />
           <DataGrid x:Name="BlocksGrid" Grid.Row="1" Margin="0,10,0,6" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single" SelectionChanged="Block_Changed">
-            <DataGrid.Columns><DataGridTextColumn Header="原始识别区域" Binding="{Binding Text}" Width="*" /><DataGridTextColumn Header="置信度" Binding="{Binding Confidence, StringFormat=P0}" Width="70" /><DataGridTextColumn Header="类型" Binding="{Binding Kind}" Width="80" /></DataGrid.Columns>
+            <DataGrid.Columns><DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:OriginalRecognitionRegions}" Binding="{Binding Text}" Width="*" /><DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:Confidence}" Binding="{Binding Confidence, StringFormat=P0}" Width="SizeToHeader" MinWidth="70" /><DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:Type}" Binding="{Binding Kind}" Width="80" /></DataGrid.Columns>
           </DataGrid>
-          <StackPanel Grid.Row="2"><TextBlock Text="翻译：检查文字或选中一段 → 点击翻译。本地无需上传；API 需确认发送。首次请点“翻译设置”选择本地 CPU/GPU 或 API，并一键配置。" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" /><WrapPanel><Button Content="复制文本" Click="CopyText_Click" /><Button Content="导出文本…" Click="ExportText_Click" /><Button Content="翻译…" Click="Translate_Click" /><Button Content="翻译设置…" Click="TranslationSettings_Click" /></WrapPanel></StackPanel>
+          <StackPanel Grid.Row="2"><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationReviewTheTextOrSelectA}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" /><WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:CopyText}" Click="CopyText_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ExportText}" Click="ExportText_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Translate}" Click="Translate_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationSettings}" Click="TranslationSettings_Click" /></WrapPanel></StackPanel>
         </Grid></TabItem>
-        <TabItem Header="表格校正"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-          <TextBlock Text="表格模式使用本地 SLANet 结构模型匹配 OCR 文字，也可选专用插件；普通文字模式中的表格页仅为排版草稿。请核对并修正行列及合并跨度，行列从 1 开始。" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10" />
+        <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:TableCorrection}"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TableModeUsesLocalSLANetStructureRecognition}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10" />
           <DataGrid x:Name="CellsGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True"><DataGrid.Columns>
-            <DataGridTextColumn Header="行" Binding="{Binding Row}" Width="40" /><DataGridTextColumn Header="列" Binding="{Binding Column}" Width="40" /><DataGridTextColumn Header="跨行" Binding="{Binding RowSpan}" Width="45" /><DataGridTextColumn Header="跨列" Binding="{Binding ColumnSpan}" Width="45" /><DataGridTextColumn Header="文本" Binding="{Binding Text}" Width="*" />
+            <DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:Row}" Binding="{Binding Row}" Width="SizeToHeader" MinWidth="40" /><DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:Column}" Binding="{Binding Column}" Width="SizeToHeader" MinWidth="40" /><DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:RowSpan}" Binding="{Binding RowSpan}" Width="SizeToHeader" MinWidth="45" /><DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:ColumnSpan}" Binding="{Binding ColumnSpan}" Width="SizeToHeader" MinWidth="45" /><DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:Text2}" Binding="{Binding Text}" Width="*" />
           </DataGrid.Columns></DataGrid>
-          <WrapPanel Grid.Row="2"><Button Content="导出 CSV…" Tag="csv" Click="ExportTable_Click" /><Button Content="导出 XLSX…" Tag="xlsx" Click="ExportTable_Click" /></WrapPanel>
+          <WrapPanel Grid.Row="2"><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ExportCSV}" Tag="csv" Click="ExportTable_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ExportXLSX}" Tag="xlsx" Click="ExportTable_Click" /></WrapPanel>
         </Grid></TabItem>
-        <TabItem Header="抠图输出"><StackPanel Margin="16"><TextBlock Text="左侧棋盘格表示透明背景。请确认发丝、半透明物体及边缘效果；模型与预处理契约必须对应。" TextWrapping="Wrap" Margin="0,0,0,16" />
-          <WrapPanel x:Name="CutoutButtons" IsEnabled="False"><Button Content="复制图片" Tag="Copy" Click="CutoutOutput_Click" /><Button Content="保存图片…" Tag="Save" Click="CutoutOutput_Click" /><Button Content="置顶贴图" Tag="Pin" Click="CutoutOutput_Click" /></WrapPanel>
-          <TextBlock Text="保存默认选择 PNG；JPEG/BMP/PDF 不保留透明背景。原图不会被覆盖。" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,12" />
+        <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:BackgroundRemovalOutput}"><StackPanel Margin="16"><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TheCheckerboardIndicatesTransparencyCheckHairTranslucent}" TextWrapping="Wrap" Margin="0,0,0,16" />
+          <WrapPanel x:Name="CutoutButtons" IsEnabled="False"><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:CopyImage}" Tag="Copy" Click="CutoutOutput_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:SaveImage}" Tag="Save" Click="CutoutOutput_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:PinImage}" Tag="Pin" Click="CutoutOutput_Click" /></WrapPanel>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PNGIsSelectedByDefaultJPEGBMP}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,12" />
         </StackPanel></TabItem>
-        <TabItem Header="翻译结果"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions><TextBox x:Name="TranslatedText" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="10" FontSize="16" /><Button Grid.Row="1" Content="复制译文" Click="CopyTranslation_Click" HorizontalAlignment="Left" /></Grid></TabItem>
+        <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Translation}"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions><TextBox x:Name="TranslatedText" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="10" FontSize="16" /><Button Grid.Row="1" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CopyTranslation}" Click="CopyTranslation_Click" HorizontalAlignment="Left" /></Grid></TabItem>
       </TabControl>
     </Grid>
-    <DockPanel Grid.Row="2" Margin="0,12,0,0"><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="以图搜图…" Click="Search_Click" /><Button Content="关闭" Click="Close_Click" /></StackPanel><TextBlock x:Name="Status" Text="准备就绪" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" /></DockPanel>
+    <DockPanel Grid.Row="2" Margin="0,12,0,0"><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ImageSearch}" Click="Search_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Close}" Click="Close_Click" /></StackPanel><TextBlock x:Name="Status" Text="{loc:Loc SnapSharp.Core:Resources.Strings:Ready}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" /></DockPanel>
   </Grid>
 </Window>

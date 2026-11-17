@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using System.IO;
 using System.Text;
 using System.Windows.Media;
@@ -13,7 +14,7 @@ internal sealed class StreamingGifWriter : IDisposable
     private static readonly int[] Bayer = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
     public StreamingGifWriter(Stream output, int width, int height)
     {
-        if (width < 1 || height < 1 || width > 800 || height > 800) throw new ArgumentException("GIF 尺寸超出限制。");
+        if (width < 1 || height < 1 || width > 800 || height > 800) throw new ArgumentException(L.Get("GIFDimensionsExceedTheLimit"));
         _writer = new BinaryWriter(output, Encoding.ASCII, leaveOpen: true); _width = width; _height = height;
         _writer.Write(Encoding.ASCII.GetBytes("GIF89a")); _writer.Write((ushort)width); _writer.Write((ushort)height); _writer.Write((byte)0xF7); _writer.Write((byte)0); _writer.Write((byte)0);
         for (var i = 0; i < 256; i++) { _writer.Write((byte)(((i >> 5) & 7) * 255 / 7)); _writer.Write((byte)(((i >> 2) & 7) * 255 / 7)); _writer.Write((byte)((i & 3) * 255 / 3)); }
@@ -22,7 +23,7 @@ internal sealed class StreamingGifWriter : IDisposable
     public void Frame(BitmapSource image, int delayCentiseconds)
     {
         var converted = new FormatConvertedBitmap(image, PixelFormats.Bgra32, null, 0);
-        if (converted.PixelWidth != _width || converted.PixelHeight != _height) throw new ArgumentException("GIF 帧尺寸不一致。");
+        if (converted.PixelWidth != _width || converted.PixelHeight != _height) throw new ArgumentException(L.Get("GIFFrameDimensionsAreInconsistent"));
         var pixels = new byte[_width * _height * 4]; converted.CopyPixels(pixels, _width * 4, 0); var indices = new byte[_width * _height];
         for (var y = 0; y < _height; y++) for (var x = 0; x < _width; x++)
         {

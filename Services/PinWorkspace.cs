@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Views;
 using SnapSharp.Native;
 using System.Windows;
@@ -22,7 +23,7 @@ public sealed class PinWorkspace
     public void Assign(PinWindow window, string? group)
     {
         group = group?.Trim();
-        if (group is { Length: > 40 } || group?.Any(char.IsControl) == true) throw new ArgumentException("分组名最多 40 个字符，不能包含换行。");
+        if (group is { Length: > 40 } || group?.Any(char.IsControl) == true) throw new ArgumentException(L.Get("GroupNamesMustBeAtMost40"));
         window.GroupName = string.IsNullOrWhiteSpace(group) ? null : group;
         Changed?.Invoke(this, EventArgs.Empty);
     }

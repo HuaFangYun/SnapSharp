@@ -1,3 +1,4 @@
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Native;
 using SnapSharp.Services;
@@ -39,10 +40,10 @@ public partial class ScrollCaptureWindow : Window
     {
         _region = region;
         _output = initial;
-        _session = new ScrollCaptureSession([initial], [], [], ScrollDirection.Vertical, "长截图预览；可裁剪上、下、左、右边缘，不能从中间挖除。原有标注不会叠加到滚动截图。");
+        _session = new ScrollCaptureSession([initial], [], [], ScrollDirection.Vertical, L.Get("ScrollingCapturePreviewCropTopBottomLeft"));
         InitializeComponent();
         DialogLayoutService.Attach(this);
-        RegionInfo.Text = region.IsEmpty ? "已打开拼接工程；可修正、裁剪和输出。" : $"固定物理区域：{region.X}, {region.Y} · {region.Width} × {region.Height}";
+        RegionInfo.Text = region.IsEmpty ? L.Get("StitchingProjectOpenedYouCanCorrectCrop") : L.Format("FixedPhysicalRegion0123", region.X, region.Y, region.Width, region.Height);
         _ready = true;
         SetPreview(new ScrollStitchResult(initial, [], [0]), new(), true);
         Closed += (_, _) => { _closed = true; _stop?.Cancel(); };
@@ -50,10 +51,10 @@ public partial class ScrollCaptureWindow : Window
     private static int Number(TextBox field, int min, int max, string label)
     {
         if (int.TryParse(field.Text, out var value) && value >= min && value <= max) return value;
-        throw new ArgumentException($"{label}需为 {min}–{max} 的整数。");
+        throw new ArgumentException(L.Format("0MustBeAnIntegerFrom1", label, min, max));
     }
-    private ScrollTrim ReadFrameTrim() => new(Number(FrameLeft, 0, 16384, "每帧左裁边"), Number(FrameTop, 0, 16384, "每帧上裁边"), Number(FrameRight, 0, 16384, "每帧右裁边"), Number(FrameBottom, 0, 16384, "每帧下裁边"));
-    private ScrollTrim ReadCrop() => new(Number(CropLeft, 0, 16384, "结果左裁剪"), Number(CropTop, 0, 16384, "结果上裁剪"), Number(CropRight, 0, 16384, "结果右裁剪"), Number(CropBottom, 0, 16384, "结果下裁剪"));
+    private ScrollTrim ReadFrameTrim() => new(Number(FrameLeft, 0, 16384, L.Get("LeftFrameMargin")), Number(FrameTop, 0, 16384, L.Get("TopFrameMargin")), Number(FrameRight, 0, 16384, L.Get("RightFrameMargin")), Number(FrameBottom, 0, 16384, L.Get("BottomFrameMargin")));
+    private ScrollTrim ReadCrop() => new(Number(CropLeft, 0, 16384, L.Get("LeftResultCrop")), Number(CropTop, 0, 16384, L.Get("TopResultCrop")), Number(CropRight, 0, 16384, L.Get("RightResultCrop")), Number(CropBottom, 0, 16384, L.Get("BottomResultCrop")));
     private static void FillTrim(ScrollTrim trim, params TextBox[] fields)
     { var values = new[] { trim.Left, trim.Top, trim.Right, trim.Bottom }; for (var i = 0; i < 4; i++) fields[i].Text = values[i].ToString(); }
 
@@ -65,7 +66,7 @@ public partial class ScrollCaptureWindow : Window
         {
             var result = await Task.Run(() => _stitcher.Stitch(session, trim));
             var width = result.Image.PixelWidth - crop.Left - crop.Right; var height = result.Image.PixelHeight - crop.Top - crop.Bottom;
-            if (crop.Left < 0 || crop.Top < 0 || crop.Right < 0 || crop.Bottom < 0 || width < 1 || height < 1) throw new ArgumentException("结果裁剪后至少保留 1 × 1 像素。");
+            if (crop.Left < 0 || crop.Top < 0 || crop.Right < 0 || crop.Bottom < 0 || width < 1 || height < 1) throw new ArgumentException(L.Get("AtLeast11PixelMustRemain"));
             var output = _images.Crop(result.Image, new Int32Rect(crop.Left, crop.Top, width, height));
             if (_closed) return false;
             if (recordHistory)
@@ -86,7 +87,7 @@ public partial class ScrollCaptureWindow : Window
             SetPreview(result, crop, fit);
             return true;
         }
-        catch (Exception ex) { if (!_closed) Status.Text = "拼接未应用：" + ex.Message; return false; }
+        catch (Exception ex) { if (!_closed) Status.Text = L.Get("StitchingNotApplied") + ex.Message; return false; }
         finally { SetBusy(false); }
     }
     private void SetBusy(bool busy)
@@ -122,12 +123,12 @@ public partial class ScrollCaptureWindow : Window
         CanvasHost.Width = _output.PixelWidth; CanvasHost.Height = _output.PixelHeight;
         _updating = true;
         var selected = Math.Max(0, SeamBox.SelectedIndex);
-        SeamBox.ItemsSource = _session.Offsets.Select((offset, index) => $"帧 {index + 1} → {index + 2} · 位移 {offset}px").ToArray();
+        SeamBox.ItemsSource = _session.Offsets.Select((offset, index) => L.Format("Frame01Offset2Px", index + 1, index + 2, offset)).ToArray();
         SeamBox.SelectedIndex = _session.Offsets.Count == 0 ? -1 : Math.Min(selected, _session.Offsets.Count - 1);
         _updating = false;
-        MatchInfo.Text = "没有接缝。";
+        MatchInfo.Text = L.Get("NoSeams");
         UpdateSelectedSeam(false); DrawSeams();
-        Status.Text = $"{_session.Frames.Count} 帧 · {(_session.Direction == ScrollDirection.Horizontal ? "水平" : "垂直")} · {_output.PixelWidth:N0} × {_output.PixelHeight:N0} 像素\n{_session.StopReason}";
+        Status.Text = L.Format("0Frames12N03N0", _session.Frames.Count, (_session.Direction == ScrollDirection.Horizontal ? L.Get("Horizontal") : L.Get("Vertical")), _output.PixelWidth, _output.PixelHeight, _session.StopReason);
         if (fit) Dispatcher.BeginInvoke(() => { if (!_closed) FitPreview(); });
     }
     private void DrawSeams()
@@ -171,7 +172,7 @@ public partial class ScrollCaptureWindow : Window
     }
     private void ClearRowSelection()
     {
-        _selectedRows = 0; CropSelection.Children.Clear(); DeleteRowsButton.IsEnabled = false; CropSelectionInfo.Text = "尚未选择删除区域";
+        _selectedRows = 0; CropSelection.Children.Clear(); DeleteRowsButton.IsEnabled = false; CropSelectionInfo.Text = L.Get("NoCropAreaSelected");
     }
     private void CropSide_Changed(object sender, RoutedEventArgs e) { if (_ready) ClearRowSelection(); }
     private void Crop_MouseDown(object sender, MouseButtonEventArgs e)
@@ -195,15 +196,15 @@ public partial class ScrollCaptureWindow : Window
         Canvas.SetLeft(band, edge == CropEdge.Right ? boundary : 0);
         Canvas.SetTop(band, edge == CropEdge.Bottom ? boundary : 0);
         CropSelection.Children.Add(band);
-        var side = edge switch { CropEdge.Top => "顶部", CropEdge.Bottom => "底部", CropEdge.Left => "左侧", _ => "右侧" };
-        CropSelectionInfo.Text = $"将去掉{side} {_selectedRows:N0} {(horizontal ? "列（整幅高度）" : "行（整幅宽度）")}";
+        var side = edge switch { CropEdge.Top => L.Get("Top2"), CropEdge.Bottom => L.Get("Bottom2"), CropEdge.Left => L.Get("Left2"), _ => L.Get("Right3") };
+        CropSelectionInfo.Text = L.Format("Remove1N02From0", side, _selectedRows, (horizontal ? L.Get("FullHeightColumns") : L.Get("FullWidthRows")));
         DeleteRowsButton.IsEnabled = _selectedRows > 0 && _selectedRows < length;
     }
     internal static ScrollTrim DeleteEdgePixels(ScrollTrim current, int width, int height, int pixels, CropEdge edge)
     {
-        if (!Enum.IsDefined(edge)) throw new ArgumentException("请选择上、下、左或右边缘。");
+        if (!Enum.IsDefined(edge)) throw new ArgumentException(L.Get("ChooseTheTopBottomLeftOrRight"));
         var length = edge is CropEdge.Left or CropEdge.Right ? width : height;
-        if (width < 1 || height < 1 || pixels <= 0 || pixels >= length) throw new ArgumentException("裁剪后至少保留 1 × 1 像素，不能删除整张长截图。");
+        if (width < 1 || height < 1 || pixels <= 0 || pixels >= length) throw new ArgumentException(L.Get("AtLeast11PixelMustRemain2"));
         return edge switch
         {
             CropEdge.Top => current with { Top = checked(current.Top + pixels) },
@@ -230,7 +231,7 @@ public partial class ScrollCaptureWindow : Window
         if (index < 0 || index >= _session.Offsets.Count) { OffsetBox.Text = "0"; return; }
         OffsetBox.Text = _session.Offsets[index].ToString();
         var match = index < _session.Matches.Count ? _session.Matches[index] : null;
-        MatchInfo.Text = match is null ? "手动接缝。" : $"自动匹配误差 {match.Error:F2} · {(match.Reliable ? "可信" : "需检查／手调")}\n此处位移可按 1 像素微调，蓝线不会写入输出。";
+        MatchInfo.Text = match is null ? L.Get("ManualSeam") : L.Format("AutomaticMatchError0F21Adjust", match.Error, (match.Reliable ? L.Get("ReliableMatch") : L.Get("ReviewMatch")));
         if (!scroll || _stitch is null) return;
         var seam = _stitch.Seams[index];
         if (_session.Direction == ScrollDirection.Vertical) Scroller.ScrollToVerticalOffset((seam - _crop.Top) * Zoom.Value - Scroller.ViewportHeight / 2);
@@ -243,8 +244,8 @@ public partial class ScrollCaptureWindow : Window
         try
         {
             var index = SeamBox.SelectedIndex;
-            if (index < 0) throw new ArgumentException("请先采集至少两帧并选择接缝。");
-            var offsets = _session.Offsets.ToArray(); offsets[index] = Number(OffsetBox, 1, 16384, "帧位移") + nudge;
+            if (index < 0) throw new ArgumentException(L.Get("CaptureAtLeastTwoFramesAndSelect"));
+            var offsets = _session.Offsets.ToArray(); offsets[index] = Number(OffsetBox, 1, 16384, L.Get("FrameOffset")) + nudge;
             await RenderSession(_session with { Offsets = offsets }, ReadFrameTrim(), ReadCrop());
             UpdateSelectedSeam(true);
         }
@@ -269,7 +270,7 @@ public partial class ScrollCaptureWindow : Window
                 BitmapSource Frame(BitmapSource image)
                 {
                     var width = image.PixelWidth - trim.Left - trim.Right; var height = image.PixelHeight - trim.Top - trim.Bottom;
-                    if (width < 32 || height < 32) throw new ArgumentException("重新匹配时，每帧裁边后至少需保留 32 × 32 像素。");
+                    if (width < 32 || height < 32) throw new ArgumentException(L.Get("AtLeast3232PixelsPerFrame"));
                     return _images.Crop(image, new Int32Rect(trim.Left, trim.Top, width, height));
                 }
                 return Enumerable.Range(1, session.Frames.Count - 1).Select(i => _stitcher.Match(Frame(session.Frames[i - 1]), Frame(session.Frames[i]), session.Direction)).ToArray();
@@ -289,10 +290,10 @@ public partial class ScrollCaptureWindow : Window
             if (selection is null || _closed) return false;
             _region = new System.Drawing.Rectangle(selection.ScreenBounds.Left + selection.PixelRegion.Left,
                 selection.ScreenBounds.Top + selection.PixelRegion.Top, selection.PixelRegion.Width, selection.PixelRegion.Height);
-            RegionInfo.Text = $"固定物理区域：{_region.X}, {_region.Y} · {_region.Width} × {_region.Height}";
+            RegionInfo.Text = L.Format("FixedPhysicalRegion0123", _region.X, _region.Y, _region.Width, _region.Height);
             return true;
         }
-        catch (Exception ex) { if (!_closed) Status.Text = "选区失败：" + ex.Message; return false; }
+        catch (Exception ex) { if (!_closed) Status.Text = L.Get("RegionSelectionFailed") + ex.Message; return false; }
     }
     private async void Start_Click(object sender, RoutedEventArgs e)
     {
@@ -304,7 +305,7 @@ public partial class ScrollCaptureWindow : Window
         {
             var trim = ReadFrameTrim();
             var options = new ScrollCaptureOptions(Enum.Parse<ScrollDirection>(((ComboBoxItem)DirectionBox.SelectedItem).Tag.ToString()!),
-                Number(DelayBox, 100, 5000, "帧间等待"), Number(WheelBox, 1, 6, "滚轮格数"), Number(FrameLimitBox, 2, 80, "最多帧数"), trim);
+                Number(DelayBox, 100, 5000, L.Get("FrameDelay")), Number(WheelBox, 1, 6, L.Get("WheelSteps")), Number(FrameLimitBox, 2, 80, L.Get("MaximumFrames")), trim);
             _ = _stitcher.Stitch(new ScrollCaptureSession([_session.Frames[0]], [], [], ScrollDirection.Vertical, ""), trim);
             _stop = new CancellationTokenSource(); _discard = false; IsCapturing = true; SetBusy(true);
             hidden = Application.Current.Windows.Cast<Window>().Where(x => x.IsVisible && x != this).ToArray();
@@ -320,10 +321,10 @@ public partial class ScrollCaptureWindow : Window
             {
                 await RenderSession(session, trim, new(), true);
             }
-            if (_discard && !_closed) Status.Text = "已取消本次采集，保留原来的预览。";
+            if (_discard && !_closed) Status.Text = L.Get("CaptureCanceledOriginalPreviewPreserved");
         }
-        catch (OperationCanceledException) { if (!_closed) Status.Text = "采集已取消。"; }
-        catch (Exception ex) { if (!_closed) Status.Text = "采集失败：" + ex.Message; }
+        catch (OperationCanceledException) { if (!_closed) Status.Text = L.Get("CaptureCanceled"); }
+        catch (Exception ex) { if (!_closed) Status.Text = L.Get("CaptureFailed") + ex.Message; }
         finally
         {
             progressWindow?.Close(); regionFrame?.Close(); IsCapturing = false; _stop?.Dispose(); _stop = null; SetBusy(false);
@@ -346,11 +347,11 @@ public partial class ScrollCaptureWindow : Window
         try
         {
             options = new ScrollCaptureOptions(Enum.Parse<ScrollDirection>(((ComboBoxItem)DirectionBox.SelectedItem).Tag.ToString()!),
-                preservePreviewOnCancel ? Number(DelayBox, 100, 5000, "帧间等待") : 120,
-                Number(WheelBox, 1, 6, "滚轮格数"), preservePreviewOnCancel ? Number(FrameLimitBox, 2, 80, "最多帧数") : 80, ReadFrameTrim());
+                preservePreviewOnCancel ? Number(DelayBox, 100, 5000, L.Get("FrameDelay")) : 120,
+                Number(WheelBox, 1, 6, L.Get("WheelSteps")), preservePreviewOnCancel ? Number(FrameLimitBox, 2, 80, L.Get("MaximumFrames")) : 80, ReadFrameTrim());
             _ = _stitcher.Stitch(new ScrollCaptureSession([_session.Frames[0]], [], [], ScrollDirection.Vertical, ""), options.MatchingTrim);
         }
-        catch (Exception ex) { Status.Text = "采集参数无效：" + ex.Message; return; }
+        catch (Exception ex) { Status.Text = L.Get("InvalidCaptureOptions") + ex.Message; return; }
         var hidden = Application.Current.Windows.Cast<Window>().Where(x => x.IsVisible && x != this && x is not SelectionWindow).ToArray();
         Window? controls = null;
         ScrollCaptureRegionWindow? regionFrame = null;
@@ -372,7 +373,7 @@ public partial class ScrollCaptureWindow : Window
             }
         }
         catch (OperationCanceledException) { _discard = true; }
-        catch (Exception ex) { Status.Text = "长截图未完成：" + ex.Message; }
+        catch (Exception ex) { Status.Text = L.Get("ScrollingCaptureIncomplete") + ex.Message; }
         finally
         {
             _manualInput?.Dispose(); _manualInput = null; controls?.Close(); regionFrame?.Close(); _manualRunning = IsCapturing = false;
@@ -381,15 +382,15 @@ public partial class ScrollCaptureWindow : Window
             if (!_closed)
             {
                 if (_discard && !preservePreviewOnCancel) Close();
-                else { if (_discard) Status.Text = "已取消重新采集，原预览与编辑记录保留。"; Show(); Activate(); }
+                else { if (_discard) Status.Text = L.Get("RecaptureCanceledOriginalPreviewAndEditHistory"); Show(); Activate(); }
             }
         }
     }
     private Window ShowManualControls()
     {
-        var label = new TextBlock { Text = "在选区内缓慢向下或向右滚动；√ 预览，× 取消本次", FontSize = 13, Width = 250, TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0) };
-        var cancel = new Button { ToolTip = "退出长截图（Esc）", Width = 36, Height = 36, Style = (Style)FindResource("ToolbarButton"), Content = new MahApps.Metro.IconPacks.PackIconLucide { Kind = MahApps.Metro.IconPacks.PackIconLucideKind.X } };
-        var preview = new Button { ToolTip = "完成采集并预览", Width = 36, Height = 36, Style = (Style)FindResource("ToolbarButton"), Content = new MahApps.Metro.IconPacks.PackIconLucide { Kind = MahApps.Metro.IconPacks.PackIconLucideKind.Check } };
+        var label = new TextBlock { Text = L.Get("ScrollSlowlyDownOrRightInsideThe"), FontSize = 13, Width = 250, TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0) };
+        var cancel = new Button { ToolTip = L.Get("ExitScrollingCaptureEsc"), Width = 36, Height = 36, Style = (Style)FindResource("ToolbarButton"), Content = new MahApps.Metro.IconPacks.PackIconLucide { Kind = MahApps.Metro.IconPacks.PackIconLucideKind.X } };
+        var preview = new Button { ToolTip = L.Get("FinishCaptureAndPreview"), Width = 36, Height = 36, Style = (Style)FindResource("ToolbarButton"), Content = new MahApps.Metro.IconPacks.PackIconLucide { Kind = MahApps.Metro.IconPacks.PackIconLucideKind.Check } };
         cancel.Click += (_, _) => { _discard = true; _stop?.Cancel(); }; preview.Click += (_, _) => _manualInput?.Preview();
         var panel = new DockPanel(); panel.Children.Add(label); panel.Children.Add(cancel); panel.Children.Add(preview);
         var window = new Window { WindowStyle = WindowStyle.None, ResizeMode = ResizeMode.NoResize, ShowInTaskbar = false, ShowActivated = false, Topmost = true, SizeToContent = SizeToContent.WidthAndHeight,
@@ -403,7 +404,7 @@ public partial class ScrollCaptureWindow : Window
         var left = Math.Clamp(_region.Right - width, bounds.Left, Math.Max(bounds.Left, bounds.Right - width));
         var top = _region.Top - height - 8 >= bounds.Top ? _region.Top - height - 8 : _region.Top + 8;
         top = Math.Clamp(top, bounds.Top, Math.Max(bounds.Top, bounds.Bottom - height));
-        if (!excluded && _region.IntersectsWith(new System.Drawing.Rectangle(left, top, width, height))) { window.Close(); throw new InvalidOperationException("当前系统无法排除悬浮控制条，请选择顶部留有空间的区域后重试。"); }
+        if (!excluded && _region.IntersectsWith(new System.Drawing.Rectangle(left, top, width, height))) { window.Close(); throw new InvalidOperationException(L.Get("ThisSystemCannotExcludeFloatingControlsFrom")); }
         NativeMethods.SetWindowPos(new WindowInteropHelper(window).Handle, NativeMethods.HwndTopMost, left, top, width, height, NativeMethods.SwpNoActivate);
         return window;
     }
@@ -428,11 +429,11 @@ public partial class ScrollCaptureWindow : Window
             new System.Drawing.Rectangle(_region.Left - 410, work.Top + 10, 400, 140), new System.Drawing.Rectangle(_region.Right + 10, work.Top + 10, 400, 140) };
         var place = candidates.FirstOrDefault(x => work.Contains(x) && !x.IntersectsWith(_region));
         if (place.IsEmpty) return null; // Never place controls inside the captured rectangle. Esc/tray remain available.
-        var stop = new Button { Content = "停止并预览", Style = (Style)FindResource("DialogButton"), Width = 116 };
-        var cancel = new Button { Content = "取消本次", Style = (Style)FindResource("DialogButton"), Width = 100 };
+        var stop = new Button { Content = L.Get("StopAndPreview"), Style = (Style)FindResource("DialogButton"), Width = 116 };
+        var cancel = new Button { Content = L.Get("CancelCapture"), Style = (Style)FindResource("DialogButton"), Width = 100 };
         stop.Click += (_, _) => StopCapture(); cancel.Click += (_, _) => { _discard = true; StopCapture(); };
         var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal }; buttons.Children.Add(stop); buttons.Children.Add(cancel);
-        var panel = new StackPanel(); panel.Children.Add(new TextBlock { Text = "正在滚动采集 · Esc 停止", FontSize = 16, Margin = new Thickness(0, 0, 0, 12) }); panel.Children.Add(buttons);
+        var panel = new StackPanel(); panel.Children.Add(new TextBlock { Text = L.Get("ScrollingCaptureEscToStop"), FontSize = 16, Margin = new Thickness(0, 0, 0, 12) }); panel.Children.Add(buttons);
         var window = new Window { Width = 400, Height = 140, WindowStyle = WindowStyle.None, ResizeMode = ResizeMode.NoResize, ShowInTaskbar = false, ShowActivated = false, Topmost = true,
             Content = new Border { Padding = new Thickness(16), Child = panel } };
         window.Closed += (_, _) => StopCapture();
@@ -442,24 +443,24 @@ public partial class ScrollCaptureWindow : Window
     private void Output_Click(object sender, RoutedEventArgs e)
     {
         try { if (!_working) OutputRequested?.Invoke(_output, Enum.Parse<CaptureAction>(((FrameworkElement)sender).Tag.ToString()!)); }
-        catch (Exception ex) { Status.Text = "输出失败：" + ex.Message; }
+        catch (Exception ex) { Status.Text = L.Get("OutputFailed") + ex.Message; }
     }
     private void Edit_Click(object sender, RoutedEventArgs e) { if (!_working) EditRequested?.Invoke(_output); }
 
     private async void SaveProject_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "SnapSharp 长截图工程|*.ssscroll", FileName = $"SnapSharp-scroll-{DateTime.Now:yyyyMMdd-HHmmss-fff}.ssscroll", OverwritePrompt = false };
+        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = L.Get("SnapSharpScrollingCaptureProjectSsscroll"), FileName = $"SnapSharp-scroll-{DateTime.Now:yyyyMMdd-HHmmss-fff}.ssscroll", OverwritePrompt = false };
         if (dialog.ShowDialog(this) != true) return;
         var overwrite = File.Exists(dialog.FileName);
-        if (overwrite && MessageBox.Show(this, "工程已存在，是否替换？", "确认覆盖", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        if (overwrite && MessageBox.Show(this, L.Get("TheProjectAlreadyExistsReplaceIt"), L.Get("ConfirmOverwrite"), MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
         SetBusy(true);
-        try { var project = new ScrollProject(_session, _frameTrim, _crop); await Task.Run(() => new ScrollProjectService().Save(dialog.FileName, project, overwrite)); Status.Text = "已保存原始帧、位移与裁剪参数：" + dialog.FileName; }
-        catch (Exception ex) { Status.Text = "保存工程失败：" + ex.Message; }
+        try { var project = new ScrollProject(_session, _frameTrim, _crop); await Task.Run(() => new ScrollProjectService().Save(dialog.FileName, project, overwrite)); Status.Text = L.Get("SavedOriginalFramesOffsetsAndCrops") + dialog.FileName; }
+        catch (Exception ex) { Status.Text = L.Get("CouldNotSaveProject") + ex.Message; }
         finally { SetBusy(false); }
     }
     private async void OpenProject_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "SnapSharp 长截图工程|*.ssscroll" };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("SnapSharpScrollingCaptureProjectSsscroll") };
         if (dialog.ShowDialog(this) == true) await LoadProject(dialog.FileName);
     }
     public async Task LoadProject(string path)
@@ -471,23 +472,23 @@ public partial class ScrollCaptureWindow : Window
             if (_closed) return;
             SetBusy(false); await RenderSession(project.Session, project.FrameTrim, project.ResultCrop, true);
         }
-        catch (Exception ex) { Status.Text = "打开工程失败：" + ex.Message; }
+        catch (Exception ex) { Status.Text = L.Get("CouldNotOpenProject") + ex.Message; }
         finally { SetBusy(false); }
     }
     private void RawFrames_Click(object sender, RoutedEventArgs e)
     {
-        var index = SeamBox.SelectedIndex; if (index < 0) { Status.Text = "请先选择接缝。"; return; }
+        var index = SeamBox.SelectedIndex; if (index < 0) { Status.Text = L.Get("SelectASeamFirst"); return; }
         var grid = new Grid(); grid.ColumnDefinitions.Add(new ColumnDefinition()); grid.ColumnDefinitions.Add(new ColumnDefinition());
         for (var column = 0; column < 2; column++)
         {
             var image = _session.Frames[index + column];
             var panel = new DockPanel { Margin = new Thickness(10) }; Grid.SetColumn(panel, column);
-            var label = new TextBlock { Text = $"原始帧 {index + column + 1} · 100% 像素 · 可独立滚动查看", Margin = new Thickness(0, 0, 0, 8) }; DockPanel.SetDock(label, Dock.Top); panel.Children.Add(label);
+            var label = new TextBlock { Text = L.Format("OriginalFrame0100PixelsScrollIndependently", index + column + 1), Margin = new Thickness(0, 0, 0, 8) }; DockPanel.SetDock(label, Dock.Top); panel.Children.Add(label);
             panel.Children.Add(new ScrollViewer { HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                 Content = new System.Windows.Controls.Image { Source = image, Width = image.PixelWidth, Height = image.PixelHeight, Stretch = Stretch.Fill } });
             grid.Children.Add(panel);
         }
-        new Window { Owner = this, Title = "原始帧对照 · 不包含裁边", Width = 1000, Height = 700, Content = grid, WindowStartupLocation = WindowStartupLocation.CenterOwner }.Show();
+        new Window { Owner = this, Title = L.Get("OriginalFrameComparisonNoMarginsApplied"), Width = 1000, Height = 700, Content = grid, WindowStartupLocation = WindowStartupLocation.CenterOwner }.Show();
     }
 
     internal static bool RunLayoutSelfTest(ScrollCaptureSession session)
