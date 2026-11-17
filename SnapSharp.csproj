@@ -8,7 +8,7 @@
     <ApplicationIcon>logo.ico</ApplicationIcon>
     <AssemblyName>SnapSharp</AssemblyName>
     <RootNamespace>SnapSharp</RootNamespace>
-    <Version>1.0.7</Version>
+    <Version>1.0.8</Version>
     <Platforms>x64</Platforms>
     <Platform>x64</Platform>
     <PlatformTarget>x64</PlatformTarget>
