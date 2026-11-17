@@ -1,5 +1,10 @@
 <Solution>
-  <Project Path="SnapSharp.csproj" />
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="SnapSharp.csproj">
+    <Platform Project="x64" />
+  </Project>
   <Folder Name="/Libraries/">
     <Project Path="Libraries/SnapSharp.Core/SnapSharp.Core.csproj" />
     <Project Path="Libraries/SnapSharp.Imaging/SnapSharp.Imaging.csproj" />
