@@ -3655,4 +3655,11 @@ Large models may take some time to copy. Existing data in the destination will n
   <data name="DataFolderConflict" xml:space="preserve"><value>The destination already contains application data. Choose another folder to avoid overwriting it: {0}</value></data>
   <data name="DataFolderMustBeAbsolute" xml:space="preserve"><value>Choose an absolute path for the data folder.</value></data>
   <data name="DataFolderLinksUnsupported" xml:space="preserve"><value>Data migration does not support symbolic links or junctions. Choose a regular folder.</value></data>
+  <data name="ModelDownloadSource" xml:space="preserve"><value>Model download source</value></data>
+  <data name="ModelDownloadOfficial" xml:space="preserve"><value>Official source</value></data>
+  <data name="ModelDownloadDomestic" xml:space="preserve"><value>China mirror</value></data>
+  <data name="ModelDownloadSourceHint" xml:space="preserve"><value>Applies to all model downloads. Changes apply to the next download; save settings to remember your choice. China mirrors use Tsinghua PyPI, HF-Mirror and the third-party GitHub proxy gh-proxy.com. Table models already use ModelScope. File checksums are verified for either source.</value></data>
+  <data name="ModelDownloadConnectingSource" xml:space="preserve"><value>Connecting to download source: {0}?</value></data>
+  <data name="ModelPathMustBeRelativeOrAbsolute" xml:space="preserve"><value>Use an absolute path or a path relative to the executable.</value></data>
+  <data name="ModelPathPortabilityHint" xml:space="preserve"><value>Model files and folders inside the executable folder are saved as relative paths (for example, models\ocr\detection.onnx). External models keep absolute paths. Move the executable, settings and models together to keep using them.</value></data>
 </root>

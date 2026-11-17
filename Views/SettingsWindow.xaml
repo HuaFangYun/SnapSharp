@@ -8,6 +8,17 @@
         WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackgroundBrush}" Foreground="{DynamicResource TextBrush}">
   <Window.Resources><ResourceDictionary>
     <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="SettingsStyles.xaml" /></ResourceDictionary.MergedDictionaries>
+    <DataTemplate x:Key="ModelDownloadSourceSelector">
+      <Border Style="{StaticResource SettingsSection}"><StackPanel>
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ModelDownloadSource}" Style="{StaticResource SectionTitle}" />
+        <ComboBox SelectedValuePath="Tag" SelectedValue="{Binding SelectedModelDownloadSource, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" IsEnabled="{Binding DownloadSourceEnabled, RelativeSource={RelativeSource AncestorType=Window}}">
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:ModelDownloadOfficial}" Tag="Official" />
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:ModelDownloadDomestic}" Tag="Domestic" />
+        </ComboBox>
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ModelDownloadSourceHint}" Style="{StaticResource Hint}" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ModelPathPortabilityHint}" Style="{StaticResource Hint}" />
+      </StackPanel></Border>
+    </DataTemplate>
     <Style TargetType="TabItem">
       <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Margin" Value="10,3" />
       <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabItem">
@@ -43,6 +54,7 @@
       </ControlTemplate></TabControl.Template>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:General}" Tag="Settings"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:General}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:StartupBehaviorAndApplicationInformationChangesTake}" Style="{StaticResource Hint}" />
+        <ContentControl ContentTemplate="{StaticResource ModelDownloadSourceSelector}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:StartupAndAppearance}" Style="{StaticResource SectionTitle}" />          <CheckBox x:Name="StartWithWindows" Content="{loc:Loc SnapSharp.Core:Resources.Strings:StartAutomaticallyWhenSigningInToWindows}" />
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:UsesTheSameDarkThemeAsThe}" Style="{StaticResource Hint}" />
@@ -128,6 +140,7 @@
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:OCRAndRecognition}" Tag="ScanText"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OCRAndRecognition}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PaddleOCRRecognizesChineseAndEnglishByDefault}" Style="{StaticResource Hint}" />
+        <ContentControl ContentTemplate="{StaticResource ModelDownloadSourceSelector}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RecognitionEngine}" Style="{StaticResource SectionTitle}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalOCREngineNoCloudOCRAPI}" /><ComboBox x:Name="OcrBackendBox"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:RecommendedLocalONNXPaddleOCRCPUOrGPU}" Tag="PaddleOCR" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:OptionalLocalWindowsOCRSystemLanguagePacks}" Tag="Windows" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:OptionalLocalTesseract5CPU}" Tag="Tesseract" /></ComboBox>
@@ -183,6 +196,7 @@
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:BackgroundRemoval}" Tag="Scissors"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:BackgroundRemoval}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalONNXForegroundSegmentationWithTransparentOutput}" Style="{StaticResource Hint}" />
+        <ContentControl ContentTemplate="{StaticResource ModelDownloadSourceSelector}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:BackgroundRemovalModels}" Style="{StaticResource SectionTitle}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DefaultModelAppliesAfterSaving}" /><ComboBox x:Name="CutoutDefaultBox" />
@@ -202,6 +216,7 @@
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationAPIsAndPrivacy}" Tag="Shield"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationOnlineAPIsAndPrivacy}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationRunsOnYourComputerWithout}" Style="{StaticResource Hint}" />
+        <ContentControl ContentTemplate="{StaticResource ModelDownloadSourceSelector}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TextTranslation}" Style="{StaticResource SectionTitle}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:1ChooseALocalOrAPIEngine}" Style="{StaticResource Hint}" />

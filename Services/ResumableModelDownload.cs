@@ -12,12 +12,10 @@ internal static class ResumableModelDownload
     internal static string LogPath => Path.Combine(AppPaths.DiagnosticsRoot, "local-translation-download.log");
     private static readonly TimeSpan StallTimeout = TimeSpan.FromSeconds(45);
 
-    internal static bool Allowed(Uri uri) => uri.Scheme == "https" && uri.IsDefaultPort && string.IsNullOrEmpty(uri.UserInfo) &&
-        (uri.Host is "github.com" or "release-assets.githubusercontent.com" or "huggingface.co" or "hf.co" ||
-         uri.Host.EndsWith(".huggingface.co", StringComparison.OrdinalIgnoreCase) || uri.Host.EndsWith(".hf.co", StringComparison.OrdinalIgnoreCase));
+    internal static bool Allowed(Uri uri) => ModelDownloadSource.Allowed(uri);
 
     internal static async Task Download(string source, string target, string hash, long size, IProgress<string> progress,
-        CancellationToken token, IProgress<double?>? percentage = null, HttpClient? httpClient = null, string? logPath = null)
+        CancellationToken token, IProgress<double?>? percentage = null, HttpClient? httpClient = null, string? logPath = null, string sourceKind = ModelDownloadSource.Official)
     {
         var name = Path.GetFileName(target);
         using var ownedClient = httpClient is null
@@ -44,7 +42,7 @@ internal static class ResumableModelDownload
                     var offset = File.Exists(temporary) ? new FileInfo(temporary).Length : 0;
                     if (offset > size) { File.Delete(temporary); offset = 0; }
                     if (offset != size)
-                        await Transfer(client, new Uri(source), temporary, offset, size, progress, percentage, token);
+                        await Transfer(client, new Uri(ModelDownloadSource.Resolve(source, sourceKind)), temporary, offset, size, progress, percentage, token, sourceKind);
                     percentage?.Report(null);
                     progress.Report(L.Format("LocalDownloadChecking", name));
                     if (!await HashMatches(temporary, hash, token))
@@ -84,7 +82,7 @@ internal static class ResumableModelDownload
     };
 
     private static async Task Transfer(HttpClient client, Uri source, string temporary, long offset, long size,
-        IProgress<string> progress, IProgress<double?>? percentage, CancellationToken token)
+        IProgress<string> progress, IProgress<double?>? percentage, CancellationToken token, string sourceKind)
     {
         var name = Path.GetFileName(temporary)[..^5];
         var uri = source;
@@ -93,7 +91,7 @@ internal static class ResumableModelDownload
         {
             for (var redirects = 0; ; redirects++)
             {
-                if (!Allowed(uri) || redirects > 8) throw new InvalidDataException(L.Get("DownloadRedirectedOutsideOfficialDistributionSites"));
+                if (!ModelDownloadSource.Allowed(uri, sourceKind) || redirects > 8) throw new InvalidDataException(L.Get("ModelSourceRedirectedToAnUntrustedAddress"));
                 percentage?.Report(null);
                 progress.Report(L.Format("LocalDownloadConnecting", name, uri.Host));
                 using var request = new HttpRequestMessage(HttpMethod.Get, uri);

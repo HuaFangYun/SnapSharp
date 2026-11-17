@@ -26,8 +26,8 @@ public sealed class DataDirectoryService
         {
             var location = JsonSerializer.Deserialize<Location>(File.ReadAllText(_locationFile))
                 ?? throw new InvalidDataException(UiText.Get("InvalidDataLocation"));
-            Root = Normalize(location.CurrentDirectory);
-            SelectedDirectory = location.NextDirectory is null ? Root : Normalize(location.NextDirectory);
+            Root = Normalize(ModelPathService.Resolve(location.CurrentDirectory, DefaultDirectory));
+            SelectedDirectory = location.NextDirectory is null ? Root : Normalize(ModelPathService.Resolve(location.NextDirectory, DefaultDirectory));
         }
         else
         {
@@ -72,7 +72,16 @@ public sealed class DataDirectoryService
 
     public void ApplyPendingChange()
     {
-        if (SameDirectory(Root, SelectedDirectory)) return;
+        if (SameDirectory(Root, SelectedDirectory))
+        {
+            // Upgrade existing location metadata before a portable folder is moved.
+            if (File.Exists(_locationFile))
+            {
+                var location = JsonSerializer.Deserialize<Location>(File.ReadAllText(_locationFile))!;
+                if (location.CurrentDirectory != ModelPathService.ForStorage(Root, DefaultDirectory)) WriteLocation(Root, null);
+            }
+            return;
+        }
         var source = Root;
         var target = ValidateChange(SelectedDirectory);
         var staging = Path.Combine(target, ".snapsharp-migration-" + Guid.NewGuid().ToString("N"));
@@ -87,7 +96,7 @@ public sealed class DataDirectoryService
                 if (Directory.Exists(from)) CopyDirectory(from, to);
                 else if (File.Exists(from)) { RejectLinks(from); File.Copy(from, to); }
             }
-            RemapJson(Path.Combine(staging, "settings.json"), source, target);
+            RemapJson(Path.Combine(staging, "settings.json"), source, target, modelPaths: true);
             RemapJson(Path.Combine(staging, "History", "index.json"), source, target);
             foreach (var path in Directory.EnumerateFileSystemEntries(staging))
             {
@@ -117,7 +126,9 @@ public sealed class DataDirectoryService
         var temporary = _locationFile + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
-            File.WriteAllText(temporary, JsonSerializer.Serialize(new Location(current, next), JsonOptions));
+            File.WriteAllText(temporary, JsonSerializer.Serialize(new Location(
+                ModelPathService.ForStorage(current, DefaultDirectory),
+                next is null ? null : ModelPathService.ForStorage(next, DefaultDirectory)), JsonOptions));
             File.Move(temporary, _locationFile, true);
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
@@ -155,11 +166,16 @@ public sealed class DataDirectoryService
         }
     }
 
-    private static void RemapJson(string file, string source, string target)
+    private void RemapJson(string file, string source, string target, bool modelPaths = false)
     {
         if (!File.Exists(file)) return;
         var node = JsonNode.Parse(File.ReadAllText(file));
+        // Resolve portable paths before relocating managed files; preserve unknown settings.
+        if (modelPaths && node is JsonObject settings)
+            ModelPathService.Transform(settings, path => ModelPathService.Resolve(path, DefaultDirectory));
         Rewrite(node);
+        if (modelPaths && node is JsonObject rewritten)
+            ModelPathService.Transform(rewritten, path => ModelPathService.ForStorage(path, DefaultDirectory));
         File.WriteAllText(file, node?.ToJsonString(JsonOptions) ?? "null");
 
         void Rewrite(JsonNode? current)

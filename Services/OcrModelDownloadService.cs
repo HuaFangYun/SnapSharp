@@ -16,11 +16,11 @@ internal sealed class OcrModelDownloadService
     internal const int PackageSize = 14910742;
     internal sealed record ModelPaths(string Detection, string Recognition, string Dictionary);
 
-    public async Task<ModelPaths> Download(string root, IProgress<string> progress, CancellationToken token)
+    public async Task<ModelPaths> Download(string root, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official)
     {
         using var handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
         using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(5) };
-        using var response = await client.GetAsync(Source, HttpCompletionOption.ResponseHeadersRead, token);
+        using var response = await ModelDownloadSource.Get(client, Source, sourceKind, token);
         response.EnsureSuccessStatusCode();
         if (response.Content.Headers.ContentLength is long length && length != PackageSize) throw new InvalidDataException(L.Get("ModelPackageSizeMismatch"));
         using var data = new MemoryStream(PackageSize);

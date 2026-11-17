@@ -17,7 +17,7 @@ internal static class LocalTranslationSetupService
     { public void Report(string value) => report(value); }
     private static readonly SemaphoreSlim Gate = new(1);
 
-    public static async Task<Installation> Install(string root, string device, IProgress<string> progress, CancellationToken token, IProgress<double?>? percentage = null)
+    public static async Task<Installation> Install(string root, string device, IProgress<string> progress, CancellationToken token, IProgress<double?>? percentage = null, string sourceKind = ModelDownloadSource.Official)
     {
         progress.Report(L.Get("LocalDownloadPreparing"));
         percentage?.Report(null);
@@ -31,7 +31,7 @@ internal static class LocalTranslationSetupService
             var hash = gpu ? "6aa5037ba1ffb124952a028d24a541610a20c21bcb253391c1dbaa2d2b19ea15" : "3b0b61e7a51e988d9a2c5db5f370012b728d936b9262528b4c11f3769f6560a8";
             var zipPath = Path.Combine(root, package);
             await ResumableModelDownload.Download($"https://github.com/ggml-org/llama.cpp/releases/download/{Version}/{package}", zipPath,
-                hash, gpu ? 38127547 : 25127274, progress, token, percentage);
+                hash, gpu ? 38127547 : 25127274, progress, token, percentage, sourceKind: sourceKind);
             percentage?.Report(null);
             progress.Report(L.Get("LocalDownloadExtracting"));
             var directory = Path.Combine(root, $"llama-{Version}-{device}");
@@ -68,7 +68,7 @@ internal static class LocalTranslationSetupService
             ThirdPartyLicenseService.CopyTo(directory, "llama.cpp-LICENSE.txt");
             var model = Path.Combine(root, ModelName);
             await ResumableModelDownload.Download($"https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/{ModelRevision}/{ModelName}",
-                model, ModelHash, ModelSize, progress, token, percentage);
+                model, ModelHash, ModelSize, progress, token, percentage, sourceKind: sourceKind);
             ThirdPartyLicenseService.CopyTo(root, "Apache-2.0.txt");
             progress.Report(L.Format("LocalTranslationConfigured", device));
             return new(server, model);

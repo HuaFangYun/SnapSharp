@@ -4,11 +4,21 @@
 dotnet run --project tools/RegressionChecks/RegressionChecks.csproj -c Release
 ```
 
+To run the data-folder and simulated download checks without opening UI fixtures:
+
+```powershell
+dotnet run --project tools/RegressionChecks/RegressionChecks.csproj -c Release -- --downloads-only
+```
+
+Download-source checks cover official defaults, domestic mirrors for all model catalogs, pinned versions, formula release assets, allowed redirects, and verified resume after switching sources. The full run also checks source persistence and the shared source selector across settings pages, including its lock during downloads.
+
 Data-folder checks cover the executable-folder default, legacy discovery, restart scheduling/cancellation, nested model paths and history indexes, preservation of unrelated files, destination conflicts, invalid metadata, and rollback when the location configuration cannot be committed. To run only these checks:
 
 ```powershell
 dotnet run --project tools/RegressionChecks/RegressionChecks.csproj -c Release -- --data-directory-only
 ```
+
+These checks also move a generated portable folder and verify every model/runtime path, nested cutout models, absolute external paths, legacy settings, independence from the working directory, portable data-location metadata, and migration out of and back into the executable folder. The full run additionally checks relative path display and validation in settings.
 
 The checks use generated files in `.artifacts/regression-checks` and simulated HTTP responses. They cover window client-area selection and wheel scope, negative screen coordinates, element-mode/Tab navigation, element hierarchy and duplicate filtering, stale/canceled/slow element lookups, window fallback, pixel-exact element crops, consecutive annotations, object selection, text/callout editing and toolbar commits, recording settings persistence, automatic output naming, configuration overlay visibility, default audio selection, download progress, retry, cancellation, resume, and integrity checks. Temporary WPF and WinForms fixture processes verify real cross-process UI Automation and disabled child-window detection beneath the screenshot overlay. They do not record the desktop, capture audio/camera content, download external models, or modify the user's saved settings.
 

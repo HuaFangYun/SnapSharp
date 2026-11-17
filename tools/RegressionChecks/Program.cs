@@ -33,8 +33,11 @@ internal static partial class Program
         try
         {
             DataDirectoryChecks();
+            PortableModelPathChecks();
             if (args.Contains("--data-directory-only")) return 0;
             DownloadChecks().GetAwaiter().GetResult();
+            DownloadSourceChecks().GetAwaiter().GetResult();
+            if (args.Contains("--downloads-only")) return 0;
             SettingsChecks();
             WindowChecks();
             Console.WriteLine("PASS: all screenshot interaction, recording preferences, output paths, overlay visibility and download regression checks.");
@@ -51,6 +54,8 @@ internal static partial class Program
         var file = Path.Combine(Root, "settings.json");
         File.WriteAllText(file, "{}");
         var settings = new SettingsService(file); settings.Load();
+        Require(settings.Current.ModelDownloadSource == ModelDownloadSource.Official, "Old settings should retain official downloads.");
+        settings.Current.ModelDownloadSource = ModelDownloadSource.Domestic;
         Require(Path.IsPathFullyQualified(settings.Current.RecordingSaveDirectory), "Old settings must get a recording directory.");
         settings.Current.RecordingSaveDirectory = Path.Combine(Root, "recordings");
         settings.Current.Recording = new RecordingPreferences
@@ -60,6 +65,7 @@ internal static partial class Program
         };
         settings.Save();
         var restored = new SettingsService(file); restored.Load();
+        Require(restored.Current.ModelDownloadSource == ModelDownloadSource.Domestic, "Download source did not survive disk reload.");
         Require(restored.Current.Recording.RecordSystemAudio && restored.Current.Recording.RecordMicrophone &&
             restored.Current.Recording.SpeakerDeviceId == "speaker-2" && restored.Current.Recording.MicrophoneDeviceId == "mic-2" &&
             restored.Current.Recording.FrameRate == 60 && restored.Current.RecordingSaveDirectory == settings.Current.RecordingSaveDirectory,
@@ -129,6 +135,25 @@ internal static partial class Program
 
         using var hotkeys = new GlobalHotkeyHost();
         var global = new SettingsWindow(restored, new StartupRegistrationService(), hotkeys);
+        global.Show(); global.UpdateLayout();
+        var sourceTemplate = (DataTemplate)global.Resources["ModelDownloadSourceSelector"];
+        var selectorHost = VisualDescendants<ContentControl>(global).Single(x => x.ContentTemplate == sourceTemplate);
+        var selector = VisualDescendants<ComboBox>(selectorHost).Single();
+        Require((string)selector.SelectedValue == ModelDownloadSource.Official, "Download selector has no default selection.");
+        selector.SelectedValue = ModelDownloadSource.Domestic;
+        Require(global.SelectedModelDownloadSource == ModelDownloadSource.Domestic &&
+            global.BuildCandidate().ModelDownloadSource == ModelDownloadSource.Domestic,
+            "Download selection did not update the settings candidate.");
+        global.SetValue(SettingsWindow.DownloadSourceEnabledProperty, false);
+        global.UpdateLayout();
+        Require(!selector.IsEnabled, "Download source remains editable during download.");
+        var categories = (System.Windows.Controls.TabControl)global.FindName("Categories");
+        categories.SelectedIndex = 5; global.UpdateLayout();
+        selectorHost = VisualDescendants<ContentControl>(global).Single(x => x.ContentTemplate == sourceTemplate);
+        selector = VisualDescendants<ComboBox>(selectorHost).Single();
+        Require((string)selector.SelectedValue == ModelDownloadSource.Domestic && !selector.IsEnabled,
+            "Download source and lock were not shared across settings pages.");
+        global.SetValue(SettingsWindow.DownloadSourceEnabledProperty, true);
         ((System.Windows.Controls.TextBox)global.FindName("RecordingSaveDirectory")).Text = Path.Combine(Root, "new-recording-folder");
         var candidate = global.BuildCandidate();
         Require(candidate.Recording.RecordSystemAudio && candidate.Recording.RecordMicrophone &&
@@ -137,6 +162,7 @@ internal static partial class Program
         Require(((ProgressBar)global.FindName("LocalTranslationProgress")) is not null &&
             global.FindName("LocalTranslationDownloadStatus") is TextBlock, "Download feedback controls are missing.");
         global.Close();
+        PortableModelPathWindowChecks(hotkeys);
         ScreenshotInteractionChecks();
         ElementInteractionChecks();
         NativeElementChecks();
@@ -147,6 +173,16 @@ internal static partial class Program
 
     private static object? Invoke(object target, string name, params object?[] args) =>
         target.GetType().GetMethod(name, PrivateInstance)!.Invoke(target, args);
+
+    private static IEnumerable<T> VisualDescendants<T>(DependencyObject parent) where T : DependencyObject
+    {
+        for (var i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+            if (child is T match) yield return match;
+            foreach (var descendant in VisualDescendants<T>(child)) yield return descendant;
+        }
+    }
 
     private static void ScreenshotInteractionChecks()
     {

@@ -1,5 +1,6 @@
 using SnapSharp.Models;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace SnapSharp.Services;
 
@@ -7,9 +8,17 @@ public sealed class SettingsService
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
     private readonly string _settingsFile;
+    private readonly string _executableDirectory;
 
     public SettingsService() : this(AppPaths.SettingsFile) { }
-    public SettingsService(string settingsFile) => _settingsFile = Path.GetFullPath(settingsFile);
+    public SettingsService(string settingsFile, string? executableDirectory = null)
+    {
+        _settingsFile = Path.GetFullPath(settingsFile);
+        _executableDirectory = Path.GetFullPath(executableDirectory ?? AppContext.BaseDirectory);
+    }
+
+    public string ResolveModelPath(string? path) => ModelPathService.Resolve(path, _executableDirectory);
+    public string StoreModelPath(string? path) => ModelPathService.ForStorage(path, _executableDirectory);
 
     public AppSettings Current { get; private set; } = new();
 
@@ -33,7 +42,9 @@ public sealed class SettingsService
         Normalize();
         Directory.CreateDirectory(Path.GetDirectoryName(_settingsFile)!);
         var temporary = _settingsFile + ".tmp";
-        File.WriteAllText(temporary, JsonSerializer.Serialize(Current, JsonOptions));
+        var snapshot = JsonSerializer.SerializeToNode(Current, JsonOptions)!.AsObject();
+        ModelPathService.Transform(snapshot, StoreModelPath);
+        File.WriteAllText(temporary, snapshot.ToJsonString(JsonOptions));
         File.Move(temporary, _settingsFile, true);
     }
 
@@ -75,6 +86,7 @@ public sealed class SettingsService
         Current.RecognitionTimeoutSeconds = Math.Clamp(Current.RecognitionTimeoutSeconds, 1, 120);
         Current.CutoutInputSize = Math.Clamp(Current.CutoutInputSize, 32, 2048);
         CutoutModels.Migrate(Current);
+        ModelPathService.Resolve(Current, _executableDirectory);
         if (Current.CutoutProfile is not ("U2Net" or "ISNet" or "BiRefNet" or "BiRefNetMatting" or "BiRefNetAlpha")) Current.CutoutProfile = "U2Net";
         if (string.IsNullOrWhiteSpace(Current.FileNameTemplate)) Current.FileNameTemplate = OutputFileService.DefaultTemplate;
         var extension = Current.OutputFormat ?? "";

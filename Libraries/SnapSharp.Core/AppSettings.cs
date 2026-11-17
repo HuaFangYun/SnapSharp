@@ -4,6 +4,7 @@ public sealed class AppSettings
 {
     // Empty means follow the OS UI language. This is separate from OCR/translation languages.
     public string InterfaceLanguage { get; set; } = "";
+    public string ModelDownloadSource { get; set; } = "Official";
     public RecordingPreferences Recording { get; set; } = new();
     public string RecordingSaveDirectory { get; set; } = DefaultRecordingSaveDirectory;
     public static string DefaultRecordingSaveDirectory

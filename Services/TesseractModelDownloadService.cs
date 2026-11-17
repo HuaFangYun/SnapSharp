@@ -26,15 +26,15 @@ internal sealed class TesseractModelDownloadService
         if (data.Length != model.Size || !Convert.ToHexString(SHA256.HashData(data)).Equals(model.Sha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException(model.Language + L.Get("LanguageDataSHA256SizeVerificationFailedConfiguration"));
     }
-    public async Task<string> Download(string root, string languages, IProgress<string> progress, CancellationToken token)
+    public async Task<string> Download(string root, string languages, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official)
     {
         var models = Package(languages);
         var payload = new Dictionary<string, byte[]>();
         using var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false }) { Timeout = TimeSpan.FromMinutes(5) };
         foreach (var model in models)
         {
-            progress.Report(L.Get("ConnectingToOfficial") + model.Language + L.Get("LanguageDataSource"));
-            using var response = await client.GetAsync(model.Url, HttpCompletionOption.ResponseHeadersRead, token);
+            progress.Report(L.Format("ModelDownloadConnectingSource", new Uri(ModelDownloadSource.Resolve(model.Url, sourceKind)).Host));
+            using var response = await ModelDownloadSource.Get(client, model.Url, sourceKind, token);
             response.EnsureSuccessStatusCode();
             if (response.Content.Headers.ContentLength is long size && size != model.Size) throw new InvalidDataException(L.Get("LanguageDataDownloadSizeMismatch"));
             using var data = new MemoryStream(model.Size);

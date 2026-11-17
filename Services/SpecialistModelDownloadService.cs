@@ -1,7 +1,6 @@
 using L = SnapSharp.Localization.UiText;
 using Microsoft.ML.OnnxRuntime;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Cryptography;
 
 namespace SnapSharp.Services;
@@ -33,13 +32,13 @@ internal static class SpecialistModelDownloadService
         if (!hash.Equals(asset.Hash, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException(asset.Name + L.Get("SHA256VerificationFailedConfigurationWasPreserved"));
     }
 
-    internal static async Task<string> Install(string root, bool table, IProgress<string> progress, CancellationToken token, string? localSource = null)
+    internal static async Task<string> Install(string root, bool table, IProgress<string> progress, CancellationToken token, string? localSource = null, string sourceKind = ModelDownloadSource.Official)
     {
         Directory.CreateDirectory(root);
         var directory = Path.Combine(root, (table ? "slanet-zh-" : "latex-ocr-") + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
         var assets = table ? new[] { Table } : Formula;
-        using var handler = new HttpClientHandler { AllowAutoRedirect = true, UseCookies = false };
+        using var handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
         using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(20) };
         client.DefaultRequestHeaders.UserAgent.ParseAdd("SnapSharp/1.0");
         var created = new List<string>();
@@ -56,9 +55,8 @@ internal static class SpecialistModelDownloadService
                 }
                 else
                 {
-                    using var request = new HttpRequestMessage(HttpMethod.Get, asset.Url);
-                    if (new Uri(asset.Url).Host == "api.github.com") request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
-                    using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
+                    progress.Report(L.Format("ModelDownloadConnectingSource", new Uri(ModelDownloadSource.Resolve(asset.Url, sourceKind)).Host));
+                    using var response = await ModelDownloadSource.Get(client, asset.Url, sourceKind, token);
                     response.EnsureSuccessStatusCode();
                     if (response.Content.Headers.ContentLength is long length && length != asset.Size) throw new InvalidDataException(asset.Name + L.Get("DownloadLengthMismatch"));
                     await using var input = await response.Content.ReadAsStreamAsync(token);

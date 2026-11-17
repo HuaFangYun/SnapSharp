@@ -10,9 +10,9 @@ internal sealed class CutoutModelDownloadService
 {
     internal static string Source => CutoutModels.All[0].Source;
     internal static string Sha256 => CutoutModels.All[0].Hash;
-    public Task<string> Download(string root, IProgress<string> progress, CancellationToken token) => Download(CutoutModels.All[0], root, progress, token);
+    public Task<string> Download(string root, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official) => Download(CutoutModels.All[0], root, progress, token, sourceKind);
 
-    public async Task<string> Download(CutoutModelDefinition model, string root, IProgress<string> progress, CancellationToken token)
+    public async Task<string> Download(CutoutModelDefinition model, string root, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official)
     {
         Directory.CreateDirectory(root);
         var temporary = Path.Combine(root, "download-" + Guid.NewGuid().ToString("N") + ".tmp");
@@ -20,17 +20,9 @@ internal sealed class CutoutModelDownloadService
         {
             using var handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
             using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) };
-            var address = new Uri(model.Source);
-            for (var redirects = 0; redirects < 5; redirects++)
+            progress.Report(L.Format("ModelDownloadConnectingSource", new Uri(ModelDownloadSource.Resolve(model.Source, sourceKind)).Host));
+            using (var response = await ModelDownloadSource.Get(client, model.Source, sourceKind, token))
             {
-                using var response = await client.GetAsync(address, HttpCompletionOption.ResponseHeadersRead, token);
-                if ((int)response.StatusCode is >= 300 and < 400 && response.Headers.Location is { } location)
-                {
-                    address = new Uri(address, location);
-                    if (address.Scheme != "https" || !string.IsNullOrEmpty(address.UserInfo) || !address.IsDefaultPort || address.Host is not ("github.com" or "release-assets.githubusercontent.com" or "objects.githubusercontent.com" or "huggingface.co" or "cas-bridge.xethub.hf.co" or "us.aws.cdn.hf.co" or "cdn-lfs.huggingface.co" or "cdn-lfs-us-1.hf.co"))
-                        throw new InvalidDataException(L.Get("ModelSourceRedirectedToAnUntrustedAddress"));
-                    continue;
-                }
                 response.EnsureSuccessStatusCode();
                 if (response.Content.Headers.ContentLength > model.MaximumBytes) throw new InvalidDataException(L.Get("ModelExceedsItsExpectedSize"));
                 await using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true))
@@ -48,7 +40,6 @@ internal sealed class CutoutModelDownloadService
                 progress.Report(L.Get("VerifyingFilesAndONNXContractLargeModels"));
                 return await Task.Run(() => InstallFile(model, temporary, root, token), token);
             }
-            throw new InvalidDataException(L.Get("TooManyRedirectsWhileDownloadingTheModel"));
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }

@@ -11,7 +11,16 @@ namespace SnapSharp.Views;
 
 public partial class SettingsWindow : Window
 {
-    private CancellationTokenSource? _modelDownload;
+    private CancellationTokenSource? _downloadCancellation;
+    private CancellationTokenSource? ModelDownload
+    {
+        get => _downloadCancellation;
+        set { _downloadCancellation = value; SetValue(DownloadSourceEnabledProperty, value is null); }
+    }
+    public static readonly DependencyProperty DownloadSourceEnabledProperty = DependencyProperty.Register(nameof(DownloadSourceEnabled), typeof(bool), typeof(SettingsWindow), new PropertyMetadata(true));
+    public bool DownloadSourceEnabled => (bool)GetValue(DownloadSourceEnabledProperty);
+    public static readonly DependencyProperty SelectedModelDownloadSourceProperty = DependencyProperty.Register(nameof(SelectedModelDownloadSource), typeof(string), typeof(SettingsWindow), new PropertyMetadata(ModelDownloadSource.Official));
+    public string SelectedModelDownloadSource { get => (string)GetValue(SelectedModelDownloadSourceProperty); set => SetValue(SelectedModelDownloadSourceProperty, value); }
     private CancellationTokenSource? _translationTest;
     public static readonly DependencyProperty CompactLayoutProperty = DependencyProperty.Register(nameof(CompactLayout), typeof(bool), typeof(SettingsWindow), new PropertyMetadata(false));
     public bool CompactLayout { get => (bool)GetValue(CompactLayoutProperty); private set => SetValue(CompactLayoutProperty, value); }
@@ -35,6 +44,7 @@ public partial class SettingsWindow : Window
         Categories.SelectionChanged += (_, e) => { if (ReferenceEquals(e.OriginalSource, Categories)) BringSelectedCategoryIntoView(); };
         Loaded += (_, _) => BringSelectedCategoryIntoView();
         var current = settings.Current;
+        SelectedModelDownloadSource = current.ModelDownloadSource == ModelDownloadSource.Domestic ? ModelDownloadSource.Domestic : ModelDownloadSource.Official;
         InterfaceLanguageBox.ItemsSource = LocalizationService.Languages;
         InterfaceLanguageBox.SelectedValue = LocalizationService.Languages.Any(x => x.Code == current.InterfaceLanguage)
             ? current.InterfaceLanguage : "";
@@ -74,10 +84,10 @@ public partial class SettingsWindow : Window
         OcrBackendBox.SelectedIndex = current.OcrBackend switch { "Windows" => 1, "Tesseract" => 2, _ => 0 };
         OnnxDeviceBox.SelectedIndex = current.OnnxDevice == "DirectML" ? 1 : 0;
         OnnxGpuId.Text = current.OnnxDeviceId.ToString();
-        TesseractDirectory.Text = current.TesseractDataDirectory; TesseractLanguages.Text = current.TesseractLanguages;
-        OcrDetPath.Text = current.OcrDetectionModel; OcrRecPath.Text = current.OcrRecognitionModel; OcrDictPath.Text = current.OcrDictionary;
+        TesseractDirectory.Text = _settings.StoreModelPath(current.TesseractDataDirectory); TesseractLanguages.Text = current.TesseractLanguages;
+        OcrDetPath.Text = _settings.StoreModelPath(current.OcrDetectionModel); OcrRecPath.Text = _settings.StoreModelPath(current.OcrRecognitionModel); OcrDictPath.Text = _settings.StoreModelPath(current.OcrDictionary);
         OcrLanguage.Text = current.WindowsOcrLanguage; OcrMaxEdge.Text = current.OcrMaximumEdge.ToString(); ModelThreads.Text = current.RecognitionThreads.ToString(); ModelTimeout.Text = current.RecognitionTimeoutSeconds.ToString();
-        BarcodeRotate.IsChecked = current.BarcodeRotate; CutoutPath.Text = current.CutoutModel; CutoutSize.Text = current.CutoutInputSize.ToString();
+        BarcodeRotate.IsChecked = current.BarcodeRotate; CutoutPath.Text = _settings.StoreModelPath(current.CutoutModel); CutoutSize.Text = current.CutoutInputSize.ToString();
         CutoutProfileBox.SelectedIndex = current.CutoutProfile switch { "ISNet" => 1, "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 };
         CutoutModels.Migrate(current);
         _cutoutModels = JsonSerializer.Deserialize<Dictionary<string, CutoutModelConfiguration>>(JsonSerializer.Serialize(current.CutoutModels))!;
@@ -86,11 +96,11 @@ public partial class SettingsWindow : Window
         CutoutPackageBox.ItemsSource = CutoutModels.All;
         CutoutPackageBox.SelectedItem = CutoutDefaultBox.SelectedItem;
         TablePluginId.Text = current.TableRecognizerId; FormulaPluginId.Text = current.FormulaRecognizerId;
-        TableModelPath.Text = current.TableStructureModel; FormulaDirectory.Text = current.FormulaModelDirectory;
+        TableModelPath.Text = _settings.StoreModelPath(current.TableStructureModel); FormulaDirectory.Text = _settings.StoreModelPath(current.FormulaModelDirectory);
         AllowTranslation.IsChecked = current.AllowOnlineTranslation; TranslateUrl.Text = current.TranslationEndpoint; TranslateTarget.Text = current.TranslationTarget; TranslateSource.Text = current.TranslationSource;
         TranslationProviderBox.SelectedIndex = current.TranslationProvider switch { "Local" => 3, "MyMemory" => 0, "Google" => 2, _ => 1 };
-        LocalTranslationModelPath.Text = current.LocalTranslationModel;
-        LocalTranslationRuntimePath.Text = current.LocalTranslationRuntime;
+        LocalTranslationModelPath.Text = _settings.StoreModelPath(current.LocalTranslationModel);
+        LocalTranslationRuntimePath.Text = _settings.StoreModelPath(current.LocalTranslationRuntime);
         LocalTranslationDeviceBox.SelectedIndex = current.LocalTranslationDevice == "Vulkan" ? 1 : 0;
         AllowSearch.IsChecked = current.AllowImageSearchUpload; SearchUrl.Text = current.ImageSearchEndpoint;
         _ready = true;
@@ -109,7 +119,7 @@ public partial class SettingsWindow : Window
         Loaded += (_, _) => _hotkey.Suspend();
         Closed += (_, _) =>
         {
-            _modelDownload?.Cancel();
+            ModelDownload?.Cancel();
             _translationTest?.Cancel();
             try { _hotkey.Resume(); }
             catch (Exception ex) { MessageBox.Show(ex.Message, L.Get("ShortcutRestorationFailedReopenSettingsToCheck"), MessageBoxButton.OK, MessageBoxImage.Warning); }
@@ -177,6 +187,7 @@ public partial class SettingsWindow : Window
     internal AppSettings BuildCandidate()
     {
         var candidate = JsonSerializer.Deserialize<AppSettings>(JsonSerializer.Serialize(_settings.Current))!;
+        candidate.ModelDownloadSource = SelectedModelDownloadSource;
         candidate.InterfaceLanguage = InterfaceLanguageBox.SelectedValue as string ?? "";
         if (!System.IO.Path.IsPathFullyQualified(SaveDirectory.Text)) throw new ArgumentException(L.Get("OutputAndFilesChooseAnAbsoluteSave"));
         _ = OutputFileService.ExpandTemplate(FileNameTemplate.Text, DateTime.Now, 1920, 1080, 1);
@@ -226,7 +237,7 @@ public partial class SettingsWindow : Window
         candidate.OnnxDevice = ((System.Windows.Controls.ComboBoxItem)OnnxDeviceBox.SelectedItem).Tag.ToString()!;
         candidate.OnnxDeviceId = (int)Number(OnnxGpuId, 0, 15, L.Get("GPUIndex"), true);
         candidate.OcrDetectionModel = ModelPath(OcrDetPath, candidate.OcrBackend == "PaddleOCR"); candidate.OcrRecognitionModel = ModelPath(OcrRecPath, candidate.OcrBackend == "PaddleOCR"); candidate.OcrDictionary = ModelPath(OcrDictPath, candidate.OcrBackend == "PaddleOCR");
-        candidate.TesseractDataDirectory = TesseractDirectory.Text.Trim(); candidate.TesseractLanguages = TesseractLanguages.Text.Trim();
+        candidate.TesseractDataDirectory = _settings.ResolveModelPath(TesseractDirectory.Text); candidate.TesseractLanguages = TesseractLanguages.Text.Trim();
         if (candidate.OcrBackend == "Tesseract") LocalRecognitionService.ValidateTesseractData(candidate.TesseractDataDirectory, candidate.TesseractLanguages);
         candidate.WindowsOcrLanguage = OcrLanguage.Text.Trim(); candidate.OcrMaximumEdge = (int)Number(OcrMaxEdge, 320, 2048, L.Get("OCRLongestEdge"), true);
         candidate.RecognitionThreads = (int)Number(ModelThreads, 1, 8, L.Get("ModelThreads"), true); candidate.RecognitionTimeoutSeconds = (int)Number(ModelTimeout, 1, 120, L.Get("InferenceTimeout"), true);
@@ -239,7 +250,7 @@ public partial class SettingsWindow : Window
         candidate.CutoutModel = defaultCutout.CutoutModel; candidate.CutoutProfile = defaultCutout.CutoutProfile; candidate.CutoutInputSize = defaultCutout.CutoutInputSize;
         candidate.FormulaRecognizerId = FormulaPluginId.Text.Trim(); candidate.TableRecognizerId = TablePluginId.Text.Trim();
         candidate.TableStructureModel = ModelPath(TableModelPath);
-        candidate.FormulaModelDirectory = FormulaDirectory.Text.Trim();
+        candidate.FormulaModelDirectory = _settings.ResolveModelPath(FormulaDirectory.Text);
         if (candidate.FormulaModelDirectory.Length > 0)
         {
             foreach (var name in new[] { "encoder.onnx", "decoder.onnx", "image_resizer.onnx", "tokenizer.json" })
@@ -247,8 +258,8 @@ public partial class SettingsWindow : Window
         }
         candidate.AllowOnlineTranslation = AllowTranslation.IsChecked == true; candidate.TranslationEndpoint = TranslateUrl.Text.Trim(); candidate.TranslationTarget = TranslateTarget.Text.Trim(); candidate.TranslationSource = TranslateSource.Text.Trim();
         candidate.TranslationProvider = ((System.Windows.Controls.ComboBoxItem)TranslationProviderBox.SelectedItem).Tag.ToString()!;
-        candidate.LocalTranslationModel = LocalTranslationModelPath.Text.Trim();
-        candidate.LocalTranslationRuntime = LocalTranslationRuntimePath.Text.Trim();
+        candidate.LocalTranslationModel = _settings.ResolveModelPath(LocalTranslationModelPath.Text);
+        candidate.LocalTranslationRuntime = _settings.ResolveModelPath(LocalTranslationRuntimePath.Text);
         candidate.LocalTranslationDevice = ((System.Windows.Controls.ComboBoxItem)LocalTranslationDeviceBox.SelectedItem).Tag.ToString()!;
         if (!System.Text.RegularExpressions.Regex.IsMatch(candidate.TranslationSource, "^[a-zA-Z-]{2,20}$")) throw new ArgumentException(L.Get("InvalidSourceLanguageCodeUseEnZh"));
         candidate.AllowImageSearchUpload = AllowSearch.IsChecked == true; candidate.ImageSearchEndpoint = SearchUrl.Text.Trim();
@@ -276,9 +287,9 @@ public partial class SettingsWindow : Window
         if (double.TryParse(field.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var number) && double.IsFinite(number) && number >= min && number <= max && (!integer || number == Math.Truncate(number))) return number;
         throw new ArgumentException(L.Format("0MustBeAValid3Between", label, min, max, (integer ? L.Get("IntegerValue") : L.Get("NumericValue"))));
     }
-    private static string ModelPath(TextBox field, bool validate = true)
+    private string ModelPath(TextBox field, bool validate = true)
     {
-        var path = field.Text.Trim();
+        var path = _settings.ResolveModelPath(field.Text);
         if (validate && path.Length != 0 && (!System.IO.Path.IsPathFullyQualified(path) || !System.IO.File.Exists(path))) throw new ArgumentException(L.Get("ModelOrDictionaryFileNotFound") + path);
         return path;
     }
@@ -286,42 +297,42 @@ public partial class SettingsWindow : Window
     {
         if (sender is not FrameworkElement { Tag: string name } || FindName(name) is not TextBox field) return;
         var dialog = new Microsoft.Win32.OpenFileDialog { Filter = name == "OcrDictPath" ? L.Get("UTF8DictionaryTxtAllFiles") : L.Get("ONNXModelOnnx") };
-        if (dialog.ShowDialog(this) == true) field.Text = dialog.FileName;
+        if (dialog.ShowDialog(this) == true) field.Text = _settings.StoreModelPath(dialog.FileName);
     }
-    private void CancelOcrDownload_Click(object sender, RoutedEventArgs e) => _modelDownload?.Cancel();
+    private void CancelOcrDownload_Click(object sender, RoutedEventArgs e) => ModelDownload?.Cancel();
     private void BrowseFormulaDirectory_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { Title = L.Get("ChooseLaTeXOCRModelFolder") };
-        if (dialog.ShowDialog(this) == true) FormulaDirectory.Text = dialog.FolderName;
+        if (dialog.ShowDialog(this) == true) FormulaDirectory.Text = _settings.StoreModelPath(dialog.FolderName);
     }
     private async void DownloadSpecialist_Click(object sender, RoutedEventArgs e)
     {
-        if (_modelDownload is not null) { SpecialistStatus.Text = L.Get("ADownloadIsInProgressWaitOr"); return; }
+        if (ModelDownload is not null) { SpecialistStatus.Text = L.Get("ADownloadIsInProgressWaitOr"); return; }
         var table = (sender as FrameworkElement)?.Tag as string == "Table";
-        using var cancellation = new CancellationTokenSource(); _modelDownload = cancellation;
+        using var cancellation = new CancellationTokenSource(); ModelDownload = cancellation;
         DownloadTableButton.IsEnabled = DownloadFormulaButton.IsEnabled = false; CancelSpecialistButton.IsEnabled = true;
         SpecialistStatus.Text = L.Get("DownloadingAndVerifyingMatchingLocalModels");
         try
         {
             var root = System.IO.Path.Combine(AppPaths.Root, "models");
             var progress = new Progress<string>(value => SpecialistStatus.Text = value);
-            var path = await SpecialistModelDownloadService.Install(root, table, progress, cancellation.Token);
+            var path = await SpecialistModelDownloadService.Install(root, table, progress, cancellation.Token, sourceKind: SelectedModelDownloadSource);
             OcrModelDownloadService.ModelPaths? ocr = null;
             if (table && ((System.Windows.Controls.ComboBoxItem)OcrBackendBox.SelectedItem).Tag.ToString() == "PaddleOCR" &&
-                new[] { OcrDetPath.Text, OcrRecPath.Text, OcrDictPath.Text }.Any(p => !System.IO.File.Exists(p)))
-                ocr = await new OcrModelDownloadService().Download(root, progress, cancellation.Token);
+                new[] { OcrDetPath.Text, OcrRecPath.Text, OcrDictPath.Text }.Any(p => !System.IO.File.Exists(_settings.ResolveModelPath(p))))
+                ocr = await new OcrModelDownloadService().Download(root, progress, cancellation.Token, SelectedModelDownloadSource);
             if (!IsLoaded) return;
             if (table)
             {
-                TableModelPath.Text = path; TablePluginId.Text = "";
-                if (ocr is not null) { OcrDetPath.Text = ocr.Detection; OcrRecPath.Text = ocr.Recognition; OcrDictPath.Text = ocr.Dictionary; }
+                TableModelPath.Text = _settings.StoreModelPath(path); TablePluginId.Text = "";
+                if (ocr is not null) { OcrDetPath.Text = _settings.StoreModelPath(ocr.Detection); OcrRecPath.Text = _settings.StoreModelPath(ocr.Recognition); OcrDictPath.Text = _settings.StoreModelPath(ocr.Dictionary); }
             }
-            else { FormulaDirectory.Text = path; FormulaPluginId.Text = ""; }
+            else { FormulaDirectory.Text = _settings.StoreModelPath(path); FormulaPluginId.Text = ""; }
             SpecialistStatus.Text = L.Get("DownloadSHA256AndModelLoadingChecksPassed");
         }
         catch (OperationCanceledException) { SpecialistStatus.Text = L.Get("CanceledExistingConfigurationPreserved"); }
         catch (Exception ex) { SpecialistStatus.Text = L.Get("SetupIncompleteExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
-        finally { _modelDownload = null; DownloadTableButton.IsEnabled = DownloadFormulaButton.IsEnabled = true; CancelSpecialistButton.IsEnabled = false; }
+        finally { ModelDownload = null; DownloadTableButton.IsEnabled = DownloadFormulaButton.IsEnabled = true; CancelSpecialistButton.IsEnabled = false; }
     }
     private void RecordingSetup_Click(object sender, RoutedEventArgs e) => RecordingSetupWindow.Open(this);
     private void ConfigureWindowsOcr_Click(object sender, RoutedEventArgs e)
@@ -406,8 +417,8 @@ public partial class SettingsWindow : Window
     }
     private async void DownloadLocalTranslation_Click(object sender, RoutedEventArgs e)
     {
-        if (_modelDownload is not null) { TranslationStatus.Text = L.Get("ADownloadIsInProgressWaitFor"); return; }
-        using var cancellation = new CancellationTokenSource(); _modelDownload = cancellation;
+        if (ModelDownload is not null) { TranslationStatus.Text = L.Get("ADownloadIsInProgressWaitFor"); return; }
+        using var cancellation = new CancellationTokenSource(); ModelDownload = cancellation;
         var device = ((System.Windows.Controls.ComboBoxItem)LocalTranslationDeviceBox.SelectedItem).Tag.ToString()!;
         DownloadLocalTranslationButton.IsEnabled = false; CancelLocalTranslationButton.IsEnabled = true;
         LocalTranslationDeviceBox.IsEnabled = TranslationProviderBox.IsEnabled = false;
@@ -422,15 +433,15 @@ public partial class SettingsWindow : Window
             var install = await LocalTranslationSetupService.Install(root, device,
                 new Progress<string>(text =>
                 {
-                    if (IsLoaded && ReferenceEquals(_modelDownload, cancellation)) LocalTranslationDownloadStatus.Text = text;
+                    if (IsLoaded && ReferenceEquals(ModelDownload, cancellation)) LocalTranslationDownloadStatus.Text = text;
                 }), cancellation.Token, new Progress<double?>(percent =>
                 {
-                    if (!IsLoaded || !ReferenceEquals(_modelDownload, cancellation)) return;
+                    if (!IsLoaded || !ReferenceEquals(ModelDownload, cancellation)) return;
                     LocalTranslationProgress.IsIndeterminate = !percent.HasValue;
                     if (percent.HasValue) LocalTranslationProgress.Value = percent.Value;
-                }));
+                }), SelectedModelDownloadSource);
             if (!IsLoaded) return;
-            LocalTranslationModelPath.Text = install.Model; LocalTranslationRuntimePath.Text = install.Runtime;
+            LocalTranslationModelPath.Text = _settings.StoreModelPath(install.Model); LocalTranslationRuntimePath.Text = _settings.StoreModelPath(install.Runtime);
             LocalTranslationDeviceBox.SelectedIndex = device == "Vulkan" ? 1 : 0;
             TranslationProviderBox.SelectedIndex = 3;
             LocalTranslationDownloadStatus.Text = TranslationStatus.Text = L.Format("LocalTranslationDownloaded", device);
@@ -447,7 +458,7 @@ public partial class SettingsWindow : Window
         }
         finally
         {
-            _modelDownload = null;
+            ModelDownload = null;
             LocalTranslationProgress.IsIndeterminate = false;
             DownloadLocalTranslationButton.IsEnabled = LocalTranslationDeviceBox.IsEnabled = TranslationProviderBox.IsEnabled = true;
             CancelLocalTranslationButton.IsEnabled = false;
@@ -456,28 +467,28 @@ public partial class SettingsWindow : Window
     private void TesseractBrowse_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { Title = L.Get("ChooseATesseractLanguageDataFolderContaining") };
-        if (dialog.ShowDialog(this) == true) TesseractDirectory.Text = dialog.FolderName;
+        if (dialog.ShowDialog(this) == true) TesseractDirectory.Text = _settings.StoreModelPath(dialog.FolderName);
     }
     private async void DownloadTesseract_Click(object sender, RoutedEventArgs e)
     {
-        if (_modelDownload is not null) return;
-        using var cancellation = new CancellationTokenSource(); _modelDownload = cancellation;
+        if (ModelDownload is not null) return;
+        using var cancellation = new CancellationTokenSource(); ModelDownload = cancellation;
         var languages = ((System.Windows.Controls.ComboBoxItem)TesseractPackageBox.SelectedItem).Tag.ToString()!;
         DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = TesseractPackageBox.IsEnabled = false;
         CancelTesseractButton.IsEnabled = true;
         try
         {
             var root = System.IO.Path.Combine(AppPaths.Root, "models");
-            var directory = await new TesseractModelDownloadService().Download(root, languages, new Progress<string>(text => TesseractDownloadStatus.Text = text), cancellation.Token);
+            var directory = await new TesseractModelDownloadService().Download(root, languages, new Progress<string>(text => TesseractDownloadStatus.Text = text), cancellation.Token, SelectedModelDownloadSource);
             if (!IsLoaded) return;
-            TesseractDirectory.Text = directory; TesseractLanguages.Text = languages; OcrBackendBox.SelectedIndex = 2;
+            TesseractDirectory.Text = _settings.StoreModelPath(directory); TesseractLanguages.Text = languages; OcrBackendBox.SelectedIndex = 2;
             TesseractDownloadStatus.Text = L.Get("DownloadSHA256AndEngineLoadingChecksPassed");
         }
         catch (OperationCanceledException) { TesseractDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
         catch (Exception ex) { TesseractDownloadStatus.Text = L.Get("DownloadFailedExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
         finally
         {
-            _modelDownload = null;
+            ModelDownload = null;
             DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = TesseractPackageBox.IsEnabled = true;
             CancelTesseractButton.IsEnabled = false;
         }
@@ -510,24 +521,24 @@ public partial class SettingsWindow : Window
     }
     private async void DownloadCutout_Click(object sender, RoutedEventArgs e)
     {
-        if (_modelDownload is not null) return;
+        if (ModelDownload is not null) return;
         var model = (CutoutModelDefinition)CutoutPackageBox.SelectedItem;
         CutoutPackageBox.IsEnabled = false;
-        using var cancellation = new CancellationTokenSource(); _modelDownload = cancellation;
+        using var cancellation = new CancellationTokenSource(); ModelDownload = cancellation;
         DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = false; CancelCutoutButton.IsEnabled = true;
         CutoutDownloadStatus.Text = L.Get("ConnectingToTheOfficialModelSource");
         try
         {
             var root = System.IO.Path.Combine(AppPaths.Root, "models");
-            var path = await new CutoutModelDownloadService().Download(model, root, new Progress<string>(text => CutoutDownloadStatus.Text = text), cancellation.Token);
+            var path = await new CutoutModelDownloadService().Download(model, root, new Progress<string>(text => CutoutDownloadStatus.Text = text), cancellation.Token, SelectedModelDownloadSource);
             if (!IsLoaded) return;
-            CutoutPath.Text = path; CutoutProfileBox.SelectedIndex = model.Profile switch { "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 }; CutoutSize.Text = model.InputSize.ToString();
+            CutoutPath.Text = _settings.StoreModelPath(path); CutoutProfileBox.SelectedIndex = model.Profile switch { "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 }; CutoutSize.Text = model.InputSize.ToString();
             StoreCutoutConfiguration();
             CutoutDownloadStatus.Text = L.Format("0DownloadAndVerificationCompleteModelPath", model.Id);
         }
         catch (OperationCanceledException) { CutoutDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
         catch (Exception ex) { CutoutDownloadStatus.Text = L.Get("DownloadFailedExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
-        finally { _modelDownload = null; CutoutPackageBox.IsEnabled = true; DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = true; CancelCutoutButton.IsEnabled = false; }
+        finally { ModelDownload = null; CutoutPackageBox.IsEnabled = true; DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = true; CancelCutoutButton.IsEnabled = false; }
     }
     private void StoreCutoutConfiguration()
     {
@@ -553,28 +564,28 @@ public partial class SettingsWindow : Window
         }
         _editingCutout = model;
         var config = _cutoutModels.GetValueOrDefault(model.Id);
-        CutoutPath.Text = config?.Path ?? "";
+        CutoutPath.Text = _settings.StoreModelPath(config?.Path);
         CutoutProfileBox.SelectedIndex = (config?.Profile ?? model.Profile) switch { "ISNet" => 1, "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 };
         CutoutSize.Text = (config?.InputSize ?? model.InputSize).ToString();
     }
     private async void DownloadOcr_Click(object sender, RoutedEventArgs e)
     {
-        if (_modelDownload is not null) return;
-        using var cancellation = new CancellationTokenSource(); _modelDownload = cancellation;
+        if (ModelDownload is not null) return;
+        using var cancellation = new CancellationTokenSource(); ModelDownload = cancellation;
         DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = OcrModelPackage.IsEnabled = false; CancelOcrDownloadButton.IsEnabled = true;
         OcrDownloadStatus.Text = L.Get("ConnectingToThePyPIModelSource");
         try
         {
             var root = System.IO.Path.Combine(AppPaths.Root, "models");
-            var paths = await new OcrModelDownloadService().Download(root, new Progress<string>(text => OcrDownloadStatus.Text = text), cancellation.Token);
+            var paths = await new OcrModelDownloadService().Download(root, new Progress<string>(text => OcrDownloadStatus.Text = text), cancellation.Token, SelectedModelDownloadSource);
             if (!IsLoaded) return;
-            OcrDetPath.Text = paths.Detection; OcrRecPath.Text = paths.Recognition; OcrDictPath.Text = paths.Dictionary;
+            OcrDetPath.Text = _settings.StoreModelPath(paths.Detection); OcrRecPath.Text = _settings.StoreModelPath(paths.Recognition); OcrDictPath.Text = _settings.StoreModelPath(paths.Dictionary);
             OcrBackendBox.SelectedIndex = 0;
             OcrDownloadStatus.Text = L.Get("ChineseEnglishModelsAndDictionaryDownloadedAnd");
         }
         catch (OperationCanceledException) { OcrDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
         catch (Exception ex) { OcrDownloadStatus.Text = L.Get("DownloadIncompleteExistingConfigurationPreserved") + ex.GetBaseException().Message; }
-        finally { _modelDownload = null; DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = OcrModelPackage.IsEnabled = true; CancelOcrDownloadButton.IsEnabled = false; }
+        finally { ModelDownload = null; DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = OcrModelPackage.IsEnabled = true; CancelOcrDownloadButton.IsEnabled = false; }
     }
     private async void CheckModels_Click(object sender, RoutedEventArgs e)
     {
@@ -614,7 +625,7 @@ public partial class SettingsWindow : Window
     }
     private void Save_Click(object sender, RoutedEventArgs e)
     {
-        if (_modelDownload is not null)
+        if (ModelDownload is not null)
         {
             MessageBox.Show(this, L.Get("WaitForTheModelDownloadToFinish"), L.Get("ModelDownloadInProgress"), MessageBoxButton.OK, MessageBoxImage.Information);
             return;
