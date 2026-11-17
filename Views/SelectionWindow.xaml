@@ -114,6 +114,7 @@
       <StackPanel Orientation="Horizontal">
         <ComboBox x:Name="CaptureModePicker" Width="82" SelectionChanged="CaptureMode_Changed" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:CaptureMode}">
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Region}" Tag="Region" IsSelected="True" />
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Element}" Tag="Element" />
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Window}" Tag="Window" />
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:FullScreen}" Tag="FullScreen" />
         </ComboBox>

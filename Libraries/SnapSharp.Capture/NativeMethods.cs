@@ -108,6 +108,13 @@ internal static class NativeMethods
     internal static extern nint WindowFromPoint(PointL point);
 
     [DllImport("user32.dll")]
+    internal static extern nint ChildWindowFromPointEx(nint parent, PointL point, uint flags);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool ScreenToClient(nint hwnd, ref PointL point);
+
+    [DllImport("user32.dll")]
     internal static extern nint GetAncestor(nint hwnd, uint flags);
 
     [DllImport("user32.dll")]

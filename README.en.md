@@ -35,6 +35,8 @@ Press `Ctrl+Shift+A` to select an area and annotate it directly. Combine rectang
 
 Annotations can be selected, moved, resized, rotated, reordered, undone, and redone. Capture selections can also be elliptical, freehand, or polygonal to suit different subjects.
 
+Capture starts in **Element** mode. Hover to snap to buttons, inputs, and other controls, scroll to switch between an element and its parents, then click to annotate or export. You can also drag to select a region. Press `Tab` or use the mode selector to change modes. Browser accessibility elements work without an extension; CSS selectors and full offscreen element screenshots are not supported.
+
 <p align="center">
   <img src="Screenshot/1.png" alt="The capture toolbar provides annotation tools and actions for processing the selected area." width="950">
 </p>

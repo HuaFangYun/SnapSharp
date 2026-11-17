@@ -76,6 +76,19 @@ If the selection is incorrect, right-click to discard the current selection and 
 
 Copying or saving produces the final composited image, not a screenshot of the toolbar or preview interface. Annotation templates store only annotation objects and styles, not the underlying screenshot.
 
+### Select a button, input, or other element automatically
+
+Start a capture with `Ctrl+Shift+A`. It opens in **Element** mode by default. Hover over a recognizable control to highlight its bounds and display its type, name, and dimensions. Press `Tab` or use the capture-mode selector to change modes.
+
+- Click to lock the element, then annotate, copy, save, or pin its cropped image.
+- Scroll down to expand to a parent container, window content, or the entire window; scroll up to select a smaller child.
+- Drag to select a region manually. `Tab` cycles through **Region → Element → Window → Full screen**.
+- If detection is unavailable or slow, window selection and manual selection remain available. Right-click after selecting to start again, or press `Esc` to cancel.
+
+No browser extension is needed. Page buttons, links, inputs, and other elements exposed through the browser's accessibility interface can also be selected by hovering. Coverage depends on the browser and page. CSS selectors, full DOM inspection, and screenshots of entire offscreen elements are not supported. Custom-drawn controls, canvases, and content without accessibility support may expose only their containing region.
+
+The image is cropped from the desktop snapshot taken when capture begins, including the actual background and any overlapping content. It does not automatically become transparent. Elements spanning monitors are cropped to the current monitor. Restart capture after moving the target window to refresh both the image and its bounds.
+
 ### Pick a color from the screen
 
 Before you begin selecting an area, the magnifier beside the pointer displays a pixel grid, screen coordinates, and color values.

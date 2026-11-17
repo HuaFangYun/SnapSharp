@@ -18,14 +18,17 @@ using Point = System.Windows.Point;
 
 namespace SnapSharp.RegressionChecks;
 
-internal static class Program
+internal static partial class Program
 {
+    private static bool _checkBrowserElements;
     private static readonly string Root = Path.GetFullPath(Path.Combine(".artifacts", "regression-checks", Guid.NewGuid().ToString("N")));
     private static readonly BindingFlags PrivateInstance = BindingFlags.NonPublic | BindingFlags.Instance;
 
     [STAThread]
-    private static int Main()
+    private static int Main(string[] args)
     {
+        if (args is ["--element-host", var framework]) return RunElementHost(framework);
+        _checkBrowserElements = args.Contains("--browser-elements");
         Directory.CreateDirectory(Root);
         try
         {
@@ -133,6 +136,9 @@ internal static class Program
             global.FindName("LocalTranslationDownloadStatus") is TextBlock, "Download feedback controls are missing.");
         global.Close();
         ScreenshotInteractionChecks();
+        ElementInteractionChecks();
+        NativeElementChecks();
+        if (_checkBrowserElements) BrowserElementChecks();
         app.Shutdown();
         Console.WriteLine("PASS: configuration overlay hiding/restoration, remembered audio, changing default output, GIF audio preservation, global settings.");
     }

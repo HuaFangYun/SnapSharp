@@ -17,7 +17,7 @@ namespace SnapSharp.Views;
 public partial class SelectionWindow : Window
 {
     private enum SelectionShape { Rectangle, Ellipse, Lasso, Polygon }
-    private enum OverlayMode { Region, Window, FullScreen }
+    private enum OverlayMode { Region, Window, FullScreen, Element }
 
     private readonly CapturedScreen _screen;
     private readonly IReadOnlyList<WindowCandidate> _windows;
@@ -55,8 +55,10 @@ public partial class SelectionWindow : Window
     public event EventHandler<CaptureResult>? CaptureAccepted;
     public event EventHandler? CaptureCanceled;
 
-    public SelectionWindow(CapturedScreen screen, IReadOnlyList<WindowCandidate> windows, ICaptureService captureService, bool scrollingSelection = false)
+    public SelectionWindow(CapturedScreen screen, IReadOnlyList<WindowCandidate> windows, ICaptureService captureService, bool scrollingSelection = false,
+        IElementDetectionService? elementDetectionService = null)
     {
+        _elementDetectionService = elementDetectionService ?? new ElementDetectionService();
         InitializeComponent();
         _scrollingSelection = scrollingSelection;
         if (scrollingSelection)
@@ -75,6 +77,7 @@ public partial class SelectionWindow : Window
         if (!_colorPixels.IsFrozen) _colorPixels.Freeze();
         _windows = windows;
         _captureService = captureService;
+        InitializeElementDetection();
         Screenshot.Source = screen.Image;
         for (var x = 0; x <= 19; x++)
             MagnifierPixelGrid.Children.Add(new System.Windows.Shapes.Line { X1 = x * 14, X2 = x * 14, Y2 = 154, Stroke = new SolidColorBrush(Color.FromArgb(85, 255, 255, 255)), StrokeThickness = .5 });
@@ -87,6 +90,7 @@ public partial class SelectionWindow : Window
             if (NativeMethods.GetCursorPos(out var activeCursor) && _screen.Bounds.Contains(activeCursor.X, activeCursor.Y)) { Activate(); Focus(); }
             UpdateShade();
             UpdatePointer(NativeMethods.GetCursorPos(out var cursor) ? ScreenCoordinateMapper.CursorToLocalDip(Root, cursor) : new Point(ActualWidth / 2, ActualHeight / 2));
+            if (!_scrollingSelection) CaptureModePicker.SelectedIndex = 1;
         };
     }
 
@@ -150,6 +154,7 @@ public partial class SelectionWindow : Window
             return;
         }
 
+        if (_mode == OverlayMode.Element) CancelElementQuery();
         _start = SnapPoint(point);
         _selection = new Rect(_start, _start);
         _path.Clear();
@@ -274,7 +279,7 @@ public partial class SelectionWindow : Window
                 window.ToolPanel.Visibility = Visibility.Visible;
                 window.SecondaryToolPanel.Visibility = Visibility.Visible;
                 window.Handles.Visibility = Visibility.Visible;
-                window.CaptureModePicker.SelectedIndex = 2;
+                window.CaptureModePicker.SelectedIndex = 3;
 
                 var rightClick = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right)
                     { RoutedEvent = PreviewMouseRightButtonDownEvent };
@@ -331,6 +336,7 @@ public partial class SelectionWindow : Window
         else
         {
             _selection = _mode == OverlayMode.FullScreen ? new Rect(0, 0, ActualWidth, ActualHeight)
+                : _mode == OverlayMode.Element ? SuggestedElementAt(point)
                 : _mode == OverlayMode.Window || _shape is SelectionShape.Rectangle or SelectionShape.Ellipse
                     ? SuggestedWindowAt(point) : Rect.Empty;
             UpdateSelection();
@@ -361,7 +367,8 @@ public partial class SelectionWindow : Window
         // mouse-up jump that makes precise selections feel unstable.
         var end = SnapPoint(_lastPointer);
         var dragged = Math.Abs(end.X - _start.X) >= 3 || Math.Abs(end.Y - _start.Y) >= 3;
-        _selection = dragged ? CreateRect(_start, end, CurrentRatio(_dragRatio)) : SuggestedWindowAt(end);
+        _selection = dragged ? CreateRect(_start, end, CurrentRatio(_dragRatio))
+            : _mode == OverlayMode.Element ? SuggestedElementAt(end) : SuggestedWindowAt(end);
         _dragging = false;
         var validSelection = IsValidSelection();
         if (validSelection) _editing = true;
@@ -387,6 +394,8 @@ public partial class SelectionWindow : Window
     private void BeginInlineEditing()
     {
         if (!IsValidSelection()) return;
+        _elementHoverTimer?.Stop();
+        CancelElementQuery();
         _editing = true;
         Cursor = Cursors.Arrow;
         Hint.Visibility = Visibility.Collapsed;
@@ -523,6 +532,7 @@ public partial class SelectionWindow : Window
         if (CaptureModePicker?.SelectedItem is not ComboBoxItem item ||
             !Enum.TryParse(item.Tag?.ToString(), out OverlayMode mode)) return;
         _mode = mode;
+        ResetElementDetection();
         _suggestedWindow = null;
         _includeWindowFrame = false;
         ResetDraft();
@@ -532,8 +542,11 @@ public partial class SelectionWindow : Window
         if (RatioPicker is not null)
             RatioPicker.IsEnabled = mode == OverlayMode.Region && _shape is SelectionShape.Rectangle or SelectionShape.Ellipse;
         if (!IsLoaded) return;
-        if (!_scrollingSelection) Hint.Text = L.Get(mode == OverlayMode.Window ? "WindowSelectionClientHint" : "DragToSelectClickToSelectWindow");
+        if (!_scrollingSelection) Hint.Text = L.Get(mode == OverlayMode.Element ? "ElementSelectionHint"
+            : mode == OverlayMode.Window ? "WindowSelectionClientHint" : "DragToSelectClickToSelectWindow");
+        if (mode == OverlayMode.Element && !_editing) _elementHoverTimer?.Start();
         _selection = mode == OverlayMode.FullScreen ? new Rect(0, 0, ActualWidth, ActualHeight)
+            : mode == OverlayMode.Element ? SuggestedElementAt(_lastPointer)
             : mode == OverlayMode.Window ? SuggestedWindowAt(_lastPointer) : Rect.Empty;
         UpdateSelection();
     }
@@ -1417,9 +1430,9 @@ public partial class SelectionWindow : Window
             e.Handled = true;
             return;
         }
-        if (!_editing && e.Key == Key.Tab)
+        if (!_editing && !_dragging && e.Key == Key.Tab)
         {
-            CaptureModePicker.SelectedIndex = (CaptureModePicker.SelectedIndex + 1) % 3;
+            CaptureModePicker.SelectedIndex = (CaptureModePicker.SelectedIndex + 1) % CaptureModePicker.Items.Count;
             e.Handled = true;
             return;
         }
@@ -1519,9 +1532,16 @@ public partial class SelectionWindow : Window
 
     private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
-        if (_editing || _dragging || _mode != OverlayMode.Window || e.Delta == 0) return;
+        if (_editing || _dragging || e.Delta == 0) return;
         if (e.OriginalSource is DependencyObject source && CapturePanel.IsAncestorOf(source)) return;
         var point = Clamp(e.GetPosition(Root));
+        if (_mode == OverlayMode.Element)
+        {
+            AdjustElementScope(point, e.Delta);
+            e.Handled = true;
+            return;
+        }
+        if (_mode != OverlayMode.Window) return;
         AdjustWindowScope(point, e.Delta);
         e.Handled = true;
     }
@@ -1563,6 +1583,8 @@ public partial class SelectionWindow : Window
             CanvasPosition(SelectionBorder, _selection.X, _selection.Y);
             var pixels = ToPixelSelection(_selection);
             InfoText.Text = $"{pixels.X + _screen.Bounds.Left},{pixels.Y + _screen.Bounds.Top}  {pixels.Width} x {pixels.Height} px";
+            if (_mode == OverlayMode.Element && !_editing && !_dragging)
+                InfoText.Text += "  " + ElementDescription();
             CanvasPosition(InfoPanel, _selection.X, Math.Max(4, _selection.Y - 32));
         }
         UpdateShapeOutline();
@@ -1963,7 +1985,7 @@ public partial class SelectionWindow : Window
         return Normalize(anchor, Clamp(new Point(anchor.X + dx, anchor.Y + dy)));
     }
 
-    private double CurrentRatio(double fallback) => _ratio ??
+    private double CurrentRatio(double fallback) => (_mode == OverlayMode.Region ? _ratio : null) ??
         (_shiftRatio || Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) ? Math.Max(0.001, fallback) : 0);
 
     private Point SnapPoint(Point point)

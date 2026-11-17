@@ -3624,4 +3624,19 @@ Media Foundation：{2}
 诊断日志：{1}</value></data>
   <data name="LocalDownloadCanceledResume" xml:space="preserve"><value>下载已取消，已下载的数据会保留；再次点击“下载”即可继续。</value></data>
   <data name="WindowSelectionClientHint" xml:space="preserve"><value>单击截取窗口内容 · 滚轮向下：包含标题栏 · 滚轮向上：仅内容</value></data>
+  <data name="Element" xml:space="preserve">
+    <value>元素</value>
+  </data>
+  <data name="ElementSelectionHint" xml:space="preserve">
+    <value>悬停识别控件  |  单击选中 · 拖动框选  |  滚轮切换元素／父级  |  Tab 切换模式  |  Esc 取消</value>
+  </data>
+  <data name="ElementControl" xml:space="preserve">
+    <value>控件</value>
+  </data>
+  <data name="ElementClientArea" xml:space="preserve">
+    <value>窗口内容</value>
+  </data>
+  <data name="ElementWindowFallback" xml:space="preserve">
+    <value>窗口 · 悬停识别控件</value>
+  </data>
 </root>
