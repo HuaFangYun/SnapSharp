@@ -3657,8 +3657,8 @@ Media Foundation：{2}
   <data name="DataFolderLinksUnsupported" xml:space="preserve"><value>数据迁移不支持符号链接或目录联接，请选择普通目录。</value></data>
   <data name="ModelDownloadSource" xml:space="preserve"><value>模型下载源</value></data>
   <data name="ModelDownloadOfficial" xml:space="preserve"><value>官方源</value></data>
-  <data name="ModelDownloadDomestic" xml:space="preserve"><value>国内镜像源</value></data>
-  <data name="ModelDownloadSourceHint" xml:space="preserve"><value>适用于所有模型下载，切换后下次下载即生效，保存设置后记住选择。国内源使用清华 PyPI、HF-Mirror 和第三方 GitHub 加速 gh-proxy.com；表格模型已使用 ModelScope。两种源均校验文件。</value></data>
+  <data name="ModelDownloadDomestic" xml:space="preserve"><value>中国源</value></data>
+  <data name="ModelDownloadSourceHint" xml:space="preserve"><value>适用于所有模型下载，切换后下次下载即生效，保存设置后记住选择。中国源使用清华 PyPI、HF-Mirror 和第三方 GitHub 加速 gh-proxy.com；表格模型已使用 ModelScope。两种源均校验文件。</value></data>
   <data name="ModelDownloadConnectingSource" xml:space="preserve"><value>正在连接下载源：{0}…</value></data>
   <data name="ModelPathMustBeRelativeOrAbsolute" xml:space="preserve"><value>请使用绝对路径或相对于 exe 所在目录的路径。</value></data>
   <data name="ModelPathPortabilityHint" xml:space="preserve"><value>exe 所在文件夹内的模型文件和目录自动保存为相对路径（如 models\ocr\detection.onnx），外部模型保留绝对路径。将程序、设置和模型一起移动后仍可使用。</value></data>

@@ -54,7 +54,6 @@
       </ControlTemplate></TabControl.Template>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:General}" Tag="Settings"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:General}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:StartupBehaviorAndApplicationInformationChangesTake}" Style="{StaticResource Hint}" />
-        <ContentControl ContentTemplate="{StaticResource ModelDownloadSourceSelector}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:StartupAndAppearance}" Style="{StaticResource SectionTitle}" />          <CheckBox x:Name="StartWithWindows" Content="{loc:Loc SnapSharp.Core:Resources.Strings:StartAutomaticallyWhenSigningInToWindows}" />
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:UsesTheSameDarkThemeAsThe}" Style="{StaticResource Hint}" />

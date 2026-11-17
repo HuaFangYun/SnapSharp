@@ -139,6 +139,10 @@ internal static partial class Program
         var global = new SettingsWindow(restored, new StartupRegistrationService(), hotkeys);
         global.Show(); global.UpdateLayout();
         var sourceTemplate = (DataTemplate)global.Resources["ModelDownloadSourceSelector"];
+        Require(!VisualDescendants<ContentControl>(global).Any(x => x.ContentTemplate == sourceTemplate),
+            "General settings should not contain the model download source selector.");
+        var categories = (System.Windows.Controls.TabControl)global.FindName("Categories");
+        categories.SelectedIndex = 5; global.UpdateLayout();
         var selectorHost = VisualDescendants<ContentControl>(global).Single(x => x.ContentTemplate == sourceTemplate);
         var selector = VisualDescendants<ComboBox>(selectorHost).Single();
         Require((string)selector.SelectedValue == ModelDownloadSource.Official, "Download selector has no default selection.");
@@ -149,8 +153,7 @@ internal static partial class Program
         global.SetValue(SettingsWindow.DownloadSourceEnabledProperty, false);
         global.UpdateLayout();
         Require(!selector.IsEnabled, "Download source remains editable during download.");
-        var categories = (System.Windows.Controls.TabControl)global.FindName("Categories");
-        categories.SelectedIndex = 5; global.UpdateLayout();
+        categories.SelectedIndex = 6; global.UpdateLayout();
         selectorHost = VisualDescendants<ContentControl>(global).Single(x => x.ContentTemplate == sourceTemplate);
         selector = VisualDescendants<ComboBox>(selectorHost).Single();
         Require((string)selector.SelectedValue == ModelDownloadSource.Domestic && !selector.IsEnabled,
