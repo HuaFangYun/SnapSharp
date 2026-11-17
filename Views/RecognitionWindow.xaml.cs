@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -16,6 +15,19 @@ namespace SnapSharp.Views;
 
 public partial class RecognitionWindow : Window
 {
+    private sealed record TranslationLanguage(string Code, string Name)
+    {
+        public override string ToString() => Name;
+    }
+    private static readonly TranslationLanguage[] TranslationLanguages =
+    [
+        new("cs", "Čeština"), new("de", "Deutsch"), new("de-AT", "Deutsch (Österreich)"), new("de-CH", "Deutsch (Schweiz)"),
+        new("en", "English"), new("es", "Español"), new("es-ES", "Español (España)"), new("es-419", "Español (Latinoamérica)"),
+        new("fr", "Français"), new("fr-FR", "Français (France)"), new("fr-CA", "Français (Canada)"), new("it", "Italiano"),
+        new("ja", "日本語"), new("ko", "한국어"), new("pl", "Polski"), new("pt-BR", "Português (Brasil)"),
+        new("pt-PT", "Português (Portugal)"), new("ru", "Русский"), new("tr", "Türkçe"), new("zh-CN", "中文（中国大陆）"),
+        new("zh-Hans", "简体中文"), new("zh-Hant", "繁體中文")
+    ];
     private readonly BitmapSource _image;
     private readonly SettingsService _settings;
     private readonly PluginCatalog? _plugins;
@@ -24,18 +36,26 @@ public partial class RecognitionWindow : Window
     private BitmapSource? _cutout;
     private CancellationTokenSource? _operation;
     private string _baseline = "";
+    private string _sourceText = "";
+    private string _translatedText = "";
+    private bool _hasTranslation;
     private string _tableBaseline = "[]";
     private string TableSnapshot => System.Text.Json.JsonSerializer.Serialize(_cells);
-    private bool HasEdits => TextEditor.Text != _baseline || TableSnapshot != _tableBaseline;
+    private bool HasEdits => _sourceText != _baseline || TableSnapshot != _tableBaseline;
     private bool _busy, _closed, _syncing;
     public event Action<BitmapSource, CaptureAction>? OutputRequested;
     public event Action<string>? SettingsRequested;
     private string Mode => ((ComboBoxItem)ModeBox.SelectedItem).Tag.ToString()!;
+    private string CurrentTextView => (TextViewBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Source";
     public RecognitionWindow(BitmapSource image, SettingsService settings, PluginCatalog? plugins = null, string mode = "OCR", bool autoRun = true)
     {
         _image = image.IsFrozen ? image : image.Clone(); if (!_image.IsFrozen) _image.Freeze();
         _settings = settings; _plugins = plugins;
         InitializeComponent();
+        TargetLanguageBox.ItemsSource = TranslationLanguages;
+        TargetLanguageBox.SelectedItem = TranslationLanguages.FirstOrDefault(x => x.Code.Equals(settings.Current.TranslationTarget, StringComparison.OrdinalIgnoreCase))
+            ?? TranslationLanguages.First(x => x.Code == "zh-CN");
+        TextViewBox.SelectedIndex = 0;
         ModeBox.SelectedIndex = mode switch { "Barcode" => 1, "Table" => 2, "Formula" => 3, "Cutout" => 4, _ => 0 };
         CutoutModels.Migrate(settings.Current);
         var cutoutModels = CutoutModels.ForDevice(settings.Current.CutoutOnnxDevice);
@@ -85,7 +105,7 @@ public partial class RecognitionWindow : Window
                     return;
                 }
                 var result = await OnnxImageRuntime.Shared.RemoveBackground(_image, settings, _operation.Token);
-                if (_closed) return; _cutout = result; _document = null; Boxes.Children.Clear(); ShowOriginal.IsChecked = false; SetPicture(result); CutoutButtons.IsEnabled = true; ResultTabs.SelectedIndex = 2;
+                if (_closed) return; _cutout = result; _document = null; ShowOriginal.IsChecked = false; SetPicture(result); CutoutButtons.IsEnabled = true; ResultTabs.SelectedIndex = 2;
                 Status.Text = L.Format("01BackgroundRemovedPreservingOriginalResolution", model.Id,
                     settings.CutoutOnnxDevice is "CPU" or "DirectML" ? settings.CutoutOnnxDevice : settings.OnnxDevice); return;
             }
@@ -109,10 +129,10 @@ public partial class RecognitionWindow : Window
                 document = await (Mode == "Barcode" ? service.Barcodes(_image, settings, _operation.Token) : service.Recognize(_image, settings, _operation.Token));
             }
             if (_closed) return;
-            _document = document; SetPicture(_image); _syncing = true; TextEditor.Text = document.Text; _baseline = TextEditor.Text; _syncing = false;
-            BlocksGrid.ItemsSource = document.Blocks; _cells = new ObservableCollection<RecognizedCell>(_pluginCells ?? RecognitionExport.Draft(document)); _pluginCells = null; CellsGrid.ItemsSource = _cells;
+            _document = document; SetPicture(_image); SetSourceText(document.Text); _baseline = _sourceText;
+            _cells = new ObservableCollection<RecognizedCell>(_pluginCells ?? RecognitionExport.Draft(document)); _pluginCells = null; CellsGrid.ItemsSource = _cells;
             _tableBaseline = TableSnapshot; _cutout = null; CutoutButtons.IsEnabled = false;
-            ResultTabs.SelectedIndex = Mode == "Table" ? 1 : 0; DrawBoxes();
+            ResultTabs.SelectedIndex = Mode == "Table" ? 1 : 0;
             Status.Text = document.Blocks.Count == 0 ? L.Get("NoContentRecognizedTryAnotherEngineCheck") : L.Format("01RegionsClickAnImageRegion", document.Backend, document.Blocks.Count);
             if (Mode == "Table") Status.Text += L.Get("RowsColumnsAndMergedCellsRecognizedReview");
         }
@@ -145,52 +165,72 @@ public partial class RecognitionWindow : Window
     }
     private void SetBusy(bool busy)
     {
-        _busy = busy; if (_closed) return; RunButton.IsEnabled = !busy; ModeBox.IsEnabled = !busy; CancelButton.IsEnabled = busy; TextEditor.IsReadOnly = busy; CellsGrid.IsReadOnly = busy;
-        CutoutModelBox.IsEnabled = !busy;
+        _busy = busy; if (_closed) return; RunButton.IsEnabled = !busy; ModeBox.IsEnabled = !busy; CancelButton.IsEnabled = busy; CellsGrid.IsReadOnly = busy;
+        CutoutModelBox.IsEnabled = TargetLanguageBox.IsEnabled = TextViewBox.IsEnabled = TranslateButton.IsEnabled = !busy;
+        RefreshTextView();
     }
     private void Cancel_Click(object sender, RoutedEventArgs e) => _operation?.Cancel();
     private void Settings_Click(object sender, RoutedEventArgs e) => SettingsRequested?.Invoke(Mode == "Cutout" ? "Scissors" : "ScanText");
     private void Original_Changed(object sender, RoutedEventArgs e) { if (Picture is not null) SetPicture(Mode != "Cutout" || ShowOriginal.IsChecked == true || _cutout is null ? _image : _cutout); }
-    private void DrawBoxes()
+    private void SetSourceText(string text)
     {
-        Boxes.Children.Clear(); if (_document is null) return;
-        foreach (var block in _document.Blocks.Take(1000))
+        _sourceText = text;
+        InvalidateTranslation();
+        TextViewBox.SelectedIndex = 0;
+        RefreshTextView();
+    }
+    private void InvalidateTranslation()
+    {
+        _translatedText = "";
+        _hasTranslation = false;
+        if (CurrentTextView != "Source") TextViewBox.SelectedIndex = 0;
+    }
+    private void TargetLanguage_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (TargetLanguageBox.SelectedItem is not TranslationLanguage || TextResultTab is null) return;
+        InvalidateTranslation();
+    }
+    private void TextView_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (CurrentTextView != "Source" && !_hasTranslation)
         {
-            var rectangle = new System.Windows.Shapes.Rectangle { Width = block.Bounds.Width, Height = block.Bounds.Height,
-                Stroke = Equals(BlocksGrid.SelectedItem, block) ? Brushes.Orange : Brushes.DodgerBlue, StrokeThickness = Math.Max(1, 1.5 / Zoom.Value), Fill = Brushes.Transparent };
-            Canvas.SetLeft(rectangle, block.Bounds.X); Canvas.SetTop(rectangle, block.Bounds.Y); Boxes.Children.Add(rectangle);
+            TextViewBox.SelectedIndex = 0;
+            if (Status is not null) Status.Text = L.Get("TranslateBeforeChoosingResultView");
+            return;
         }
+        RefreshTextView();
     }
-    private void Picture_Click(object sender, MouseButtonEventArgs e)
+    private void RefreshTextView()
     {
-        if (_document is null || Mode == "Cutout") return;
-        var point = e.GetPosition(PictureCanvas); var block = _document.Blocks.Where(x => x.Bounds.Contains(point)).OrderBy(x => x.Bounds.Width * x.Bounds.Height).FirstOrDefault();
-        BlocksGrid.SelectedItem = block; if (block is not null) BlocksGrid.ScrollIntoView(block);
+        if (TextEditor is null || TextViewBox?.SelectedItem is not ComboBoxItem selected) return;
+        var view = selected.Tag?.ToString() ?? "Source";
+        var text = view switch { "Translation" => _translatedText, "Bilingual" => BilingualText(_sourceText, _translatedText), _ => _sourceText };
+        _syncing = true; TextEditor.Text = text; TextEditor.IsReadOnly = _busy || view != "Source"; _syncing = false;
     }
-    private void Block_Changed(object sender, SelectionChangedEventArgs e)
+    private static string BilingualText(string source, string translation)
     {
-        DrawBoxes(); if (_syncing || BlocksGrid.SelectedItem is not RecognizedBlock block) return;
-        var index = TextEditor.Text == _document?.Text ? _document.Blocks.TakeWhile(x => !ReferenceEquals(x, block)).Sum(x => x.Text.Length + Environment.NewLine.Length) : -1;
-        if (index >= 0 && block.Text.Length > 0) { _syncing = true; TextEditor.Select(index, block.Text.Length); _syncing = false; }
-        PictureScroll.ScrollToVerticalOffset(Math.Max(0, block.Bounds.Top * Zoom.Value - PictureScroll.ViewportHeight / 2));
-        PictureScroll.ScrollToHorizontalOffset(Math.Max(0, block.Bounds.Left * Zoom.Value - PictureScroll.ViewportWidth / 2));
-    }
-    private void Text_SelectionChanged(object sender, RoutedEventArgs e)
-    {
-        if (_syncing || _document is null || TextEditor.Text != _document.Text) return;
-        var offset = 0;
-        foreach (var block in _document.Blocks)
+        var sourceLines = source.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+        var translatedLines = translation.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+        var lines = new List<string>(Math.Max(sourceLines.Length, translatedLines.Length) * 2);
+        for (var index = 0; index < Math.Max(sourceLines.Length, translatedLines.Length); index++)
         {
-            if (TextEditor.SelectionStart <= offset + block.Text.Length) { _syncing = true; BlocksGrid.SelectedItem = block; _syncing = false; DrawBoxes(); break; }
-            offset += block.Text.Length + Environment.NewLine.Length;
+            if (index < sourceLines.Length) lines.Add(sourceLines[index]);
+            if (index < translatedLines.Length) lines.Add(translatedLines[index]);
         }
+        return string.Join(Environment.NewLine, lines);
     }
-    private void Text_Changed(object sender, TextChangedEventArgs e) { if (!_syncing && Status is not null && !_busy) Status.Text = L.Get("TextEditedCopyExportUsesTheEdited"); }
-    private void CopyText_Click(object sender, RoutedEventArgs e) { try { OutputActions.CopyText(TextEditor.Text); _baseline = TextEditor.Text; Status.Text = L.Get("CurrentTextCopied"); } catch (Exception ex) { Status.Text = ex.Message; } }
-    private void CopyTranslation_Click(object sender, RoutedEventArgs e) { try { OutputActions.CopyText(TranslatedText.Text); } catch (Exception ex) { Status.Text = ex.Message; } }
+    private static string NormalizeTranslatedLine(string text) => string.Join(" ", text.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+    private void Text_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (_syncing || CurrentTextView != "Source") return;
+        _sourceText = TextEditor.Text;
+        InvalidateTranslation();
+        if (Status is not null && !_busy) Status.Text = L.Get("TextEditedCopyExportUsesTheEdited");
+    }
+    private void CopyText_Click(object sender, RoutedEventArgs e) { try { OutputActions.CopyText(TextEditor.Text); if (CurrentTextView == "Source") _baseline = _sourceText; Status.Text = L.Get("CurrentTextCopied"); } catch (Exception ex) { Status.Text = ex.Message; } }
     private void ExportText_Click(object sender, RoutedEventArgs e)
     {
-        if (SaveBytes(Encoding.UTF8.GetBytes(TextEditor.Text), Mode == "Formula" ? L.Get("LaTeXTexTextTxt") : L.Get("TextTxt"), "SnapSharp-text")) _baseline = TextEditor.Text;
+        if (SaveBytes(Encoding.UTF8.GetBytes(TextEditor.Text), Mode == "Formula" ? L.Get("LaTeXTexTextTxt") : L.Get("TextTxt"), "SnapSharp-text") && CurrentTextView == "Source") _baseline = _sourceText;
     }
     private void ExportTable_Click(object sender, RoutedEventArgs e)
     {
@@ -231,7 +271,9 @@ public partial class RecognitionWindow : Window
         if (_busy) return;
         try
         {
-            var settings = _settings.Current;
+            var settings = System.Text.Json.JsonSerializer.Deserialize<AppSettings>(System.Text.Json.JsonSerializer.Serialize(_settings.Current))
+                ?? throw new InvalidOperationException("Could not prepare translation settings.");
+            settings.TranslationTarget = ((TranslationLanguage)TargetLanguageBox.SelectedItem).Code;
             var local = settings.TranslationProvider == "Local";
             if (local && (!File.Exists(settings.LocalTranslationModel) || !File.Exists(settings.LocalTranslationRuntime)))
             {
@@ -243,14 +285,34 @@ public partial class RecognitionWindow : Window
                 Status.Text = L.Get("InSettingsChooseATranslationEngineClick");
                 SettingsRequested?.Invoke("Shield"); return;
             }
-            var text = TextEditor.SelectionLength > 0 ? TextEditor.SelectedText : TextEditor.Text;
+            var text = _sourceText;
             if (string.IsNullOrWhiteSpace(text)) throw new InvalidOperationException(L.Get("NoTextToTranslateRunOCROr"));
             if (!local && !PrivacyConsentDialog.Confirm(this, OnlineRecognitionService.TranslationUri(settings), text, null)) return;
             SetBusy(true); _operation = new CancellationTokenSource(); using var service = new OnlineRecognitionService();
             Status.Text = local ? L.Get("LoadingModelAndTranslatingLocally") + settings.LocalTranslationDevice + L.Get("FirstLoadMayBeSlow") : L.Get("CallingTheConfirmedTranslationAPI");
-            var translated = local ? await LocalTranslationService.Translate(text, settings, _operation.Token)
-                : await service.Translate(text, settings, true, _operation.Token);
-            if (!_closed) { TranslatedText.Text = translated; ResultTabs.SelectedIndex = 3; Status.Text = (local ? L.Get("LocalTranslationCompleteNothingWasUploadedTo") : L.Get("APITranslationComplete")) + L.Get("SourceTextWasPreserved"); }
+            var sourceLines = text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+            var translatedLines = new string[sourceLines.Length];
+            var linesToTranslate = sourceLines.Select((line, index) => (line, index)).Where(item => !string.IsNullOrWhiteSpace(item.line)).ToArray();
+            if (local)
+            {
+                var translatedBatch = await LocalTranslationService.TranslateLines(linesToTranslate.Select(item => item.line).ToArray(), settings, _operation.Token);
+                var values = translatedBatch.Split('\n');
+                if (values.Length != linesToTranslate.Length) throw new InvalidDataException("Local translation returned an unexpected number of lines.");
+                for (var index = 0; index < values.Length; index++) translatedLines[linesToTranslate[index].index] = NormalizeTranslatedLine(values[index]);
+            }
+            else
+            {
+                foreach (var item in linesToTranslate)
+                    translatedLines[item.index] = NormalizeTranslatedLine(await service.Translate(item.line, settings, true, _operation.Token));
+            }
+            var translated = string.Join(Environment.NewLine, translatedLines);
+            if (!_closed)
+            {
+                _translatedText = translated;
+                _hasTranslation = true;
+                TextViewBox.SelectedIndex = 1;
+                Status.Text = (local ? L.Get("LocalTranslationCompleteNothingWasUploadedTo") : L.Get("APITranslationComplete")) + L.Get("SourceTextWasPreserved");
+            }
         }
         catch (Exception ex) { if (!_closed) Status.Text = L.Get("TranslationIncompleteSourceTextPreserved") + ex.GetBaseException().Message; }
         finally { _operation?.Dispose(); _operation = null; SetBusy(false); }
@@ -291,14 +353,19 @@ public partial class RecognitionWindow : Window
                 throw new InvalidOperationException("Clipboard image cutout mode selection failed.");
             window.ModeBox.SelectedIndex = 0;
             window._document = new RecognitionDocument([new("重复", new Rect(0, 0, 20, 10)), new("重复", new Rect(25, 15, 20, 10))], "test");
-            window.TextEditor.Text = window._document.Text; window._baseline = window.TextEditor.Text;
-            window.BlocksGrid.ItemsSource = window._document.Blocks;
-            window.BlocksGrid.SelectedItem = window._document.Blocks[1];
-            if (window.Boxes.Children.Count != 2 || window.TextEditor.SelectionStart != 2 + Environment.NewLine.Length || window.PictureScroll.ActualWidth <= 200 || window.TextEditor.ActualWidth <= 200)
-                throw new InvalidOperationException($"Recognition layout: boxes={window.Boxes.Children.Count}, selection={window.TextEditor.SelectionStart}, preview={window.PictureScroll.ActualWidth}, editor={window.TextEditor.ActualWidth}");
+            window.SetSourceText(window._document.Text); window._baseline = window._sourceText;
+            if (window.CurrentTextView != "Source" || window.TextEditor.IsReadOnly || window.TargetLanguageBox.Text != ((TranslationLanguage)window.TargetLanguageBox.SelectedItem).Name || window.PictureScroll.ActualWidth <= 200 || window.TextEditor.ActualWidth <= 200)
+                throw new InvalidOperationException($"Recognition layout: view={window.CurrentTextView}, preview={window.PictureScroll.ActualWidth}, editor={window.TextEditor.ActualWidth}");
+            window.TextViewBox.SelectedIndex = 1;
+            if (window.CurrentTextView != "Source") throw new InvalidOperationException("Untranslated result view must return to the source text.");
+            window._translatedText = "one" + Environment.NewLine + "two";
+            window._hasTranslation = true;
+            window.TextViewBox.SelectedIndex = 2;
+            if (window.TextEditor.Text != string.Join(Environment.NewLine, window._document.Blocks[0].Text, "one", window._document.Blocks[1].Text, "two") || !window.TextEditor.IsReadOnly)
+                throw new InvalidOperationException("Bilingual OCR result layout failed.");
             return true;
         }
-        finally { window._baseline = window.TextEditor.Text; window._tableBaseline = window.TableSnapshot; window.Close(); }
+        finally { window._baseline = window._sourceText; window._tableBaseline = window.TableSnapshot; window.Close(); }
     }
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 }

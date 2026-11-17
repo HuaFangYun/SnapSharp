@@ -29,21 +29,27 @@
       <Grid><Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
         <Border Background="{StaticResource Checker}" CornerRadius="8" Padding="4">
           <ScrollViewer x:Name="PictureScroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <Grid x:Name="PictureCanvas" HorizontalAlignment="Left" VerticalAlignment="Top" MouseLeftButtonDown="Picture_Click">
+            <Grid x:Name="PictureCanvas" HorizontalAlignment="Left" VerticalAlignment="Top">
               <Grid.LayoutTransform><ScaleTransform ScaleX="{Binding ElementName=Zoom, Path=Value}" ScaleY="{Binding ElementName=Zoom, Path=Value}" /></Grid.LayoutTransform>
-              <Image x:Name="Picture" Stretch="Fill" /><Canvas x:Name="Boxes" IsHitTestVisible="False" />
+              <Image x:Name="Picture" Stretch="Fill" />
             </Grid>
           </ScrollViewer>
         </Border>
         <CheckBox x:Name="ShowOriginal" Grid.Row="1" Content="{loc:Loc SnapSharp.Core:Resources.Strings:ViewOriginalBackgroundRemoval}" Checked="Original_Changed" Unchecked="Original_Changed" Margin="0,10" />
       </Grid>
       <TabControl x:Name="ResultTabs" Grid.Column="2" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}">
-        <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:TextBarcodes}"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition /><RowDefinition Height="180" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-          <TextBox x:Name="TextEditor" AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="10" FontSize="16" SelectionChanged="Text_SelectionChanged" TextChanged="Text_Changed" />
-          <DataGrid x:Name="BlocksGrid" Grid.Row="1" Margin="0,10,0,6" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single" SelectionChanged="Block_Changed">
-            <DataGrid.Columns><DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:OriginalRecognitionRegions}" Binding="{Binding Text}" Width="*" /><DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:Confidence}" Binding="{Binding Confidence, StringFormat=P0}" Width="SizeToHeader" MinWidth="70" /><DataGridTextColumn Header="{loc:Loc SnapSharp.Core:Resources.Strings:Type}" Binding="{Binding Kind}" Width="80" /></DataGrid.Columns>
-          </DataGrid>
-          <StackPanel Grid.Row="2"><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationReviewTheTextOrSelectA}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" /><WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:CopyText}" Click="CopyText_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ExportText}" Click="ExportText_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Translate}" Click="Translate_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationSettings}" Click="TranslationSettings_Click" /></WrapPanel></StackPanel>
+        <TabItem x:Name="TextResultTab" Header="{loc:Loc SnapSharp.Core:Resources.Strings:TextBarcodes}"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+          <WrapPanel Margin="0,0,0,8">
+            <ComboBox x:Name="TargetLanguageBox" Width="190" SelectionChanged="TargetLanguage_Changed" />
+            <Button x:Name="TranslateButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:Translate}" Click="Translate_Click" />
+            <ComboBox x:Name="TextViewBox" Width="100" SelectionChanged="TextView_Changed">
+              <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:SourceText}" Tag="Source" />
+              <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:TranslatedTextView}" Tag="Translation" />
+              <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:BilingualText}" Tag="Bilingual" />
+            </ComboBox>
+          </WrapPanel>
+          <TextBox x:Name="TextEditor" Grid.Row="1" AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="10" FontSize="16" TextChanged="Text_Changed" />
+          <WrapPanel Grid.Row="2" Margin="0,6,0,0"><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:CopyText}" Click="CopyText_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ExportText}" Click="ExportText_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationSettings}" Click="TranslationSettings_Click" /></WrapPanel>
         </Grid></TabItem>
         <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:TableCorrection}"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TableModeUsesLocalSLANetStructureRecognition}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10" />
@@ -56,7 +62,6 @@
           <WrapPanel x:Name="CutoutButtons" IsEnabled="False"><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:CopyImage}" Tag="Copy" Click="CutoutOutput_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:SaveImage}" Tag="Save" Click="CutoutOutput_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:PinImage}" Tag="Pin" Click="CutoutOutput_Click" /></WrapPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PNGIsSelectedByDefaultJPEGBMP}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,12" />
         </StackPanel></TabItem>
-        <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Translation}"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions><TextBox x:Name="TranslatedText" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="10" FontSize="16" /><Button Grid.Row="1" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CopyTranslation}" Click="CopyTranslation_Click" HorizontalAlignment="Left" /></Grid></TabItem>
       </TabControl>
     </Grid>
     <DockPanel Grid.Row="2" Margin="0,12,0,0"><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ImageSearch}" Click="Search_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Close}" Click="Close_Click" /></StackPanel><TextBlock x:Name="Status" Text="{loc:Loc SnapSharp.Core:Resources.Strings:Ready}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" /></DockPanel>

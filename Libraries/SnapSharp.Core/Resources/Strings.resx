@@ -342,6 +342,21 @@
   <data name="Translation" xml:space="preserve">
     <value>Translation</value>
   </data>
+  <data name="SourceText" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="TranslatedTextView" xml:space="preserve">
+    <value>Translation</value>
+  </data>
+  <data name="BilingualText" xml:space="preserve">
+    <value>Bilingual</value>
+  </data>
+  <data name="TranslateAutomaticallyTo0" xml:space="preserve">
+    <value>Auto to {0}</value>
+  </data>
+  <data name="TranslateBeforeChoosingResultView" xml:space="preserve">
+    <value>Translate the text before viewing the translation or bilingual result.</value>
+  </data>
   <data name="CopyTranslation" xml:space="preserve">
     <value>Copy translation</value>
   </data>
