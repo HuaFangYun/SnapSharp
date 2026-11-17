@@ -39,9 +39,10 @@ internal static class LocalizationSelfTest
             }
             Require(LocalizationService.ResolveCulture("", CultureInfo.GetCultureInfo("zh-Hans")).Name == "zh-CN", "Follow Chinese system");
             Require(LocalizationService.ResolveCulture("", CultureInfo.GetCultureInfo("en-GB")).Name == "en", "Follow English system");
-            Require(LocalizationService.ResolveCulture("fr-CA").Name == "en", "Unsupported language fallback");
+            Require(LocalizationService.ResolveCulture("fr-CA").Name == "fr-CA", "Selectable language preference");
+            Require(LocalizationService.Languages.Any(language => language.Code == "es-419" && language.NativeName == "Español (Latinoamérica)"), "Additional interface language list");
             Require(LocalizationService.ResolveCulture("not_a_culture").Name == "en", "Invalid preference fallback");
-            Require(UiText.Resources.GetString("Save", CultureInfo.GetCultureInfo("fr-CA")) == "Save", "ResourceManager fallback");
+            Require(UiText.Resources.GetString("Save", CultureInfo.GetCultureInfo("ar")) == "Save", "ResourceManager fallback");
             Require(JsonSerializer.Deserialize<AppSettings>("{}")!.InterfaceLanguage == "", "Old settings compatibility");
             Require(TrayService.RunLocalizationSelfTest(), "Live tray localization");
 
@@ -49,6 +50,40 @@ internal static class LocalizationSelfTest
             var settings = new SettingsService();
             var description = OutputFormat.Find(".png");
             var model = CutoutModels.All[0];
+            foreach (var language in LocalizationService.Languages.Where(language => language.Code.Length > 0))
+            {
+                var culture = CultureInfo.GetCultureInfo(language.Code);
+                var resources = UiText.Resources.GetResourceSet(culture, true, language.Code == "en")
+                    ?? throw new InvalidOperationException($"Missing installed language pack: {language.Code}");
+                Require(keys.SetEquals(resources.Cast<DictionaryEntry>().Select(entry => (string)entry.Key)), $"Resource key parity: {language.Code}");
+                foreach (var key in keys)
+                {
+                    var source = english.GetString(key)!;
+                    var translated = resources.GetString(key)!;
+                    Require(!string.IsNullOrWhiteSpace(translated), $"Nonempty translation: {language.Code}/{key}");
+                    Require(Regex.Matches(source, @"\{\d+(?:,[^}:]+)?(?::[^}]+)?\}").Select(match => match.Value).Order()
+                        .SequenceEqual(Regex.Matches(translated, @"\{\d+(?:,[^}:]+)?(?::[^}]+)?\}").Select(match => match.Value).Order()),
+                        $"Translation placeholders: {language.Code}/{key}");
+                    if (Regex.IsMatch(source, @"\{\d")) CompositeFormat.Parse(translated);
+                    if (source.Contains("|*"))
+                        Require(source.Split('|').Where((_, index) => index % 2 == 1)
+                            .SequenceEqual(translated.Split('|').Where((_, index) => index % 2 == 1)), $"File dialog masks: {language.Code}/{key}");
+                }
+                LocalizationService.Apply(language.Code);
+                Require(UiText.Get("Save") == resources.GetString("Save"), $"Active translation: {language.Code}");
+                Require(CultureInfo.CurrentCulture.Equals(numberCulture), "UI language preserves numeric parsing culture");
+                var localizedWindow = new SettingsWindow(settings, new StartupRegistrationService(), hotkey);
+                try
+                {
+                    Flush();
+                    Require(localizedWindow.Title == resources.GetString("SnapSharpSettings"), $"Localized WPF title: {language.Code}");
+                    var languageBox = (System.Windows.Controls.ComboBox)localizedWindow.FindName("InterfaceLanguageBox");
+                    languageBox.SelectedValue = language.Code;
+                    Require(localizedWindow.BuildCandidate().InterfaceLanguage == language.Code, $"Language selection: {language.Code}");
+                    Render(localizedWindow, 1040, 820, Path.Combine(outputDirectory, $"language-{language.Code}.png"));
+                }
+                finally { localizedWindow.Close(); }
+            }
             foreach (var code in new[] { "en", "zh-CN" })
             {
                 LocalizationService.Apply(code);
@@ -62,7 +97,7 @@ internal static class LocalizationSelfTest
                     Require(window.Title == UiText.Get("SnapSharpSettings"), $"WPF resource lookup: {code}; actual '{window.Title}', expected '{UiText.Get("SnapSharpSettings")}'");
                     var languageBox = (System.Windows.Controls.ComboBox)window.FindName("InterfaceLanguageBox");
                     languageBox.SelectedValue = code;
-                    Require(languageBox.SelectedItem.ToString() == (code == "en" ? "English" : "简体中文"), "Readable language selection");
+                    Require(languageBox.SelectedItem.ToString() == (code == "en" ? "English" : "中文（中国大陆）"), "Readable language selection");
                     var candidate = window.BuildCandidate();
                     Require(candidate.InterfaceLanguage == code, "Selected language candidate");
                     Require(settings.Current.InterfaceLanguage == "", "Unsaved preference does not mutate current settings");
@@ -94,7 +129,7 @@ internal static class LocalizationSelfTest
                 LocalizationService.Apply(code);
                 RenderFeatureWindows(settings, code, outputDirectory);
             }
-            return $"PASS: {keys.Count} bilingual resource keys, placeholders, fallback, system language, settings compatibility/roundtrip/cancel, stable recording values, live XAML/tray updates, icons, model labels, 8 settings previews and 16 feature window previews.";
+            return $"PASS: {keys.Count} resource keys across {LocalizationService.Languages.Count - 1} language packs; placeholders, file masks, localized WPF previews and selections, fallback, system language, settings compatibility/roundtrip/cancel, stable recording values, live XAML/tray updates, icons, model labels, 8 bilingual settings previews and 16 feature window previews.";
         }
         finally { LocalizationService.Apply(previous.Name); }
     }

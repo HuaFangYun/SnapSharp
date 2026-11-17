@@ -15,12 +15,22 @@ public sealed record InterfaceLanguage(string Code, string NativeName)
 public static class LocalizationService
 {
     private static readonly CultureInfo SystemCulture = CultureInfo.CurrentUICulture;
+    private static readonly (string Code, string Name)[] AdditionalLanguages =
+    [
+        ("cs", "Čeština"), ("de", "Deutsch"), ("de-AT", "Deutsch (Österreich)"), ("de-CH", "Deutsch (Schweiz)"),
+        ("es", "Español"), ("es-ES", "Español (España)"), ("es-419", "Español (Latinoamérica)"),
+        ("fr", "Français"), ("fr-FR", "Français (France)"), ("fr-CA", "Français (Canada)"),
+        ("it", "Italiano"), ("ja", "日本語"), ("ko", "한국어"), ("pl", "Polski"),
+        ("pt-BR", "Português (Brasil)"), ("pt-PT", "Português (Portugal)"), ("ru", "Русский"),
+        ("tr", "Türkçe"), ("zh-CN", "中文（中国大陆）"), ("zh-Hans", "简体中文"), ("zh-Hant", "繁體中文")
+    ];
     public static IReadOnlyList<InterfaceLanguage> Languages { get; } = DiscoverLanguages();
     public static event EventHandler? LanguageChanged;
 
     private static IReadOnlyList<InterfaceLanguage> DiscoverLanguages()
     {
         var languages = new List<InterfaceLanguage> { new("", ""), new("en", "English") };
+        languages.AddRange(AdditionalLanguages.Select(language => new InterfaceLanguage(language.Code, language.Name)));
         // SDK satellite resources are published in culture-named subdirectories.
         // Adding a Strings.<culture>.resx automatically adds it to the selector.
         foreach (var directory in Directory.EnumerateDirectories(AppContext.BaseDirectory).Order(StringComparer.Ordinal))
@@ -31,7 +41,8 @@ public static class LocalizationService
                 var culture = CultureInfo.GetCultureInfo(Path.GetFileName(directory));
                 if (culture.Name.Length == 0 || culture.Name == "en" ||
                     UiText.Resources.GetResourceSet(culture, true, false) is null) continue;
-                languages.Add(new(culture.Name, culture.Name == "zh-CN" ? "简体中文" : culture.NativeName));
+                if (languages.All(language => !language.Code.Equals(culture.Name, StringComparison.OrdinalIgnoreCase)))
+                    languages.Add(new(culture.Name, culture.Name == "zh-CN" ? "简体中文" : culture.NativeName));
             }
             catch (CultureNotFoundException) { }
         }
@@ -43,6 +54,8 @@ public static class LocalizationService
         CultureInfo requested;
         try { requested = string.IsNullOrWhiteSpace(preference) ? systemCulture ?? SystemCulture : CultureInfo.GetCultureInfo(preference); }
         catch (CultureNotFoundException) { return CultureInfo.GetCultureInfo("en"); }
+        if (requested.Name.Equals("zh-Hans", StringComparison.OrdinalIgnoreCase))
+            return CultureInfo.GetCultureInfo("zh-CN");
         for (var candidate = requested; candidate.Name.Length > 0; candidate = candidate.Parent)
             if (Languages.Any(language => language.Code.Equals(candidate.Name, StringComparison.OrdinalIgnoreCase)))
                 return candidate;

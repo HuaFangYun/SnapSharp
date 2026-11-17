@@ -1,0 +1,15 @@
+{
+  "cs": {"General": "Obecné", "FollowSystem": "Podle systému", "InterfaceLanguage": "Jazyk rozhraní", "Free": "Volný", "Pins": "Připnuté obrázky", "Capture": "Snímání"},
+  "de": {"General": "Allgemein", "FollowSystem": "Systemsprache verwenden", "InterfaceLanguage": "Sprache der Benutzeroberfläche", "Free": "Frei", "Pins": "Angeheftete Bilder", "Capture": "Aufnahme"},
+  "es": {"General": "General", "FollowSystem": "Usar el idioma del sistema", "InterfaceLanguage": "Idioma de la interfaz", "Free": "Libre", "Pins": "Imágenes fijadas", "Capture": "Captura"},
+  "fr": {"General": "Général", "FollowSystem": "Utiliser la langue du système", "InterfaceLanguage": "Langue de l’interface", "Free": "Libre", "Pins": "Images épinglées", "Capture": "Capture"},
+  "it": {"General": "Generale", "FollowSystem": "Usa la lingua del sistema", "InterfaceLanguage": "Lingua dell’interfaccia", "Free": "Libero", "Pins": "Immagini fissate", "Capture": "Acquisizione"},
+  "ja": {"General": "一般", "FollowSystem": "システムの言語を使用", "InterfaceLanguage": "表示言語", "Free": "自由", "Pins": "ピン留め画像", "Capture": "キャプチャ"},
+  "ko": {"General": "일반", "FollowSystem": "시스템 언어 사용", "InterfaceLanguage": "표시 언어", "Free": "자유", "Pins": "고정 이미지", "Capture": "캡처"},
+  "pl": {"General": "Ogólne", "FollowSystem": "Użyj języka systemu", "InterfaceLanguage": "Język interfejsu", "Free": "Dowolny", "Pins": "Przypięte obrazy", "Capture": "Przechwytywanie"},
+  "pt": {"General": "Geral", "FollowSystem": "Usar o idioma do sistema", "InterfaceLanguage": "Idioma da interface", "Free": "Livre", "Pins": "Imagens fixadas", "Capture": "Captura"},
+  "pt-PT": {"General": "Geral", "FollowSystem": "Usar o idioma do sistema", "InterfaceLanguage": "Idioma da interface", "Free": "Livre", "Pins": "Imagens afixadas", "Capture": "Captura"},
+  "ru": {"General": "Общие", "FollowSystem": "Использовать язык системы", "InterfaceLanguage": "Язык интерфейса", "Free": "Свободное", "Pins": "Закреплённые изображения", "Capture": "Захват"},
+  "tr": {"General": "Genel", "FollowSystem": "Sistem dilini kullan", "InterfaceLanguage": "Arayüz dili", "Free": "Serbest", "Pins": "Sabitlenen görseller", "Capture": "Yakalama"},
+  "zh-TW": {"General": "一般", "FollowSystem": "跟隨系統", "InterfaceLanguage": "介面語言", "Free": "自由", "Pins": "釘選圖片", "Capture": "擷取", "Save": "儲存", "SaveSettings": "儲存設定", "SaveAs": "另存新檔", "Cancel": "取消", "Close": "關閉", "SnapSharpSettings": "SnapSharp 設定"}
+}
