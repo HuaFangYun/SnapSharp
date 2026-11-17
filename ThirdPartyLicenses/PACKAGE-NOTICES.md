@@ -4,13 +4,13 @@ This directory contains the license and notice texts that accompany the
 third-party binaries distributed with SnapSharp. The root
 `THIRD-PARTY-NOTICES.md` describes how each dependency is used.
 The offline license self-test requires the self-contained runtime version to
-match the 10.0.11 notices retained here. A runtime update therefore requires
+match the 10.0.14 notices retained here. A runtime update therefore requires
 an explicit notice refresh instead of silently distributing mismatched files.
 
 | Distributed component | Version | License material in this directory |
 | --- | --- | --- |
-| .NET Runtime | 10.0.11 | `DotNet-Runtime-LICENSE.txt`, `DotNet-Runtime-THIRD-PARTY-NOTICES.txt` |
-| Windows Desktop Runtime / WPF | 10.0.11 | `WindowsDesktop-Runtime-LICENSE.txt`, `WindowsDesktop-Runtime-THIRD-PARTY-NOTICES.txt` |
+| .NET Runtime | 10.0.14 | `DotNet-Runtime-LICENSE.txt`, `DotNet-Runtime-THIRD-PARTY-NOTICES.txt` |
+| Windows Desktop Runtime / WPF | 10.0.14 | `WindowsDesktop-Runtime-LICENSE.txt`, `WindowsDesktop-Runtime-THIRD-PARTY-NOTICES.txt` |
 | Microsoft.Windows.SDK.NET.Ref projection assembly | 10.0.19041.57 | `Microsoft-Windows-SDK-LICENSE.rtf` |
 | ScreenRecorderLib | 7.0.1 | `ScreenRecorderLib-LICENSE.txt` |
 | CommunityToolkit.Mvvm | 8.4.0 | `CommunityToolkit.Mvvm-LICENSE.md`, `CommunityToolkit.Mvvm-THIRD-PARTY-NOTICES.txt` |
@@ -31,6 +31,10 @@ an explicit notice refresh instead of silently distributing mismatched files.
 | ZXing.Net | 0.16.11 | `Apache-2.0.txt` |
 | Tesseract .NET wrapper and native Tesseract | 5.2.0 | `Apache-2.0.txt` |
 | Leptonica native library | Tesseract 5.2.0 package dependency | `Leptonica-LICENSE.txt` |
+
+The runtime license files come from the official 10.0.14 Windows x64 runtime
+NuGet packages. The WPF third-party notices come from the corresponding
+Microsoft source revision [`0427b9abbead3fa64c6655eb4290c537397131fa`](https://github.com/dotnet/dotnet/blob/0427b9abbead3fa64c6655eb4290c537397131fa/src/wpf/THIRD-PARTY-NOTICES.TXT).
 
 Model and optional runtime licenses retained during user-triggered installs:
 

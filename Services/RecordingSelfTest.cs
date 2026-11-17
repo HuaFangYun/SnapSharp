@@ -109,9 +109,19 @@ internal static class RecordingSelfTest
         options.SnapshotOptions = new SnapshotOptions { SnapshotFormat = ImageFormat.PNG, SnapshotsIntervalMillis = 67 };
         using var slideshow = Recorder.CreateRecorder(options);
         var framesDone = new TaskCompletionSource<List<FrameData>>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var framesReady = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var frameCount = 0;
+        slideshow.OnFrameRecorded += (_, _) => { if (Interlocked.Increment(ref frameCount) >= 3) framesReady.TrySetResult(); };
         slideshow.OnRecordingComplete += (_, e) => framesDone.TrySetResult(e.FrameInfos);
-        slideshow.OnRecordingFailed += (_, e) => framesDone.TrySetException(new InvalidOperationException(e.Error));
-        slideshow.Record(frameDirectory); await Task.Delay(400); slideshow.Stop();
+        slideshow.OnRecordingFailed += (_, e) =>
+        {
+            var error = new InvalidOperationException(e.Error);
+            framesReady.TrySetException(error); framesDone.TrySetException(error);
+        };
+        slideshow.Record(frameDirectory);
+        // Wait for actual frames rather than including native startup in a fixed 400 ms window.
+        try { await framesReady.Task.WaitAsync(TimeSpan.FromSeconds(15)); }
+        finally { slideshow.Stop(); }
         var frames = await framesDone.Task.WaitAsync(TimeSpan.FromSeconds(15));
         Require(frames.Count >= 2, "Native slideshow did not produce timed frames.");
         var gifPath = Path.Combine(directory, "native-slideshow.gif"); RecordingService.EncodeGif(frames, gifPath, frameDirectory);

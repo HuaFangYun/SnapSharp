@@ -1711,8 +1711,12 @@ public partial class SelectionWindow : Window
             { Width = source.PixelWidth, Height = source.PixelHeight };
         try
         {
-            window.Root.Measure(new System.Windows.Size(source.PixelWidth, source.PixelHeight));
-            window.Root.Arrange(new Rect(0, 0, source.PixelWidth, source.PixelHeight));
+            // A transparent HWND lets WPF finish Window layout without showing test content.
+            // Arranging only the child grid leaves Window.ActualWidth/ActualHeight at zero.
+            window.Opacity = 0;
+            window.ShowActivated = false;
+            window.Show();
+            window.UpdateLayout();
             window._selection = new Rect(2, 2, Math.Max(3, source.PixelWidth - 4), Math.Max(3, source.PixelHeight - 4));
             window.BeginInlineEditing();
             CaptureResult? accepted = null;

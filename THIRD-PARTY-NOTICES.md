@@ -86,7 +86,7 @@ No source code from PixPin is included in this project.
 - SkiaSharp.NativeAssets.Win32 3.119.1; MIT plus Skia native third-party notices.
 - System.Numerics.Tensors 9.0.0; MIT plus its third-party notices.
 - Vortice.DirectX / Vortice.DXGI 3.8.3 and Vortice.Mathematics 2.1.0; MIT.
-- The self-contained Windows x64 package includes .NET Runtime and Windows Desktop Runtime 10.0.11; their MIT licenses and upstream third-party notices are distributed in `ThirdPartyLicenses/`.
+- The self-contained Windows x64 package includes .NET Runtime and Windows Desktop Runtime 10.0.14; their MIT licenses and upstream third-party notices are distributed in `ThirdPartyLicenses/`.
 - Microsoft.Windows.SDK.NET.Ref 10.0.19041.57 supplies the packaged Windows SDK projection assembly under Microsoft's Windows SDK terms; the linked RTF license from the NuGet metadata accompanies the app.
 
 ## dotnet/wpf

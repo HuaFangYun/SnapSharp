@@ -51,7 +51,7 @@ internal static class ThirdPartyLicenseService
         {
             var options = document.RootElement.GetProperty("runtimeOptions");
             if (options.TryGetProperty("includedFrameworks", out var frameworks) &&
-                frameworks.EnumerateArray().Any(item => item.GetProperty("version").GetString() != "10.0.11")) return false;
+                frameworks.EnumerateArray().Any(item => item.GetProperty("version").GetString() != "10.0.14")) return false;
         }
         var required = new[]
         {
