@@ -1,4 +1,4 @@
-<Window x:Class="SnapSharp.Views.EditorWindow" Style="{StaticResource AppWindow}"
+﻿<Window x:Class="SnapSharp.Views.EditorWindow" Style="{StaticResource AppWindow}"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:loc="http://wpflocalizeextension.codeplex.com"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -12,7 +12,7 @@
   </Window.Resources>
   <Grid>
     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /></Grid.RowDefinitions>
-    <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" Padding="8">
+    <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" Padding="8" PreviewMouseLeftButtonDown="Toolbar_PreviewMouseLeftButtonDown">
       <WrapPanel>
         <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Select}" Click="Tool_Click" Tag="Select" />
         <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Rectangle}" Click="Tool_Click" Tag="Rectangle" />

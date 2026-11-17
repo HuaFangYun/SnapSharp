@@ -1,4 +1,4 @@
-using L = SnapSharp.Localization.UiText;
+﻿using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Native;
 using SnapSharp.Services;
@@ -38,6 +38,8 @@ public partial class SelectionWindow : Window
     private double _dragRatio;
     private SelectionShape _shape;
     private OverlayMode _mode;
+    private WindowCandidate? _suggestedWindow;
+    private bool _includeWindowFrame;
     private EditorViewModel? _editor;
     private PixelRect _pixelSelection;
     private string _sampledColor = "#000000";
@@ -161,6 +163,12 @@ public partial class SelectionWindow : Window
 
     private void Window_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.OriginalSource is DependencyObject toolbarSource &&
+            (ToolPanel.IsAncestorOf(toolbarSource) || SecondaryToolPanel.IsAncestorOf(toolbarSource)))
+        {
+            AnnotationView.CommitInlineEdit();
+            return;
+        }
         if (e.OriginalSource is not DependencyObject source ||
             !ReferenceEquals(source, AnnotationView) && !AnnotationView.IsAncestorOf(source)) return;
         if (!AnnotationView.AllowsWindowDoubleClickCopy(e.GetPosition(AnnotationView))) return;
@@ -173,6 +181,7 @@ public partial class SelectionWindow : Window
     {
         if (clickCount < 2 || !_editing || _scrollingSelection || _dragging || _moving ||
             !IsValidSelection() || !_selection.Contains(point) || _editor is null ||
+            _editor.ContinuationTool is not null ||
             !SupportsDoubleClickCopy(_editor.SelectedTool)) return false;
         Complete(CaptureAction.Copy);
         return true;
@@ -514,6 +523,8 @@ public partial class SelectionWindow : Window
         if (CaptureModePicker?.SelectedItem is not ComboBoxItem item ||
             !Enum.TryParse(item.Tag?.ToString(), out OverlayMode mode)) return;
         _mode = mode;
+        _suggestedWindow = null;
+        _includeWindowFrame = false;
         ResetDraft();
         if (ShapePicker is not null) ShapePicker.IsEnabled = !_scrollingSelection && mode == OverlayMode.Region;
         if (mode != OverlayMode.Region && ShapePicker is not null && ShapePicker.SelectedIndex != 0)
@@ -521,6 +532,7 @@ public partial class SelectionWindow : Window
         if (RatioPicker is not null)
             RatioPicker.IsEnabled = mode == OverlayMode.Region && _shape is SelectionShape.Rectangle or SelectionShape.Ellipse;
         if (!IsLoaded) return;
+        if (!_scrollingSelection) Hint.Text = L.Get(mode == OverlayMode.Window ? "WindowSelectionClientHint" : "DragToSelectClickToSelectWindow");
         _selection = mode == OverlayMode.FullScreen ? new Rect(0, 0, ActualWidth, ActualHeight)
             : mode == OverlayMode.Window ? SuggestedWindowAt(_lastPointer) : Rect.Empty;
         UpdateSelection();
@@ -566,7 +578,7 @@ public partial class SelectionWindow : Window
                 _editor.FillColor = Color.FromArgb(242, 255, 255, 255);
             if (tool != AnnotationTool.Select)
                 _editor.SelectedAnnotation = null;
-            _editor.SelectedTool = tool;
+            _editor.ActivateTool(tool);
             UpdateSelectedTool(tool);
         }
     }
@@ -933,7 +945,7 @@ public partial class SelectionWindow : Window
         Cursor = Cursors.Arrow;
         _editor.SelectedAnnotation = null;
         _editor.ArrowStyle = style;
-        _editor.SelectedTool = AnnotationTool.Arrow;
+        _editor.ActivateTool(AnnotationTool.Arrow);
         UpdateSelectedTool(AnnotationTool.Arrow);
         UpdateSecondaryToolbar();
         PrimaryArrowStyleDropDownToggle.IsChecked = false;
@@ -1247,6 +1259,7 @@ public partial class SelectionWindow : Window
 
     private void ApplySecondaryChange(Action change, bool refreshToolbar = false)
     {
+        AnnotationView?.CommitInlineEdit();
         _changingSecondaryStyle = true;
         try { change(); }
         finally { _changingSecondaryStyle = false; }
@@ -1496,7 +1509,31 @@ public partial class SelectionWindow : Window
     {
         var physical = ToScreenPoint(point);
         var candidate = _captureService.FindWindowAt(physical) ?? _windows.FirstOrDefault(w => w.Bounds.Contains(physical));
-        return candidate is null ? Rect.Empty : FromScreenRect(Rectangle.Intersect(candidate.Bounds, _screen.Bounds));
+        if (candidate != _suggestedWindow)
+        {
+            _suggestedWindow = candidate;
+            _includeWindowFrame = false;
+        }
+        return candidate is null ? Rect.Empty : FromScreenRect(Rectangle.Intersect(candidate.SelectionBounds(_includeWindowFrame), _screen.Bounds));
+    }
+
+    private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (_editing || _dragging || _mode != OverlayMode.Window || e.Delta == 0) return;
+        if (e.OriginalSource is DependencyObject source && CapturePanel.IsAncestorOf(source)) return;
+        var point = Clamp(e.GetPosition(Root));
+        AdjustWindowScope(point, e.Delta);
+        e.Handled = true;
+    }
+
+    private void AdjustWindowScope(Point point, int delta)
+    {
+        SuggestedWindowAt(point);
+        if (_suggestedWindow is null) return;
+        // Wheel down expands to the frame; wheel up returns to the client area.
+        _includeWindowFrame = delta < 0;
+        _selection = SuggestedWindowAt(point);
+        UpdateSelection();
     }
 
     private Rect FromScreenRect(Rectangle rect) => new(

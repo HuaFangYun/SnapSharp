@@ -9,6 +9,7 @@
         Topmost="True" AllowsTransparency="True" Background="Black"
         Cursor="Cross" KeyDown="Window_KeyDown" PreviewKeyUp="Window_KeyUp"
         PreviewMouseLeftButtonDown="Window_PreviewMouseLeftButtonDown"
+        PreviewMouseWheel="Window_PreviewMouseWheel"
         PreviewMouseRightButtonDown="Window_PreviewMouseRightButtonDown">
   <Window.Resources>
     <ResourceDictionary>

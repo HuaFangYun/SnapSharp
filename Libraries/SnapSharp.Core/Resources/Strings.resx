@@ -3623,4 +3623,5 @@ Adjust this offset in 1-pixel steps. Blue guides are not written to output.</val
 
 Diagnostic log: {1}</value></data>
   <data name="LocalDownloadCanceledResume" xml:space="preserve"><value>Download canceled. Partial files are kept; click Download to continue.</value></data>
+  <data name="WindowSelectionClientHint" xml:space="preserve"><value>Click to capture window content · Wheel down: include title bar · Wheel up: content only</value></data>
 </root>

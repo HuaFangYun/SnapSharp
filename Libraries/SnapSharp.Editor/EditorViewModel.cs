@@ -40,6 +40,24 @@ public partial class EditorViewModel : ObservableObject
     public bool CanUndo => _undo.Count > 0;
     public bool CanRedo => _redo.Count > 0;
 
+    public AnnotationTool? ContinuationTool { get; private set; }
+
+    partial void OnSelectedToolChanged(AnnotationTool value) => ContinuationTool = null;
+
+    public void ActivateTool(AnnotationTool tool)
+    {
+        ContinuationTool = null;
+        SelectedTool = tool;
+    }
+
+    public bool ResumeDrawing()
+    {
+        if (ContinuationTool is not { } tool) return false;
+        SelectedAnnotation = null;
+        SelectedTool = tool;
+        return true;
+    }
+
     public void Add(Annotation annotation)
     {
         SaveUndo();
@@ -50,8 +68,11 @@ public partial class EditorViewModel : ObservableObject
 
     public void CompleteAnnotation(Annotation annotation)
     {
+        var tool = SelectedTool;
         Add(annotation);
         SelectedTool = AnnotationTool.Select;
+        ContinuationTool = tool is AnnotationTool.Select or AnnotationTool.Eraser or AnnotationTool.Watermark
+            ? null : tool;
     }
 
     public void Replace(Annotation oldValue, Annotation newValue)

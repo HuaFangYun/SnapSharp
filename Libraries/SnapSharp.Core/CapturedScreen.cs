@@ -5,7 +5,11 @@ namespace SnapSharp.Models;
 
 public sealed record CapturedScreen(Rectangle Bounds, BitmapSource Image);
 
-public sealed record WindowCandidate(Rectangle Bounds, nint Handle = default);
+public sealed record WindowCandidate(Rectangle Bounds, nint Handle = default, Rectangle? ClientBounds = null)
+{
+    public Rectangle SelectionBounds(bool includeFrame) => !includeFrame && ClientBounds is { Width: > 0, Height: > 0 } client
+        ? Rectangle.Intersect(Bounds, client) : Bounds;
+}
 
 public enum CaptureMode
 {

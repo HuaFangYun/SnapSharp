@@ -32,7 +32,7 @@ public sealed class ScreenCaptureService(bool includeCursor = false) : ICaptureS
         var result = new List<WindowCandidate>();
         NativeMethods.EnumWindows((hwnd, _) =>
         {
-            if (TryGetWindowBounds(hwnd, out var bounds)) result.Add(new WindowCandidate(bounds, hwnd));
+            if (TryGetWindowBounds(hwnd, out var bounds)) result.Add(CreateCandidate(hwnd, bounds));
             return true;
         }, 0);
         return result;
@@ -42,7 +42,23 @@ public sealed class ScreenCaptureService(bool includeCursor = false) : ICaptureS
     {
         var hwnd = NativeMethods.WindowFromPoint(new NativeMethods.PointL { X = screenPoint.X, Y = screenPoint.Y });
         hwnd = NativeMethods.GetAncestor(hwnd, 2); // GA_ROOT
-        return TryGetWindowBounds(hwnd, out var bounds) ? new WindowCandidate(bounds, hwnd) : null;
+        return TryGetWindowBounds(hwnd, out var bounds) ? CreateCandidate(hwnd, bounds) : null;
+    }
+
+    private static WindowCandidate CreateCandidate(nint hwnd, Rectangle bounds)
+    {
+        Rectangle? client = null;
+        if (NativeMethods.GetClientRect(hwnd, out var rect))
+        {
+            var origin = new NativeMethods.PointL { X = rect.Left, Y = rect.Top };
+            var end = new NativeMethods.PointL { X = rect.Right, Y = rect.Bottom };
+            if (NativeMethods.ClientToScreen(hwnd, ref origin) && NativeMethods.ClientToScreen(hwnd, ref end))
+            {
+                var clipped = Rectangle.Intersect(bounds, Rectangle.FromLTRB(origin.X, origin.Y, end.X, end.Y));
+                if (clipped.Width > 0 && clipped.Height > 0) client = clipped;
+            }
+        }
+        return new WindowCandidate(bounds, hwnd, client);
     }
 
     internal static bool TryGetWindowBounds(nint hwnd, out Rectangle bounds)

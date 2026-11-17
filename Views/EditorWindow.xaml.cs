@@ -1,4 +1,4 @@
-using L = SnapSharp.Localization.UiText;
+﻿using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Services;
 using SnapSharp.ViewModels;
@@ -40,9 +40,13 @@ public partial class EditorWindow : Window
     {
         if (sender is FrameworkElement element && Enum.TryParse<AnnotationTool>(element.Tag?.ToString(), out var tool))
         {
-            _viewModel.SelectedTool = tool;
+            AnnotationView.CommitInlineEdit();
+            _viewModel.ActivateTool(tool);
         }
     }
+
+    private void Toolbar_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        => AnnotationView.CommitInlineEdit();
 
     private void Thickness_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {

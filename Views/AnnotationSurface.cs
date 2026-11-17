@@ -155,6 +155,13 @@ public sealed class AnnotationSurface : Canvas
             BeginSelectionInteraction(e);
             return;
         }
+        BeginDrawing(e);
+    }
+
+    private void BeginDrawing(MouseButtonEventArgs e)
+    {
+        if (_viewModel is null) return;
+        var tool = _viewModel.SelectedTool;
         if (tool == AnnotationTool.Eraser)
         {
             var hit = HitAnnotation(_start);
@@ -266,6 +273,11 @@ public sealed class AnnotationSurface : Canvas
         selected = HitAnnotation(_start);
         if (selected is null)
         {
+            if (_viewModel.ResumeDrawing())
+            {
+                BeginDrawing(e);
+                return;
+            }
             _viewModel.SelectedAnnotation = null;
             InvalidateVisual();
             e.Handled = true;
