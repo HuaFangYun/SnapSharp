@@ -1,0 +1,29 @@
+14-ai-ocr-chinese.png: 本地 PaddleOCR / ONNX CPU · 5 个区域。点击区域或原始识别行可双向定位。
+项目交付清单
+确认安装包版本与使用指南。
+整理截图、长图和演示录屏。
+发布之前检查图片中的隐私信息。
+SnapSharp supportslocal OCR
+15-ai-ocr-english.png: 本地 PaddleOCR / ONNX CPU · 5 个区域。点击区域或原始识别行可双向定位。
+Project notes
+Capture the important details.
+Keep reference images on your desktop
+Review recognized text before sharing
+Local OcR processesimages on this device
+Table verified: 4 rows x 3 columns, 12 cells.
+16-ai-table-recognition.png: 本地 PP-Structure / SLANet + 本地 PaddleOCR / ONNX CPU · 12 个区域。点击区域或原始识别行可双向定位。 已识别行列与合并结构，请核对后导出；可手动修正单元格。
+Item
+Count
+Price
+Apple
+123
+20
+Pear
+456
+30
+Total
+579
+50
+17-ai-formula-latex.png: 本地 LaTeX-OCR / ONNX CPU · 1 个区域。点击区域或原始识别行可双向定位。
+\ x ^ { 2 } + \ y ^ { 2 } = 1
+18-ai-cutout-result.png: birefnet-general-lite / CPU 抠图完成，输出保留原分辨率和原有透明度；请检查边缘。; alpha<32=191217, alpha>224=859925
