@@ -32,14 +32,20 @@ internal static class SpecialistModelDownloadService
         if (!hash.Equals(asset.Hash, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException(asset.Name + L.Get("SHA256VerificationFailedConfigurationWasPreserved"));
     }
 
-    internal static async Task<string> Install(string root, bool table, IProgress<string> progress, CancellationToken token, string? localSource = null, string sourceKind = ModelDownloadSource.Official)
+    internal static async Task<string> Install(string root, bool table, IProgress<string> progress, CancellationToken token, string? localSource = null, string sourceKind = ModelDownloadSource.Official, HttpClient? httpClient = null)
     {
-        Directory.CreateDirectory(root);
-        var directory = Path.Combine(root, (table ? "slanet-zh-" : "latex-ocr-") + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(directory);
+        var prefix = table ? "slanet-zh-" : "latex-ocr-";
         var assets = table ? new[] { Table } : Formula;
+        using var lease = await ModelInstallCache.Lock(root, prefix, token);
+        var existing = await ModelInstallCache.Find(root, prefix,
+            assets.Select(asset => new ModelInstallCache.Asset(asset.Name, asset.Hash, asset.Size, asset.Size)).ToArray(), progress, token);
+        if (existing is not null) return table ? Path.Combine(existing, Table.Name) : existing;
+        Directory.CreateDirectory(root);
+        var directory = Path.Combine(root, prefix + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
         using var handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
-        using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(20) };
+        using var ownedClient = httpClient is null ? new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(20) } : null;
+        var client = httpClient ?? ownedClient!;
         client.DefaultRequestHeaders.UserAgent.ParseAdd("SnapSharp/1.0");
         var created = new List<string>();
         try

@@ -3662,4 +3662,7 @@ Large models may take some time to copy. Existing data in the destination will n
   <data name="ModelDownloadConnectingSource" xml:space="preserve"><value>Connecting to download source: {0}?</value></data>
   <data name="ModelPathMustBeRelativeOrAbsolute" xml:space="preserve"><value>Use an absolute path or a path relative to the executable.</value></data>
   <data name="ModelPathPortabilityHint" xml:space="preserve"><value>Model files and folders inside the executable folder are saved as relative paths (for example, models\ocr\detection.onnx). External models keep absolute paths. Move the executable, settings and models together to keep using them.</value></data>
+  <data name="ModelCacheChecking" xml:space="preserve"><value>Checking existing model files…</value></data>
+  <data name="ModelCacheReused" xml:space="preserve"><value>Verified existing models; reusing {0} without downloading.</value></data>
+  <data name="ModelSetupReady" xml:space="preserve"><value>Models verified and paths filled in. Existing valid models are reused. Save settings to apply.</value></data>
 </root>

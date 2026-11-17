@@ -10,16 +10,21 @@ internal sealed class CutoutModelDownloadService
 {
     internal static string Source => CutoutModels.All[0].Source;
     internal static string Sha256 => CutoutModels.All[0].Hash;
-    public Task<string> Download(string root, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official) => Download(CutoutModels.All[0], root, progress, token, sourceKind);
+    public Task<string> Download(string root, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official, HttpClient? httpClient = null) => Download(CutoutModels.All[0], root, progress, token, sourceKind, httpClient);
 
-    public async Task<string> Download(CutoutModelDefinition model, string root, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official)
+    public async Task<string> Download(CutoutModelDefinition model, string root, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official, HttpClient? httpClient = null)
     {
+        using var lease = await ModelInstallCache.Lock(root, model.Id + "-", token);
+        var existing = await ModelInstallCache.Find(root, model.Id + "-",
+            [new(model.Id + ".onnx", model.Hash, model.MaximumBytes)], progress, token);
+        if (existing is not null) return Path.Combine(existing, model.Id + ".onnx");
         Directory.CreateDirectory(root);
         var temporary = Path.Combine(root, "download-" + Guid.NewGuid().ToString("N") + ".tmp");
         try
         {
             using var handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
-            using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) };
+            using var ownedClient = httpClient is null ? new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) } : null;
+            var client = httpClient ?? ownedClient!;
             progress.Report(L.Format("ModelDownloadConnectingSource", new Uri(ModelDownloadSource.Resolve(model.Source, sourceKind)).Host));
             using (var response = await ModelDownloadSource.Get(client, model.Source, sourceKind, token))
             {
@@ -44,10 +49,17 @@ internal sealed class CutoutModelDownloadService
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
 
-    internal static string Install(byte[] data, string root, CancellationToken token)
+    internal static string Install(byte[] data, string root, CancellationToken token) =>
+        InstallLocal(data, root, token).GetAwaiter().GetResult();
+
+    private static async Task<string> InstallLocal(byte[] data, string root, CancellationToken token)
     {
         if (!Convert.ToHexString(SHA256.HashData(data)).Equals(Sha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException(L.Get("BackgroundRemovalModelSHA256VerificationFailedExisting"));
+        using var lease = await ModelInstallCache.Lock(root, "u2netp-", token).ConfigureAwait(false);
+        var existing = await ModelInstallCache.Find(root, "u2netp-",
+            [new("u2netp.onnx", Sha256, CutoutModels.All[0].MaximumBytes)], null, token).ConfigureAwait(false);
+        if (existing is not null) return Path.Combine(existing, "u2netp.onnx");
         Directory.CreateDirectory(root);
         var temporary = Path.Combine(root, Guid.NewGuid().ToString("N") + ".tmp");
         try { File.WriteAllBytes(temporary, data); return InstallFile(CutoutModels.All[0], temporary, root, token); }

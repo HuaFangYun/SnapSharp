@@ -328,7 +328,7 @@ public partial class SettingsWindow : Window
                 if (ocr is not null) { OcrDetPath.Text = _settings.StoreModelPath(ocr.Detection); OcrRecPath.Text = _settings.StoreModelPath(ocr.Recognition); OcrDictPath.Text = _settings.StoreModelPath(ocr.Dictionary); }
             }
             else { FormulaDirectory.Text = _settings.StoreModelPath(path); FormulaPluginId.Text = ""; }
-            SpecialistStatus.Text = L.Get("DownloadSHA256AndModelLoadingChecksPassed");
+            SpecialistStatus.Text = L.Get("ModelSetupReady");
         }
         catch (OperationCanceledException) { SpecialistStatus.Text = L.Get("CanceledExistingConfigurationPreserved"); }
         catch (Exception ex) { SpecialistStatus.Text = L.Get("SetupIncompleteExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
@@ -482,7 +482,7 @@ public partial class SettingsWindow : Window
             var directory = await new TesseractModelDownloadService().Download(root, languages, new Progress<string>(text => TesseractDownloadStatus.Text = text), cancellation.Token, SelectedModelDownloadSource);
             if (!IsLoaded) return;
             TesseractDirectory.Text = _settings.StoreModelPath(directory); TesseractLanguages.Text = languages; OcrBackendBox.SelectedIndex = 2;
-            TesseractDownloadStatus.Text = L.Get("DownloadSHA256AndEngineLoadingChecksPassed");
+            TesseractDownloadStatus.Text = L.Get("ModelSetupReady");
         }
         catch (OperationCanceledException) { TesseractDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
         catch (Exception ex) { TesseractDownloadStatus.Text = L.Get("DownloadFailedExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
@@ -534,7 +534,7 @@ public partial class SettingsWindow : Window
             if (!IsLoaded) return;
             CutoutPath.Text = _settings.StoreModelPath(path); CutoutProfileBox.SelectedIndex = model.Profile switch { "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 }; CutoutSize.Text = model.InputSize.ToString();
             StoreCutoutConfiguration();
-            CutoutDownloadStatus.Text = L.Format("0DownloadAndVerificationCompleteModelPath", model.Id);
+            CutoutDownloadStatus.Text = L.Get("ModelSetupReady");
         }
         catch (OperationCanceledException) { CutoutDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
         catch (Exception ex) { CutoutDownloadStatus.Text = L.Get("DownloadFailedExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
@@ -581,7 +581,7 @@ public partial class SettingsWindow : Window
             if (!IsLoaded) return;
             OcrDetPath.Text = _settings.StoreModelPath(paths.Detection); OcrRecPath.Text = _settings.StoreModelPath(paths.Recognition); OcrDictPath.Text = _settings.StoreModelPath(paths.Dictionary);
             OcrBackendBox.SelectedIndex = 0;
-            OcrDownloadStatus.Text = L.Get("ChineseEnglishModelsAndDictionaryDownloadedAnd");
+            OcrDownloadStatus.Text = L.Get("ModelSetupReady");
         }
         catch (OperationCanceledException) { OcrDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
         catch (Exception ex) { OcrDownloadStatus.Text = L.Get("DownloadIncompleteExistingConfigurationPreserved") + ex.GetBaseException().Message; }

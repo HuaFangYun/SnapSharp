@@ -37,6 +37,8 @@ internal static partial class Program
             if (args.Contains("--data-directory-only")) return 0;
             DownloadChecks().GetAwaiter().GetResult();
             DownloadSourceChecks().GetAwaiter().GetResult();
+            var fixtureArgument = Array.IndexOf(args, "--model-cache-fixtures");
+            ModelCacheChecks(fixtureArgument >= 0 ? Path.GetFullPath(args[fixtureArgument + 1]) : null).GetAwaiter().GetResult();
             if (args.Contains("--downloads-only")) return 0;
             SettingsChecks();
             WindowChecks();

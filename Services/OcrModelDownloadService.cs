@@ -15,11 +15,22 @@ internal sealed class OcrModelDownloadService
     internal const string Sha256 = "4282ff0b8db05ad2a53afc8d0ef2e7d879c53022fc61a4f8e84c58d737822cd2";
     internal const int PackageSize = 14910742;
     internal sealed record ModelPaths(string Detection, string Recognition, string Dictionary);
+    internal static readonly ModelInstallCache.Asset[] InstalledAssets =
+    [
+        new("detection.onnx", "d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9", 4745517, 4745517),
+        new("recognition.onnx", "48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b", 10857958, 10857958),
+        new("dictionary.txt", "b22996db93ffedffa90abf62009659af14ae22df06a2da5a1ce0e6fb1117af86", 32873, 32873)
+    ];
 
-    public async Task<ModelPaths> Download(string root, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official)
+    public async Task<ModelPaths> Download(string root, IProgress<string> progress, CancellationToken token, string sourceKind = ModelDownloadSource.Official, HttpClient? httpClient = null)
     {
+        using var lease = await ModelInstallCache.Lock(root, "ppocr-v4-zh-en-", token);
+        var existing = await ModelInstallCache.Find(root, "ppocr-v4-zh-en-", InstalledAssets, progress, token);
+        if (existing is not null)
+            return new(Path.Combine(existing, "detection.onnx"), Path.Combine(existing, "recognition.onnx"), Path.Combine(existing, "dictionary.txt"));
         using var handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
-        using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(5) };
+        using var ownedClient = httpClient is null ? new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(5) } : null;
+        var client = httpClient ?? ownedClient!;
         using var response = await ModelDownloadSource.Get(client, Source, sourceKind, token);
         response.EnsureSuccessStatusCode();
         if (response.Content.Headers.ContentLength is long length && length != PackageSize) throw new InvalidDataException(L.Get("ModelPackageSizeMismatch"));

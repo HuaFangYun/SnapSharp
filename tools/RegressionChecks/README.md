@@ -12,6 +12,14 @@ dotnet run --project tools/RegressionChecks/RegressionChecks.csproj -c Release -
 
 Download-source checks cover official defaults, domestic mirrors for all model catalogs, pinned versions, formula release assets, allowed redirects, and verified resume after switching sources. The full run also checks source persistence and the shared source selector across settings pages, including its lock during downloads.
 
+Model-cache checks cover legacy directories, complete model sets, corrupt/missing/unreadable files, SHA256 and MD5 checks, cancellation, and concurrent requests without duplicate downloads. Optional real model fixtures are copied to the test folder; the source fixtures and saved settings are not changed:
+
+```powershell
+dotnet run --project tools/RegressionChecks/RegressionChecks.csproj -c Release -- --downloads-only --model-cache-fixtures publish/models
+```
+
+The fixture folder should contain downloaded OCR, Tesseract, table and formula packages. These checks verify reuse across mirror changes, language subsets, adding a language in place, and rollback of a failed language extension. If `.artifacts/verified-rapidocr.whl` is supplied, its pinned SHA256 is checked before testing a first-time concurrent OCR download and corrupt-dictionary recovery with simulated HTTP responses. No external downloads are performed by the checks.
+
 Data-folder checks cover the executable-folder default, legacy discovery, restart scheduling/cancellation, nested model paths and history indexes, preservation of unrelated files, destination conflicts, invalid metadata, and rollback when the location configuration cannot be committed. To run only these checks:
 
 ```powershell
