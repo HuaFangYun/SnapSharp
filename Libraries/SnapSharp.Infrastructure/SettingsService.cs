@@ -6,16 +6,20 @@ namespace SnapSharp.Services;
 public sealed class SettingsService
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+    private readonly string _settingsFile;
+
+    public SettingsService() : this(AppPaths.SettingsFile) { }
+    public SettingsService(string settingsFile) => _settingsFile = Path.GetFullPath(settingsFile);
 
     public AppSettings Current { get; private set; } = new();
 
     public void Load()
     {
-        Directory.CreateDirectory(AppPaths.Root);
-        if (!File.Exists(AppPaths.SettingsFile)) return;
+        Directory.CreateDirectory(Path.GetDirectoryName(_settingsFile)!);
+        if (!File.Exists(_settingsFile)) return;
         try
         {
-            Current = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(AppPaths.SettingsFile), JsonOptions) ?? new();
+            Current = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(_settingsFile), JsonOptions) ?? new();
             Normalize();
         }
         catch
@@ -27,10 +31,10 @@ public sealed class SettingsService
     public void Save()
     {
         Normalize();
-        Directory.CreateDirectory(AppPaths.Root);
-        var temporary = AppPaths.SettingsFile + ".tmp";
+        Directory.CreateDirectory(Path.GetDirectoryName(_settingsFile)!);
+        var temporary = _settingsFile + ".tmp";
         File.WriteAllText(temporary, JsonSerializer.Serialize(Current, JsonOptions));
-        File.Move(temporary, AppPaths.SettingsFile, true);
+        File.Move(temporary, _settingsFile, true);
     }
 
     public void Update(AppSettings candidate)
@@ -44,6 +48,11 @@ public sealed class SettingsService
     private void Normalize()
     {
         Current.Recording ??= new();
+        Current.Recording.SpeakerDeviceId ??= "";
+        Current.Recording.MicrophoneDeviceId ??= "";
+        Current.Recording.CameraDeviceId ??= "";
+        if (string.IsNullOrWhiteSpace(Current.RecordingSaveDirectory))
+            Current.RecordingSaveDirectory = AppSettings.DefaultRecordingSaveDirectory;
         try { Current.Recording.Validate(); } catch (ArgumentException) { Current.Recording = new(); }
         Current.ImageQuality = Math.Clamp(Current.ImageQuality, 1, 100);
         if (Current.OcrBackend is not ("PaddleOCR" or "Windows" or "Tesseract")) Current.OcrBackend = "PaddleOCR";

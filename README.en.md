@@ -202,7 +202,7 @@ Record a rectangular area within one display to show a sequence of actions. MP4 
 </p>
 <p align="center"><em>The floating toolbar brings record, pause, stop, and configuration actions together.</em></p>
 
-Audio and camera capture are off by default and selected for each recording. GIF has no audio, supports up to 15 fps, and is limited to 60 seconds. Use the recording environment setup to check required components before first use.
+Audio and camera capture are initially off; subsequent recordings remember their switches and device choices. System audio follows the current Windows default output unless you select a specific device. Set a separate recording folder in Settings → Output & Files; recordings receive unique filenames automatically. GIF has no audio, supports up to 15 fps, and is limited to 60 seconds. Use the recording environment setup to check required components before first use.
 
 <a id="output"></a>
 

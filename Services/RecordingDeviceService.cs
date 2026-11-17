@@ -9,6 +9,29 @@ internal static class RecordingDeviceService
 {
     public static RecordingDevice[] Microphones() => Audio(1);
     public static RecordingDevice[] Speakers() => Audio(0);
+    public static string DefaultMicrophone() => DefaultAudio(1);
+    public static string DefaultSpeaker() => DefaultAudio(0);
+
+    private static string DefaultAudio(int flow)
+    {
+        var initialized = CoInitializeEx(nint.Zero, 0);
+        if (initialized < 0 && initialized != unchecked((int)0x80010106)) Marshal.ThrowExceptionForHR(initialized);
+        IMMDeviceEnumerator? enumerator = null;
+        IMMDevice? device = null;
+        try
+        {
+            var type = Type.GetTypeFromCLSID(new Guid("BCDE0395-E52F-467C-8E3D-C4579291692E"), throwOnError: true)!;
+            enumerator = (IMMDeviceEnumerator)Activator.CreateInstance(type)!;
+            Marshal.ThrowExceptionForHR(enumerator.GetDefaultAudioEndpoint(flow, 1, out device));
+            Marshal.ThrowExceptionForHR(device.GetId(out var id));
+            return id;
+        }
+        finally
+        {
+            Release(device); Release(enumerator);
+            if (initialized >= 0) CoUninitialize();
+        }
+    }
     public static RecordingDevice[] Cameras() => DeviceInformation.FindAllAsync(DeviceClass.VideoCapture)
         .AsTask().GetAwaiter().GetResult().Where(device => device.IsEnabled)
         .Select(device => new RecordingDevice(device.Id, device.Name)).ToArray();
@@ -81,6 +104,7 @@ internal static class RecordingDeviceService
     private interface IMMDeviceEnumerator
     {
         [PreserveSig] int EnumAudioEndpoints(int flow, uint state, out IMMDeviceCollection devices);
+        [PreserveSig] int GetDefaultAudioEndpoint(int flow, int role, out IMMDevice device);
     }
     [ComImport, Guid("0BD7A1BE-7A1A-44DB-8397-CC5392387B5E"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     private interface IMMDeviceCollection

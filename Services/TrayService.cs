@@ -1,13 +1,9 @@
 using L = SnapSharp.Localization.UiText;
 using H.NotifyIcon;
 using H.NotifyIcon.Core;
-using SkiaSharp;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using Drawing = System.Drawing;
 using WinForms = System.Windows.Forms;
 using WpfContextMenu = System.Windows.Controls.ContextMenu;
 using MenuItem = System.Windows.Controls.MenuItem;
@@ -111,13 +107,12 @@ public sealed class TrayService : IDisposable
 
         _notifyIcon = new TaskbarIcon
         {
-            IconSource = CreateTrayIconSource(ThemeService.IsDarkMode),
+            IconSource = CreateTrayIconSource(),
             ToolTipText = L.Get("SnapSharpCtrlShiftARegionCapture"),
             ContextMenu = menu
         };
         _notifyIcon.TrayMouseDoubleClick += (_, _) => CaptureRequested?.Invoke(this,
             new CaptureModeEventArgs(Models.CaptureMode.Region));
-        ThemeService.ThemeChanged += OnThemeChanged;
     }
 
     public void Show()
@@ -276,60 +271,21 @@ public sealed class TrayService : IDisposable
 
     public void Dispose()
     {
-        ThemeService.ThemeChanged -= OnThemeChanged;
         System.Windows.Data.BindingOperations.ClearAllBindings(_notifyIcon);
         _notifyIcon.Dispose();
     }
 
-    private void OnThemeChanged(object? sender, EventArgs e) => _notifyIcon.IconSource = CreateTrayIconSource(ThemeService.IsDarkMode);
-
-    private static BitmapSource CreateTrayIconSource(bool dark)
+    private static BitmapSource CreateTrayIconSource()
     {
-        using var logoStream = Assembly.GetExecutingAssembly()
-            .GetManifestResourceStream("SnapSharp.logo.png")
-            ?? throw new InvalidOperationException("Embedded tray logo was not found.");
-        using var logo = SKBitmap.Decode(logoStream)
-            ?? throw new InvalidOperationException("Embedded tray logo could not be decoded.");
-        using var bitmap = logo.Resize(new SKImageInfo(32, 32), SKSamplingOptions.Default)
-            ?? throw new InvalidOperationException("Embedded tray logo could not be resized.");
-        var foreground = dark ? new SKColor(245, 245, 245) : new SKColor(28, 28, 30);
-        for (var y = 0; y < bitmap.Height; y++)
-        for (var x = 0; x < bitmap.Width; x++)
-        {
-            var pixel = bitmap.GetPixel(x, y);
-            if (pixel.Alpha > 0) bitmap.SetPixel(x, y,
-                new SKColor(foreground.Red, foreground.Green, foreground.Blue, pixel.Alpha));
-        }
-        using var image = SKImage.FromBitmap(bitmap);
-        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-        var iconDirectory = Path.Combine(Path.GetTempPath(), "SnapSharp", "TrayIcons");
-        Directory.CreateDirectory(iconDirectory);
-        var path = Path.Combine(iconDirectory, dark ? "tray-icon-dark.ico" : "tray-icon-light.ico");
-        using (var pngStream = new MemoryStream(data.ToArray()))
-        using (var drawingBitmap = new Drawing.Bitmap(pngStream))
-        {
-            var handle = drawingBitmap.GetHicon();
-            try
-            {
-                using var icon = (Drawing.Icon)Drawing.Icon.FromHandle(handle).Clone();
-                using var iconStream = new MemoryStream();
-                icon.Save(iconStream);
-                File.WriteAllBytes(path, iconStream.ToArray());
-            }
-            finally { DestroyIcon(handle); }
-        }
         var source = new BitmapImage();
         source.BeginInit();
         source.CacheOption = BitmapCacheOption.OnLoad;
-        source.UriSource = new Uri(path, UriKind.Absolute);
+        source.UriSource = new Uri("pack://application:,,,/SnapSharp;component/logo.ico", UriKind.Absolute);
         source.EndInit();
         source.Freeze();
         return source;
     }
 
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool DestroyIcon(nint icon);
 }
 
 public sealed class DelayedScreenshotEventArgs(int seconds) : EventArgs

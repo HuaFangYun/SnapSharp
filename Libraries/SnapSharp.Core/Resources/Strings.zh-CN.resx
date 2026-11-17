@@ -3603,4 +3603,24 @@ Media Foundation：{2}
   <data name="LocalTranslationDownloaded" xml:space="preserve">
     <value>已下载并配置本地 {0} 翻译，SHA256 校验通过。请测试并保存设置。</value>
   </data>
+  <data name="RecordingSaveFolder" xml:space="preserve"><value>录屏保存目录</value></data>
+  <data name="RecordingSaveFolderHint" xml:space="preserve"><value>录屏自动保存到此目录，文件名自动生成。声音开关和设备选择会记住上次设置。</value></data>
+  <data name="RecordingFolderMustBeAbsolute" xml:space="preserve"><value>请在“输出与文件”中选择有效的录屏保存目录（完整路径）。</value></data>
+  <data name="FollowSystemDefaultDevice" xml:space="preserve"><value>跟随系统默认设备</value></data>
+  <data name="RecordingRememberOptionsHint" xml:space="preserve"><value>声音、摄像头开关和设备选择会记住上次设置；GIF 不包含声音。</value></data>
+  <data name="LocalDownloadPreparing" xml:space="preserve"><value>正在准备本地翻译下载…</value></data>
+  <data name="LocalDownloadConnecting" xml:space="preserve"><value>{0}：正在连接 {1}…</value></data>
+  <data name="LocalDownloadChecking" xml:space="preserve"><value>{0}：正在校验已下载文件…</value></data>
+  <data name="LocalDownloadProgress" xml:space="preserve"><value>{0}：{1:F1}% · {2:F1}/{3:F1} MB · {4:F1} MB/s</value></data>
+  <data name="LocalDownloadRetry" xml:space="preserve"><value>{0}：下载中断（{1}），正在重试 {2}/3；已下载的数据会保留。</value></data>
+  <data name="LocalDownloadFailed" xml:space="preserve"><value>{0}：下载失败。{1}</value></data>
+  <data name="LocalDownloadExtracting" xml:space="preserve"><value>正在校验并解压翻译运行环境…</value></data>
+  <data name="LocalDownloadTimeout" xml:space="preserve"><value>连接或下载连续 45 秒没有响应，请检查 GitHub 和 Hugging Face 的网络连接。</value></data>
+  <data name="LocalDownloadHttpError" xml:space="preserve"><value>{0} 返回 HTTP {1}。</value></data>
+  <data name="LocalDownloadInvalidRange" xml:space="preserve"><value>服务器返回了无效的续传范围。</value></data>
+  <data name="LocalDownloadFailureTitle" xml:space="preserve"><value>本地翻译下载失败</value></data>
+  <data name="LocalDownloadFailureDetails" xml:space="preserve"><value>{0}
+
+诊断日志：{1}</value></data>
+  <data name="LocalDownloadCanceledResume" xml:space="preserve"><value>下载已取消，已下载的数据会保留；再次点击“下载”即可继续。</value></data>
 </root>

@@ -16,6 +16,13 @@ public sealed class RecordingPreferences
     public string CaptureBackend { get; set; } = "WGC";
     public int BitrateKbps { get; set; }
     public int CountdownSeconds { get; set; } = 3;
+    public bool RecordSystemAudio { get; set; }
+    public bool RecordMicrophone { get; set; }
+    public bool RecordCamera { get; set; }
+    // An empty audio device ID means resolve the Windows default at recording start.
+    public string SpeakerDeviceId { get; set; } = "";
+    public string MicrophoneDeviceId { get; set; } = "";
+    public string CameraDeviceId { get; set; } = "";
     public void Validate()
     {
         if (Format is not ("MP4" or "GIF") || FrameRate is not (15 or 30 or 60) || Quality is not ("流畅" or "标准" or "高清")) throw new ArgumentException(L.Get("InvalidRecordingFormatFrameRateOrQuality"));

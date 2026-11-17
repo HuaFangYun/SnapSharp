@@ -3603,4 +3603,24 @@ Adjust this offset in 1-pixel steps. Blue guides are not written to output.</val
   <data name="LocalTranslationDownloaded" xml:space="preserve">
     <value>Local {0} translation downloaded and configured. SHA256 verified. Test it and save settings.</value>
   </data>
+  <data name="RecordingSaveFolder" xml:space="preserve"><value>Recording save folder</value></data>
+  <data name="RecordingSaveFolderHint" xml:space="preserve"><value>Recordings are saved here automatically with unique filenames. Audio and device choices are remembered.</value></data>
+  <data name="RecordingFolderMustBeAbsolute" xml:space="preserve"><value>Choose an absolute recording save folder in Output &amp; Files.</value></data>
+  <data name="FollowSystemDefaultDevice" xml:space="preserve"><value>Follow Windows default device</value></data>
+  <data name="RecordingRememberOptionsHint" xml:space="preserve"><value>Audio, camera and device choices are remembered for the next recording. GIF does not include audio.</value></data>
+  <data name="LocalDownloadPreparing" xml:space="preserve"><value>Preparing local translation download…</value></data>
+  <data name="LocalDownloadConnecting" xml:space="preserve"><value>{0}: connecting to {1}…</value></data>
+  <data name="LocalDownloadChecking" xml:space="preserve"><value>{0}: verifying downloaded file…</value></data>
+  <data name="LocalDownloadProgress" xml:space="preserve"><value>{0}: {1:F1}% · {2:F1}/{3:F1} MB · {4:F1} MB/s</value></data>
+  <data name="LocalDownloadRetry" xml:space="preserve"><value>{0}: download interrupted ({1}). Retrying {2}/3; partial data is kept.</value></data>
+  <data name="LocalDownloadFailed" xml:space="preserve"><value>{0}: download failed. {1}</value></data>
+  <data name="LocalDownloadExtracting" xml:space="preserve"><value>Verifying and extracting the translation runtime…</value></data>
+  <data name="LocalDownloadTimeout" xml:space="preserve"><value>The connection or download stalled for 45 seconds. Check access to GitHub and Hugging Face.</value></data>
+  <data name="LocalDownloadHttpError" xml:space="preserve"><value>{0} returned HTTP {1}.</value></data>
+  <data name="LocalDownloadInvalidRange" xml:space="preserve"><value>The server returned an invalid download range.</value></data>
+  <data name="LocalDownloadFailureTitle" xml:space="preserve"><value>Local translation download failed</value></data>
+  <data name="LocalDownloadFailureDetails" xml:space="preserve"><value>{0}
+
+Diagnostic log: {1}</value></data>
+  <data name="LocalDownloadCanceledResume" xml:space="preserve"><value>Download canceled. Partial files are kept; click Download to continue.</value></data>
 </root>

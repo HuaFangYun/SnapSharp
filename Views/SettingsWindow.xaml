@@ -65,6 +65,8 @@
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OutputAndFiles}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DefaultSaveLocationEncodingAndAutomaticSaving}" Style="{StaticResource Hint}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SaveLocation}" Style="{StaticResource SectionTitle}" />          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DefaultSaveFolder}" /><DockPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Browse}" Click="Browse_Click" DockPanel.Dock="Right" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="SaveDirectory" /></DockPanel>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RecordingSaveFolder}" /><DockPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Browse}" Click="RecordingBrowse_Click" DockPanel.Dock="Right" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="RecordingSaveDirectory" /></DockPanel>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RecordingSaveFolderHint}" Style="{StaticResource Hint}" />
         </StackPanel></Border>
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:EncodingAndQuality}" Style="{StaticResource SectionTitle}" />          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DefaultOutputFormat}" /><ComboBox x:Name="OutputFormatBox" DisplayMemberPath="Name" SelectionChanged="Output_Changed" />
@@ -99,7 +101,7 @@
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Recording}" Tag="Video"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
-        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RecordingDefaults}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:AudioAndCameraRequireApprovalForEach}" Style="{StaticResource Hint}" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RecordingDefaults}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RecordingRememberOptionsHint}" Style="{StaticResource Hint}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FirstUseSetup}" Style="{StaticResource SectionTitle}" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:CheckAndSetUpRecording}" Click="RecordingSetup_Click" HorizontalAlignment="Left" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ChecksVCX64AndMediaFoundationMissing}" Style="{StaticResource Hint}" /></StackPanel></Border>
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:EncodingDefaults}" Style="{StaticResource SectionTitle}" />          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DefaultFormat}" /><ComboBox x:Name="RecordingFormat"><ComboBoxItem Content="MP4" /><ComboBoxItem Content="GIF" /></ComboBox>
@@ -111,6 +113,7 @@
         </StackPanel></Border>
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PictureAndInteraction}" Style="{StaticResource SectionTitle}" />          <CheckBox x:Name="RecordingHardware" Content="{loc:Loc SnapSharp.Core:Resources.Strings:PreferHardwareEncodingTrySoftwareIfInitialization}" /><CheckBox x:Name="RecordingCursor" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RecordMousePointer}" /><CheckBox x:Name="RecordingClicks" Content="{loc:Loc SnapSharp.Core:Resources.Strings:HighlightMouseClicks}" />
+          <CheckBox x:Name="RecordingSystemAudio" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RecordSystemAudioWASAPILoopback}" /><CheckBox x:Name="RecordingMicrophone" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RecordMicrophone}" /><CheckBox x:Name="RecordingCamera" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CameraOverlayBottomRight}" />
         </StackPanel></Border>
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DurationAndSize}" Style="{StaticResource SectionTitle}" />          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:StopAfterRecordedSeconds0ManualMaximum}" /><TextBox x:Name="RecordingStop" />
@@ -207,6 +210,8 @@
             <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationDevice}" /><ComboBox x:Name="LocalTranslationDeviceBox"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalCPUNoDedicatedGPUNeeded}" Tag="CPU" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalGPUVulkanNVIDIAAMDIntel}" Tag="Vulkan" /></ComboBox>
             <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DownloadsQwen2515BInstructQ4}" Style="{StaticResource Hint}" />
             <WrapPanel><Button x:Name="DownloadLocalTranslationButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:DownloadAndConfigureLocalTranslation}" Click="DownloadLocalTranslation_Click" /><Button x:Name="CancelLocalTranslationButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
+            <ProgressBar x:Name="LocalTranslationProgress" Height="8" Minimum="0" Maximum="100" Margin="0,8" Visibility="Collapsed" Background="{DynamicResource ControlBrush}" Foreground="{DynamicResource ToolbarActiveBrush}" BorderBrush="{DynamicResource BorderBrush}" />
+            <TextBlock x:Name="LocalTranslationDownloadStatus" Style="{StaticResource Hint}" TextWrapping="Wrap" />
             <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalModelPathFilledAfterDownload}" /><TextBox x:Name="LocalTranslationModelPath" IsReadOnly="True" />
             <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalRuntimePathFilledAfterDownload}" /><TextBox x:Name="LocalTranslationRuntimePath" IsReadOnly="True" />
             <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpVCX64Runtime}" Click="RecordingSetup_Click" HorizontalAlignment="Left" />

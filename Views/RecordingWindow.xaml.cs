@@ -18,6 +18,7 @@ public partial class RecordingWindow : Window
     private readonly SettingsService _settings;
     private RecordingService? _service;
     private bool _starting, _refreshing;
+    private Task? _deviceRefresh;
     private CancellationTokenSource? _countdown;
     private bool _terminalHandled;
     private RecordingRegionWindow? _regionIndicator;
@@ -34,6 +35,8 @@ public partial class RecordingWindow : Window
         StopAfterBox.Text = p.StopAfterSeconds.ToString(); GifEdgeBox.Text = p.GifMaximumEdge.ToString();
         CaptureBackendBox.SelectedIndex = p.CaptureBackend == "DXGI" ? 1 : 0;
         BitrateBox.Text = p.BitrateKbps.ToString(); CountdownBox.Text = p.CountdownSeconds.ToString();
+        SpeakerBox.IsChecked = p.RecordSystemAudio; MicBox.IsChecked = p.RecordMicrophone; CameraBox.IsChecked = p.RecordCamera;
+        Format_Changed(this, null!);
         RegionLabel.Text = L.Format("PhysicalPixelRegionX0Y1", _region.X, _region.Y, _region.Width, _region.Height);
         Closed += (_, _) => CloseTools();
         Loaded += async (_, _) =>
@@ -51,6 +54,12 @@ public partial class RecordingWindow : Window
         var value = new RecordingPreferences { Format = ((ComboBoxItem)FormatBox.SelectedItem).Tag.ToString()!, FrameRate = int.Parse(((ComboBoxItem)FrameRateBox.SelectedItem).Tag.ToString()!), Quality = ((ComboBoxItem)QualityBox.SelectedItem).Tag.ToString()!, HardwareEncoding = HardwareBox.IsChecked == true, IncludeCursor = CursorBox.IsChecked == true, HighlightClicks = ClicksBox.IsChecked == true, StopAfterSeconds = stop, GifMaximumEdge = edge };
         value.CaptureBackend = ((ComboBoxItem)CaptureBackendBox.SelectedItem).Tag.ToString()!;
         value.BitrateKbps = bitrate; value.CountdownSeconds = countdown;
+        value.RecordSystemAudio = SpeakerBox.IsChecked == true;
+        value.RecordMicrophone = MicBox.IsChecked == true;
+        value.RecordCamera = CameraBox.IsChecked == true;
+        value.SpeakerDeviceId = (SpeakerDevices.SelectedItem as RecordingDevice)?.Id ?? _settings.Current.Recording.SpeakerDeviceId;
+        value.MicrophoneDeviceId = (MicDevices.SelectedItem as RecordingDevice)?.Id ?? _settings.Current.Recording.MicrophoneDeviceId;
+        value.CameraDeviceId = (CameraDevices.SelectedItem as RecordingDevice)?.Id ?? _settings.Current.Recording.CameraDeviceId;
         value.Validate(); return value;
     }
     private void Format_Changed(object sender, SelectionChangedEventArgs e)
@@ -58,16 +67,19 @@ public partial class RecordingWindow : Window
         if (MicBox is null) return; var gif = FormatBox.SelectedIndex == 1;
         MicBox.IsEnabled = SpeakerBox.IsEnabled = !gif;
         if (BitrateBox is not null) BitrateBox.IsEnabled = QualityBox.IsEnabled = FrameRateBox.IsEnabled = HardwareBox.IsEnabled = !gif;
-        if (gif) { MicBox.IsChecked = SpeakerBox.IsChecked = false; }
     }
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshDevices();
-    private async Task RefreshDevices()
+    private Task RefreshDevices() => _deviceRefresh is { IsCompleted: false } ? _deviceRefresh : _deviceRefresh = RefreshDevicesCore();
+    private async Task RefreshDevicesCore()
     {
-        if (_refreshing || IsRecording) return; _refreshing = true; RefreshButton.IsEnabled = StartButton.IsEnabled = false;
+        if (_refreshing || _service?.IsActive == true) return; _refreshing = true; RefreshButton.IsEnabled = StartButton.IsEnabled = false;
         try
         {
             var devices = await Task.Run(() => (ReadDevices(RecordingService.Microphones), ReadDevices(RecordingService.Speakers), ReadDevices(RecordingService.Cameras)));
-            SetDevices(MicDevices, MicBox, devices.Item1.Devices); SetDevices(SpeakerDevices, SpeakerBox, devices.Item2.Devices); SetDevices(CameraDevices, CameraBox, devices.Item3.Devices);
+            var preferences = _settings.Current.Recording;
+            SetDevices(MicDevices, [new RecordingDevice("", L.Get("FollowSystemDefaultDevice")), .. devices.Item1.Devices], preferences.MicrophoneDeviceId);
+            SetDevices(SpeakerDevices, [new RecordingDevice("", L.Get("FollowSystemDefaultDevice")), .. devices.Item2.Devices], preferences.SpeakerDeviceId);
+            SetDevices(CameraDevices, devices.Item3.Devices, preferences.CameraDeviceId);
             var errors = new[] { devices.Item1.Error, devices.Item2.Error, devices.Item3.Error }.Where(x => x is not null);
             StatusLabel.Text = L.Format("Found0Microphones1SystemAudioDevices", devices.Item1.Devices.Length, devices.Item2.Devices.Length, devices.Item3.Devices.Length) + string.Join("；", errors);
         }
@@ -78,12 +90,13 @@ public partial class RecordingWindow : Window
     {
         try { return (read(), null); } catch (Exception ex) { return ([], ex.GetBaseException().Message); }
     }
-    private static void SetDevices(ComboBox box, System.Windows.Controls.CheckBox enabled, RecordingDevice[] devices)
+    private static void SetDevices(ComboBox box, RecordingDevice[] devices, string? remembered = null)
     {
-        var previous = (box.SelectedItem as RecordingDevice)?.Id;
+        var previous = (box.SelectedItem as RecordingDevice)?.Id ?? (string.IsNullOrEmpty(remembered) ? null : remembered);
         box.ItemsSource = devices;
         box.SelectedIndex = previous is null ? (devices.Length > 0 ? 0 : -1) : Array.FindIndex(devices, x => x.Id == previous);
-        if (box.SelectedIndex < 0) enabled.IsChecked = false;
+        // Keep an enabled but unavailable device visible as an error at Start,
+        // rather than silently producing a recording without the requested audio.
     }
     private async void Setup_Click(object sender, RoutedEventArgs e)
     {
@@ -93,10 +106,11 @@ public partial class RecordingWindow : Window
         try { Recorder.SetExcludeFromCapture(new WindowInteropHelper(this).Handle, true); await RefreshDevices(); }
         catch (Exception ex) { StatusLabel.Text = L.Get("RecordingComponentsFailedToLoad") + ex.GetBaseException().Message + L.Get("RestartingSnapSharpOrWindowsMayBeRequired"); }
     }
-    private static string? Selected(System.Windows.Controls.CheckBox check, System.Windows.Controls.ComboBox devices)
+    private static string? Selected(System.Windows.Controls.CheckBox check, System.Windows.Controls.ComboBox devices, Func<string>? defaultDevice = null)
     {
         if (check.IsChecked != true) return null;
-        return (devices.SelectedItem as RecordingDevice)?.Id ?? throw new ArgumentException(L.Get("TheSelectedAudioCameraDeviceIsUnavailable"));
+        var id = (devices.SelectedItem as RecordingDevice)?.Id ?? throw new ArgumentException(L.Get("TheSelectedAudioCameraDeviceIsUnavailable"));
+        return id.Length == 0 && defaultDevice is not null ? defaultDevice() : id;
     }
     private async void Start_Click(object sender, RoutedEventArgs e)
     {
@@ -110,20 +124,18 @@ public partial class RecordingWindow : Window
         {
             if (!RecordingSetupService.Check().Ready)
             {
-                if (!IsVisible) { Show(); WindowState = WindowState.Normal; }
+                if (!IsVisible) ShowConfiguration();
                 RecordingSetupWindow.Open(this);
                 if (!RecordingSetupService.Check().Ready) throw new InvalidOperationException(L.Get("RecordingRequirementsAreNotReadyCompleteSetup"));
             }
-            var p = Candidate(); var mic = Selected(MicBox, MicDevices); var speaker = Selected(SpeakerBox, SpeakerDevices); var camera = Selected(CameraBox, CameraDevices);
+            await RefreshDevices();
+            var p = Candidate();
             var screen = System.Windows.Forms.Screen.FromRectangle(_region);
             if (!screen.Bounds.Contains(_region)) throw new ArgumentException(L.Get("RecordingRegionMustFitWithinASingle"));
-            var dialog = new Microsoft.Win32.SaveFileDialog { Filter = p.Format == "GIF" ? L.Get("GIFAnimationGif") : L.Get("MP4VideoMp4"), FileName = "SnapSharp-record-" + DateTime.Now.ToString("yyyyMMdd-HHmmss"), InitialDirectory = _settings.Current.SaveDirectory, OverwritePrompt = true };
-            var accepted = IsVisible ? dialog.ShowDialog(this) : _toolbar?.IsVisible == true ? dialog.ShowDialog(_toolbar) : dialog.ShowDialog();
-            if (accepted != true) return;
-            if (File.Exists(dialog.FileName)) throw new IOException(L.Get("ChooseANewFileNameToProtect"));
-            var candidate = System.Text.Json.JsonSerializer.Deserialize<AppSettings>(System.Text.Json.JsonSerializer.Serialize(_settings.Current))!;
-            candidate.Recording = p.Copy(); _settings.Update(candidate);
+            var destination = RecordingOutputPath.Create(_settings.Current.RecordingSaveDirectory, p.Format, DateTime.Now);
+            SavePreferences(p);
             _service = null;
+            Hide(); ShowRecordingTools();
             using var countdown = new CancellationTokenSource(); _countdown = countdown; UpdateState();
             for (var seconds = p.CountdownSeconds; seconds > 0; seconds--)
             {
@@ -131,19 +143,23 @@ public partial class RecordingWindow : Window
                 _toolbar?.Countdown(seconds);
                 await Task.Delay(1000, countdown.Token);
             }
-            WindowState = WindowState.Minimized; await Task.Delay(250, countdown.Token);
+            await Task.Delay(250, countdown.Token);
             _countdown = null;
             var currentScreen = System.Windows.Forms.Screen.FromRectangle(_region);
             if (currentScreen.DeviceName != screen.DeviceName || currentScreen.Bounds != screen.Bounds || !currentScreen.Bounds.Contains(_region))
                 throw new InvalidOperationException(L.Get("MonitorLayoutChangedDuringTheCountdownSelect"));
             _service = new RecordingService(Dispatcher); _service.Changed += UpdateState;
-            _service.Start(_region, screen.Bounds, screen.DeviceName, dialog.FileName, p, mic, speaker, camera);
+            // Resolve default audio after the countdown so recent Windows output changes apply.
+            var mic = p.Format == "GIF" ? null : Selected(MicBox, MicDevices, RecordingDeviceService.DefaultMicrophone);
+            var speaker = p.Format == "GIF" ? null : Selected(SpeakerBox, SpeakerDevices, RecordingDeviceService.DefaultSpeaker);
+            var camera = Selected(CameraBox, CameraDevices);
+            _service.Start(_region, screen.Bounds, screen.DeviceName, destination, p, mic, speaker, camera);
         }
-        catch (OperationCanceledException) { StatusLabel.Text = L.Get("RecordingStartCanceledScreenAndDevicesWere"); WindowState = WindowState.Normal; }
+        catch (OperationCanceledException) { StatusLabel.Text = L.Get("RecordingStartCanceledScreenAndDevicesWere"); ShowConfiguration(); }
         catch (Exception ex)
         {
             if (_service?.State == RecordingState.Ready) { _service.Changed -= UpdateState; _service = null; }
-            StatusLabel.Text = ex.GetBaseException().Message; WindowState = WindowState.Normal; Show(); Activate();
+            StatusLabel.Text = ex.GetBaseException().Message; ShowConfiguration();
         }
         finally { _countdown = null; _starting = false; UpdateState(); }
     }
@@ -168,8 +184,8 @@ public partial class RecordingWindow : Window
         if (!_terminalHandled && _service.State is RecordingState.Completed or RecordingState.Failed)
         {
             CloseTools();
-            _terminalHandled = true; MicBox.IsChecked = SpeakerBox.IsChecked = CameraBox.IsChecked = false;
-            WindowState = WindowState.Normal; Show();
+            _terminalHandled = true;
+            ShowConfiguration();
         }
     }
     public void ShowRecordingTools()
@@ -178,7 +194,6 @@ public partial class RecordingWindow : Window
         {
             var effective = new System.Drawing.Rectangle(_region.X, _region.Y, _region.Width & ~1, _region.Height & ~1);
             _regionIndicator = new RecordingRegionWindow(effective);
-            _regionIndicator.Show();
         }
         if (_toolbar is null)
         {
@@ -186,12 +201,26 @@ public partial class RecordingWindow : Window
             _toolbar.RecordRequested += () => Start_Click(this, new RoutedEventArgs());
             _toolbar.PauseRequested += PauseRecording;
             _toolbar.StopRequested += StopRecording;
-            _toolbar.ConfigurationRequested += () => { Show(); WindowState = WindowState.Normal; Activate(); };
+            _toolbar.ConfigurationRequested += ShowConfiguration;
             _toolbar.CloseRequested += CloseSession;
             _toolbar.Closed += (_, _) => _toolbar = null;
         }
-        _toolbar.ShowForRegion(_region);
+        if (IsVisible && WindowState != WindowState.Minimized) HideTools();
+        else { _regionIndicator.Show(); _toolbar.ShowForRegion(_region); }
         UpdateTools();
+    }
+    private void ShowConfiguration()
+    {
+        HideTools();
+        Show(); WindowState = WindowState.Normal; Activate();
+    }
+    private void HideTools() { _regionIndicator?.Hide(); _toolbar?.Hide(); }
+    private void SavePreferences(RecordingPreferences preferences)
+    {
+        if (System.Text.Json.JsonSerializer.Serialize(preferences) == System.Text.Json.JsonSerializer.Serialize(_settings.Current.Recording)) return;
+        var candidate = System.Text.Json.JsonSerializer.Deserialize<AppSettings>(System.Text.Json.JsonSerializer.Serialize(_settings.Current))!;
+        candidate.Recording = preferences.Copy();
+        _settings.Update(candidate);
     }
     private void UpdateTools()
     {
@@ -228,12 +257,21 @@ public partial class RecordingWindow : Window
     }
     private void Window_Closing(object? sender, CancelEventArgs e)
     {
-        if (IsRecording || (!_closingSession && _toolbar is not null)) { e.Cancel = true; Hide(); }
+        if (!IsRecording)
+        {
+            try { SavePreferences(Candidate()); }
+            catch (Exception ex) { StatusLabel.Text = ex.GetBaseException().Message; e.Cancel = true; return; }
+        }
+        if (IsRecording || (!_closingSession && _toolbar is not null))
+        {
+            e.Cancel = true; Hide(); ShowRecordingTools();
+        }
     }
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
     internal static bool RunLayoutSelfTest()
     {
-        var window = new RecordingWindow(new System.Drawing.Rectangle(-100, 20, 640, 480), new SettingsService());
+        var window = new RecordingWindow(new System.Drawing.Rectangle(-100, 20, 640, 480),
+            new SettingsService(Path.Combine(Path.GetTempPath(), "SnapSharp", "RecordingSelfTests", Guid.NewGuid().ToString("N"), "settings.json")));
         try
         {
             var content = (FrameworkElement)window.Content; content.Measure(new System.Windows.Size(700, 740)); content.Arrange(new Rect(0, 0, 700, 740)); content.UpdateLayout();
@@ -244,11 +282,11 @@ public partial class RecordingWindow : Window
             window.FormatBox.SelectedIndex = 1;
             if (window.MicBox.IsEnabled || window.SpeakerBox.IsEnabled || window.FrameRateBox.IsEnabled || window.BitrateBox.IsEnabled) return false;
             var devices = new[] { new RecordingDevice("a", "first"), new RecordingDevice("b", "second") };
-            SetDevices(window.CameraDevices, window.CameraBox, devices); window.CameraDevices.SelectedIndex = 1; window.CameraBox.IsChecked = true;
-            SetDevices(window.CameraDevices, window.CameraBox, devices.Reverse().ToArray());
+            SetDevices(window.CameraDevices, devices); window.CameraDevices.SelectedIndex = 1; window.CameraBox.IsChecked = true;
+            SetDevices(window.CameraDevices, devices.Reverse().ToArray());
             if ((window.CameraDevices.SelectedItem as RecordingDevice)?.Id != "b") return false;
-            SetDevices(window.CameraDevices, window.CameraBox, [devices[0]]);
-            if (window.CameraBox.IsChecked == true || window.CameraDevices.SelectedIndex != -1) return false;
+            SetDevices(window.CameraDevices, [devices[0]]);
+            if (window.CameraBox.IsChecked != true || window.CameraDevices.SelectedIndex != -1) return false;
             using var countdown = new CancellationTokenSource(); window._starting = true; window._countdown = countdown; window.UpdateState();
             if (!window.StopButton.IsEnabled || window.StartButton.IsEnabled || window.SetupButton.IsEnabled) return false;
             window.StopRecording();
@@ -258,7 +296,8 @@ public partial class RecordingWindow : Window
     }
     internal static async Task TestFloatingConfiguration()
     {
-        var window = new RecordingWindow(new System.Drawing.Rectangle(40, 40, 320, 192), new SettingsService());
+        var window = new RecordingWindow(new System.Drawing.Rectangle(40, 40, 320, 192),
+            new SettingsService(Path.Combine(Path.GetTempPath(), "SnapSharp", "RecordingSelfTests", Guid.NewGuid().ToString("N"), "settings.json")));
         try
         {
             window.ShowRecordingTools();
@@ -268,6 +307,8 @@ public partial class RecordingWindow : Window
             configuration.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
             if (!window.IsVisible || window.WindowState != WindowState.Normal)
                 throw new InvalidOperationException("工具条配置按钮没有打开配置窗口。");
+            if (window._toolbar.IsVisible || window._regionIndicator?.IsVisible == true)
+                throw new InvalidOperationException("录屏悬浮层遮挡了配置窗口。");
             var timeout = Stopwatch.StartNew();
             while (window._refreshing && timeout.Elapsed < TimeSpan.FromSeconds(10)) await Task.Delay(20);
             if (window._refreshing) throw new TimeoutException("配置窗口设备刷新超时。");

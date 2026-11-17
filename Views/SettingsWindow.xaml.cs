@@ -39,6 +39,7 @@ public partial class SettingsWindow : Window
         InterfaceLanguageBox.SelectedValue = LocalizationService.Languages.Any(x => x.Code == current.InterfaceLanguage)
             ? current.InterfaceLanguage : "";
         SaveDirectory.Text = current.SaveDirectory;
+        RecordingSaveDirectory.Text = current.RecordingSaveDirectory;
         Quality.Value = current.ImageQuality;
         OutputFormatBox.ItemsSource = OutputFormat.All.Where(x => x.IsAvailable).ToArray();
         OutputFormatBox.SelectedItem = OutputFormat.Find(current.OutputFormat);
@@ -99,6 +100,9 @@ public partial class SettingsWindow : Window
         RecordingFormat.SelectedIndex = recording.Format == "GIF" ? 1 : 0; RecordingFps.SelectedIndex = recording.FrameRate switch { 15 => 0, 60 => 2, _ => 1 };
         RecordingQuality.SelectedIndex = recording.Quality switch { "流畅" => 0, "高清" => 2, _ => 1 };
         RecordingHardware.IsChecked = recording.HardwareEncoding; RecordingCursor.IsChecked = recording.IncludeCursor; RecordingClicks.IsChecked = recording.HighlightClicks;
+        RecordingSystemAudio.IsChecked = recording.RecordSystemAudio;
+        RecordingMicrophone.IsChecked = recording.RecordMicrophone;
+        RecordingCamera.IsChecked = recording.RecordCamera;
         RecordingStop.Text = recording.StopAfterSeconds.ToString(); RecordingGifEdge.Text = recording.GifMaximumEdge.ToString();
         Output_Changed(this, null!); Template_Changed(this, null!);
         Loaded += (_, _) => _hotkey.Suspend();
@@ -115,6 +119,11 @@ public partial class SettingsWindow : Window
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = SaveDirectory.Text, Title = L.Get("ChooseDefaultSaveFolder") };
         if (dialog.ShowDialog(this) == true) SaveDirectory.Text = dialog.FolderName;
+    }
+    private void RecordingBrowse_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = RecordingSaveDirectory.Text, Title = L.Get("RecordingSaveFolder") };
+        if (dialog.ShowDialog(this) == true) RecordingSaveDirectory.Text = dialog.FolderName;
     }
     private void Output_Changed(object sender, RoutedEventArgs e)
     {
@@ -164,9 +173,17 @@ public partial class SettingsWindow : Window
         if (!System.IO.Path.IsPathFullyQualified(SaveDirectory.Text)) throw new ArgumentException(L.Get("OutputAndFilesChooseAnAbsoluteSave"));
         _ = OutputFileService.ExpandTemplate(FileNameTemplate.Text, DateTime.Now, 1920, 1080, 1);
         candidate.SaveDirectory = SaveDirectory.Text.Trim();
+        if (!Path.IsPathFullyQualified(RecordingSaveDirectory.Text.Trim())) throw new ArgumentException(L.Get("RecordingFolderMustBeAbsolute"));
+        candidate.RecordingSaveDirectory = RecordingSaveDirectory.Text.Trim();
         candidate.ImageQuality = (int)Quality.Value;
         candidate.Recording = new RecordingPreferences
         {
+            RecordSystemAudio = RecordingSystemAudio.IsChecked == true,
+            RecordMicrophone = RecordingMicrophone.IsChecked == true,
+            RecordCamera = RecordingCamera.IsChecked == true,
+            SpeakerDeviceId = candidate.Recording.SpeakerDeviceId,
+            MicrophoneDeviceId = candidate.Recording.MicrophoneDeviceId,
+            CameraDeviceId = candidate.Recording.CameraDeviceId,
             CaptureBackend = ((System.Windows.Controls.ComboBoxItem)RecordingCaptureBackend.SelectedItem).Tag.ToString()!,
             BitrateKbps = (int)Number(RecordingBitrate, 0, 100000, L.Get("RecordingBitrate"), true), CountdownSeconds = (int)Number(RecordingCountdown, 0, 10, L.Get("StartCountdown"), true),
             Format = ((System.Windows.Controls.ComboBoxItem)RecordingFormat.SelectedItem).Content.ToString()!,
@@ -385,20 +402,48 @@ public partial class SettingsWindow : Window
         using var cancellation = new CancellationTokenSource(); _modelDownload = cancellation;
         var device = ((System.Windows.Controls.ComboBoxItem)LocalTranslationDeviceBox.SelectedItem).Tag.ToString()!;
         DownloadLocalTranslationButton.IsEnabled = false; CancelLocalTranslationButton.IsEnabled = true;
+        LocalTranslationDeviceBox.IsEnabled = TranslationProviderBox.IsEnabled = false;
+        LocalTranslationProgress.Visibility = Visibility.Visible;
+        LocalTranslationProgress.IsIndeterminate = true;
+        LocalTranslationProgress.Value = 0;
+        LocalTranslationDownloadStatus.Text = L.Get("LocalDownloadPreparing");
+        LocalTranslationDownloadStatus.BringIntoView();
         try
         {
             var root = Path.Combine(AppPaths.Root, "models", "local-translation");
             var install = await LocalTranslationSetupService.Install(root, device,
-                new Progress<string>(text => { if (IsLoaded) TranslationStatus.Text = text; }), cancellation.Token);
+                new Progress<string>(text =>
+                {
+                    if (IsLoaded && ReferenceEquals(_modelDownload, cancellation)) LocalTranslationDownloadStatus.Text = text;
+                }), cancellation.Token, new Progress<double?>(percent =>
+                {
+                    if (!IsLoaded || !ReferenceEquals(_modelDownload, cancellation)) return;
+                    LocalTranslationProgress.IsIndeterminate = !percent.HasValue;
+                    if (percent.HasValue) LocalTranslationProgress.Value = percent.Value;
+                }));
             if (!IsLoaded) return;
             LocalTranslationModelPath.Text = install.Model; LocalTranslationRuntimePath.Text = install.Runtime;
             LocalTranslationDeviceBox.SelectedIndex = device == "Vulkan" ? 1 : 0;
             TranslationProviderBox.SelectedIndex = 3;
-            TranslationStatus.Text = L.Format("LocalTranslationDownloaded", device);
+            LocalTranslationDownloadStatus.Text = TranslationStatus.Text = L.Format("LocalTranslationDownloaded", device);
+            LocalTranslationProgress.Value = 100;
         }
-        catch (OperationCanceledException) { TranslationStatus.Text = L.Get("LocalTranslationDownloadCanceledExistingConfigurationPreserved"); }
-        catch (Exception ex) { TranslationStatus.Text = L.Get("LocalTranslationDownloadFailedYouCanRetry") + ex.GetBaseException().Message; }
-        finally { _modelDownload = null; DownloadLocalTranslationButton.IsEnabled = true; CancelLocalTranslationButton.IsEnabled = false; }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        { LocalTranslationDownloadStatus.Text = L.Get("LocalDownloadCanceledResume"); }
+        catch (Exception ex)
+        {
+            ResumableModelDownload.Log("Local translation setup", ex);
+            var message = L.Format("LocalDownloadFailureDetails", ex.Message, ResumableModelDownload.LogPath);
+            LocalTranslationDownloadStatus.Text = message;
+            if (IsLoaded) MessageBox.Show(this, message, L.Get("LocalDownloadFailureTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            _modelDownload = null;
+            LocalTranslationProgress.IsIndeterminate = false;
+            DownloadLocalTranslationButton.IsEnabled = LocalTranslationDeviceBox.IsEnabled = TranslationProviderBox.IsEnabled = true;
+            CancelLocalTranslationButton.IsEnabled = false;
+        }
     }
     private void TesseractBrowse_Click(object sender, RoutedEventArgs e)
     {

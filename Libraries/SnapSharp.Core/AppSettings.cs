@@ -5,6 +5,16 @@ public sealed class AppSettings
     // Empty means follow the OS UI language. This is separate from OCR/translation languages.
     public string InterfaceLanguage { get; set; } = "";
     public RecordingPreferences Recording { get; set; } = new();
+    public string RecordingSaveDirectory { get; set; } = DefaultRecordingSaveDirectory;
+    public static string DefaultRecordingSaveDirectory
+    {
+        get
+        {
+            var videos = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos, Environment.SpecialFolderOption.DoNotVerify);
+            if (string.IsNullOrWhiteSpace(videos)) videos = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
+            return Path.Combine(videos, "SnapSharp");
+        }
+    }
     public string SaveDirectory { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
     public int ImageQuality { get; set; } = 92;
     public bool AutoSaveImages { get; set; }

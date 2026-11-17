@@ -1,6 +1,5 @@
 using L = SnapSharp.Localization.UiText;
 using System.IO.Compression;
-using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -18,8 +17,10 @@ internal static class LocalTranslationSetupService
     { public void Report(string value) => report(value); }
     private static readonly SemaphoreSlim Gate = new(1);
 
-    public static async Task<Installation> Install(string root, string device, IProgress<string> progress, CancellationToken token)
+    public static async Task<Installation> Install(string root, string device, IProgress<string> progress, CancellationToken token, IProgress<double?>? percentage = null)
     {
+        progress.Report(L.Get("LocalDownloadPreparing"));
+        percentage?.Report(null);
         if (device is not ("CPU" or "Vulkan")) throw new ArgumentException(L.Get("UnknownLocalTranslationDevice2"));
         await Gate.WaitAsync(token);
         try
@@ -29,8 +30,10 @@ internal static class LocalTranslationSetupService
             var package = $"llama-{Version}-bin-win-{(gpu ? "vulkan" : "cpu")}-x64.zip";
             var hash = gpu ? "6aa5037ba1ffb124952a028d24a541610a20c21bcb253391c1dbaa2d2b19ea15" : "3b0b61e7a51e988d9a2c5db5f370012b728d936b9262528b4c11f3769f6560a8";
             var zipPath = Path.Combine(root, package);
-            await Download($"https://github.com/ggml-org/llama.cpp/releases/download/{Version}/{package}", zipPath,
-                hash, gpu ? 38127547 : 25127274, progress, token);
+            await ResumableModelDownload.Download($"https://github.com/ggml-org/llama.cpp/releases/download/{Version}/{package}", zipPath,
+                hash, gpu ? 38127547 : 25127274, progress, token, percentage);
+            percentage?.Report(null);
+            progress.Report(L.Get("LocalDownloadExtracting"));
             var directory = Path.Combine(root, $"llama-{Version}-{device}");
             var server = Path.Combine(directory, "llama-server.exe");
             if (!await VerifyRuntime(server, token))
@@ -64,8 +67,8 @@ internal static class LocalTranslationSetupService
             }
             ThirdPartyLicenseService.CopyTo(directory, "llama.cpp-LICENSE.txt");
             var model = Path.Combine(root, ModelName);
-            await Download($"https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/{ModelRevision}/{ModelName}",
-                model, ModelHash, ModelSize, progress, token);
+            await ResumableModelDownload.Download($"https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/{ModelRevision}/{ModelName}",
+                model, ModelHash, ModelSize, progress, token, percentage);
             ThirdPartyLicenseService.CopyTo(root, "Apache-2.0.txt");
             progress.Report(L.Format("LocalTranslationConfigured", device));
             return new(server, model);
@@ -96,50 +99,4 @@ internal static class LocalTranslationSetupService
         return Convert.ToHexString(await SHA256.HashDataAsync(file, token));
     }
 
-    private static bool Allowed(Uri uri) => uri.Scheme == "https" &&
-        (uri.Host == "github.com" || uri.Host == "release-assets.githubusercontent.com" ||
-         uri.Host == "huggingface.co" || uri.Host.EndsWith(".huggingface.co", StringComparison.OrdinalIgnoreCase) ||
-         uri.Host.EndsWith(".hf.co", StringComparison.OrdinalIgnoreCase));
-
-    private static async Task Download(string source, string target, string hash, long size, IProgress<string> progress, CancellationToken token)
-    {
-        if (File.Exists(target) && new FileInfo(target).Length == size &&
-            string.Equals(await FileHash(target, token), hash, StringComparison.OrdinalIgnoreCase)) return;
-        if (File.Exists(target)) throw new InvalidDataException(L.Get("AnExistingDownloadFailedVerificationMoveThe") + target);
-        using var handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
-        using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) };
-        var uri = new Uri(source);
-        HttpResponseMessage? response = null;
-        var temporary = target + "." + Guid.NewGuid().ToString("N") + ".part";
-        try
-        {
-            for (var redirects = 0; ; redirects++)
-            {
-                if (!Allowed(uri) || redirects > 6) throw new InvalidDataException(L.Get("DownloadRedirectedOutsideOfficialDistributionSites"));
-                response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
-                if ((int)response.StatusCode is >= 300 and < 400 && response.Headers.Location is Uri next)
-                { uri = next.IsAbsoluteUri ? next : new Uri(uri, next); response.Dispose(); continue; }
-                response.EnsureSuccessStatusCode();
-                break;
-            }
-            await using (var input = await response.Content.ReadAsStreamAsync(token))
-            await using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true))
-            {
-                var buffer = new byte[81920]; long received = 0; int read; var last = -1;
-                while ((read = await input.ReadAsync(buffer, token)) > 0)
-                {
-                    received += read;
-                    if (received > size) throw new InvalidDataException(L.Get("DownloadExceedsThePinnedFileSize"));
-                    await output.WriteAsync(buffer.AsMemory(0, read), token);
-                    var percent = (int)(received * 100 / size);
-                    if (percent != last) { last = percent; progress.Report($"{Path.GetFileName(target)}：{percent}% · {received / 1048576d:F1}/{size / 1048576d:F1} MB"); }
-                }
-                if (received != size) throw new InvalidDataException(L.Get("FileDownloadIsIncomplete"));
-            }
-            if (!string.Equals(await FileHash(temporary, token), hash, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException(L.Get("SHA256VerificationFailedConfigurationWasNotApplied"));
-            File.Move(temporary, target);
-        }
-        finally { response?.Dispose(); if (File.Exists(temporary)) File.Delete(temporary); }
-    }
 }

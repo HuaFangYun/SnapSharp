@@ -5,6 +5,7 @@
     <IsSnapSharpApp>true</IsSnapSharpApp>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>logo.ico</ApplicationIcon>
     <AssemblyName>SnapSharp</AssemblyName>
     <RootNamespace>SnapSharp</RootNamespace>
     <Version>1.0.4</Version>
@@ -35,12 +36,16 @@
   <ItemGroup>
     <Compile Remove="Views\SelectionWindow.xaml.cs" />
     <Compile Remove="Libraries\**\*.cs" />
+    <Compile Remove="tools\RegressionChecks\**\*.cs" />
     <Page Remove="Libraries\**\*.xaml" />
     <EmbeddedResource Remove="Libraries\**\*" />
-    <EmbeddedResource Include="logo.png" LogicalName="SnapSharp.logo.png" />
+    <Resource Include="logo.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Update="LICENSE;THIRD-PARTY-NOTICES.md;README.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Update="ThirdPartyLicenses\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="SnapSharp.RegressionChecks" />
   </ItemGroup>
 </Project>
