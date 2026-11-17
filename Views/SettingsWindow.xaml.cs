@@ -69,7 +69,8 @@ public partial class SettingsWindow : Window
         TogglePinsHotkey.Text = current.TogglePinsHotkey;
         RestorePinHotkey.Text = current.RestorePinHotkey;
         RestoreInteractionHotkey.Text = current.RestorePinInteractionHotkey;
-        DataDirectory.Text = AppPaths.Root;
+        DataDirectory.Text = AppPaths.DataLocation.SelectedDirectory;
+        ActiveDataDirectory.Text = L.Format("ActiveDataDirectory", AppPaths.Root);
         OcrBackendBox.SelectedIndex = current.OcrBackend switch { "Windows" => 1, "Tesseract" => 2, _ => 0 };
         OnnxDeviceBox.SelectedIndex = current.OnnxDevice == "DirectML" ? 1 : 0;
         OnnxGpuId.Text = current.OnnxDeviceId.ToString();
@@ -120,6 +121,13 @@ public partial class SettingsWindow : Window
         var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = SaveDirectory.Text, Title = L.Get("ChooseDefaultSaveFolder") };
         if (dialog.ShowDialog(this) == true) SaveDirectory.Text = dialog.FolderName;
     }
+    private void BrowseDataDirectory_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = DataDirectory.Text, Title = L.Get("DataFolder") };
+        if (dialog.ShowDialog(this) == true) DataDirectory.Text = dialog.FolderName;
+    }
+    private void DefaultDataDirectory_Click(object sender, RoutedEventArgs e) =>
+        DataDirectory.Text = AppPaths.DataLocation.DefaultDirectory;
     private void RecordingBrowse_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = RecordingSaveDirectory.Text, Title = L.Get("RecordingSaveFolder") };
@@ -459,7 +467,7 @@ public partial class SettingsWindow : Window
         CancelTesseractButton.IsEnabled = true;
         try
         {
-            var root = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapSharp", "models");
+            var root = System.IO.Path.Combine(AppPaths.Root, "models");
             var directory = await new TesseractModelDownloadService().Download(root, languages, new Progress<string>(text => TesseractDownloadStatus.Text = text), cancellation.Token);
             if (!IsLoaded) return;
             TesseractDirectory.Text = directory; TesseractLanguages.Text = languages; OcrBackendBox.SelectedIndex = 2;
@@ -510,7 +518,7 @@ public partial class SettingsWindow : Window
         CutoutDownloadStatus.Text = L.Get("ConnectingToTheOfficialModelSource");
         try
         {
-            var root = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapSharp", "models");
+            var root = System.IO.Path.Combine(AppPaths.Root, "models");
             var path = await new CutoutModelDownloadService().Download(model, root, new Progress<string>(text => CutoutDownloadStatus.Text = text), cancellation.Token);
             if (!IsLoaded) return;
             CutoutPath.Text = path; CutoutProfileBox.SelectedIndex = model.Profile switch { "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 }; CutoutSize.Text = model.InputSize.ToString();
@@ -557,7 +565,7 @@ public partial class SettingsWindow : Window
         OcrDownloadStatus.Text = L.Get("ConnectingToThePyPIModelSource");
         try
         {
-            var root = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapSharp", "models");
+            var root = System.IO.Path.Combine(AppPaths.Root, "models");
             var paths = await new OcrModelDownloadService().Download(root, new Progress<string>(text => OcrDownloadStatus.Text = text), cancellation.Token);
             if (!IsLoaded) return;
             OcrDetPath.Text = paths.Detection; OcrRecPath.Text = paths.Recognition; OcrDictPath.Text = paths.Dictionary;
@@ -613,17 +621,33 @@ public partial class SettingsWindow : Window
         }
         var previous = _settings.Current;
         var previousStartup = _startup.IsEnabled();
+        var settingsSaved = false;
         try
         {
             var candidate = BuildCandidate();
+            var dataDirectory = DataDirectory.Text.Trim();
+            var changeDirectory = !DataDirectoryService.SameDirectory(dataDirectory, AppPaths.DataLocation.SelectedDirectory);
+            if (changeDirectory)
+            {
+                dataDirectory = AppPaths.DataLocation.ValidateChange(dataDirectory);
+                if (!DataDirectoryService.SameDirectory(dataDirectory, AppPaths.Root) &&
+                    MessageBox.Show(this, L.Format("ConfirmDataMigration", AppPaths.Root, dataDirectory),
+                        L.Get("DataFolder"), MessageBoxButton.OKCancel, MessageBoxImage.Question,
+                        MessageBoxResult.Cancel) != MessageBoxResult.OK) return;
+            }
             _hotkey.Register(candidate);
             if (candidate.StartWithWindows != previousStartup) _startup.SetEnabled(candidate.StartWithWindows);
             _settings.Update(candidate);
+            settingsSaved = true;
+            if (changeDirectory) AppPaths.DataLocation.ScheduleChange(dataDirectory);
             LocalizationService.Apply(candidate.InterfaceLanguage);
+            if (changeDirectory && !DataDirectoryService.SameDirectory(dataDirectory, AppPaths.Root))
+                MessageBox.Show(this, L.Get("DataDirectoryRestartRequired"), L.Get("DataFolder"), MessageBoxButton.OK, MessageBoxImage.Information);
             DialogResult = true;
         }
         catch (Exception ex)
         {
+            if (settingsSaved) { try { _settings.Update(previous); } catch { } }
             try { _hotkey.Register(previous); } catch { }
             try { if (_startup.IsEnabled() != previousStartup) _startup.SetEnabled(previousStartup); } catch { }
             MessageBox.Show(this, ex.Message, L.Get("CouldNotSaveSettings"), MessageBoxButton.OK, MessageBoxImage.Error);

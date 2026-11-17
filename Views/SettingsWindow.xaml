@@ -51,7 +51,12 @@
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LanguageSettingHint}" Style="{StaticResource Hint}" />
         </StackPanel></Border>
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalData}" Style="{StaticResource SectionTitle}" />          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DataFolder}" FontWeight="SemiBold" Margin="0,10" /><TextBlock x:Name="DataDirectory" Style="{StaticResource Hint}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalData}" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DataFolder}" FontWeight="SemiBold" Margin="0,10" />
+          <DockPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Browse}" Click="BrowseDataDirectory_Click" DockPanel.Dock="Right" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="DataDirectory" /></DockPanel>
+          <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:UseExecutableDirectory}" Click="DefaultDataDirectory_Click" HorizontalAlignment="Left" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DataDirectoryHint}" Style="{StaticResource Hint}" />
+          <TextBlock x:Name="ActiveDataDirectory" Style="{StaticResource Hint}" />
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Capture}" Tag="Camera"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">

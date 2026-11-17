@@ -206,6 +206,22 @@ public partial class App : Application
             return;
         }
 
+        DataDirectoryService dataLocation;
+        try { dataLocation = AppPaths.DataLocation; }
+        catch (Exception ex)
+        {
+            MessageBox.Show(L.Get("InvalidDataLocation") + Environment.NewLine + ex.Message,
+                L.Get("DataFolder"), MessageBoxButton.OK, MessageBoxImage.Error);
+            Shutdown(1);
+            return;
+        }
+        try { dataLocation.ApplyPendingChange(); }
+        catch (Exception ex)
+        {
+            MessageBox.Show(L.Get("DataMigrationFailed") + Environment.NewLine + ex.Message,
+                L.Get("DataFolder"), MessageBoxButton.OK, MessageBoxImage.Error);
+            try { dataLocation.ScheduleChange(dataLocation.Root); } catch { }
+        }
         _controller = new AppController();
         _controller.Start();
         _instanceChannel = new SingleInstanceChannel();

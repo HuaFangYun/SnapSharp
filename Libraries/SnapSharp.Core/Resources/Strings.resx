@@ -3639,4 +3639,20 @@ Diagnostic log: {1}</value></data>
   <data name="ElementWindowFallback" xml:space="preserve">
     <value>Window · hover to detect controls</value>
   </data>
+  <data name="UseExecutableDirectory" xml:space="preserve"><value>Use executable folder</value></data>
+  <data name="DataDirectoryHint" xml:space="preserve"><value>Defaults to the folder containing SnapSharp.exe. Changes take effect at the next launch; downloaded models, settings and history will be moved together. Existing installations keep their original folder until changed here.</value></data>
+  <data name="ActiveDataDirectory" xml:space="preserve"><value>Currently in use: {0}</value></data>
+  <data name="ConfirmDataMigration" xml:space="preserve"><value>Move downloaded models, settings and history to the new folder at the next launch?
+
+From: {0}
+To: {1}
+
+Large models may take some time to copy. Existing data in the destination will not be overwritten. The original data is removed only after migration succeeds.</value></data>
+  <data name="DataDirectoryRestartRequired" xml:space="preserve"><value>Folder change saved. Exit SnapSharp from the tray and start it again to migrate your data. The current session continues using the original folder.</value></data>
+  <data name="DataMigrationFailed" xml:space="preserve"><value>Data migration could not be completed. The original data has been preserved and will continue to be used. Check the destination and choose the folder again in Settings.</value></data>
+  <data name="InvalidDataLocation" xml:space="preserve"><value>The data folder configuration is invalid.</value></data>
+  <data name="DataFoldersMustNotOverlap" xml:space="preserve"><value>The new and current data folders must not contain one another. Choose a separate folder.</value></data>
+  <data name="DataFolderConflict" xml:space="preserve"><value>The destination already contains application data. Choose another folder to avoid overwriting it: {0}</value></data>
+  <data name="DataFolderMustBeAbsolute" xml:space="preserve"><value>Choose an absolute path for the data folder.</value></data>
+  <data name="DataFolderLinksUnsupported" xml:space="preserve"><value>Data migration does not support symbolic links or junctions. Choose a regular folder.</value></data>
 </root>

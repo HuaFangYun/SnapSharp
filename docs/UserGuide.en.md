@@ -360,13 +360,15 @@ Terminating the process or losing power can leave an MP4 without its final index
 
 The Settings window is organized by category. Scroll down on the right when a page contains more options. After making changes, click **Save Settings** at the bottom. A successful model download does not mean the configuration has been saved.
 
-Application settings and local data are stored in:
+Application settings and local data default to:
 
 ```text
-%LocalAppData%\SnapSharp
+The folder containing SnapSharp.exe
 ```
 
-Paste this path into the File Explorer address bar to open it.
+In **Settings → General → Local Data**, browse or enter a new folder, or click **Use executable folder**. Saving prompts you to migrate downloaded models, settings, and history. After confirmation, exit SnapSharp from the tray and launch it again to perform the migration and update model and history paths. Original data is deleted only after success; existing application data in the destination is never overwritten. If migration fails, the original folder remains in use.
+
+Existing installations continue using `%LocalAppData%\SnapSharp` until you choose another folder. The selection is stored in `data-location.json` beside the executable. Both the executable folder and chosen data folder must be writable.
 
 | Directory or file | Contents |
 |---|---|
@@ -376,7 +378,7 @@ Paste this path into the File Explorer address bar to open it.
 | `Diagnostics` | Diagnostic information and self-test results |
 | `Plugins` | Discovery directory for external plugins, which are disabled by default |
 
-Replacing the application directory normally does not delete this data. After moving to another computer, you may need to select local model paths again. Before deleting model files, confirm that no feature still references them.
+When updating, preserve the data folder and `data-location.json`; do not delete the entire application folder. After manually moving to another computer, you may need to select local model paths again. Before deleting model files, confirm that no feature still references them.
 
 Local screenshots, OCR, background removal, and local translation do not upload images or text. Model downloads require internet access. Online translation, reverse image search, and similar features send relevant content to external services and require explicit authorization and review of the outgoing preview.
 

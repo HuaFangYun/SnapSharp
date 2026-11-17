@@ -32,6 +32,8 @@ internal static partial class Program
         Directory.CreateDirectory(Root);
         try
         {
+            DataDirectoryChecks();
+            if (args.Contains("--data-directory-only")) return 0;
             DownloadChecks().GetAwaiter().GetResult();
             SettingsChecks();
             WindowChecks();

@@ -38,6 +38,8 @@ TestResults/
 # Local app data, diagnostics and recording recovery files
 /settings.json
 /settings.json.*
+/data-location.json
+/.snapsharp-migration-*/
 /History/
 /Diagnostics/
 /Cache/

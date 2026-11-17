@@ -119,7 +119,7 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 - `IOutputPlugin`：用户授权后的上传、Webhook 或企业输出。
 - `IWorkflowActionPlugin`：动作链中的独立步骤。
 
-插件宿主发现 DLL、验证能力 ID、按策略拒绝无强名称程序集并通过 `AssemblyLoadContext` 解析私有依赖。识别窗口已有针对配置 ID 的专用调用入口，但没有覆盖所有插件能力的通用 UI。外部 DLL 运行时目录为 `%LocalAppData%\SnapSharp\Plugins`；源码和插件项目放在仓库 `Libraries`。插件仍运行在主进程内，不能视为安全沙箱。
+插件宿主发现 DLL、验证能力 ID、按策略拒绝无强名称程序集并通过 `AssemblyLoadContext` 解析私有依赖。识别窗口已有针对配置 ID 的专用调用入口，但没有覆盖所有插件能力的通用 UI。外部 DLL 运行时目录为 `<数据目录>\Plugins`；源码和插件项目放在仓库 `Libraries`。插件仍运行在主进程内，不能视为安全沙箱。
 
 不应插件化的部分：捕获后端选择、选区交互、基础编辑对象、设置、历史、剪贴板以及常用标注工具。
 

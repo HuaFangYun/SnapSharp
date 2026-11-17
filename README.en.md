@@ -283,7 +283,7 @@ Download the relevant models from Settings, then click Save Settings. Install on
 - Recording may require the VC++ x64 runtime and Windows media components.
 - Initial model downloads require internet access. Local AI processing does not upload images or text; online translation and image search require authorization.
 
-Settings, models, and history are stored in `%LocalAppData%\SnapSharp`. Screenshot history is not encrypted. See the full guide for model choices, data handling, and troubleshooting.
+Settings, models, and history default to the folder containing `SnapSharp.exe`. Change it in **Settings → General → Local Data**; after confirmation, downloaded models, settings, and history migrate at the next launch. Existing installations keep their original folder until changed. Screenshot history is not encrypted. See the full guide for model choices, data handling, and troubleshooting.
 
 <a id="faq"></a>
 

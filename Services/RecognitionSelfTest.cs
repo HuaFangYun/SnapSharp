@@ -83,7 +83,7 @@ internal static class RecognitionSelfTest
     }
     internal static string TestTesseractModels(string? localDirectory)
     {
-        var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapSharp", "models");
+        var root = Path.Combine(AppPaths.Root, "models");
         var directory = Task.Run(() => localDirectory is null
             ? new TesseractModelDownloadService().Download(root, "chi_sim+eng", new Progress<string>(), default)
             : Task.FromResult(TesseractModelDownloadService.Install(TesseractModelDownloadService.Models.ToDictionary(x => x.Language,
@@ -110,7 +110,7 @@ internal static class RecognitionSelfTest
     }
     internal static string TestCutoutModel(string? localModel)
     {
-        var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapSharp", "models");
+        var root = Path.Combine(AppPaths.Root, "models");
         var path = Task.Run(() => localModel is null
             ? new CutoutModelDownloadService().Download(root, new Progress<string>(), default)
             : Task.FromResult(CutoutModelDownloadService.Install(File.ReadAllBytes(localModel), root, default))).GetAwaiter().GetResult();
@@ -132,7 +132,7 @@ internal static class RecognitionSelfTest
     }
     internal static string DownloadModels(string device = "CPU", int deviceId = 0)
     {
-        var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapSharp", "models");
+        var root = Path.Combine(AppPaths.Root, "models");
         var paths = Task.Run(() => new OcrModelDownloadService().Download(root, new Progress<string>(), CancellationToken.None)).GetAwaiter().GetResult();
         var visual = new DrawingVisual();
         using (var draw = visual.RenderOpen())

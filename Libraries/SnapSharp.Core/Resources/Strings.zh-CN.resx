@@ -3639,4 +3639,20 @@ Media Foundation：{2}
   <data name="ElementWindowFallback" xml:space="preserve">
     <value>窗口 · 悬停识别控件</value>
   </data>
+  <data name="UseExecutableDirectory" xml:space="preserve"><value>使用 exe 所在目录</value></data>
+  <data name="DataDirectoryHint" xml:space="preserve"><value>默认保存在 SnapSharp.exe 所在目录。修改后下次启动生效，已下载模型、设置和历史记录将一起迁移。旧版本已有数据会继续使用原目录，可在此修改。</value></data>
+  <data name="ActiveDataDirectory" xml:space="preserve"><value>当前使用：{0}</value></data>
+  <data name="ConfirmDataMigration" xml:space="preserve"><value>是否在下次启动时，将已下载模型、设置和历史记录移动到新目录？
+
+原目录：{0}
+新目录：{1}
+
+大模型复制可能需要一些时间。不会覆盖新目录中已有的应用数据；迁移成功后才会删除原目录中的数据。</value></data>
+  <data name="DataDirectoryRestartRequired" xml:space="preserve"><value>目录修改已保存。请从托盘退出 SnapSharp 后重新启动，届时会迁移数据。本次运行仍使用原目录。</value></data>
+  <data name="DataMigrationFailed" xml:space="preserve"><value>数据目录迁移未完成，原数据已保留并继续使用。请检查目标目录后，在设置中重新选择目录。</value></data>
+  <data name="InvalidDataLocation" xml:space="preserve"><value>数据目录配置无效。</value></data>
+  <data name="DataFoldersMustNotOverlap" xml:space="preserve"><value>新目录与原目录不能互相包含，请选择独立的目录。</value></data>
+  <data name="DataFolderConflict" xml:space="preserve"><value>目标位置已有应用数据，请选择其他目录以免覆盖：{0}</value></data>
+  <data name="DataFolderMustBeAbsolute" xml:space="preserve"><value>请选择数据目录的绝对路径。</value></data>
+  <data name="DataFolderLinksUnsupported" xml:space="preserve"><value>数据迁移不支持符号链接或目录联接，请选择普通目录。</value></data>
 </root>

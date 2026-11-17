@@ -2,8 +2,9 @@ namespace SnapSharp.Services;
 
 public static class AppPaths
 {
-    public static string Root { get; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapSharp");
+    public static DataDirectoryService DataLocation { get; } = new(AppContext.BaseDirectory,
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapSharp"));
+    public static string Root => DataLocation.Root;
     public static string SettingsFile => Path.Combine(Root, "settings.json");
     public static string HistoryRoot => Path.Combine(Root, "History");
     public static string HistoryIndex => Path.Combine(HistoryRoot, "index.json");
