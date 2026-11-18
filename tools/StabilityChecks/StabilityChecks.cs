@@ -116,6 +116,21 @@ internal static partial class Program
         Require(output.PixelWidth == 32 && settings.CutoutOnnxDevice == "DirectML", "GPU initialization failure did not fall back without mutating settings.");
         Require(File.ReadAllText(Path.Combine(AppPaths.DiagnosticsRoot, "inference-status.log")).Contains("GPU fallback"), "Fallback was not recorded.");
         settings.CutoutOnnxDevice = "CPU";
+        var invalidModel = Path.Combine(Root, "private-worker-ocr-text.onnx");
+        File.WriteAllText(invalidModel, "private-worker-ocr-text");
+        settings.CutoutModel = invalidModel;
+        try
+        {
+            await OnnxImageRuntime.Shared.RemoveBackground(image, settings);
+            throw new Exception("Invalid model returned success.");
+        }
+        catch (InvalidOperationException error) when (error.Message == SnapSharp.Localization.UiText.Get("IsolatedInferenceFailed")) { }
+        var failureLog = File.ReadAllText(Path.Combine(AppPaths.DiagnosticsRoot, "inference-status.log"));
+        Require(failureLog.Contains("Managed inference failure:") && failureLog.Contains("OnnxRuntimeException") &&
+            failureLog.Contains("  at ") && failureLog.Contains("InferenceSession"), "Worker stack did not cross IPC into diagnostics.");
+        Require(!failureLog.Contains("private-worker-ocr-text") && !failureLog.Contains(Root) &&
+            !failureLog.Contains("OnnxImageRuntime.cs"), "Worker diagnostic leaked input, model path or source filenames.");
+        settings.CutoutModel = model;
         using (var canceled = new CancellationTokenSource())
         {
             canceled.Cancel();
@@ -147,6 +162,6 @@ internal static partial class Program
         output = await OnnxImageRuntime.Shared.RemoveBackground(image, settings);
         Require(output.PixelWidth == 32, "Worker death poisoned subsequent inference.");
         Require(!OnnxWorker.IsWorker, "The test host unexpectedly became a worker.");
-        Console.WriteLine("PASS: real ONNX CPU IPC, invalid DirectML adapter -> CPU, cancellation, worker kill and next-request recovery.");
+        Console.WriteLine("PASS: real ONNX CPU IPC, GPU fallback, private managed failure stacks, cancellation, worker kill and recovery.");
     }
 }

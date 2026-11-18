@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 using System.Windows.Media.Imaging;
 using SnapSharp.Models;
@@ -19,7 +20,8 @@ public static class OnnxWorker
     public sealed record Request(string Operation, AppSettings Settings, byte[] Image, string Culture);
     public sealed record Block(string Text, double X, double Y, double Width, double Height, double? Confidence, string Kind);
     public sealed record Response(Block[]? Blocks = null, string Backend = "", RecognizedCell[]? Cells = null,
-        byte[]? Image = null, string? Error = null, bool GpuFailed = false, string? GpuMemory = null);
+        byte[]? Image = null, string? Error = null, bool GpuFailed = false, string? GpuMemory = null,
+        string? ErrorDiagnostic = null);
 
     public static async Task<Response> Execute(string operation, BitmapSource image, AppSettings settings, CancellationToken token)
     {
@@ -53,7 +55,11 @@ public static class OnnxWorker
                 WriteStatus($"GPU fallback: adapter={adapter}; {response.GpuMemory}");
             }
             else if (response.GpuMemory is { } memory) WriteStatus(memory);
-            if (response.Error is not null) throw new InvalidOperationException(L.Get("IsolatedInferenceFailed"));
+            if (response.Error is not null)
+            {
+                WriteStatus("Managed inference failure:" + Environment.NewLine + (response.ErrorDiagnostic ?? response.Error));
+                throw new InvalidOperationException(L.Get("IsolatedInferenceFailed"));
+            }
             return response;
         }
         catch (IOException)
@@ -121,7 +127,7 @@ public static class OnnxWorker
                     _ => throw new InvalidDataException("Unknown inference operation.")
                 };
             }
-            catch (Exception ex) { response = new Response(Error: ex.GetType().FullName); }
+            catch (Exception ex) { response = new Response(Error: ex.GetType().FullName, ErrorDiagnostic: DescribeError(ex)); }
             response = response with { GpuFailed = OnnxImageRuntime.Shared.GpuDisabled, GpuMemory = OnnxImageRuntime.Shared.GpuMemoryStatus };
             OnnxImageRuntime.Shared.Dispose();
             await Write(pipe, response, CancellationToken.None).ConfigureAwait(false);
@@ -129,6 +135,29 @@ public static class OnnxWorker
         }
         catch { return 1; }
         finally { OnnxImageRuntime.Shared.Dispose(); }
+    }
+
+    private static string DescribeError(Exception error)
+    {
+        // Format frames ourselves: Exception.ToString()/StackTrace can include user text or source paths.
+        const int maximumLength = 4096;
+        var text = new StringBuilder();
+        var pending = new Queue<Exception>(); pending.Enqueue(error);
+        var seen = new HashSet<Exception>(ReferenceEqualityComparer.Instance);
+        while (pending.TryDequeue(out var current) && seen.Count < 4)
+        {
+            if (!seen.Add(current)) continue;
+            text.AppendLine($"{current.GetType().FullName}; HResult: 0x{current.HResult:X8}");
+            foreach (var frame in new StackTrace(current, false).GetFrames().Take(8))
+            {
+                if (frame.GetMethod() is { } method)
+                    text.AppendLine($"  at {method.DeclaringType?.FullName}.{method.Name}");
+            }
+            if (current is AggregateException aggregate)
+                foreach (var inner in aggregate.InnerExceptions.Take(4)) pending.Enqueue(inner);
+            else if (current.InnerException is { } inner) pending.Enqueue(inner);
+        }
+        return text.Length > maximumLength ? text.ToString(0, maximumLength) : text.ToString();
     }
 
     private static Response FromDocument(RecognitionDocument document) => new(document.Blocks.Select(b =>
