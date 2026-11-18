@@ -21,6 +21,7 @@ SOURCES = {
     "formula": "17-ai-formula-latex.png",
     "cutout": "19-ai-cutout-comparison.png",
     "pins": "12-pin-workspace.png",
+    "translation": "20-ai-local-translation.png",
 }
 
 
@@ -36,21 +37,21 @@ def font(size, bold=False, chinese=False):
 
 
 def social_card(language, logo):
-    image = Image.new("RGB", (1200, 630), "#172b47")
+    image = Image.new("RGB", (1200, 630), "#111d1c")
     draw = ImageDraw.Draw(image)
     for x in range(760, 1200, 30):
         for y in range(30, 630, 30):
-            draw.ellipse((x, y, x + 2, y + 2), fill="#2c4263")
+            draw.ellipse((x, y, x + 2, y + 2), fill="#30443e")
     logo = logo.resize((42, 42), Image.Resampling.LANCZOS)
     image.paste(logo, (55, 54), logo)
     draw.text((109, 53), "SnapSharp", font=font(30, True), fill="#f4f7ff")
     chinese = language == "zh"
-    draw.text((56, 155), "截图之后，" if chinese else "Screenshots.", font=font(49, True, chinese), fill="#f4f7ff")
-    draw.text((56, 227), "还可以做更多。" if chinese else "And beyond.", font=font(49, True, chinese), fill="#85abff")
-    draw.rounded_rectangle((56, 326, 108, 331), radius=2, fill="#6193ff")
-    draw.text((56, 365), "截图标注 · 桌面贴图 · 长截图" if chinese else "Capture. Annotate. Pin.", font=font(21, chinese=chinese), fill="#c1cfe5")
-    draw.text((56, 406), "本地 OCR · 表格 · 公式 · 抠图 · 翻译" if chinese else "Local OCR, tables, formulas & more.", font=font(18, chinese=chinese), fill="#c1cfe5")
-    draw.text((56, 550), "WINDOWS 10 / 11   ·   OPEN SOURCE", font=font(14, True), fill="#9db1d0")
+    draw.text((56, 155), "截图之后，" if chinese else "Capture it.", font=font(49, True, chinese), fill="#f4f7ff")
+    draw.text((56, 227), "交给本地 AI。" if chinese else "Keep it local.", font=font(49, True, chinese), fill="#d8f58a")
+    draw.rounded_rectangle((56, 326, 108, 331), radius=2, fill="#d8f58a")
+    draw.text((56, 365), "本地 OCR · 表格 · 公式" if chinese else "Local OCR. Tables. Formulas.", font=font(21, chinese=chinese), fill="#c8d8d1")
+    draw.text((56, 406), "Qwen 翻译 · ONNX 抠图" if chinese else "Qwen translation. ONNX cutouts.", font=font(21, chinese=chinese), fill="#c8d8d1")
+    draw.text((56, 550), "WINDOWS   /   OPEN SOURCE   /   LOCAL AI", font=font(14, True), fill="#9aae9f")
     shot = Image.open(ROOT / "Screenshot/Blog/01-annotation-editor.png").convert("RGB")
     shot = ImageOps.contain(shot, (586, 440), Image.Resampling.LANCZOS)
     x, y = 577, 151
@@ -72,7 +73,15 @@ def main():
             result.save(IMAGES / f"{name}-{width}.webp", quality=90, method=6)
         source.save(IMAGES / f"{name}-full.webp", lossless=True, method=6)
         manifest[name] = {"width": source.width, "height": source.height, "widths": widths, "source": f"Screenshot/Blog/{filename}"}
-    (IMAGES / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # Aligned crops of the existing actual before/after inference comparison.
+    comparison = Image.open(ROOT / 'Screenshot/Blog/19-ai-cutout-comparison.png').convert('RGB')
+    for name, bounds in [('cutout-before', (67, 229, 717, 1150)), ('cutout-after', (783, 229, 1433, 1150))]:
+        crop = comparison.crop(bounds)
+        for width in [640]:
+            crop.resize((width, round(crop.height * width / crop.width)), Image.Resampling.LANCZOS).save(IMAGES / f'{name}-{width}.webp', quality=92, method=6)
+        crop.save(IMAGES / f'{name}-full.webp', lossless=True, method=6)
+        manifest[name] = {'width': crop.width, 'height': crop.height, 'widths': [640], 'source': 'Screenshot/Blog/19-ai-cutout-comparison.png', 'crop': bounds}
+    (IMAGES / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline='\n')
     shutil.copyfile(ROOT / "logo.ico", ASSETS / "favicon.ico")
     logo = Image.open(ROOT / "logo.ico").convert("RGBA")
     logo.resize((64, 64), Image.Resampling.LANCZOS).save(ASSETS / "logo.png")

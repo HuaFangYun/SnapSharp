@@ -7,12 +7,12 @@ Do not imply that illustrative UI renders are live desktop captures.
 HOME = {
     "title": ("SnapSharp — Windows 截图、本地 OCR 与图像工具", "SnapSharp — Windows Screenshots, Offline OCR & Image Tools"),
     "description": (
-        "SnapSharp 是开源 Windows 截图工具，支持截图标注、桌面贴图、长截图与录屏。通过本地模型完成 OCR、表格转 Excel、公式转 LaTeX、抠图和翻译。",
-        "An open-source Windows screenshot tool with annotations, desktop pins, scrolling capture and recording. Run OCR, table-to-Excel, image-to-LaTeX, background removal and translation locally.",
+        "SnapSharp 是开源 Windows 截图与本地 AI 工具，支持本地 OCR、表格转 Excel、公式转 LaTeX、本地 Qwen 翻译与 ONNX 抠图。模型配置后可离线处理，图片与文字留在本机。",
+        "An open-source Windows screenshot and local AI tool. On-device OCR, tables to Excel, formulas to LaTeX, local Qwen translation, and ONNX background removal. Work offline after model setup.",
     ),
     "badge": ("开源软件 · Windows 桌面端", "OPEN SOURCE · MADE FOR WINDOWS"),
-    "headline": ("截图之后，<br><em>还可以做更多。</em>", "Screenshots.<br><em>And what comes next.</em>"),
-    "intro": ("截图、标注、贴图，再把图片变成文字、表格或公式。SnapSharp 将日常图像工作放在一起，让 AI 处理也可以留在本机。", "Capture, annotate, and pin. Turn images into text, tables, or formulas. SnapSharp brings everyday image tasks together, with AI processing that can stay on your device."),
+    "headline": ("截图之后，<br>交给 <em>本地 AI。</em>", "Capture it.<br><em>Keep it local.</em>"),
+    "intro": ("本地 OCR、表格与公式识别，Qwen 翻译和 ONNX 抠图。模型下载完成后，离线也能处理，图片和文字不必上传。", "Local OCR, tables and formulas. Qwen translation and ONNX background removal. Download your models, then work offline without uploading images or text."),
     "hero_note": ("Windows 10 / 11 · x64 · Apache-2.0 开源", "Windows 10 / 11 · x64 · Apache-2.0 license"),
     "local_badge": ("你的图片，在你的电脑处理", "Your images. Processed on your device."),
     "local_badge_small": ("本地 OCR · 公式 · 表格 · 抠图 · 翻译", "Local OCR · formulas · tables · cutouts · translation"),
@@ -43,7 +43,7 @@ HOME = {
     ],
     "faq_title": ("你可能还想知道", "A few useful answers"),
     "faq_intro": ("开始之前，先了解运行方式与功能边界。", "What to know about setup, privacy, and everyday use."),
-    "download_title": ("下一张截图，<br>试试多做一步。", "Make more of<br>your next screenshot."),
+    "download_title": ("下一张截图，<br>就从本地开始。", "Your next screenshot.<br>Your own workspace."),
     "download_intro": ("开源 Windows 工具，下载解压即可开始。", "An open-source Windows tool. Download, extract, and get started."),
 }
 

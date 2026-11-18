@@ -71,3 +71,63 @@ if (dialog && typeof dialog.showModal === 'function') {
   dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
   dialog.addEventListener('close', () => imageTrigger?.focus());
 }
+
+// The landing page uses small, honest product illustrations to make workflows
+// tangible without pretending that the browser is running the desktop models.
+document.querySelectorAll('.compare-range').forEach((range) => {
+  const comparison = range.closest('.comparison');
+  const update = () => {
+    comparison.style.setProperty('--split', `${range.value}%`);
+  };
+  range.addEventListener('input', update);
+  update();
+});
+
+document.querySelectorAll('.annotation-toolbar button').forEach((button) => {
+  button.addEventListener('click', () => {
+    const surface = button.closest('.annotation-demo').querySelector('.annotation-surface');
+    document.querySelectorAll('.annotation-toolbar button').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+    surface.dataset.activeTool = button.dataset.tool;
+  });
+});
+
+document.querySelectorAll('[data-draggable]').forEach((card) => {
+  let dragging = false;
+  let origin = null;
+  const initial = new DOMMatrix(getComputedStyle(card).transform);
+  const rotation = Math.atan2(initial.b, initial.a) * 180 / Math.PI;
+  const offset = { x: 0, y: 0 };
+  const place = (x, y) => {
+    const bounds = card.parentElement.getBoundingClientRect();
+    const rect = card.getBoundingClientRect();
+    const dx = Math.min(bounds.right - rect.right - 2, Math.max(bounds.left - rect.left + 2, x - offset.x));
+    const dy = Math.min(bounds.bottom - rect.bottom - 2, Math.max(bounds.top - rect.top + 2, y - offset.y));
+    offset.x += dx; offset.y += dy;
+    card.style.transform = `translate(${offset.x}px, ${offset.y}px) rotate(${rotation}deg)`;
+  };
+  const move = (event) => {
+    if (!dragging || !origin) return;
+    const x = event.clientX - origin.x;
+    const y = event.clientY - origin.y;
+    place(x, y);
+  };
+  const stop = (event) => { dragging = false; origin = null; if (card.hasPointerCapture?.(event.pointerId)) card.releasePointerCapture(event.pointerId); };
+  card.addEventListener('pointerdown', (event) => {
+    if (event.button !== 0) return;
+    dragging = true;
+    origin = { x: event.clientX - offset.x, y: event.clientY - offset.y };
+    card.setPointerCapture?.(event.pointerId);
+  });
+  card.addEventListener('pointermove', move);
+  card.addEventListener('pointerup', stop);
+  card.addEventListener('pointercancel', stop);
+  card.addEventListener('keydown', (event) => {
+    const amount = event.shiftKey ? 10 : 3;
+    const x = event.key === 'ArrowRight' ? amount : event.key === 'ArrowLeft' ? -amount : 0;
+    const y = event.key === 'ArrowDown' ? amount : event.key === 'ArrowUp' ? -amount : 0;
+    if (x || y) {
+      event.preventDefault();
+      place(offset.x + x, offset.y + y);
+    }
+  });
+});

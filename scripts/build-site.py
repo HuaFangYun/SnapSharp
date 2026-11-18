@@ -3,6 +3,7 @@
 
 import argparse
 import html
+import hashlib
 import json
 import re
 import runpy
@@ -15,6 +16,7 @@ from xml.sax.saxutils import escape as xml_escape
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "website"
 CONTENT = runpy.run_path(str(SOURCE / "content.py"))
+HOMEPAGE = runpy.run_path(str(SOURCE / "homepage.py"))
 REPO = "https://github.com/leelongjiang/SnapSharp"
 RELEASES = REPO + "/releases/latest"
 GITEE = "https://gitee.com/lilongjiang/SnapSharp"
@@ -108,29 +110,9 @@ class Site:
 
     def home(self):
         h = CONTENT["HOME"]
-        shot = CONTENT["SHOWCASES"][0]
-        body = f'<section class="hero"><div class="container"><div class="hero-grid"><div class="hero-copy"><div class="hero-badge"><span class="status-dot"></span>{self.t(h["badge"])}</div><h1>{self.t(h["headline"])}</h1><p>{self.t(h["intro"])}</p><div class="actions">{self.button()}{self.button(self.href("start/"), False, self.t(("快速上手", "Quick start")), "capture")}</div><p class="hero-note">{self.t(h["hero_note"])}</p></div><div class="hero-art"><div class="window-frame"><div class="window-title" aria-hidden="true"><i></i><i></i><i></i><span>SnapSharp / {self.t(("标注工作台", "Annotation workspace"))}</span></div>{self.zoom_image("annotation", shot["alt"], shot["caption"], True, "(max-width: 780px) 90vw, 620px")}</div><div class="floating-note"><span class="icon">{icon("shield")}</span><div><strong>{self.t(h["local_badge"])}</strong>{self.t(h["local_badge_small"])}</div></div></div></div><div class="hero-strip">'
-        body += ''.join(f'<span>{icon(symbol)}{self.t(label)}</span>' for symbol, label in zip(["capture", "shield", "monitor"], h["strip"])) + '</div></div></section>'
-        body += '<section class="section" id="features"><div class="container">' + self.heading(h["features_eyebrow"], h["features_title"], h["features_intro"]) + '<div class="feature-grid">'
-        body += ''.join(f'<div class="feature-item"><span class="icon">{icon(symbol)}</span><h3>{self.t(title)}</h3><p>{self.t(description)}</p></div>' for symbol, title, description in CONTENT["FEATURES"]) + '</div></div></section>'
-        body += '<section class="section showcase" id="screenshots"><div class="container" data-gallery><div class="showcase-top">' + self.heading(h["showcase_eyebrow"], h["showcase_title"], h["showcase_intro"]) + self.link(REPO + '/blob/main/Screenshot/Blog/README.md', self.t(("配图说明与来源 ↗", "Image notes & sources ↗")), "small-link") + '</div><div class="tabs" data-tabs aria-label="' + self.t(("功能截图", "Feature screenshots")) + '">'
-        body += ''.join(self.link('#showcase-' + item['id'], esc(self.t(item['tab']))) for item in CONTENT['SHOWCASES']) + '</div>'
-        for index, item in enumerate(CONTENT['SHOWCASES']):
-            body += f'<div class="showcase-panel" id="showcase-{item["id"]}" data-panel><div class="showcase-image">{self.zoom_image(item["image"], item["alt"], item["caption"])}</div><div class="showcase-copy"><div class="number">0{index + 1} / SNAPSHARP</div><h3>{self.t(item["title"])}</h3><p>{self.t(item["description"])}</p>{self.checks(item["checks"])}'
-            if item.get('guide'):
-                body += self.link(self.href('guides/' + item['guide'] + '/'), self.t(("查看操作教程 →", "See the walkthrough →")), 'small-link')
-            body += '</div></div>'
-        body += '<p class="source-note">' + self.t(("配图包含真实软件组件渲染、实际模型结果与标明的组合场景；展示用例不代表对所有输入的效果承诺。部分界面来自 1.0.4，当前版本可能有所不同。", "Images include real application component renders, actual model output, and labeled composite scenes. Examples do not guarantee results for every input. Some interfaces are from 1.0.4 and may differ in the current version.")) + '</p></div></section>'
-        body += '<section class="section" id="local-ai"><div class="container privacy-grid">' + '<div>' + self.heading(h['privacy_eyebrow'], h['privacy_title'], h['privacy_intro']) + self.checks(h['privacy_checks']) + '</div><div class="privacy-visual"><div class="local-path">'
-        for index, (symbol, label) in enumerate(zip(['image', 'monitor', 'check'], h['path'])):
-            if index:
-                body += '<span class="path-line" aria-hidden="true"></span>'
-            body += f'<div class="path-node"><span class="icon">{icon(symbol)}</span><span>{self.t(label)}</span></div>'
-        body += f'</div><span class="local-badge">{icon("shield")}{self.t(h["path_badge"])}</span><p>{self.t(h["path_note"])}</p></div></div></section>'
-        body += '<section class="section workflow-section" id="guides"><div class="container">' + self.heading(h['guides_eyebrow'], h['guides_title'], h['guides_intro']) + self.guides() + '</div></section>'
-        body += '<section class="section"><div class="container getting-started"><div>' + self.heading(h['start_eyebrow'], h['start_title'], h['start_intro']) + '<div class="actions">' + self.link(self.href('start/'), self.t(("阅读完整上手指南 →", "Read the getting started guide →")), 'small-link') + '</div></div><ol class="steps">'
-        body += ''.join(f'<li><h3>{self.t(title)}</h3><p>{self.t(description)}</p></li>' for title, description in h['start_steps']) + '</ol></div></section>'
-        body += '<section class="section faq-section" id="faq"><div class="container faq-layout">' + self.heading(('常见问题', 'FAQ'), h['faq_title'], h['faq_intro']) + self.faq() + '</div></section>' + self.download()
+        self.home_icon = icon
+        self.home_content = CONTENT
+        body = HOMEPAGE["render"](self)
         app = {"@type": "SoftwareApplication", "@id": self.base + "/#software", "name": "SnapSharp", "url": self.base + "/", "description": self.t(h['description']), "operatingSystem": "Windows 10 (2004+), Windows 11; x64", "applicationCategory": "MultimediaApplication", "license": REPO + "/blob/main/LICENSE", "downloadUrl": RELEASES, "image": self.base + '/assets/images/social-' + ('en' if self.lang else 'zh') + '.png', "softwareHelp": self.base + '/' + self.route('start/'), "isAccessibleForFree": True, "featureList": [self.t(x[1]) for x in CONTENT['FEATURES']]}
         faq = {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": self.t(q), "acceptedAnswer": {"@type": "Answer", "text": self.t(a)}} for q, a in CONTENT['FAQ']]}
         self.write('', self.t(h['title']), self.t(h['description']), body, [app, faq])
@@ -203,6 +185,11 @@ class Site:
             social_image=self.base + '/assets/images/social-' + ('en' if self.lang else 'zh') + '.png',
             social_alt=self.t(('SnapSharp Windows 截图与本地图像工具，含实际编辑器界面', 'SnapSharp Windows screenshots and local image tools, with the actual editor interface')),
             asset_root=self.url('assets'),
+            site_css_version=hashlib.sha256((SOURCE / 'assets/site.css').read_bytes()).hexdigest()[:10],
+            site_js_version=hashlib.sha256((SOURCE / 'assets/site.js').read_bytes()).hexdigest()[:10],
+            page_class='home' if not page and not not_found else 'document-page',
+            theme_color='#15241e' if not page and not not_found else '#f8faff',
+            page_styles=f'<link rel="stylesheet" href="{self.url("assets/home.css")}?v={hashlib.sha256((SOURCE / "assets/home.css").read_bytes()).hexdigest()[:10]}">' if not page and not not_found else '',
             structured_data=json.dumps(data, ensure_ascii=False).replace('<', '\\u003c'),
             skip=self.t(('跳到正文', 'Skip to content')), home=home,
             home_label=self.t(('首页', 'home')), menu=self.t(('菜单', 'Menu')),

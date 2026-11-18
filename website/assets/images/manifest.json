@@ -52,5 +52,42 @@
       1280
     ],
     "source": "Screenshot/Blog/12-pin-workspace.png"
+  },
+  "translation": {
+    "width": 1280,
+    "height": 1069,
+    "widths": [
+      640,
+      1280
+    ],
+    "source": "Screenshot/Blog/20-ai-local-translation.png"
+  },
+  "cutout-before": {
+    "width": 650,
+    "height": 921,
+    "widths": [
+      640
+    ],
+    "source": "Screenshot/Blog/19-ai-cutout-comparison.png",
+    "crop": [
+      67,
+      229,
+      717,
+      1150
+    ]
+  },
+  "cutout-after": {
+    "width": 650,
+    "height": 921,
+    "widths": [
+      640
+    ],
+    "source": "Screenshot/Blog/19-ai-cutout-comparison.png",
+    "crop": [
+      783,
+      229,
+      1433,
+      1150
+    ]
   }
 }

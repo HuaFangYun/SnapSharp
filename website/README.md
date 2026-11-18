@@ -69,10 +69,15 @@ domain at its root. The original GitHub Pages URL redirects to the custom site.
 
 - `content.py`: Chinese/English editorial pairs, feature descriptions, FAQs, and
   guides. Chinese is first and English is second in each pair.
+- `homepage.py`: original landing-page composition, local-AI stories, and
+  illustrative annotation / draggable-pin demos.
 - `templates/base.html`: semantic page shell and metadata.
 - `assets/site.css`: responsive layout and reduced-motion / print styles.
+- `assets/home.css`: homepage-only forest, lime, and lavender visual system.
 - `assets/site.js`: progressive enhancement for mobile navigation, keyboard
-  screenshot tabs, and the image viewer. No-JavaScript pages keep the gallery.
+  recognition tabs, the image viewer, a before/after comparison, annotation
+  previews, and bounded draggable pins with keyboard support. No-JavaScript
+  pages keep all recognition panels and a static comparison visible.
 - `scripts/build-site.py`: static page rendering, JSON-LD, sitemap, and URL paths.
 
 Validate claims against the application and user guide when updating content.
@@ -86,6 +91,14 @@ lossless WebP images, and two 1200 × 630 PNG social cards. A full-size image op
 when a screenshot is selected. All imagery uses existing project material;
 model output has not been replaced or improved by hand. See
 [`Screenshot/Blog/README.md`](../Screenshot/Blog/README.md) for provenance.
+
+The cutout slider uses aligned crops from the existing actual before/after
+comparison; the original image proportions and inference output are retained.
+The Qwen panel uses an existing local translation result. Hero paper layouts,
+annotation sample dashboard, abstract pin artwork, and `privacy-orbit.svg` are
+original code-based illustrations, labeled as such. They do not run AI in the
+browser or imply desktop performance measurements. No assets, copy, or code
+from third-party software sites are included.
 
 Some application renders were produced with 1.0.4; they illustrate features, not
 an assertion that the current release looks identical. Recognition figures show
