@@ -43,10 +43,10 @@ public static class OutputActions
             printable.Y + (printable.Height - size.Height) / 2, size.Width, size.Height);
     }
 
-    public static void Print(BitmapSource image)
+    public static void Print(BitmapSource image, Window? owner = null)
     {
         var dialog = new System.Windows.Controls.PrintDialog();
-        if (dialog.ShowDialog() != true) return;
+        if (WindowDialogService.ShowDialog(dialog, owner) != true) return;
         // Query after dialog so printer, paper and orientation choices are reflected.
         var area = dialog.PrintQueue.GetPrintCapabilities(dialog.PrintTicket).PageImageableArea;
         var printable = area is null ? new Rect(0, 0, dialog.PrintableAreaWidth, dialog.PrintableAreaHeight)

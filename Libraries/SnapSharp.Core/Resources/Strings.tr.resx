@@ -3837,4 +3837,13 @@ Büyük modellerin kopyalanması biraz zaman alabilir. Hedefteki mevcut verileri
   <data name="AppUpdateInstalling" xml:space="preserve"><value>Restarting to install update…</value></data>
   <data name="AppUpdateCancelled" xml:space="preserve"><value>Update cancelled. The installed version has not changed.</value></data>
   <data name="AppUpdateInstallFailed" xml:space="preserve"><value>Could not install the update. The current version will stay open. Check the connection, disk space and write permissions, then retry.</value></data>
+  <data name="ScreenRuler" xml:space="preserve"><value>Ekran cetveli</value></data>
+  <data name="ScreenRulerToggle" xml:space="preserve"><value>Ekran cetveli (R)</value></data>
+  <data name="PrecisionKeysHint" xml:space="preserve"><value>Ok tuşları: 1 px taşı · Shift+oklar: boyutlandır</value></data>
+  <data name="ScreenRulerHelp" xml:space="preserve"><value>Taşımak için başlığı sürükleyin · Boyutlandırmak için köşeyi sürükleyin · Oklar: 1 px · Esc: kapat</value></data>
+  <data name="ScreenRulerResize" xml:space="preserve"><value>Boyutlandırmak için sürükleyin (fiziksel piksel)</value></data>
+  <data name="CaptureCrosshair" xml:space="preserve"><value>Artı işareti</value></data>
+  <data name="CaptureToolShortcutHint" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="CapturePointerMoveHint" xml:space="preserve"><value>Ok tuşları: işaretçiyi 1 px taşı</value></data>
+  <data name="ScreenRulerReadout" xml:space="preserve"><value>{0} × {1} px | X: {2}, Y: {3}</value></data>
 </root>

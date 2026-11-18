@@ -22,7 +22,7 @@ internal static class ThemedMessageBox
         MessageBoxResult defaultResult = MessageBoxResult.None)
     {
         var window = Create(owner, text, caption, buttons, icon, defaultResult, out var result);
-        window.ShowDialog();
+        WindowDialogService.ShowDialog(window, owner);
         return result();
     }
 

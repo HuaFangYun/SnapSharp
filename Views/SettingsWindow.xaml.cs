@@ -144,19 +144,19 @@ public partial class SettingsWindow : Window
     private void Browse_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = SaveDirectory.Text, Title = L.Get("ChooseDefaultSaveFolder") };
-        if (dialog.ShowDialog(this) == true) SaveDirectory.Text = dialog.FolderName;
+        if (WindowDialogService.ShowDialog(dialog, this) == true) SaveDirectory.Text = dialog.FolderName;
     }
     private void BrowseDataDirectory_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = DataDirectory.Text, Title = L.Get("DataFolder") };
-        if (dialog.ShowDialog(this) == true) DataDirectory.Text = dialog.FolderName;
+        if (WindowDialogService.ShowDialog(dialog, this) == true) DataDirectory.Text = dialog.FolderName;
     }
     private void DefaultDataDirectory_Click(object sender, RoutedEventArgs e) =>
         DataDirectory.Text = AppPaths.DataLocation.DefaultDirectory;
     private void RecordingBrowse_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = RecordingSaveDirectory.Text, Title = L.Get("RecordingSaveFolder") };
-        if (dialog.ShowDialog(this) == true) RecordingSaveDirectory.Text = dialog.FolderName;
+        if (WindowDialogService.ShowDialog(dialog, this) == true) RecordingSaveDirectory.Text = dialog.FolderName;
     }
     private void Output_Changed(object sender, RoutedEventArgs e)
     {
@@ -176,7 +176,7 @@ public partial class SettingsWindow : Window
         var field = sender is FrameworkElement { Tag: "Foreground" } ? TextForeground : TextBackground;
         using var dialog = new System.Windows.Forms.ColorDialog { FullOpen = true };
         if (PinContentService.TryParseColor(field.Text, out var color)) dialog.Color = System.Drawing.Color.FromArgb(color.R, color.G, color.B);
-        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK) field.Text = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
+        if (WindowDialogService.ShowDialog(dialog, this) == System.Windows.Forms.DialogResult.OK) field.Text = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
     }
     private void Hotkey_PreviewKeyDown(object sender, KeyEventArgs e)
     {
@@ -315,13 +315,13 @@ public partial class SettingsWindow : Window
     {
         if (sender is not FrameworkElement { Tag: string name } || FindName(name) is not TextBox field) return;
         var dialog = new Microsoft.Win32.OpenFileDialog { Filter = name == "OcrDictPath" ? L.Get("UTF8DictionaryTxtAllFiles") : L.Get("ONNXModelOnnx") };
-        if (dialog.ShowDialog(this) == true) field.Text = _settings.StoreModelPath(dialog.FileName);
+        if (WindowDialogService.ShowDialog(dialog, this) == true) field.Text = _settings.StoreModelPath(dialog.FileName);
     }
     private void CancelOcrDownload_Click(object sender, RoutedEventArgs e) => ModelDownload?.Cancel();
     private void BrowseFormulaDirectory_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { Title = L.Get("ChooseLaTeXOCRModelFolder") };
-        if (dialog.ShowDialog(this) == true) FormulaDirectory.Text = _settings.StoreModelPath(dialog.FolderName);
+        if (WindowDialogService.ShowDialog(dialog, this) == true) FormulaDirectory.Text = _settings.StoreModelPath(dialog.FolderName);
     }
     private async void DownloadSpecialist_Click(object sender, RoutedEventArgs e)
     {
@@ -671,7 +671,7 @@ public partial class SettingsWindow : Window
     private void TesseractBrowse_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { Title = L.Get("ChooseATesseractLanguageDataFolderContaining") };
-        if (dialog.ShowDialog(this) == true) TesseractDirectory.Text = _settings.StoreModelPath(dialog.FolderName);
+        if (WindowDialogService.ShowDialog(dialog, this) == true) TesseractDirectory.Text = _settings.StoreModelPath(dialog.FolderName);
     }
     private async void DownloadTesseract_Click(object sender, RoutedEventArgs e)
     {

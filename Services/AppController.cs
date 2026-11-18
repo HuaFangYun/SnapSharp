@@ -49,7 +49,7 @@ public sealed class AppController : IDisposable
         _plugins.RegisterBuiltIn(new OfflineRecognitionPlugin(() => _settings.Current, true));
         RecognitionUi.OpenRequested = OpenRecognition;
         _capture = new CaptureCoordinator(new ResilientCaptureService(
-            _settings.Current.PreferWgcCapture, _settings.Current.IncludeCursor));
+            _settings.Current.PreferWgcCapture, _settings.Current.IncludeCursor), _settings);
         _images = new SkiaImageService();
         _history = new HistoryService(_images, _settings);
         _clipboard = new ClipboardService();
@@ -75,6 +75,7 @@ public sealed class AppController : IDisposable
         _tray.DelayedScreenshotRequested += ScheduleDelayedScreenshot;
         _tray.CancelDelayedScreenshotRequested += CancelDelayedScreenshot;
         _tray.HistoryRequested += (_, _) => ShowHistory();
+        _tray.ScreenRulerRequested += (_, _) => ShowScreenRuler();
         _tray.SettingsRequested += (_, _) => ShowSettings();
         _tray.RecordingRequested += (_, _) => OpenRecording(System.Windows.Forms.Screen.FromPoint(System.Windows.Forms.Cursor.Position).Bounds);
         _tray.PauseRecordingRequested += (_, _) => _recordingWindow?.PauseRecording();
@@ -249,7 +250,7 @@ public sealed class AppController : IDisposable
         {
             OpenRecording(new System.Drawing.Rectangle(result.ScreenBounds.Left + result.PixelRegion.Left, result.ScreenBounds.Top + result.PixelRegion.Top, result.PixelRegion.Width, result.PixelRegion.Height)); return;
         }
-        if (result.Action is CaptureAction.OCR or CaptureAction.Cutout) { OpenRecognition(result.Image, null, result.Action == CaptureAction.Cutout ? "Cutout" : "OCR"); return; }
+        if (result.Action is CaptureAction.OCR or CaptureAction.Cutout) { OpenRecognition(result.Image, sender as Window, result.Action == CaptureAction.Cutout ? "Cutout" : "OCR"); return; }
         if (result.Action == CaptureAction.Scrolling) { OpenScrolling(result); return; }
         if (_settings.Current.AutoSaveImages)
         {
@@ -274,7 +275,7 @@ public sealed class AppController : IDisposable
 
         if (result.Action == CaptureAction.Save)
         {
-            SaveImageWindow.Open(result.Image, _images, _settings);
+            SaveImageWindow.Open(result.Image, _images, _settings, sender as Window);
             return;
         }
 
@@ -307,7 +308,7 @@ public sealed class AppController : IDisposable
     {
         if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("ScrollingCapture"), L.Get("StopTheCurrentCaptureFirst")); return; }
         var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("SnapSharpScrollingCaptureProjectSsscroll") };
-        if (dialog.ShowDialog() != true) return;
+        if (WindowDialogService.ShowDialog(dialog) != true) return;
         var placeholder = BitmapSource.Create(32, 32, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, new byte[32 * 32 * 4], 32 * 4); placeholder.Freeze();
         var window = CreateScrollWindow(System.Drawing.Rectangle.Empty, placeholder);
         window.Show(); await window.LoadProject(dialog.FileName);
@@ -354,7 +355,7 @@ public sealed class AppController : IDisposable
                 Title = command == PinCommand.Text ? L.Get("NewTextPin") : L.Get("NewColorPinHEXOrRgbR"),
                 InitialText = command == PinCommand.Text ? text : PinContentService.TryParseColor(text, out _) ? text : "#3B82F6"
             };
-            if (dialog.ShowDialog() != true) return;
+            if (WindowDialogService.ShowDialog(dialog) != true) return;
             if (command == PinCommand.Text) OpenPinContent(PinContentService.FromText(dialog.ResultText, _settings.Current));
             else
             {
@@ -376,6 +377,16 @@ public sealed class AppController : IDisposable
         window.Show();
     }
 
+    private void ShowScreenRuler()
+    {
+        var existing = _openWindows.OfType<ScreenRulerWindow>().FirstOrDefault();
+        if (existing is not null) { existing.Show(); existing.Activate(); return; }
+        var ruler = new ScreenRulerWindow();
+        _openWindows.Add(ruler);
+        ruler.Closed += (_, _) => _openWindows.Remove(ruler);
+        ruler.Show();
+    }
+
     private void OpenRecognition(BitmapSource image, Window? owner, string mode)
         => OpenRecognitionCore(image, owner, mode, true);
 
@@ -383,7 +394,7 @@ public sealed class AppController : IDisposable
     {
         var window = new RecognitionWindow(image, _settings, _plugins, mode, autoRun);
         if (owner?.IsVisible == true) window.Owner = owner;
-        window.SettingsRequested += category => ShowSettings(category);
+        window.SettingsRequested += category => ShowSettings(category, window);
         window.OutputRequested += (output, action) => OnCaptureCompleted(window, new CaptureResult(output, System.Drawing.Rectangle.Empty, System.Drawing.Rectangle.Empty, action));
         _openWindows.Add(window); window.Closed += (_, _) => _openWindows.Remove(window); window.Show();
     }
@@ -397,16 +408,21 @@ public sealed class AppController : IDisposable
         _openWindows.Add(window); window.Closed += (_, _) => { _recordingWindow = null; _openWindows.Remove(window); }; window.ShowRecordingTools();
     }
 
-    private void ShowSettings(string? category = null)
+    private void ShowSettings(string? category = null, Window? owner = null)
     {
         if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("ScrollingCapture"), L.Get("StopCaptureBeforeOpeningSettings")); return; }
-        if (_settingsWindow is not null) { _settingsWindow.Activate(); return; }
+        if (_settingsWindow is not null)
+        {
+            if (category is not null) _settingsWindow.SelectCategory(category);
+            _settingsWindow.Activate();
+            return;
+        }
         var window = new SettingsWindow(_settings, _startup, _hotkey);
         if (category is not null) window.SelectCategory(category);
         _settingsWindow = window;
         try
         {
-            if (window.ShowDialog() == true)
+            if (WindowDialogService.ShowDialog(window, owner) == true)
             {
                 _tray.UpdateHotkeyLabels(_settings.Current);
                 _capture.SetCaptureService(new ResilientCaptureService(

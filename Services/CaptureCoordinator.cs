@@ -7,6 +7,7 @@ namespace SnapSharp.Services;
 public sealed class CaptureCoordinator
 {
     private ICaptureService _captureService;
+    private readonly SettingsService? _settings;
     private readonly List<SelectionWindow> _windows = [];
     private static bool _selectingScrollingRegion;
 
@@ -14,9 +15,10 @@ public sealed class CaptureCoordinator
     public event EventHandler? CaptureCanceled;
     public bool IsActive => _windows.Count > 0 || _selectingScrollingRegion;
 
-    public CaptureCoordinator(ICaptureService? captureService = null)
+    public CaptureCoordinator(ICaptureService? captureService = null, SettingsService? settings = null)
     {
         _captureService = captureService ?? new ScreenCaptureService();
+        _settings = settings;
     }
 
     public void SetCaptureService(ICaptureService captureService)
@@ -46,7 +48,8 @@ public sealed class CaptureCoordinator
         var candidates = _captureService.EnumerateTopLevelWindows();
         foreach (var screen in screens)
         {
-            var window = new SelectionWindow(screen, candidates, _captureService, scrollingSelection);
+            var window = new SelectionWindow(screen, candidates, _captureService, scrollingSelection, settings: _settings);
+            window.PrecisionPreferencesChanged += OnPrecisionPreferencesChanged;
             window.CaptureAccepted += OnAccepted;
             window.CaptureCanceled += OnCanceled;
             window.Closed += OnCanceled;
@@ -64,6 +67,11 @@ public sealed class CaptureCoordinator
     {
         CaptureCompleted?.Invoke(this, new CaptureResult(capture.Image, capture.Bounds,
             new System.Drawing.Rectangle(0, 0, capture.Bounds.Width, capture.Bounds.Height)));
+    }
+
+    private void OnPrecisionPreferencesChanged(object? sender, EventArgs e)
+    {
+        foreach (var window in _windows) window.RefreshPrecisionPreferences();
     }
 
     private void OnAccepted(object? sender, CaptureResult result)
@@ -93,7 +101,7 @@ public sealed class CaptureCoordinator
         try
         {
             settings.Load();
-            coordinator = new CaptureCoordinator(new ResilientCaptureService(settings.Current.PreferWgcCapture, false));
+            coordinator = new CaptureCoordinator(new ResilientCaptureService(settings.Current.PreferWgcCapture, false), settings);
             var completion = new TaskCompletionSource<CaptureResult?>(TaskCreationOptions.RunContinuationsAsynchronously);
             coordinator.CaptureCompleted += (_, result) => completion.TrySetResult(result);
             coordinator.CaptureCanceled += (_, _) => completion.TrySetResult(null);
@@ -120,6 +128,7 @@ public sealed class CaptureCoordinator
             window.CaptureAccepted -= OnAccepted;
             window.CaptureCanceled -= OnCanceled;
             window.Closed -= OnCanceled;
+            window.PrecisionPreferencesChanged -= OnPrecisionPreferencesChanged;
             window.Close();
         }
     }

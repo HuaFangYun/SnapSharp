@@ -2,6 +2,7 @@
 
 from collections import Counter
 from pathlib import Path
+import json
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -23,6 +24,15 @@ def load(path):
 def main():
     source = load(RESOURCES / "Strings.resx")
     errors = []
+    guides = json.loads((ROOT / "scripts/capture-guide-translations.json").read_text(encoding="utf-8"))
+    for culture, language in guides["cultures"].items():
+        suffix = "" if culture == "en" else "." + culture
+        actual = load(RESOURCES / f"Strings{suffix}.resx")
+        for key, value in zip(guides["keys"], guides["translations"][language], strict=True):
+            if actual.get(key) != value:
+                errors.append(f"{culture}/{key}: capture-guide translation differs from reviewed UTF-8 text")
+            if "\ufffd" in value or re.search(r"\?{2,}", value):
+                errors.append(f"{culture}/{key}: damaged capture-guide translation")
     for code in EXPECTED:
         path = RESOURCES / f"Strings.{code}.resx"
         if not path.exists():

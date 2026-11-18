@@ -50,8 +50,7 @@ public partial class SaveImageWindow : Window
     public static void Open(BitmapSource source, SkiaImageService images, SettingsService settings, Window? owner = null, string? defaultExtension = null)
     {
         var window = new SaveImageWindow(source, images, settings, defaultExtension);
-        if (owner?.IsVisible == true) { window.Owner = owner; window.WindowStartupLocation = WindowStartupLocation.CenterOwner; }
-        window.ShowDialog();
+        WindowDialogService.ShowDialog(window, owner);
     }
 
     private string Extension => ((OutputFormat)FormatBox.SelectedItem).Extension;
@@ -172,7 +171,7 @@ public partial class SaveImageWindow : Window
     private void Browse_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = DirectoryBox.Text, Title = L.Get("ChooseOutputFolder") };
-        if (dialog.ShowDialog(this) == true) { DirectoryBox.Text = dialog.FolderName; if (_generatedName) GenerateName(); }
+        if (WindowDialogService.ShowDialog(dialog, this) == true) { DirectoryBox.Text = dialog.FolderName; if (_generatedName) GenerateName(); }
     }
     private async void Save_Click(object sender, RoutedEventArgs e) => await Save(false);
     private async void SystemSave_Click(object sender, RoutedEventArgs e) => await Save(true);
@@ -201,7 +200,7 @@ public partial class SaveImageWindow : Window
                     FilterIndex = OutputFormat.FilterIndex(extension),
                     InitialDirectory = DirectoryBox.Text, FileName = Path.GetFileName(path), AddExtension = true, OverwritePrompt = false
                 };
-                if (dialog.ShowDialog(this) != true) return;
+                if (WindowDialogService.ShowDialog(dialog, this) != true) return;
                 path = dialog.FileName;
                 extension = Path.GetExtension(path).ToLowerInvariant();
                 if (!OutputFormat.IsSupported(extension)) throw new ArgumentException(L.Get("ChooseAnAvailableOutputFormatExtensionFrom"));
@@ -253,7 +252,7 @@ public partial class SaveImageWindow : Window
             var extension = Extension; var size = Dimensions();
             var bytes = await EncodeCurrent();
             var image = extension == ".pdf" ? _images.Decode(await Task.Run(() => _images.Encode(_source, ".bmp", width: size.Width, height: size.Height))) : _images.Decode(bytes);
-            if (!_closed) OutputActions.Print(image);
+            if (!_closed) OutputActions.Print(image, this);
         }
         catch (Exception ex) { StatusText.Text = L.Get("PrintFailed") + ex.Message; }
     }

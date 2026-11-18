@@ -44,6 +44,7 @@ public sealed class TrayService : IDisposable
     public event Action<bool>? ScreenWordsRequested;
     public event EventHandler? RecognitionClipboardRequested;
     public event EventHandler? RecordingRequested;
+    public event EventHandler? ScreenRulerRequested;
     public event EventHandler? PauseRecordingRequested;
     public event EventHandler? StopRecordingRequested;
 
@@ -57,6 +58,7 @@ public sealed class TrayService : IDisposable
         _activeWindowItem = AddLocalizedItem(menu, "ActiveWindowCapture", () => CaptureRequested?.Invoke(this,
             new CaptureModeEventArgs(Models.CaptureMode.ActiveWindow)));
         AddLocalizedItem(menu, "RecognizeClipboardImage2", () => RecognitionClipboardRequested?.Invoke(this, EventArgs.Empty));
+        AddLocalizedItem(menu, "ScreenRuler", () => ScreenRulerRequested?.Invoke(this, EventArgs.Empty));
 
         _screenWordsItem = LocalizedMenu("ScreenTextCaptureThisSession", isCheckable: true);
         _screenWordsItem.Click += (_, _) => ScreenWordsRequested?.Invoke(_screenWordsItem.IsChecked);

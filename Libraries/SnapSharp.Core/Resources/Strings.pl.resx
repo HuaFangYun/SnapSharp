@@ -3837,4 +3837,13 @@ Kopiowanie dużych modeli może zająć trochę czasu. Istniejące dane w miejsc
   <data name="AppUpdateInstalling" xml:space="preserve"><value>Restarting to install update…</value></data>
   <data name="AppUpdateCancelled" xml:space="preserve"><value>Update cancelled. The installed version has not changed.</value></data>
   <data name="AppUpdateInstallFailed" xml:space="preserve"><value>Could not install the update. The current version will stay open. Check the connection, disk space and write permissions, then retry.</value></data>
+  <data name="ScreenRuler" xml:space="preserve"><value>Linijka ekranowa</value></data>
+  <data name="ScreenRulerToggle" xml:space="preserve"><value>Linijka ekranowa (R)</value></data>
+  <data name="PrecisionKeysHint" xml:space="preserve"><value>Strzałki: przesuń o 1 px · Shift+strzałki: zmień rozmiar</value></data>
+  <data name="ScreenRulerHelp" xml:space="preserve"><value>Przeciągnij nagłówek, aby przesunąć · Przeciągnij róg, aby zmienić rozmiar · Strzałki: 1 px · Esc: zamknij</value></data>
+  <data name="ScreenRulerResize" xml:space="preserve"><value>Przeciągnij, aby zmienić rozmiar (piksele fizyczne)</value></data>
+  <data name="CaptureCrosshair" xml:space="preserve"><value>Celownik</value></data>
+  <data name="CaptureToolShortcutHint" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="CapturePointerMoveHint" xml:space="preserve"><value>Strzałki: przesuń wskaźnik o 1 px</value></data>
+  <data name="ScreenRulerReadout" xml:space="preserve"><value>{0} × {1} px | X: {2}, Y: {3}</value></data>
 </root>

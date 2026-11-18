@@ -3837,4 +3837,13 @@ ScreenRecorderLib가 포함되어 있습니다. 별도의 NuGet 또는 FFmpeg �
   <data name="AppUpdateInstalling" xml:space="preserve"><value>Restarting to install update…</value></data>
   <data name="AppUpdateCancelled" xml:space="preserve"><value>Update cancelled. The installed version has not changed.</value></data>
   <data name="AppUpdateInstallFailed" xml:space="preserve"><value>Could not install the update. The current version will stay open. Check the connection, disk space and write permissions, then retry.</value></data>
+  <data name="ScreenRuler" xml:space="preserve"><value>화면 눈금자</value></data>
+  <data name="ScreenRulerToggle" xml:space="preserve"><value>화면 눈금자 (R)</value></data>
+  <data name="PrecisionKeysHint" xml:space="preserve"><value>방향키: 1 px 이동 · Shift+방향키: 크기 조절</value></data>
+  <data name="ScreenRulerHelp" xml:space="preserve"><value>제목 표시줄을 끌어 이동 · 모서리를 끌어 크기 조절 · 방향키: 1 px · Esc: 닫기</value></data>
+  <data name="ScreenRulerResize" xml:space="preserve"><value>끌어서 크기 조절 (물리 픽셀)</value></data>
+  <data name="CaptureCrosshair" xml:space="preserve"><value>십자선</value></data>
+  <data name="CaptureToolShortcutHint" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="CapturePointerMoveHint" xml:space="preserve"><value>방향키: 포인터 1 px 이동</value></data>
+  <data name="ScreenRulerReadout" xml:space="preserve"><value>{0} × {1} px | X: {2}, Y: {3}</value></data>
 </root>

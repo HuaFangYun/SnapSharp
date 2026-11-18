@@ -1,4 +1,4 @@
-﻿using L = SnapSharp.Localization.UiText;
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Services;
 using SnapSharp.ViewModels;
@@ -58,7 +58,7 @@ public partial class EditorWindow : Window
     private void Color_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new System.Windows.Forms.ColorDialog { Color = System.Drawing.Color.FromArgb(_viewModel.SelectedColor.R, _viewModel.SelectedColor.G, _viewModel.SelectedColor.B) };
-        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        if (WindowDialogService.ShowDialog(dialog, this) == System.Windows.Forms.DialogResult.OK)
         {
             _viewModel.SelectedColor = Color.FromRgb(dialog.Color.R, dialog.Color.G, dialog.Color.B);
             if (FillToggle.IsChecked == true)

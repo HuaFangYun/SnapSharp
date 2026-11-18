@@ -247,7 +247,7 @@ public partial class RecognitionWindow : Window
         try
         {
             var dialog = new Microsoft.Win32.SaveFileDialog { Filter = filter, FileName = name, OverwritePrompt = false };
-            if (dialog.ShowDialog(this) != true) return false;
+            if (WindowDialogService.ShowDialog(dialog, this) != true) return false;
             var overwrite = File.Exists(dialog.FileName);
             if (overwrite && MessageBox.Show(this, L.Get("TheFileAlreadyExistsReplaceIt"), L.Get("ConfirmOverwrite"), MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return false;
             OutputFileService.Write(dialog.FileName, bytes, overwrite); Status.Text = L.Get("Exported") + dialog.FileName; return true;

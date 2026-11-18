@@ -1,3 +1,4 @@
+using SnapSharp.Services;
 using L = SnapSharp.Localization.UiText;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,7 +12,7 @@ internal static class PrivacyConsentDialog
 {
     public static bool Confirm(Window owner, Uri endpoint, string? text, BitmapSource? image)
     {
-        return Create(owner, endpoint, text, image).ShowDialog() == true;
+        return WindowDialogService.ShowDialog(Create(owner, endpoint, text, image), owner) == true;
     }
 
     internal static Window Create(Window? owner, Uri endpoint, string? text, BitmapSource? image)

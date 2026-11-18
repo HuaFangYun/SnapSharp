@@ -178,7 +178,7 @@ public sealed class AnnotationSurface : Canvas
         if (tool == AnnotationTool.Watermark)
         {
             var dialog = new WatermarkDialog { Owner = Window.GetWindow(this) };
-            if (dialog.ShowDialog() == true)
+            if (WindowDialogService.ShowDialog(dialog, Window.GetWindow(this)) == true)
                 _viewModel.CompleteAnnotation(new WatermarkAnnotation(_start, dialog.Watermark, _viewModel.SelectedColor,
                     dialog.WatermarkFontSize, dialog.WatermarkOpacity, dialog.WatermarkAngle,
                     dialog.IsTiled, ActualWidth, ActualHeight));

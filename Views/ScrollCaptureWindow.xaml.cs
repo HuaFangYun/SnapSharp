@@ -450,7 +450,7 @@ public partial class ScrollCaptureWindow : Window
     private async void SaveProject_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.SaveFileDialog { Filter = L.Get("SnapSharpScrollingCaptureProjectSsscroll"), FileName = $"SnapSharp-scroll-{DateTime.Now:yyyyMMdd-HHmmss-fff}.ssscroll", OverwritePrompt = false };
-        if (dialog.ShowDialog(this) != true) return;
+        if (WindowDialogService.ShowDialog(dialog, this) != true) return;
         var overwrite = File.Exists(dialog.FileName);
         if (overwrite && MessageBox.Show(this, L.Get("TheProjectAlreadyExistsReplaceIt"), L.Get("ConfirmOverwrite"), MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
         SetBusy(true);
@@ -461,7 +461,7 @@ public partial class ScrollCaptureWindow : Window
     private async void OpenProject_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("SnapSharpScrollingCaptureProjectSsscroll") };
-        if (dialog.ShowDialog(this) == true) await LoadProject(dialog.FileName);
+        if (WindowDialogService.ShowDialog(dialog, this) == true) await LoadProject(dialog.FileName);
     }
     public async Task LoadProject(string path)
     {

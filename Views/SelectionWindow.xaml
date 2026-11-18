@@ -41,10 +41,14 @@
                              HorizontalAlignment="Left" VerticalAlignment="Top" />
     <Border x:Name="SelectionBorder" BorderBrush="#398BFF" BorderThickness="2"
             Visibility="Collapsed" IsHitTestVisible="False" />
+    <local:PixelGuides x:Name="PrecisionGuides" IsHitTestVisible="False" />
 
     <Border x:Name="InfoPanel" HorizontalAlignment="Left" VerticalAlignment="Top"
             Background="{DynamicResource OverlaySurfaceBrush}" CornerRadius="14" Padding="10,4" IsHitTestVisible="False">
-      <TextBlock x:Name="InfoText" Foreground="{DynamicResource OverlayTextBrush}" FontFamily="Consolas" FontSize="12" />
+      <StackPanel>
+        <TextBlock x:Name="InfoText" Foreground="{DynamicResource OverlayTextBrush}" FontFamily="Consolas" FontSize="12" />
+        <TextBlock x:Name="MovementHintText" Foreground="{DynamicResource OverlayTextBrush}" FontSize="11" Visibility="Collapsed" />
+      </StackPanel>
     </Border>
 
     <Border x:Name="Magnifier" Width="286" Height="300" HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -84,9 +88,11 @@
       </Grid>
     </Border>
 
-    <TextBlock x:Name="Hint" Text="{loc:Loc SnapSharp.Core:Resources.Strings:DragToSelectClickToSelectWindow}" Foreground="{DynamicResource OverlayTextBrush}"
+    <TextBlock x:Name="Hint" Foreground="{DynamicResource OverlayTextBrush}"
                Background="{DynamicResource OverlaySurfaceBrush}" Padding="12,7" HorizontalAlignment="Center"
-               VerticalAlignment="Top" Margin="0,18,0,0" IsHitTestVisible="False" />
+               VerticalAlignment="Top" Margin="0,30,0,0" IsHitTestVisible="False">
+      <Run x:Name="CaptureHintText" Text="{loc:Loc SnapSharp.Core:Resources.Strings:DragToSelectClickToSelectWindow}" /><Run Text=" | " /><Run x:Name="GuideShortcutHint" />
+    </TextBlock>
 
     <!-- Keep the visibility marker non-interactive. The resize thumbs are direct
          siblings so an empty full-screen panel cannot intercept annotation input. -->
@@ -108,28 +114,34 @@
     <primitives:Thumb x:Name="BottomRightHandle" Style="{StaticResource SelectionHandleStyle}"
                       Visibility="{Binding Visibility, ElementName=Handles}" Tag="BottomRight" Cursor="SizeNWSE" DragDelta="Handle_DragDelta" DragCompleted="Handle_DragCompleted" />
 
-    <Border x:Name="CapturePanel" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,54,0,0"
+    <Border x:Name="CapturePanel" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,66,0,0"
             Background="{DynamicResource OverlaySurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="1" CornerRadius="6" Padding="5">
       <StackPanel Orientation="Horizontal">
-        <ComboBox x:Name="CaptureModePicker" Width="82" SelectionChanged="CaptureMode_Changed" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:CaptureMode}">
+        <ComboBox x:Name="CaptureModePicker" Width="82" SelectionChanged="CaptureMode_Changed" DropDownOpened="CapturePicker_Opened" DropDownClosed="CapturePicker_Closed" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:CaptureMode}">
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Region}" Tag="Region" IsSelected="True" />
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Element}" Tag="Element" />
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Window}" Tag="Window" />
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:FullScreen}" Tag="FullScreen" />
         </ComboBox>
-        <ComboBox x:Name="ShapePicker" Width="92" Margin="5,0,0,0" SelectionChanged="Shape_Changed" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:SelectionShape}">
+        <ComboBox x:Name="ShapePicker" Width="92" Margin="5,0,0,0" SelectionChanged="Shape_Changed" DropDownOpened="CapturePicker_Opened" DropDownClosed="CapturePicker_Closed" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:SelectionShape}">
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Rectangle}" Tag="Rectangle" IsSelected="True" />
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Ellipse}" Tag="Ellipse" />
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:FreehandLasso}" Tag="Lasso" />
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Polygon}" Tag="Polygon" />
         </ComboBox>
-        <ComboBox x:Name="RatioPicker" Width="76" Margin="5,0,0,0" SelectionChanged="Ratio_Changed" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:AspectRatio}">
+        <ComboBox x:Name="RatioPicker" Width="76" Margin="5,0,0,0" SelectionChanged="Ratio_Changed" DropDownOpened="CapturePicker_Opened" DropDownClosed="CapturePicker_Closed" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:AspectRatio}">
           <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Free}" Tag="Free" IsSelected="True" />
           <ComboBoxItem Content="1:1" Tag="1" />
           <ComboBoxItem Content="4:3" Tag="1.333333333333" />
           <ComboBoxItem Content="16:9" Tag="1.777777777778" />
         </ComboBox>
+        <ToggleButton x:Name="CaptureRulerButton" Style="{StaticResource ToolbarFieldToggle}" Margin="3,0" Width="32" HorizontalContentAlignment="Center" Click="Ruler_Click">
+          <iconPacks:PackIconLucide Kind="Ruler" Width="18" Height="18" />
+        </ToggleButton>
+        <ToggleButton x:Name="CaptureCrosshairButton" Style="{StaticResource ToolbarFieldToggle}" Margin="3,0" Width="32" HorizontalContentAlignment="Center" Click="Crosshair_Click">
+          <iconPacks:PackIconLucide Kind="Plus" Width="18" Height="18" />
+        </ToggleButton>
       </StackPanel>
     </Border>
 
@@ -149,6 +161,12 @@
       </Border.Resources>
       <WrapPanel x:Name="ToolButtons" Orientation="Horizontal" VerticalAlignment="Top">
         <Button x:Name="MoveSelectionButton" Style="{StaticResource CaptureToolButton}" Click="MoveSelection_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:MoveSelection}"><iconPacks:PackIconLucide Kind="Move" /></Button>
+        <ToggleButton x:Name="EditorRulerButton" Style="{StaticResource ToolbarFieldToggle}" Margin="3,0" Width="32" HorizontalContentAlignment="Center" Click="Ruler_Click">
+          <iconPacks:PackIconLucide Kind="Ruler" Width="18" Height="18" />
+        </ToggleButton>
+        <ToggleButton x:Name="EditorCrosshairButton" Style="{StaticResource ToolbarFieldToggle}" Margin="3,0" Width="32" HorizontalContentAlignment="Center" Click="Crosshair_Click">
+          <iconPacks:PackIconLucide Kind="Plus" Width="18" Height="18" />
+        </ToggleButton>
         <Separator />
         <local:ToolGroupButton x:Name="ShapeTools" Group="Shapes" ToolSelected="ToolGroup_ToolSelected" />
         <Button Style="{StaticResource CaptureToolButton}" Tag="Line" Click="Tool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Line}"><iconPacks:PackIconLucide Kind="Minus" /></Button>

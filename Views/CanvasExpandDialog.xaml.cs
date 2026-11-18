@@ -1,3 +1,4 @@
+using SnapSharp.Services;
 using L = SnapSharp.Localization.UiText;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,7 +32,7 @@ public partial class CanvasExpandDialog : Window
             Color = System.Drawing.Color.FromArgb(BackgroundColor.A, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B),
             AllowFullOpen = true
         };
-        if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+        if (WindowDialogService.ShowDialog(dialog, this) != System.Windows.Forms.DialogResult.OK) return;
         BackgroundColor = Color.FromArgb(dialog.Color.A, dialog.Color.R, dialog.Color.G, dialog.Color.B);
         ColorButton.Content = $"#{BackgroundColor.A:X2}{BackgroundColor.R:X2}{BackgroundColor.G:X2}{BackgroundColor.B:X2}";
     }

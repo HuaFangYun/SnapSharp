@@ -39,6 +39,7 @@
     <Compile Remove="Libraries\**\*.cs" />
     <Compile Remove="tools\RegressionChecks\**\*.cs" />
     <Compile Remove="tools\UpdateChecks\**\*.cs" />
+    <Compile Remove="tools\WindowChecks\**\*.cs" />
     <Page Remove="Libraries\**\*.xaml" />
     <EmbeddedResource Remove="Libraries\**\*" />
     <Resource Include="logo.ico" />
@@ -50,5 +51,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Services\AppUpdate.ps1" LogicalName="SnapSharp.AppUpdate.ps1" />
     <InternalsVisibleTo Include="SnapSharp.RegressionChecks" />
+    <InternalsVisibleTo Include="SnapSharp.WindowChecks" />
   </ItemGroup>
 </Project>

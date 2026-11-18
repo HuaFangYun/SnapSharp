@@ -224,7 +224,7 @@ public partial class PinWindow : Window
         {
             Color = System.Drawing.Color.FromArgb(current.R, current.G, current.B)
         };
-        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        if (WindowDialogService.ShowDialog(dialog, this) == System.Windows.Forms.DialogResult.OK)
         {
             _editViewModel.SelectedColor = Color.FromRgb(dialog.Color.R, dialog.Color.G, dialog.Color.B);
             if (_editViewModel.SelectedTool == AnnotationTool.Select) _editViewModel.ApplySelectedStyle();
@@ -341,7 +341,7 @@ public partial class PinWindow : Window
         create.Click += (_, _) =>
         {
             var dialog = new TextInputDialog { Owner = this, Title = L.Get("NewPinGroup"), InitialText = L.Get("NewGroup2") };
-            if (dialog.ShowDialog() != true) return;
+            if (WindowDialogService.ShowDialog(dialog, this) != true) return;
             try { _workspace.Assign(this, dialog.ResultText); }
             catch (Exception ex) { MessageBox.Show(this, ex.Message, L.Get("InvalidGroupName")); }
         };

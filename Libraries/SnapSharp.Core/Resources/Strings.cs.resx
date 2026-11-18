@@ -3837,4 +3837,13 @@ Kopírování velkých modelů může nějakou dobu trvat. Stávající data v c
   <data name="AppUpdateInstalling" xml:space="preserve"><value>Restarting to install update…</value></data>
   <data name="AppUpdateCancelled" xml:space="preserve"><value>Update cancelled. The installed version has not changed.</value></data>
   <data name="AppUpdateInstallFailed" xml:space="preserve"><value>Could not install the update. The current version will stay open. Check the connection, disk space and write permissions, then retry.</value></data>
+  <data name="ScreenRuler" xml:space="preserve"><value>Pravítko obrazovky</value></data>
+  <data name="ScreenRulerToggle" xml:space="preserve"><value>Pravítko obrazovky (R)</value></data>
+  <data name="PrecisionKeysHint" xml:space="preserve"><value>Šipky: posun o 1 px · Shift+šipky: změna velikosti</value></data>
+  <data name="ScreenRulerHelp" xml:space="preserve"><value>Přetažení záhlaví: přesun · Přetažení rohu: změna velikosti · Šipky: 1 px · Esc: zavřít</value></data>
+  <data name="ScreenRulerResize" xml:space="preserve"><value>Přetažením změnit velikost (fyzické pixely)</value></data>
+  <data name="CaptureCrosshair" xml:space="preserve"><value>Zaměřovací kříž</value></data>
+  <data name="CaptureToolShortcutHint" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="CapturePointerMoveHint" xml:space="preserve"><value>Šipky: posun ukazatele o 1 px</value></data>
+  <data name="ScreenRulerReadout" xml:space="preserve"><value>{0} × {1} px | X: {2}, Y: {3}</value></data>
 </root>

@@ -1,4 +1,4 @@
-﻿using L = SnapSharp.Localization.UiText;
+using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Native;
 using SnapSharp.Services;
@@ -56,15 +56,16 @@ public partial class SelectionWindow : Window
     public event EventHandler? CaptureCanceled;
 
     public SelectionWindow(CapturedScreen screen, IReadOnlyList<WindowCandidate> windows, ICaptureService captureService, bool scrollingSelection = false,
-        IElementDetectionService? elementDetectionService = null)
+        IElementDetectionService? elementDetectionService = null, SettingsService? settings = null)
     {
+        _precisionSettings = settings;
         _elementDetectionService = elementDetectionService ?? new ElementDetectionService();
         InitializeComponent();
         _scrollingSelection = scrollingSelection;
         if (scrollingSelection)
         {
             Title = L.Get("SelectScrollingCaptureRegion");
-            Hint.Text = L.Get("DragToSelectAScrollingRegionAdjust");
+            CaptureHintText.Text = L.Get("DragToSelectAScrollingRegionAdjust");
             PrimaryCaptureButton.Content = new TextBlock { Text = L.Get("StartScrollingCapture") };
             PrimaryCaptureButton.Width = double.NaN;
             PrimaryCaptureButton.ToolTip = L.Get("ConfirmRegionAndStartScrollingCaptureEnter");
@@ -77,6 +78,11 @@ public partial class SelectionWindow : Window
         if (!_colorPixels.IsFrozen) _colorPixels.Freeze();
         _windows = windows;
         _captureService = captureService;
+        RefreshPrecisionPreferences();
+        GotKeyboardFocus += (_, _) => UpdateMovementHint();
+        LostKeyboardFocus += (_, _) => Dispatcher.BeginInvoke(UpdateMovementHint);
+        Activated += (_, _) => UpdateMovementHint();
+        Deactivated += (_, _) => UpdateMovementHint();
         InitializeElementDetection();
         Screenshot.Source = screen.Image;
         for (var x = 0; x <= 19; x++)
@@ -119,6 +125,7 @@ public partial class SelectionWindow : Window
 
     private void Root_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (IsCaptureControl(e.OriginalSource as DependencyObject)) return;
         var point = Clamp(GetLogicalPointer(e));
         _lastPointer = point;
         if (_editing)
@@ -206,6 +213,7 @@ public partial class SelectionWindow : Window
 
     private void RestartRegionSelection()
     {
+        _pixelNudgeActive = false;
         // Discard this selection and its annotations, retaining the original desktop snapshot.
         // Clear editing before releasing capture so drag completion cannot rebuild the editor.
         _editing = false;
@@ -300,9 +308,17 @@ public partial class SelectionWindow : Window
 
     private void Root_MouseMove(object sender, MouseEventArgs e)
     {
+        if (IsCaptureControl(e.OriginalSource as DependencyObject) && !_dragging)
+        {
+            PrecisionGuides.ShowCrosshair = false;
+            PrecisionGuides.InvalidateVisual();
+            return;
+        }
         if (!_editing && IsVisible && !IsActive) { Activate(); Focus(); }
         var point = Clamp(GetLogicalPointer(e));
+        if (_pixelNudgeActive && (point - _lastPointer).Length > .01) _pixelNudgeActive = false;
         _lastPointer = point;
+        UpdatePrecisionGuides(point);
         if (_editing)
         {
             if (_moving && _dragging)
@@ -536,13 +552,17 @@ public partial class SelectionWindow : Window
         _suggestedWindow = null;
         _includeWindowFrame = false;
         ResetDraft();
-        if (ShapePicker is not null) ShapePicker.IsEnabled = !_scrollingSelection && mode == OverlayMode.Region;
+        if (ShapePicker is not null) ShapePicker.IsEnabled = !_scrollingSelection;
         if (mode != OverlayMode.Region && ShapePicker is not null && ShapePicker.SelectedIndex != 0)
-            ShapePicker.SelectedIndex = 0;
+        {
+            _changingCaptureOptions = true;
+            try { ShapePicker.SelectedIndex = 0; }
+            finally { _changingCaptureOptions = false; }
+        }
         if (RatioPicker is not null)
-            RatioPicker.IsEnabled = mode == OverlayMode.Region && _shape is SelectionShape.Rectangle or SelectionShape.Ellipse;
+            RatioPicker.IsEnabled = _shape is SelectionShape.Rectangle or SelectionShape.Ellipse;
         if (!IsLoaded) return;
-        if (!_scrollingSelection) Hint.Text = L.Get(mode == OverlayMode.Element ? "ElementSelectionHint"
+        if (!_scrollingSelection) CaptureHintText.Text = L.Get(mode == OverlayMode.Element ? "ElementSelectionHint"
             : mode == OverlayMode.Window ? "WindowSelectionClientHint" : "DragToSelectClickToSelectWindow");
         if (mode == OverlayMode.Element && !_editing) _elementHoverTimer?.Start();
         _selection = mode == OverlayMode.FullScreen ? new Rect(0, 0, ActualWidth, ActualHeight)
@@ -555,6 +575,7 @@ public partial class SelectionWindow : Window
     {
         if (ShapePicker?.SelectedItem is not ComboBoxItem item ||
             !Enum.TryParse(item.Tag?.ToString(), out SelectionShape shape)) return;
+        if (IsLoaded) UseRegionOptions();
         _shape = shape;
         ResetDraft();
         if (RatioPicker is not null) RatioPicker.IsEnabled = shape is SelectionShape.Rectangle or SelectionShape.Ellipse;
@@ -563,6 +584,7 @@ public partial class SelectionWindow : Window
     private void Ratio_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (RatioPicker?.SelectedItem is not ComboBoxItem item) return;
+        if (IsLoaded) UseRegionOptions();
         _ratio = double.TryParse(item.Tag?.ToString(), System.Globalization.NumberStyles.Float,
             System.Globalization.CultureInfo.InvariantCulture, out var ratio) ? ratio : null;
     }
@@ -1168,7 +1190,7 @@ public partial class SelectionWindow : Window
         {
             Color = System.Drawing.Color.FromArgb(current.R, current.G, current.B)
         };
-        if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+        if (WindowDialogService.ShowDialog(dialog, this) != System.Windows.Forms.DialogResult.OK) return;
         var color = Color.FromRgb(dialog.Color.R, dialog.Color.G, dialog.Color.B);
         _lastTextOutlineColor = color;
         ApplySecondaryChange(() =>
@@ -1249,7 +1271,7 @@ public partial class SelectionWindow : Window
         var editingFillColor = FillOptions.Visibility == Visibility.Visible && FillToggle.IsChecked == true;
         var current = editingFillColor && _editor.FillColor is Color fillColor ? fillColor : _editor.SelectedColor;
         var dialog = new System.Windows.Forms.ColorDialog { Color = System.Drawing.Color.FromArgb(current.R, current.G, current.B) };
-        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        if (WindowDialogService.ShowDialog(dialog, this) == System.Windows.Forms.DialogResult.OK)
         {
             ApplySecondaryChange(() =>
             {
@@ -1334,7 +1356,7 @@ public partial class SelectionWindow : Window
     {
         if (_editor is null) return;
         var dialog = new CanvasExpandDialog(_editor.Image.PixelWidth, _editor.Image.PixelHeight) { Owner = this };
-        if (dialog.ShowDialog() != true) return;
+        if (WindowDialogService.ShowDialog(dialog, this) != true) return;
         var annotations = _editor.Annotations.Select(annotation =>
             AnnotationEditing.Move(annotation, new Vector(dialog.OffsetX, dialog.OffsetY))).ToArray();
         var image = _skia.ExpandCanvas(_editor.Image, dialog.CanvasWidth, dialog.CanvasHeight,
@@ -1347,7 +1369,7 @@ public partial class SelectionWindow : Window
     {
         if (_editor is null || _editor.Annotations.Count == 0) return;
         var dialog = new Microsoft.Win32.SaveFileDialog { Filter = L.Get("SnapSharpAnnotationTemplateSstemplate"), DefaultExt = ".sstemplate" };
-        if (dialog.ShowDialog(this) == true)
+        if (WindowDialogService.ShowDialog(dialog, this) == true)
             _templates.Save(dialog.FileName, _editor.Annotations, _editor.Image.PixelWidth, _editor.Image.PixelHeight);
     }
 
@@ -1355,7 +1377,7 @@ public partial class SelectionWindow : Window
     {
         if (_editor is null) return;
         var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("SnapSharpAnnotationTemplateSstemplate") };
-        if (dialog.ShowDialog(this) != true) return;
+        if (WindowDialogService.ShowDialog(dialog, this) != true) return;
         try
         {
             _editor.ReplaceAll(_templates.Load(dialog.FileName, _editor.Image.PixelWidth, _editor.Image.PixelHeight), append: true);
@@ -1405,6 +1427,27 @@ public partial class SelectionWindow : Window
 
     private void Window_KeyDown(object sender, KeyEventArgs e)
     {
+        if (e.OriginalSource is System.Windows.Controls.TextBox or System.Windows.Controls.Primitives.TextBoxBase ||
+            CaptureModePicker.IsDropDownOpen || ShapePicker.IsDropDownOpen || RatioPicker.IsDropDownOpen) return;
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        if (key == Key.R && Keyboard.Modifiers == ModifierKeys.None)
+        {
+            if (!e.IsRepeat) Ruler_Click(this, new RoutedEventArgs());
+            e.Handled = true; return;
+        }
+        if (key == Key.X && Keyboard.Modifiers == ModifierKeys.None)
+        {
+            if (!e.IsRepeat) Crosshair_Click(this, new RoutedEventArgs());
+            e.Handled = true; return;
+        }
+        if (e.Key is Key.Left or Key.Right or Key.Up or Key.Down &&
+            (Keyboard.Modifiers & ~ModifierKeys.Shift) == 0)
+        {
+            if (!CanNudgeCapture(Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))) return;
+            NudgeCapture(e.Key == Key.Left ? -1 : e.Key == Key.Right ? 1 : 0,
+                e.Key == Key.Up ? -1 : e.Key == Key.Down ? 1 : 0, Keyboard.Modifiers.HasFlag(ModifierKeys.Shift));
+            e.Handled = true; return;
+        }
         if (_scrollingSelection && _editing && e.Key == Key.Enter && e.OriginalSource is not System.Windows.Controls.TextBox)
         {
             ScrollCapture_Click(this, new RoutedEventArgs()); e.Handled = true; return;
@@ -1476,7 +1519,7 @@ public partial class SelectionWindow : Window
         try { write(_sampledColor); }
         catch (System.Runtime.InteropServices.ExternalException)
         {
-            Hint.Text = L.Get("ClipboardIsBusyCaptureRemainsOpenPress");
+            CaptureHintText.Text = L.Get("ClipboardIsBusyCaptureRemainsOpenPress");
             return;
         }
         // Finish the entire multi-monitor capture session without producing an image.
@@ -1570,6 +1613,8 @@ public partial class SelectionWindow : Window
 
     private void UpdateSelection()
     {
+        if (IsLoaded) UpdatePrecisionGuides(_lastPointer);
+        UpdateMovementHint();
         if (!IsValidSelection())
         {
             SelectionBorder.Visibility = Visibility.Collapsed;
@@ -1585,7 +1630,7 @@ public partial class SelectionWindow : Window
             InfoText.Text = $"{pixels.X + _screen.Bounds.Left},{pixels.Y + _screen.Bounds.Top}  {pixels.Width} x {pixels.Height} px";
             if (_mode == OverlayMode.Element && !_editing && !_dragging)
                 InfoText.Text += "  " + ElementDescription();
-            CanvasPosition(InfoPanel, _selection.X, Math.Max(4, _selection.Y - 32));
+            CanvasPosition(InfoPanel, _selection.X, Math.Max(4, _selection.Y - (MovementHintText.Visibility == Visibility.Visible ? 52 : 32)));
         }
         UpdateShapeOutline();
         UpdateShade();
@@ -1937,11 +1982,12 @@ public partial class SelectionWindow : Window
 
     private void UpdatePointer(Point point)
     {
+        UpdatePrecisionGuides(point);
         var viewWidth = Root.ActualWidth; var viewHeight = Root.ActualHeight;
         if (_editing || viewWidth <= 0 || viewHeight <= 0) return;
         _lastPointer = point;
-        var px = Math.Clamp((int)(point.X * _screen.Image.PixelWidth / viewWidth), 0, _screen.Image.PixelWidth - 1);
-        var py = Math.Clamp((int)(point.Y * _screen.Image.PixelHeight / viewHeight), 0, _screen.Image.PixelHeight - 1);
+        var px = Math.Clamp((int)Math.Floor(point.X * _screen.Image.PixelWidth / viewWidth + 1e-7), 0, _screen.Image.PixelWidth - 1);
+        var py = Math.Clamp((int)Math.Floor(point.Y * _screen.Image.PixelHeight / viewHeight + 1e-7), 0, _screen.Image.PixelHeight - 1);
         const int cropWidth = 19;
         const int cropHeight = 11;
         // Pad outside the monitor instead of shifting the crop: the sampled pixel stays centered at every edge.
@@ -1963,7 +2009,9 @@ public partial class SelectionWindow : Window
         Magnifier.LayoutTransform = scale < 1 ? new ScaleTransform(scale, scale) : Transform.Identity;
         var width = Magnifier.Width * scale; var height = Magnifier.Height * scale;
         var x = point.X + 22 + width > viewWidth ? point.X - width - 22 : point.X + 22;
-        var y = point.Y + 22 + height > viewHeight ? point.Y - height - 22 : point.Y + 22;
+        var maxY = Math.Max(0, viewHeight - height);
+        var chromeBottom = CapturePanel.Margin.Top + CapturePanel.ActualHeight + 8;
+        var y = Math.Clamp(point.Y + 22, Math.Min(chromeBottom, maxY), maxY);
         CanvasPosition(Magnifier, Math.Clamp(x, 0, Math.Max(0, viewWidth - width)), Math.Clamp(y, 0, Math.Max(0, viewHeight - height)));
     }
 
@@ -1994,6 +2042,7 @@ public partial class SelectionWindow : Window
 
     private Point SnapPoint(Point point)
     {
+        if (_pixelNudgeActive) return point;
         var thresholdX = 8d * ActualWidth / Math.Max(1, _screen.Bounds.Width);
         var thresholdY = 8d * ActualHeight / Math.Max(1, _screen.Bounds.Height);
         var (xs, ys) = GetSnapAxes();
@@ -2062,7 +2111,9 @@ public partial class SelectionWindow : Window
         return (p - (a + (b - a) * t)).Length;
     }
 
-    private bool IsValidSelection() => !_selection.IsEmpty && _selection.Width >= 3 && _selection.Height >= 3;
+    private bool IsValidSelection() => !_selection.IsEmpty && ActualWidth > 0 && ActualHeight > 0 &&
+        _selection.Width * _screen.Image.PixelWidth / ActualWidth >= 1 - 1e-7 &&
+        _selection.Height * _screen.Image.PixelHeight / ActualHeight >= 1 - 1e-7;
     private Point Clamp(Point point) => new(Math.Clamp(point.X, 0, ActualWidth), Math.Clamp(point.Y, 0, ActualHeight));
     private Point GetLogicalPointer(MouseEventArgs e) => NativeMethods.GetCursorPos(out var cursor)
         ? ScreenCoordinateMapper.CursorToLocalDip(Root, cursor) : e.GetPosition(Root);

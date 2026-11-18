@@ -74,6 +74,8 @@ public sealed class AppSettings
     public bool PreferWgcCapture { get; set; } = true;
     public bool EnableExternalPlugins { get; set; }
     public bool RequireSignedPlugins { get; set; } = true;
+    public bool ShowCaptureRulers { get; set; }
+    public bool ShowCaptureCrosshair { get; set; }
     public string RegionHotkey { get; set; } = "Ctrl+Shift+A";
     public string FullScreenHotkey { get; set; } = "Ctrl+Shift+F";
     public string ActiveWindowHotkey { get; set; } = "Ctrl+Shift+W";

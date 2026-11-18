@@ -17,8 +17,8 @@ public partial class RecordingSetupWindow : Window
     }
     internal static void Open(Window owner)
     {
-        var window = new RecordingSetupWindow { Owner = owner };
-        window.ShowDialog();
+        var window = new RecordingSetupWindow();
+        WindowDialogService.ShowDialog(window, owner);
     }
     private void Refresh()
     {
