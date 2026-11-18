@@ -26,8 +26,11 @@ public sealed partial class LocalRecognitionService
             _ => throw new ArgumentException(L.Get("UnknownOCREngineSelectAnEngineAgain"))
         };
 
-    public Task<RecognitionDocument> RecognizePaddle(BitmapSource image, AppSettings settings, CancellationToken token = default) =>
-        OnnxImageRuntime.Shared.Execute(settings, (models, cancellation) =>
+    public async Task<RecognitionDocument> RecognizePaddle(BitmapSource image, AppSettings settings, CancellationToken token = default)
+    {
+        if (!OnnxWorker.IsWorker)
+            return OnnxWorker.ToDocument(await OnnxWorker.Execute("paddle", image, settings, token).ConfigureAwait(false));
+        return await OnnxImageRuntime.Shared.Execute(settings, (models, cancellation) =>
         {
             OnnxImageRuntime.ValidateImage(image);
             OnnxImageRuntime.RequireFile(settings.OcrDictionary, L.Get("PaddleOCRDictionary"));
@@ -53,7 +56,8 @@ public sealed partial class LocalRecognitionService
                 if (!string.IsNullOrWhiteSpace(text)) blocks.Add(new RecognizedBlock(text, bounds, confidence));
             }
             return new RecognitionDocument(ReadingOrder(blocks), L.Get("LocalPaddleOCRONNX") + models.DeviceLabel);
-        }, token);
+        }, token).ConfigureAwait(false);
+    }
 
     public static (string Text, double Confidence) DecodeCtc(float[] values, int[] shape, string[] dictionary)
     {

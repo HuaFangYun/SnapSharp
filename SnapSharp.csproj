@@ -45,6 +45,7 @@
     <Compile Remove="tools\UpdateChecks\**\*.cs" />
     <Compile Remove="tools\WindowChecks\**\*.cs" />
     <Compile Remove="tools\ModelStorageChecks\**\*.cs" />
+    <Compile Remove="tools\StabilityChecks\**\*.cs" />
     <Page Remove="Libraries\**\*.xaml" />
     <EmbeddedResource Remove="Libraries\**\*" />
     <Resource Include="logo.ico" />
@@ -59,5 +60,6 @@
     <InternalsVisibleTo Include="SnapSharp.RecordingChecks" />
     <InternalsVisibleTo Include="SnapSharp.WindowChecks" />
     <InternalsVisibleTo Include="SnapSharp.ModelStorageChecks" />
+    <InternalsVisibleTo Include="SnapSharp.StabilityChecks" />
   </ItemGroup>
 </Project>

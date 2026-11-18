@@ -18,9 +18,17 @@ public partial class App : Application
     private AppController? _controller;
     private SingleInstanceChannel? _instanceChannel;
     private ThemeService? _themeService;
+    private CrashDiagnostics? _crashDiagnostics;
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        // Worker mode must precede single-instance and UI startup, and must not write user data to disk.
+        if (e.Args is ["--onnx-worker", var pipe])
+        {
+            Shutdown(OnnxWorker.Run(pipe).GetAwaiter().GetResult());
+            return;
+        }
+        _crashDiagnostics = new CrashDiagnostics(this);
         base.OnStartup(e);
         EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent,
             new RoutedEventHandler(OnWindowLoaded));
@@ -874,11 +882,20 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
-        _instanceChannel?.Dispose();
-        _controller?.Dispose();
-        _singleInstanceMutex?.Dispose();
-        _themeService?.Dispose();
-        base.OnExit(e);
+        try
+        {
+            _instanceChannel?.Dispose();
+            _controller?.Dispose();
+            _singleInstanceMutex?.Dispose();
+            _themeService?.Dispose();
+            base.OnExit(e);
+        }
+        catch (Exception error)
+        {
+            CrashDiagnostics.WriteReport(error, "Shutdown", true, out _);
+            Environment.ExitCode = 1;
+        }
+        finally { _crashDiagnostics?.Dispose(); }
     }
 
     private static void OnWindowLoaded(object sender, RoutedEventArgs e)

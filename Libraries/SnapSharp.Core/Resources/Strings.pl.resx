@@ -3890,4 +3890,9 @@ Kopiowanie dużych modeli może zająć trochę czasu. Istniejące dane w miejsc
 Size: {1}
 
 This takes effect immediately, even if you cancel Settings. Windows may ask for confirmation if recycling is unavailable.</value></data>
+  <data name="CopyErrorInformation" xml:space="preserve"><value>Kopiuj informacje o błędzie</value></data>
+  <data name="UnexpectedErrorRecovered" xml:space="preserve"><value>Wystąpił nieoczekiwany błąd. Skopiuj raport diagnostyczny i spróbuj kontynuować.</value></data>
+  <data name="CrashReportWriteFailed" xml:space="preserve"><value>Nie udało się zapisać raportu. Skopiuj poniższe informacje.</value></data>
+  <data name="IsolatedInferenceFailed" xml:space="preserve"><value>Lokalne wnioskowanie w osobnym procesie nie powiodło się. Aplikacja nadal działa. Sprawdź model i spróbuj ponownie.</value></data>
+  <data name="GpuCrashRisk" xml:space="preserve"><value>Awaria sterownika GPU może przerwać rozpoznawanie. Wnioskowanie działa w osobnym procesie; po awarii GPU do ponownego uruchomienia używany jest CPU. Dla dużych modeli zalecany jest CPU.</value></data>
 </root>

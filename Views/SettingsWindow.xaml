@@ -152,6 +152,7 @@
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OcrOnnxDevice}" /><ComboBox x:Name="OnnxDeviceBox" SelectionChanged="OnnxDevice_Changed"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalCPUCompatibilityMode}" Tag="CPU" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalGPUDirectMLNVIDIAAMDIntel}" Tag="DirectML" /></ComboBox>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DirectMLGPUIndexDefault0Use1}" /><TextBox x:Name="OnnxGpuId" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DirectMLIsIncludedAndDoesNotRequire}" Style="{StaticResource Hint}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:GpuCrashRisk}" Style="{StaticResource Hint}" />
           <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:PaddleOCRWebsiteAndLicense}" Tag="PaddleOCR" Click="OpenProviderWebsite_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:DirectMLSystemRequirements}" Tag="DirectML" Click="OpenProviderWebsite_Click" Margin="10,0,0,0" /></WrapPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:AllThreeEnginesRecognizeLocallyPaddleOCRIs}" Style="{StaticResource Hint}" />
           <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ConfigureInstalledWindowsOCR}" Click="ConfigureWindowsOcr_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:InstallWindowsOCRLanguagePack}" Click="OpenLanguageSettings_Click" Margin="10,0,0,0" /></WrapPanel>
@@ -208,6 +209,7 @@
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:BackgroundRemovalModels}" Style="{StaticResource SectionTitle}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CutoutOnnxDevice}" /><ComboBox x:Name="CutoutDeviceBox" SelectionChanged="CutoutDevice_Changed"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalCPUCompatibilityMode}" Tag="CPU" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalGPUDirectMLNVIDIAAMDIntel}" Tag="DirectML" /></ComboBox>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:GpuCrashRisk}" Style="{StaticResource Hint}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CutoutDeviceModelHint}" Style="{StaticResource Hint}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DefaultModelAppliesAfterSaving}" /><ComboBox x:Name="CutoutDefaultBox" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ModelToDownloadConfigure}" /><ComboBox x:Name="CutoutPackageBox" SelectionChanged="CutoutPackage_Changed" />

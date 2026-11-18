@@ -14,15 +14,19 @@ public sealed class OnnxImageRuntime : IDisposable
     private readonly SemaphoreSlim _gate = new(1);
     private readonly Dictionary<string, InferenceSession> _sessions = [];
     private readonly SkiaImageService _images = new();
+    public bool GpuDisabled { get; private set; }
+    public string? GpuMemoryStatus { get; private set; }
+    private bool _disposed;
+
+    private void ClearSessions()
+    {
+        foreach (var session in _sessions.Values) session.Dispose();
+        _sessions.Clear();
+    }
 
     public async Task<T> Execute<T>(AppSettings settings, Func<ModelAccess, CancellationToken, T> operation, CancellationToken cancellationToken)
     {
-        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
-        await _gate.WaitAsync(timeout.Token).ConfigureAwait(false);
-        try { return await Task.Run(() => operation(new ModelAccess(this, Math.Clamp(settings.RecognitionThreads, 1, 8), settings.OnnxDevice, settings.OnnxDeviceId), timeout.Token), timeout.Token).ConfigureAwait(false); }
-        catch (OnnxRuntimeException) when (timeout.IsCancellationRequested) { throw new OperationCanceledException(L.Get("LocalInferenceCanceledOrTimedOut"), timeout.Token); }
-        finally { _gate.Release(); }
+        return await Execute(settings, settings.OnnxDevice, settings.OnnxDeviceId, operation, cancellationToken).ConfigureAwait(false);
     }
     public static void RequireFile(string path, string label)
     {
@@ -53,16 +57,28 @@ public sealed class OnnxImageRuntime : IDisposable
             using var options = new SessionOptions { IntraOpNumThreads = _threads, InterOpNumThreads = 1, GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL };
             if (_device == "DirectML")
             {
+                var memory = GpuMemoryBudget.Query(_deviceId);
+                _owner.GpuMemoryStatus = memory?.ToString();
+                if (memory is { } usage && usage.Budget > 0 && usage.Usage >= usage.Budget * .9)
+                    throw new GpuBudgetException();
                 options.EnableMemoryPattern = false;
                 options.ExecutionMode = ExecutionMode.ORT_SEQUENTIAL;
                 try { options.AppendExecutionProvider_DML(_deviceId); }
-                catch (Exception ex) { throw new InvalidOperationException(L.Get("DirectMLGPUInitializationFailedUpdateYourDriver"), ex); }
+                catch (Exception ex) { throw new GpuInitializationException(ex); }
             }
             else if (_device != "CPU") throw new ArgumentException(L.Get("UnknownONNXDevice"));
             var session = new InferenceSession(path, options);
             if (imageInput && (session.InputMetadata.Count != 1 || session.InputMetadata.First().Value.ElementType != typeof(float)))
             { session.Dispose(); throw new NotSupportedException(L.Get("ThisModelRequiresOneFloat32NCHWImage")); }
-            _owner._sessions.Add(key, session); return session;
+            _owner._sessions.Add(key, session);
+            if (_device == "DirectML")
+            {
+                var memory = GpuMemoryBudget.Query(_deviceId);
+                _owner.GpuMemoryStatus = memory?.ToString();
+                if (memory is { } usage && usage.Budget > 0 && usage.Usage >= usage.Budget * .9)
+                    throw new GpuBudgetException();
+            }
+            return session;
         }
         public static (int Height, int Width) Size(InferenceSession session, int height, int width)
         {
@@ -113,11 +129,16 @@ public sealed class OnnxImageRuntime : IDisposable
         return tensor;
     }
 
-    public Task<BitmapSource> RemoveBackground(BitmapSource image, AppSettings settings, CancellationToken token = default)
+    public async Task<BitmapSource> RemoveBackground(BitmapSource image, AppSettings settings, CancellationToken token = default)
     {
+        if (!OnnxWorker.IsWorker)
+        {
+            var response = await OnnxWorker.Execute("cutout", image, settings, token).ConfigureAwait(false);
+            return OnnxWorker.Decode(response.Image ?? throw new InvalidDataException("Missing cutout result."));
+        }
         var device = settings.CutoutOnnxDevice is "CPU" or "DirectML" ? settings.CutoutOnnxDevice : settings.OnnxDevice;
         var deviceId = settings.CutoutOnnxDeviceId >= 0 ? settings.CutoutOnnxDeviceId : settings.OnnxDeviceId;
-        return Execute(settings, device, deviceId, (models, cancellation) =>
+        return await Execute(settings, device, deviceId, (models, cancellation) =>
     {
         ValidateImage(image);
         if (settings.CutoutProfile is not ("U2Net" or "ISNet" or "BiRefNet" or "BiRefNetMatting" or "BiRefNetAlpha"))
@@ -158,24 +179,50 @@ public sealed class OnnxImageRuntime : IDisposable
             { var pixel = source.GetPixel(x, y); var alpha = (byte)((pixel.Alpha * fullMask.GetPixel(x, y).Red + 127) / 255); result.SetPixel(x, y, pixel.WithAlpha(alpha)); }
         }
         return _images.ToBitmapSource(result);
-        }, token);
+        }, token).ConfigureAwait(false);
     }
 
     private async Task<T> Execute<T>(AppSettings settings, string device, int deviceId,
         Func<ModelAccess, CancellationToken, T> operation, CancellationToken cancellationToken)
     {
+        if (!OnnxWorker.IsWorker) throw new InvalidOperationException("ONNX sessions must run in an isolated worker.");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
         await _gate.WaitAsync(timeout.Token).ConfigureAwait(false);
-        try { return await Task.Run(() => operation(new ModelAccess(this, Math.Clamp(settings.RecognitionThreads, 1, 8), device, deviceId), timeout.Token), timeout.Token).ConfigureAwait(false); }
-        catch (OnnxRuntimeException) when (timeout.IsCancellationRequested) { throw new OperationCanceledException(L.Get("LocalInferenceCanceledOrTimedOut"), timeout.Token); }
+        try
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            var effectiveDevice = GpuDisabled ? "CPU" : device;
+            try
+            {
+                return await Task.Run(() => operation(new ModelAccess(this, Math.Clamp(settings.RecognitionThreads, 1, 8), effectiveDevice, deviceId), timeout.Token), timeout.Token).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (effectiveDevice == "DirectML" && !timeout.IsCancellationRequested &&
+                ex is OnnxRuntimeException or GpuInitializationException or GpuBudgetException)
+            {
+                GpuDisabled = true;
+                ClearSessions(); // Never reuse sessions after a provider failure.
+                return await Task.Run(() => operation(new ModelAccess(this, Math.Clamp(settings.RecognitionThreads, 1, 8), "CPU", deviceId), timeout.Token), timeout.Token).ConfigureAwait(false);
+            }
+        }
+        catch (OnnxRuntimeException) when (timeout.IsCancellationRequested)
+        { ClearSessions(); throw new OperationCanceledException(L.Get("LocalInferenceCanceledOrTimedOut"), timeout.Token); }
+        catch { ClearSessions(); throw; }
         finally { _gate.Release(); }
     }
+
+    private sealed class GpuInitializationException(Exception inner) : Exception("GPU initialization failed.", inner);
+    private sealed class GpuBudgetException : Exception;
 
     public static void ValidateImage(BitmapSource image)
     {
         if (image.PixelWidth < 1 || image.PixelHeight < 1 || (long)image.PixelWidth * image.PixelHeight > 16_000_000)
             throw new ArgumentException(L.Get("RecognitionBackgroundRemovalInputIsLimitedTo"));
     }
-    public void Dispose() { foreach (var session in _sessions.Values) session.Dispose(); _sessions.Clear(); }
+    public void Dispose()
+    {
+        _gate.Wait();
+        try { if (!_disposed) { _disposed = true; ClearSessions(); } }
+        finally { _gate.Release(); }
+    }
 }

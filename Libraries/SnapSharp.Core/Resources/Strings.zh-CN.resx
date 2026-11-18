@@ -3772,4 +3772,9 @@ Media Foundation：{2}
 占用空间：{1}
 
 删除立即生效，取消设置也不会撤销。若无法使用回收站，Windows 可能另外询问是否删除。</value></data>
+  <data name="CopyErrorInformation" xml:space="preserve"><value>复制错误信息</value></data>
+  <data name="UnexpectedErrorRecovered" xml:space="preserve"><value>发生意外错误。你可以复制诊断信息用于反馈，并尝试继续操作。</value></data>
+  <data name="CrashReportWriteFailed" xml:space="preserve"><value>无法保存诊断记录，请复制下方信息。</value></data>
+  <data name="IsolatedInferenceFailed" xml:space="preserve"><value>独立进程中的本地推理失败。主程序可继续使用，请检查模型后重试。</value></data>
+  <data name="GpuCrashRisk" xml:space="preserve"><value>GPU 驱动异常可能中断识别。推理在独立进程中运行，GPU 失败后本次启动期间自动改用 CPU。大型模型建议使用 CPU 以降低显存压力。</value></data>
 </root>

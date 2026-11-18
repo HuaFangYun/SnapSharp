@@ -1,5 +1,7 @@
 # 架构与依赖参考
 
+异常捕获、热键单路径与 ONNX 子进程边界见[异常与推理隔离](异常与推理隔离.md)。
+
 > 最后按代码校准：2026-11-18。本文描述实际模块、运行边界与依赖采用规则；功能验收状态集中在路线图。
 
 [文档中心](README.md) · [构建与测试](构建与测试.md) · [功能规格与路线图](<SnapSharp 功能规格与路线图.md>)
@@ -24,7 +26,7 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 | `SnapSharp.Editor` | 编辑状态、对象集合、选择状态、撤销/重做和样式属性 | `Core`、`Imaging` |
 | `SnapSharp.Capture` | GDI、WGC、DXGI/Direct3D 互操作、窗口枚举、滚动采集和坐标映射 | `Core`、`Imaging` |
 | `SnapSharp.Recording` | 录制引擎、设备枚举、录制时钟、编码探测、流式 GIF 编码和输出路径 | `Core`、`Imaging` |
-| `SnapSharp.Recognition` | ONNX CPU / DirectML GPU 推理、PaddleOCR、Windows OCR、条码、抠图与表格导出 | `Core`、`Imaging`、`Plugin.Abstractions` |
+| `SnapSharp.Recognition` | 独立进程 ONNX CPU / DirectML GPU 推理、PaddleOCR、Windows OCR、条码、抠图与表格导出 | `Core`、`Imaging`、`Infrastructure`、`Plugin.Abstractions` |
 | `SnapSharp.Infrastructure` | JSON 设置、PNG 历史、剪贴板适配器和应用数据路径 | `Core`、`Imaging` |
 | `SnapSharp.Plugin.Abstractions` | 图像处理、识别、输出和工作流动作的稳定契约 | 无其他 SnapSharp 项目 |
 | `SnapSharp.PluginHost` | 插件发现、强名称策略、独立加载上下文和能力注册表 | `Plugin.Abstractions` |

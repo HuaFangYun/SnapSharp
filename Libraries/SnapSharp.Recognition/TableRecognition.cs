@@ -16,6 +16,11 @@ public sealed partial class LocalRecognitionService
 
     public async Task<TableResult> RecognizeTable(BitmapSource image, AppSettings settings, CancellationToken token = default)
     {
+        if (!OnnxWorker.IsWorker)
+        {
+            var response = await OnnxWorker.Execute("table", image, settings, token).ConfigureAwait(false);
+            return new TableResult(OnnxWorker.ToDocument(response), response.Cells ?? []);
+        }
         // Finish the structural inference before acquiring the same serial runtime for OCR.
         var structure = await OnnxImageRuntime.Shared.Execute(settings, (models, cancellation) =>
         {

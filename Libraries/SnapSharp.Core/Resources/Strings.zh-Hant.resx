@@ -3890,4 +3890,9 @@ Media Foundation：{2}
 佔用空間：{1}
 
 刪除立即生效，取消設定也不會復原。若無法使用資源回收筒，Windows 可能另外詢問是否刪除。</value></data>
+  <data name="CopyErrorInformation" xml:space="preserve"><value>複製錯誤資訊</value></data>
+  <data name="UnexpectedErrorRecovered" xml:space="preserve"><value>發生意外錯誤。你可以複製診斷資訊用於回報，並嘗試繼續操作。</value></data>
+  <data name="CrashReportWriteFailed" xml:space="preserve"><value>無法儲存診斷記錄，請複製下方資訊。</value></data>
+  <data name="IsolatedInferenceFailed" xml:space="preserve"><value>獨立處理程序中的本機推論失敗。主程式可繼續使用，請檢查模型後重試。</value></data>
+  <data name="GpuCrashRisk" xml:space="preserve"><value>GPU 驅動程式異常可能中斷辨識。推論在獨立處理程序中執行，GPU 失敗後本次啟動期間自動改用 CPU。大型模型建議使用 CPU 以降低顯示記憶體壓力。</value></data>
 </root>

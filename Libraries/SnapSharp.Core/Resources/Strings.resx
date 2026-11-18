@@ -3772,4 +3772,9 @@ Large models may take some time to copy. Existing data in the destination will n
 Size: {1}
 
 This takes effect immediately, even if you cancel Settings. Windows may ask for confirmation if recycling is unavailable.</value></data>
+  <data name="CopyErrorInformation" xml:space="preserve"><value>Copy error information</value></data>
+  <data name="UnexpectedErrorRecovered" xml:space="preserve"><value>An unexpected error occurred. You can copy the diagnostic report for feedback and try to continue.</value></data>
+  <data name="CrashReportWriteFailed" xml:space="preserve"><value>The diagnostic report could not be saved. Copy the information below.</value></data>
+  <data name="IsolatedInferenceFailed" xml:space="preserve"><value>Local inference failed in the isolated process. The application can continue. Check the model and try again.</value></data>
+  <data name="GpuCrashRisk" xml:space="preserve"><value>GPU driver failures may interrupt recognition. Inference runs in an isolated process; GPU failures automatically switch to CPU for this session. CPU uses less GPU memory and is recommended for large models.</value></data>
 </root>

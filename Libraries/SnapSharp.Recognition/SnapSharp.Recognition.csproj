@@ -2,6 +2,7 @@
   <PropertyGroup><UseWPF>true</UseWPF><AssemblyName>SnapSharp.Recognition</AssemblyName><RootNamespace>SnapSharp</RootNamespace></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SnapSharp.Core\SnapSharp.Core.csproj" />
+    <ProjectReference Include="..\SnapSharp.Infrastructure\SnapSharp.Infrastructure.csproj" />
     <ProjectReference Include="..\SnapSharp.Imaging\SnapSharp.Imaging.csproj" />
     <ProjectReference Include="..\SnapSharp.Plugin.Abstractions\SnapSharp.Plugin.Abstractions.csproj" />
     <PackageReference Include="Microsoft.ML.OnnxRuntime.DirectML" Version="1.24.1" />

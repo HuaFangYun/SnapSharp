@@ -3890,4 +3890,9 @@ Kopírování velkých modelů může nějakou dobu trvat. Stávající data v c
 Size: {1}
 
 This takes effect immediately, even if you cancel Settings. Windows may ask for confirmation if recycling is unavailable.</value></data>
+  <data name="CopyErrorInformation" xml:space="preserve"><value>Kopírovat informace o chybě</value></data>
+  <data name="UnexpectedErrorRecovered" xml:space="preserve"><value>Došlo k neočekávané chybě. Zkopírujte diagnostiku pro hlášení a zkuste pokračovat.</value></data>
+  <data name="CrashReportWriteFailed" xml:space="preserve"><value>Diagnostiku nelze uložit. Zkopírujte informace níže.</value></data>
+  <data name="IsolatedInferenceFailed" xml:space="preserve"><value>Místní inference v odděleném procesu selhala. Aplikace může pokračovat. Zkontrolujte model a zkuste to znovu.</value></data>
+  <data name="GpuCrashRisk" xml:space="preserve"><value>Selhání ovladače GPU může přerušit rozpoznávání. Inference běží v odděleném procesu; při selhání GPU se do restartu používá CPU. Pro velké modely doporučujeme CPU.</value></data>
 </root>

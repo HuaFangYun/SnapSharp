@@ -3890,4 +3890,9 @@ Modelos grandes podem levar algum tempo para serem copiados. Os dados existentes
 Size: {1}
 
 This takes effect immediately, even if you cancel Settings. Windows may ask for confirmation if recycling is unavailable.</value></data>
+  <data name="CopyErrorInformation" xml:space="preserve"><value>Copiar informações do erro</value></data>
+  <data name="UnexpectedErrorRecovered" xml:space="preserve"><value>Ocorreu um erro inesperado. Copie o diagnóstico para relatar o problema e tente continuar.</value></data>
+  <data name="CrashReportWriteFailed" xml:space="preserve"><value>Não foi possível salvar o diagnóstico. Copie as informações abaixo.</value></data>
+  <data name="IsolatedInferenceFailed" xml:space="preserve"><value>A inferência local no processo separado falhou. O aplicativo continua disponível. Verifique o modelo e tente novamente.</value></data>
+  <data name="GpuCrashRisk" xml:space="preserve"><value>Falhas no driver da GPU podem interromper o reconhecimento. A inferência usa um processo separado; após uma falha na GPU, a CPU será usada até reiniciar. Recomenda-se CPU para modelos grandes.</value></data>
 </root>

@@ -3890,4 +3890,9 @@ ScreenRecorderLib が含まれています。 NuGet または FFmpeg を個別�
 Size: {1}
 
 This takes effect immediately, even if you cancel Settings. Windows may ask for confirmation if recycling is unavailable.</value></data>
+  <data name="CopyErrorInformation" xml:space="preserve"><value>エラー情報をコピー</value></data>
+  <data name="UnexpectedErrorRecovered" xml:space="preserve"><value>予期しないエラーが発生しました。診断情報をコピーして報告し、操作の続行を試してください。</value></data>
+  <data name="CrashReportWriteFailed" xml:space="preserve"><value>診断情報を保存できませんでした。下の情報をコピーしてください。</value></data>
+  <data name="IsolatedInferenceFailed" xml:space="preserve"><value>独立プロセスでのローカル推論に失敗しました。アプリは引き続き使用できます。モデルを確認して再試行してください。</value></data>
+  <data name="GpuCrashRisk" xml:space="preserve"><value>GPU ドライバーの障害により認識が中断する場合があります。推論は独立プロセスで実行され、GPU 障害後は再起動まで CPU を使用します。大きなモデルには CPU を推奨します。</value></data>
 </root>

@@ -12,8 +12,11 @@ namespace SnapSharp.Services;
 
 public sealed partial class LocalRecognitionService
 {
-    public Task<RecognitionDocument> RecognizeFormula(BitmapSource image, AppSettings settings, CancellationToken token = default) =>
-        OnnxImageRuntime.Shared.Execute(settings, (models, cancellation) =>
+    public async Task<RecognitionDocument> RecognizeFormula(BitmapSource image, AppSettings settings, CancellationToken token = default)
+    {
+        if (!OnnxWorker.IsWorker)
+            return OnnxWorker.ToDocument(await OnnxWorker.Execute("formula", image, settings, token).ConfigureAwait(false));
+        return await OnnxImageRuntime.Shared.Execute(settings, (models, cancellation) =>
         {
             OnnxImageRuntime.ValidateImage(image);
             var directory = settings.FormulaModelDirectory;
@@ -73,7 +76,8 @@ public sealed partial class LocalRecognitionService
             if (string.IsNullOrWhiteSpace(latex)) throw new InvalidDataException(L.Get("NoFormulaRecognizedSelectASingleClear"));
             return new RecognitionDocument([new RecognizedBlock(latex, new Rect(0, 0, image.PixelWidth, image.PixelHeight), Kind: "latex")],
                 L.Get("LocalLaTeXOCRONNX") + models.DeviceLabel);
-        }, token);
+        }, token).ConfigureAwait(false);
+    }
 
     private static int ArgMax(ReadOnlySpan<float> values)
     {

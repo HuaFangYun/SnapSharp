@@ -3890,4 +3890,9 @@ Büyük modellerin kopyalanması biraz zaman alabilir. Hedefteki mevcut verileri
 Size: {1}
 
 This takes effect immediately, even if you cancel Settings. Windows may ask for confirmation if recycling is unavailable.</value></data>
+  <data name="CopyErrorInformation" xml:space="preserve"><value>Hata bilgilerini kopyala</value></data>
+  <data name="UnexpectedErrorRecovered" xml:space="preserve"><value>Beklenmeyen bir hata oluştu. Tanılama raporunu kopyalayın ve devam etmeyi deneyin.</value></data>
+  <data name="CrashReportWriteFailed" xml:space="preserve"><value>Tanılama raporu kaydedilemedi. Aşağıdaki bilgileri kopyalayın.</value></data>
+  <data name="IsolatedInferenceFailed" xml:space="preserve"><value>Ayrı işlemdeki yerel çıkarım başarısız oldu. Uygulama kullanılabilir. Modeli kontrol edip yeniden deneyin.</value></data>
+  <data name="GpuCrashRisk" xml:space="preserve"><value>GPU sürücüsü hataları tanımayı kesintiye uğratabilir. Çıkarım ayrı bir işlemde çalışır; GPU hatasından sonra yeniden başlatılana kadar CPU kullanılır. Büyük modeller için CPU önerilir.</value></data>
 </root>

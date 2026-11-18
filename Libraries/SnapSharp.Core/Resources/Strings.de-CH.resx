@@ -3890,4 +3890,9 @@ Das Kopieren großer Modelle kann einige Zeit in Anspruch nehmen. Vorhandene Dat
 Size: {1}
 
 This takes effect immediately, even if you cancel Settings. Windows may ask for confirmation if recycling is unavailable.</value></data>
+  <data name="CopyErrorInformation" xml:space="preserve"><value>Fehlerinformationen kopieren</value></data>
+  <data name="UnexpectedErrorRecovered" xml:space="preserve"><value>Ein unerwarteter Fehler ist aufgetreten. Kopieren Sie den Diagnosebericht und versuchen Sie fortzufahren.</value></data>
+  <data name="CrashReportWriteFailed" xml:space="preserve"><value>Der Diagnosebericht konnte nicht gespeichert werden. Kopieren Sie die folgenden Informationen.</value></data>
+  <data name="IsolatedInferenceFailed" xml:space="preserve"><value>Die lokale Inferenz im separaten Prozess ist fehlgeschlagen. Die Anwendung bleibt nutzbar. Prüfen Sie das Modell und versuchen Sie es erneut.</value></data>
+  <data name="GpuCrashRisk" xml:space="preserve"><value>GPU-Treiberfehler können die Erkennung unterbrechen. Die Inferenz läuft in einem separaten Prozess; bei GPU-Fehlern wird bis zum Neustart die CPU verwendet. Für große Modelle wird die CPU empfohlen.</value></data>
 </root>

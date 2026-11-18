@@ -1,7 +1,7 @@
 using L = SnapSharp.Localization.UiText;
 using SnapSharp.Models;
 using SnapSharp.Native;
-using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Windows.Threading;
 
@@ -16,8 +16,12 @@ public sealed class GlobalHotkeyHost : IDisposable
     private readonly DispatcherTimer _keyStateTimer;
     private Dictionary<int, (GlobalAction Action, HotkeyGesture Gesture)> _registered = [];
     private readonly Dictionary<int, bool> _keyStates = [];
-    private long _lastTrigger;
+    private readonly HashSet<int> _fallbackIds = [];
+    private readonly HashSet<GlobalAction> _activeActions = [];
     private bool _suspended;
+    private readonly Func<uint, bool> _isKeyDown;
+    private readonly Func<int, uint, uint, bool> _register;
+    private readonly Action<int> _unregister;
 
     public event EventHandler<CaptureModeEventArgs>? CaptureRequested;
     public event EventHandler? ScreenRulerRequested;
@@ -27,19 +31,24 @@ public sealed class GlobalHotkeyHost : IDisposable
     {
         if (_suspended) return;
         _suspended = true;
-        foreach (var id in _registered.Keys) NativeMethods.UnregisterHotKey(nint.Zero, id);
+        foreach (var id in _registered.Keys.Except(_fallbackIds)) _unregister(id);
+        _keyStateTimer.Stop();
     }
     public void Resume()
     {
         if (!_suspended) return;
         RegisterAll(_registered);
-        _keyStates.Clear();
-        foreach (var (id, registration) in _registered) _keyStates[id] = IsKeyDown(registration.Gesture.VirtualKey);
         _suspended = false;
     }
 
-    public GlobalHotkeyHost()
+    public GlobalHotkeyHost() : this(
+        key => (NativeMethods.GetAsyncKeyState((int)key) & 0x8000) != 0,
+        (id, modifiers, key) => NativeMethods.RegisterHotKey(nint.Zero, id, modifiers, key),
+        id => NativeMethods.UnregisterHotKey(nint.Zero, id)) { }
+
+    internal GlobalHotkeyHost(Func<uint, bool> keyDown, Func<int, uint, uint, bool> register, Action<int> unregister)
     {
+        _isKeyDown = keyDown; _register = register; _unregister = unregister;
         _messageHandler = OnThreadMessage;
         ComponentDispatcher.ThreadFilterMessage += _messageHandler;
         _keyStateTimer = new DispatcherTimer(DispatcherPriority.Input)
@@ -47,35 +56,14 @@ public sealed class GlobalHotkeyHost : IDisposable
             Interval = TimeSpan.FromMilliseconds(25)
         };
         _keyStateTimer.Tick += PollPhysicalKeys;
-        _keyStateTimer.Start();
     }
 
     public void Register(AppSettings settings)
     {
         var desired = CreateRegistrations(settings);
-        var previous = _registered.ToDictionary(x => x.Key, x => x.Value);
         UnregisterAll();
-        try
-        {
-            RegisterAll(desired);
-            _registered = desired;
-            _keyStates.Clear();
-            WriteStatus("registered");
-        }
-        catch
-        {
-            UnregisterAll();
-            if (previous.Count > 0)
-            {
-                RegisterAll(previous);
-                _registered = previous;
-            }
-            throw;
-        }
-        finally
-        {
-            if (_suspended) foreach (var id in _registered.Keys) NativeMethods.UnregisterHotKey(nint.Zero, id);
-        }
+        _registered = desired;
+        if (!_suspended) RegisterAll(desired);
     }
 
     internal static Dictionary<int, (GlobalAction Action, HotkeyGesture Gesture)> CreateRegistrations(AppSettings settings)
@@ -101,18 +89,23 @@ public sealed class GlobalHotkeyHost : IDisposable
 
     private void RegisterAll(Dictionary<int, (GlobalAction Action, HotkeyGesture Gesture)> registrations)
     {
-        var registeredIds = new List<int>();
+        _fallbackIds.Clear();
+        _keyStates.Clear();
+        _activeActions.Clear();
         foreach (var (id, registration) in registrations)
         {
-            if (!NativeMethods.RegisterHotKey(nint.Zero, id,
-                    registration.Gesture.Modifiers, registration.Gesture.VirtualKey))
+            if (!_register(id,
+                    registration.Gesture.Modifiers | NativeMethods.ModNoRepeat, registration.Gesture.VirtualKey))
             {
-                foreach (var registeredId in registeredIds)
-                    NativeMethods.UnregisterHotKey(nint.Zero, registeredId);
-                throw new Win32Exception(L.Format("CouldNotRegisterGlobalShortcut0Another", registration.Gesture.DisplayText));
+                var error = Marshal.GetLastWin32Error();
+                _fallbackIds.Add(id);
+                _keyStates[id] = _isKeyDown(registration.Gesture.VirtualKey);
+                WriteStatus($"fallback id={id} action={registration.Action} gesture={registration.Gesture.DisplayText} error={error}");
             }
-            registeredIds.Add(id);
+            else WriteStatus($"registered id={id} action={registration.Action} via WM_HOTKEY");
         }
+        if (_fallbackIds.Count > 0) _keyStateTimer.Start();
+        else _keyStateTimer.Stop();
     }
 
     private static HotkeyGesture Parse(string text, string label)
@@ -124,6 +117,7 @@ public sealed class GlobalHotkeyHost : IDisposable
     private void OnThreadMessage(ref MSG message, ref bool handled)
     {
         if (!_suspended && message.message == NativeMethods.WmHotKey &&
+            !_fallbackIds.Contains(message.wParam.ToInt32()) &&
             _registered.TryGetValue(message.wParam.ToInt32(), out var registration))
         {
             handled = true;
@@ -134,28 +128,33 @@ public sealed class GlobalHotkeyHost : IDisposable
     private void PollPhysicalKeys(object? sender, EventArgs e)
     {
         if (_suspended) return;
-        foreach (var (id, registration) in _registered)
+        foreach (var id in _fallbackIds)
         {
-            var down = IsKeyDown(registration.Gesture.VirtualKey) &&
+            var registration = _registered[id];
+            var down = _isKeyDown(registration.Gesture.VirtualKey) &&
                        AreModifiersDown(registration.Gesture.Modifiers);
             var wasDown = _keyStates.GetValueOrDefault(id);
-            _keyStates[id] = down;
-            if (down && !wasDown) Trigger(registration.Action, "physical fallback");
+            // Rearm only on primary-key release, not on modifier changes while held.
+            if (!_isKeyDown(registration.Gesture.VirtualKey)) _keyStates[id] = false;
+            else if (down && !wasDown) { _keyStates[id] = true; Trigger(registration.Action, "physical fallback"); }
+            else _keyStates[id] = wasDown;
         }
     }
 
     private void Trigger(GlobalAction action, string source)
     {
         if (_suspended) return;
-        var now = Environment.TickCount64;
-        if (now - Interlocked.Read(ref _lastTrigger) < 250) return;
-        Interlocked.Exchange(ref _lastTrigger, now);
-        WriteStatus($"received {action} via {source}");
-        if (action is GlobalAction.Region or GlobalAction.FullScreen or GlobalAction.ActiveWindow)
-            CaptureRequested?.Invoke(this, new CaptureModeEventArgs(action switch
-            { GlobalAction.Region => CaptureMode.Region, GlobalAction.FullScreen => CaptureMode.FullScreen, _ => CaptureMode.ActiveWindow }));
-        else if (action == GlobalAction.ScreenRuler) ScreenRulerRequested?.Invoke(this, EventArgs.Empty);
-        else PinActionRequested?.Invoke(action);
+        if (!_activeActions.Add(action)) return;
+        try
+        {
+            WriteStatus($"received {action} via {source}");
+            if (action is GlobalAction.Region or GlobalAction.FullScreen or GlobalAction.ActiveWindow)
+                CaptureRequested?.Invoke(this, new CaptureModeEventArgs(action switch
+                { GlobalAction.Region => CaptureMode.Region, GlobalAction.FullScreen => CaptureMode.FullScreen, _ => CaptureMode.ActiveWindow }));
+            else if (action == GlobalAction.ScreenRuler) ScreenRulerRequested?.Invoke(this, EventArgs.Empty);
+            else PinActionRequested?.Invoke(action);
+        }
+        finally { _activeActions.Remove(action); }
     }
 
     internal static bool RunPinRoutingSelfTest()
@@ -166,12 +165,12 @@ public sealed class GlobalHotkeyHost : IDisposable
         host.CaptureRequested += (_, e) => captures.Add(e.Mode);
         host.PinActionRequested += pins.Add;
         host.ScreenRulerRequested += (_, _) => rulers++;
-        foreach (var action in Enum.GetValues<GlobalAction>()) { host._lastTrigger = 0; host.Trigger(action, "self-test"); }
+        foreach (var action in Enum.GetValues<GlobalAction>()) { host.Trigger(action, "self-test"); }
         if (rulers != 1 || !captures.SequenceEqual(new[] { CaptureMode.Region, CaptureMode.FullScreen, CaptureMode.ActiveWindow }) ||
             !pins.SequenceEqual(new[] { GlobalAction.ClipboardPin, GlobalAction.TogglePins, GlobalAction.RestorePin, GlobalAction.RestoreInteraction })) return false;
-        host.Suspend(); host._lastTrigger = 0; host.Trigger(GlobalAction.ClipboardPin, "self-test-suspended");
+        host.Suspend(); host.Trigger(GlobalAction.ClipboardPin, "self-test-suspended");
         if (pins.Count != 4) return false;
-        host.Resume(); host._lastTrigger = 0; host.Trigger(GlobalAction.ClipboardPin, "self-test-resumed");
+        host.Resume(); host.Trigger(GlobalAction.ClipboardPin, "self-test-resumed");
         if (pins.Count != 5) return false;
         var settings = new AppSettings();
         if (CreateRegistrations(settings).Count != 5) return false;
@@ -183,20 +182,21 @@ public sealed class GlobalHotkeyHost : IDisposable
         return CreateRegistrations(settings).Count == 0;
     }
 
-    private static bool AreModifiersDown(uint modifiers) =>
-        ((modifiers & NativeMethods.ModControl) != 0) == IsKeyDown(0x11) &&
-        ((modifiers & NativeMethods.ModShift) != 0) == IsKeyDown(0x10) &&
-        ((modifiers & NativeMethods.ModAlt) != 0) == IsKeyDown(0x12) &&
-        ((modifiers & NativeMethods.ModWin) != 0) == (IsKeyDown(0x5B) || IsKeyDown(0x5C));
-
-    private static bool IsKeyDown(uint virtualKey) =>
-        (NativeMethods.GetAsyncKeyState((int)virtualKey) & 0x8000) != 0;
+    private bool AreModifiersDown(uint modifiers) =>
+        ((modifiers & NativeMethods.ModControl) != 0) == _isKeyDown(0x11) &&
+        ((modifiers & NativeMethods.ModShift) != 0) == _isKeyDown(0x10) &&
+        ((modifiers & NativeMethods.ModAlt) != 0) == _isKeyDown(0x12) &&
+        ((modifiers & NativeMethods.ModWin) != 0) == (_isKeyDown(0x5B) || _isKeyDown(0x5C));
 
     private void UnregisterAll()
     {
-        foreach (var id in _registered.Keys)
-            NativeMethods.UnregisterHotKey(nint.Zero, id);
+        foreach (var id in _registered.Keys.Except(_fallbackIds))
+            _unregister(id);
         _registered.Clear();
+        _fallbackIds.Clear();
+        _keyStates.Clear();
+        _activeActions.Clear();
+        _keyStateTimer.Stop();
     }
 
     public void Dispose()
@@ -211,9 +211,9 @@ public sealed class GlobalHotkeyHost : IDisposable
     {
         try
         {
-            Directory.CreateDirectory(AppPaths.Root);
-            File.WriteAllText(Path.Combine(AppPaths.Root, "hotkey-status.log"),
-                $"{DateTimeOffset.Now:O} {status}");
+            Directory.CreateDirectory(AppPaths.DiagnosticsRoot);
+            File.AppendAllText(Path.Combine(AppPaths.DiagnosticsRoot, "hotkey-status.log"),
+                $"{DateTimeOffset.Now:O} {status}{Environment.NewLine}");
         }
         catch { }
     }

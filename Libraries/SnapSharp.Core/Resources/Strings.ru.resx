@@ -3890,4 +3890,9 @@ ScreenRecorderLib включен. Никакой отдельной устано
 Size: {1}
 
 This takes effect immediately, even if you cancel Settings. Windows may ask for confirmation if recycling is unavailable.</value></data>
+  <data name="CopyErrorInformation" xml:space="preserve"><value>Копировать сведения об ошибке</value></data>
+  <data name="UnexpectedErrorRecovered" xml:space="preserve"><value>Произошла непредвиденная ошибка. Скопируйте диагностический отчёт и попробуйте продолжить.</value></data>
+  <data name="CrashReportWriteFailed" xml:space="preserve"><value>Не удалось сохранить отчёт. Скопируйте сведения ниже.</value></data>
+  <data name="IsolatedInferenceFailed" xml:space="preserve"><value>Локальный вывод в отдельном процессе завершился ошибкой. Приложение продолжает работать. Проверьте модель и повторите попытку.</value></data>
+  <data name="GpuCrashRisk" xml:space="preserve"><value>Сбой драйвера GPU может прервать распознавание. Вывод выполняется в отдельном процессе; после сбоя GPU до перезапуска используется CPU. Для больших моделей рекомендуется CPU.</value></data>
 </root>
