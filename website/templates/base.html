@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="$lang" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8faff">
+  <meta name="description" content="$description">
+  $robots
+  <meta name="color-scheme" content="light">
+  <title>$title</title>
+  <link rel="canonical" href="$canonical">
+  $alternates
+  <meta property="og:type" content="$og_type">
+  <meta property="og:site_name" content="SnapSharp">
+  <meta property="og:locale" content="$og_locale">
+  <meta property="og:title" content="$title">
+  <meta property="og:description" content="$description">
+  <meta property="og:url" content="$canonical">
+  <meta property="og:image" content="$social_image">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="$social_alt">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="$title">
+  <meta name="twitter:description" content="$description">
+  <meta name="twitter:image" content="$social_image">
+  <link rel="icon" href="$asset_root/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="$asset_root/apple-touch-icon.png">
+  <link rel="stylesheet" href="$asset_root/site.css">
+  <script src="$asset_root/site.js" defer></script>
+  <script type="application/ld+json">$structured_data</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">$skip</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="$home" aria-label="SnapSharp $home_label"><img src="$asset_root/logo.png" width="32" height="32" alt=""><span>SnapSharp</span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">$menu <span aria-hidden="true">☰</span></button>
+      <nav id="navigation" aria-label="$navigation_label">$navigation</nav>
+    </div>
+  </header>
+  <main id="main">$body</main>
+  <footer class="site-footer">
+    <div class="container footer-top"><div><a class="brand" href="$home"><img src="$asset_root/logo.png" width="28" height="28" alt=""><span>SnapSharp</span></a><p>$footer_tagline</p></div><div class="footer-links">$footer_links</div></div>
+    <div class="container footer-bottom"><span>© 2026 SnapSharp contributors · Apache-2.0</span><span>$footer_note</span></div>
+  </footer>
+  <dialog class="image-dialog" aria-label="$image_dialog_label"><button type="button" class="dialog-close" aria-label="$close_label">×</button><img width="1770" height="1245" alt=""><p></p></dialog>
+</body>
+</html>

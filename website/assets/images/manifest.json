@@ -1,0 +1,56 @@
+{
+  "annotation": {
+    "width": 1770,
+    "height": 1245,
+    "widths": [
+      640,
+      1280
+    ],
+    "source": "Screenshot/Blog/01-annotation-editor.png"
+  },
+  "ocr": {
+    "width": 1770,
+    "height": 1230,
+    "widths": [
+      640,
+      1280
+    ],
+    "source": "Screenshot/Blog/14-ai-ocr-chinese.png"
+  },
+  "table": {
+    "width": 1770,
+    "height": 1230,
+    "widths": [
+      640,
+      1280
+    ],
+    "source": "Screenshot/Blog/16-ai-table-recognition.png"
+  },
+  "formula": {
+    "width": 1770,
+    "height": 1230,
+    "widths": [
+      640,
+      1280
+    ],
+    "source": "Screenshot/Blog/17-ai-formula-latex.png"
+  },
+  "cutout": {
+    "width": 1500,
+    "height": 1260,
+    "widths": [
+      640,
+      1280
+    ],
+    "source": "Screenshot/Blog/19-ai-cutout-comparison.png"
+  },
+  "pins": {
+    "width": 1600,
+    "height": 1050,
+    "widths": [
+      640,
+      1280
+    ],
+    "source": "Screenshot/Blog/12-pin-workspace.png"
+  }
+}

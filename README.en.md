@@ -2,7 +2,7 @@
 
 [简体中文](README.md) | **English**
 
-Repositories: [GitHub](https://github.com/leelongjiang/SnapSharp) | [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [Download releases](https://github.com/leelongjiang/SnapSharp/releases) · [Full user guide](docs/UserGuide.en.md)
+Repositories: [GitHub](https://github.com/leelongjiang/SnapSharp) | [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [Website](https://leelongjiang.github.io/SnapSharp/en/) · [Download releases](https://github.com/leelongjiang/SnapSharp/releases) · [Full user guide](docs/UserGuide.en.md)
 
 Writing a tutorial means marking the important parts of a screenshot. Reading a document may call for extracting and translating its text. Preparing images may involve removing a background, stitching a long page, or recording a short demonstration. SnapSharp brings these tasks together in one Windows tool.
 

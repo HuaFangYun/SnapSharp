@@ -68,3 +68,7 @@ Desktop.ini
 .DS_Store
 *.zip
 AGENTS.md
+
+# Python website tools
+**/__pycache__/
+*.pyc
