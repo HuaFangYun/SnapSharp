@@ -3873,4 +3873,21 @@ Os modelos grandes podem levar algum tempo para serem copiados. Os dados existen
   <data name="DesktopRulerDistanceCopy" xml:space="preserve"><value>Δx: {0} px, Δy: {1} px, distância: {2} px</value></data>
   <data name="DesktopRulerCopied" xml:space="preserve"><value>Copiado: {0}</value></data>
   <data name="DesktopRulerCopyBusy" xml:space="preserve"><value>A área de transferência está ocupada. Tente novamente com Ctrl+C.</value></data>
+  <data name="ModelStorageTitle" xml:space="preserve"><value>Manage downloaded models</value></data>
+  <data name="ModelStorageHint" xml:space="preserve"><value>Review model folders and files in the current data folder. Saved and unsaved model paths are protected, including every cutout model. Unreferenced items may still be useful; check before deleting. Changes take effect immediately.</value></data>
+  <data name="ModelStorageReferenced" xml:space="preserve"><value>Referenced by settings · protected</value></data>
+  <data name="ModelStorageUnreferenced" xml:space="preserve"><value>Not referenced by current settings</value></data>
+  <data name="ModelStorageUnavailable" xml:space="preserve"><value>Contains links or cannot be read · deletion blocked</value></data>
+  <data name="ModelStorageOutsideRoot" xml:space="preserve"><value>Only items inside the current model folder can be deleted.</value></data>
+  <data name="ModelStorageRefresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="ModelStorageOpen" xml:space="preserve"><value>Show in folder</value></data>
+  <data name="ModelStorageDelete" xml:space="preserve"><value>Move to Recycle Bin…</value></data>
+  <data name="ModelStorageScanning" xml:space="preserve"><value>Calculating model storage…</value></data>
+  <data name="ModelStorageCount" xml:space="preserve"><value>{0} items. Select an item to review or delete it.</value></data>
+  <data name="ModelStorageConfirm" xml:space="preserve"><value>Move this item and all its contents to the Recycle Bin?
+
+{0}
+Size: {1}
+
+This takes effect immediately, even if you cancel Settings. Windows may ask for confirmation if recycling is unavailable.</value></data>
 </root>

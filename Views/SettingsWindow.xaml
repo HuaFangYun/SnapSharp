@@ -72,6 +72,7 @@
           <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:UseExecutableDirectory}" Click="DefaultDataDirectory_Click" HorizontalAlignment="Left" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DataDirectoryHint}" Style="{StaticResource Hint}" />
           <TextBlock x:Name="ActiveDataDirectory" Style="{StaticResource Hint}" />
+          <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ModelStorageTitle}" Click="ManageModelStorage_Click" HorizontalAlignment="Left" Margin="0,0,0,12" IsEnabled="{Binding DownloadSourceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" />
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Capture}" Tag="Camera"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">

@@ -154,6 +154,22 @@ public partial class SettingsWindow : Window
     }
     private void DefaultDataDirectory_Click(object sender, RoutedEventArgs e) =>
         DataDirectory.Text = AppPaths.DataLocation.DefaultDirectory;
+
+    private void ManageModelStorage_Click(object sender, RoutedEventArgs e)
+    {
+        if (ModelDownload is not null) return;
+        var dialog = new ModelStorageWindow(Path.Combine(AppPaths.Root, "models"), ModelStorageReferences);
+        WindowDialogService.ShowDialog(dialog, this);
+    }
+
+    private IReadOnlyCollection<string> ModelStorageReferences() =>
+        ModelPathService.ConfiguredPaths(_settings.Current)
+            .Concat(_cutoutModels.Values.Select(model => model.Path))
+            .Concat(new[] { OcrDetPath.Text, OcrRecPath.Text, OcrDictPath.Text, TesseractDirectory.Text,
+                CutoutPath.Text, TableModelPath.Text, FormulaDirectory.Text,
+                LocalTranslationModelPath.Text, LocalTranslationRuntimePath.Text })
+            .Where(path => !string.IsNullOrWhiteSpace(path)).Select(_settings.ResolveModelPath)
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
     private void RecordingBrowse_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { InitialDirectory = RecordingSaveDirectory.Text, Title = L.Get("RecordingSaveFolder") };

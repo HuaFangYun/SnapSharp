@@ -3873,4 +3873,21 @@ Media Foundation：{2}
   <data name="DesktopRulerDistanceCopy" xml:space="preserve"><value>Δx：{0} px，Δy：{1} px，距離：{2} px</value></data>
   <data name="DesktopRulerCopied" xml:space="preserve"><value>已複製：{0}</value></data>
   <data name="DesktopRulerCopyBusy" xml:space="preserve"><value>剪貼簿忙碌中，請按 Ctrl+C 重試。</value></data>
+  <data name="ModelStorageTitle" xml:space="preserve"><value>管理已下載模型</value></data>
+  <data name="ModelStorageHint" xml:space="preserve"><value>列出目前資料目錄中的模型資料夾和檔案。已儲存及尚未儲存的模型路徑均受保護，包括所有去背模型。未引用不代表無用，請核對後刪除；刪除立即生效。</value></data>
+  <data name="ModelStorageReferenced" xml:space="preserve"><value>設定已引用 · 不可刪除</value></data>
+  <data name="ModelStorageUnreferenced" xml:space="preserve"><value>目前設定未引用</value></data>
+  <data name="ModelStorageUnavailable" xml:space="preserve"><value>含連結或無法讀取 · 不可刪除</value></data>
+  <data name="ModelStorageOutsideRoot" xml:space="preserve"><value>只能刪除目前模型目錄內的項目。</value></data>
+  <data name="ModelStorageRefresh" xml:space="preserve"><value>重新整理</value></data>
+  <data name="ModelStorageOpen" xml:space="preserve"><value>開啟所在位置</value></data>
+  <data name="ModelStorageDelete" xml:space="preserve"><value>移到資源回收筒…</value></data>
+  <data name="ModelStorageScanning" xml:space="preserve"><value>正在統計模型佔用空間…</value></data>
+  <data name="ModelStorageCount" xml:space="preserve"><value>共 {0} 項。選擇一項可查看位置或刪除。</value></data>
+  <data name="ModelStorageConfirm" xml:space="preserve"><value>是否將此項目及全部內容移到資源回收筒？
+
+{0}
+佔用空間：{1}
+
+刪除立即生效，取消設定也不會復原。若無法使用資源回收筒，Windows 可能另外詢問是否刪除。</value></data>
 </root>

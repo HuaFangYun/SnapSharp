@@ -32,11 +32,13 @@ internal static partial class Program
         Directory.CreateDirectory(Root);
         try
         {
+            if (args.Contains("--model-storage-only")) { ModelStorageChecks(); return 0; }
             if (args.Contains("--recording-only")) { RecordingChecks(); return 0; }
             AppUpdateChecks().GetAwaiter().GetResult();
             if (args.Contains("--updates-only")) return 0;
             DataDirectoryChecks();
             PortableModelPathChecks();
+            ModelStorageChecks();
             if (args.Contains("--data-directory-only")) return 0;
             DownloadChecks().GetAwaiter().GetResult();
             DownloadSourceChecks().GetAwaiter().GetResult();

@@ -42,6 +42,10 @@ public static class ModelPathService
             if (model is not null) model.Path = Resolve(model.Path, executableDirectory);
     }
 
+    public static IEnumerable<string> ConfiguredPaths(AppSettings settings) =>
+        Properties.Select(property => (string?)property.GetValue(settings) ?? "")
+            .Concat(settings.CutoutModels.Values.Where(model => model is not null).Select(model => model.Path));
+
     // Work on the serialized snapshot so saving never changes paths used by active inference.
     internal static void Transform(JsonObject settings, Func<string, string> transform)
     {
