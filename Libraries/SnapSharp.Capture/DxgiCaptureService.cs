@@ -54,28 +54,7 @@ public sealed class DxgiCaptureService : ICaptureService
         return captures;
     }
 
-    public CapturedScreen CaptureVirtualScreen()
-    {
-        var screens = CaptureAllScreens();
-        var bounds = DisplayMonitorService.GetVirtualBounds();
-        var stride = checked(bounds.Width * 4);
-        var pixels = GC.AllocateUninitializedArray<byte>(checked(stride * bounds.Height));
-        MakeOpaque(pixels);
-        foreach (var screen in screens)
-        {
-            var sourceStride = screen.Image.PixelWidth * 4;
-            var source = GC.AllocateUninitializedArray<byte>(checked(sourceStride * screen.Image.PixelHeight));
-            screen.Image.CopyPixels(source, sourceStride, 0);
-            var destinationX = screen.Bounds.Left - bounds.Left;
-            var destinationY = screen.Bounds.Top - bounds.Top;
-            for (var row = 0; row < screen.Image.PixelHeight; row++)
-                Buffer.BlockCopy(source, row * sourceStride, pixels,
-                    (destinationY + row) * stride + destinationX * 4, sourceStride);
-        }
-        var image = BitmapSource.Create(bounds.Width, bounds.Height, 96, 96, PixelFormats.Bgra32, null, pixels, stride);
-        image.Freeze();
-        return new CapturedScreen(bounds, image);
-    }
+    public CapturedScreen CaptureVirtualScreen() => DesktopCaptureComposer.Compose(CaptureAllScreens());
 
     public BitmapSource CaptureRegion(Rectangle bounds)
     {

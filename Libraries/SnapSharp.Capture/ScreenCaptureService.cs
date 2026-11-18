@@ -134,7 +134,10 @@ public sealed class ScreenCaptureService(bool includeCursor = false) : ICaptureS
 
 internal static class DisplayMonitorService
 {
-    internal sealed record Monitor(nint Handle, Rectangle Bounds);
+    internal sealed record Monitor(nint Handle, Rectangle Bounds, uint DpiX, uint DpiY, bool DpiKnown)
+    {
+        internal MonitorGeometry Geometry => new(Bounds, DpiX, DpiY);
+    }
 
     internal static IReadOnlyList<Monitor> Enumerate()
     {
@@ -142,13 +145,38 @@ internal static class DisplayMonitorService
         if (!NativeMethods.EnumDisplayMonitors(nint.Zero, nint.Zero,
             (nint monitor, nint _, ref NativeMethods.Rect rect, nint _) =>
             {
-                monitors.Add(new Monitor(monitor, Rectangle.FromLTRB(rect.Left, rect.Top, rect.Right, rect.Bottom)));
+                var dpi = ReadDpi(monitor);
+                monitors.Add(new Monitor(monitor, Rectangle.FromLTRB(rect.Left, rect.Top, rect.Right, rect.Bottom),
+                    dpi.X, dpi.Y, dpi.Known));
                 return true;
             }, nint.Zero))
             throw new Win32Exception(Marshal.GetLastWin32Error(), "EnumDisplayMonitors failed.");
         if (monitors.Count == 0) throw new InvalidOperationException("Windows reported no active displays.");
         return monitors;
     }
+
+    private static (uint X, uint Y, bool Known) ReadDpi(nint monitor)
+    {
+        // Query in a temporary per-monitor context; restore it before any WPF work.
+        // Desktop rectangles themselves remain physical pixels.
+        var previous = SetThreadDpiAwarenessContext(new nint(-3));
+        try
+        {
+            if (GetDpiForMonitor(monitor, 0, out var x, out var y) == 0 && x > 0 && y > 0)
+                return (x, y, true);
+            if (GetScaleFactorForMonitor(monitor, out var percent) == 0 && percent > 0)
+            {
+                var dpi = (uint)Math.Round(96d * percent / 100);
+                return (dpi, dpi, true);
+            }
+            return (96, 96, false);
+        }
+        finally { if (previous != 0) SetThreadDpiAwarenessContext(previous); }
+    }
+
+    [DllImport("shcore.dll")] private static extern int GetDpiForMonitor(nint monitor, int kind, out uint x, out uint y);
+    [DllImport("shcore.dll")] private static extern int GetScaleFactorForMonitor(nint monitor, out int scale);
+    [DllImport("user32.dll")] private static extern nint SetThreadDpiAwarenessContext(nint context);
 
     internal static IReadOnlyList<Rectangle> EnumerateBounds()
         => Enumerate().Select(x => x.Bounds).ToArray();

@@ -38,22 +38,7 @@ public sealed class WgcCaptureService : ICaptureService
             .ToArray();
     }
 
-    public CapturedScreen CaptureVirtualScreen()
-    {
-        var screens = CaptureAllScreens();
-        var bounds = DisplayMonitorService.GetVirtualBounds();
-        using var surface = SKSurface.Create(new SKImageInfo(bounds.Width, bounds.Height,
-            SKColorType.Bgra8888, SKAlphaType.Opaque));
-        surface.Canvas.Clear(SKColors.Black);
-        foreach (var screen in screens)
-        {
-            using var bitmap = _images.ToSkBitmap(screen.Image);
-            surface.Canvas.DrawBitmap(bitmap, screen.Bounds.Left - bounds.Left, screen.Bounds.Top - bounds.Top);
-        }
-        surface.Canvas.Flush();
-        using var image = surface.Snapshot();
-        return new CapturedScreen(bounds, _images.ToBitmapSource(image));
-    }
+    public CapturedScreen CaptureVirtualScreen() => DesktopCaptureComposer.Compose(CaptureAllScreens());
 
     public BitmapSource CaptureRegion(Rectangle bounds)
     {

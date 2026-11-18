@@ -44,7 +44,8 @@ public sealed class CaptureCoordinator
             return;
         }
 
-        var screens = _captureService.CaptureAllScreens();
+        // One physical-pixel desktop and one HWND keep mouse capture continuous across DPI/GPU boundaries.
+        var screens = new[] { _captureService.CaptureVirtualScreen() };
         var candidates = _captureService.EnumerateTopLevelWindows();
         foreach (var screen in screens)
         {

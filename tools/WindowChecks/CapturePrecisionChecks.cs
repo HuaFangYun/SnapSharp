@@ -21,7 +21,7 @@ internal static partial class Program
         var originalCursor = System.Windows.Forms.Cursor.Position;
         try
         {
-            foreach (var scale in new[] { 1d, 1.5, 2d })
+            foreach (var scale in new[] { 1d, 1.25, 1.5, 1.75, 2d })
             {
                 var overlay = new SelectionWindow(screen, [], new PrecisionCapture());
                 try
@@ -138,7 +138,7 @@ internal static partial class Program
                 SavePreview((FrameworkElement)ruler.Content, Path.Combine(Root, "screen-ruler.png"));
             }
             finally { ruler.Close(); }
-            Console.WriteLine("PASS: capture shape/ratio switching; pointer/selection movement and resizing at 100%, 150%, 200%; edge clamping; keyboard snap bypass; capture and desktop rulers.");
+            Console.WriteLine("PASS: capture shape/ratio switching; pointer/selection movement and resizing at 100/125/150/175/200%; edge clamping; keyboard snap bypass; capture and desktop rulers.");
             Console.WriteLine("PASS: desktop ruler has an inset zero; scale bands excluded from physical pixel measurements; zero/readout stable after moving and resizing; endpoint distances match effective dimensions.");
             Console.WriteLine("Previews: " + Root);
         }

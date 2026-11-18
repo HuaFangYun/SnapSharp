@@ -1,5 +1,18 @@
 # Window layering checks
 
+Mixed DPI coordinates, portrait rotation, synthetic adapter composition, cross-screen
+production crop, five-scale pixel nudging and guide persistence (no desktop capture):
+
+```powershell
+dotnet run --project tools/WindowChecks/WindowChecks.csproj -c Release -p:Platform=x64 -- --dpi-only
+```
+
+This checks all 25 ordered pairs of 100/125/150/175/200% scaling in landscape/portrait
+and positive/negative desktop origins, DXGI 90/180/270 degree rotation, exact output
+buffer composition and a single continuous selection overlay. `monitor-dpi.txt` records
+only local display bounds and effective DPI. Synthetic adapters do not establish
+Intel/AMD/NVIDIA driver compatibility; physical mixed-monitor dragging remains manual.
+
 Run from the repository root on Windows:
 
 ```powershell

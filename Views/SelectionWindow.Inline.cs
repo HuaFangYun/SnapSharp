@@ -20,6 +20,7 @@ public partial class SelectionWindow : Window
     private enum OverlayMode { Region, Window, FullScreen, Element }
 
     private readonly CapturedScreen _screen;
+    private readonly Rectangle[] _displayBounds;
     private readonly IReadOnlyList<WindowCandidate> _windows;
     private readonly ICaptureService _captureService;
     private readonly SkiaImageService _skia = new();
@@ -74,6 +75,8 @@ public partial class SelectionWindow : Window
             ShapePicker.IsEnabled = false;
         }
         _screen = screen;
+        _displayBounds = DisplayMonitorService.Enumerate().Select(m => Rectangle.Intersect(m.Bounds, screen.Bounds))
+            .Where(r => r.Width > 0 && r.Height > 0).ToArray();
         _colorPixels = screen.Image.Format == PixelFormats.Bgra32 ? screen.Image : new FormatConvertedBitmap(screen.Image, PixelFormats.Bgra32, null, 0);
         if (!_colorPixels.IsFrozen) _colorPixels.Freeze();
         _windows = windows;
@@ -85,6 +88,8 @@ public partial class SelectionWindow : Window
         Deactivated += (_, _) => UpdateMovementHint();
         InitializeElementDetection();
         Screenshot.Source = screen.Image;
+        DpiChanged += (_, _) => Dispatcher.BeginInvoke(ApplyScreenBounds,
+            System.Windows.Threading.DispatcherPriority.Loaded);
         for (var x = 0; x <= 19; x++)
             MagnifierPixelGrid.Children.Add(new System.Windows.Shapes.Line { X1 = x * 14, X2 = x * 14, Y2 = 154, Stroke = new SolidColorBrush(Color.FromArgb(85, 255, 255, 255)), StrokeThickness = .5 });
         for (var y = 0; y <= 11; y++)
@@ -95,7 +100,7 @@ public partial class SelectionWindow : Window
             ApplyScreenBounds();
             if (NativeMethods.GetCursorPos(out var activeCursor) && _screen.Bounds.Contains(activeCursor.X, activeCursor.Y)) { Activate(); Focus(); }
             UpdateShade();
-            UpdatePointer(NativeMethods.GetCursorPos(out var cursor) ? ScreenCoordinateMapper.CursorToLocalDip(Root, cursor) : new Point(ActualWidth / 2, ActualHeight / 2));
+            UpdatePointer(NativeMethods.GetCursorPos(out var cursor) ? DesktopToLocal(cursor.X, cursor.Y) : new Point(ActualWidth / 2, ActualHeight / 2));
             if (!_scrollingSelection) CaptureModePicker.SelectedIndex = 1;
         };
     }
@@ -114,10 +119,12 @@ public partial class SelectionWindow : Window
     private void ApplyScreenBounds()
     {
         if (PresentationSource.FromVisual(this) is not HwndSource source) return;
-        var transform = source.CompositionTarget.TransformFromDevice;
         var bounds = _screen.Bounds;
-        Width = Math.Max(1, bounds.Width * transform.M11);
-        Height = Math.Max(1, bounds.Height * transform.M22);
+        // A spanning HWND has one render DPI. Never apply the cursor monitor's DPI to global coordinates.
+        var dpi = NativeMethods.GetDpiForWindow(source.Handle);
+        var scale = dpi > 0 ? dpi / 96d : VisualTreeHelper.GetDpi(this).DpiScaleX;
+        Width = Math.Max(1, bounds.Width / scale);
+        Height = Math.Max(1, bounds.Height / scale);
         NativeMethods.SetWindowPos(source.Handle, NativeMethods.HwndTopMost,
             bounds.Left, bounds.Top, bounds.Width, bounds.Height,
             NativeMethods.SwpNoActivate | NativeMethods.SwpShowWindow);
@@ -1606,14 +1613,25 @@ public partial class SelectionWindow : Window
         UpdateSelection();
     }
 
-    private Rect FromScreenRect(Rectangle rect) => new(
-        (rect.Left - _screen.Bounds.Left) * ActualWidth / _screen.Bounds.Width,
-        (rect.Top - _screen.Bounds.Top) * ActualHeight / _screen.Bounds.Height,
-        rect.Width * ActualWidth / _screen.Bounds.Width, rect.Height * ActualHeight / _screen.Bounds.Height);
+    private Point DesktopToLocal(double x, double y) => ScreenCoordinateMapper.DesktopPixelsToSurface(
+        new Point(x, y), _screen.Bounds, new System.Windows.Size(ActualWidth, ActualHeight));
 
-    private System.Drawing.Point ToScreenPoint(Point point) => new(
-        (int)(_screen.Bounds.Left + point.X * _screen.Bounds.Width / Math.Max(1, ActualWidth)),
-        (int)(_screen.Bounds.Top + point.Y * _screen.Bounds.Height / Math.Max(1, ActualHeight)));
+    private Rect ChromeViewport(Point localPointer)
+    {
+        var point = ToScreenPoint(localPointer);
+        var bounds = _displayBounds.OrderBy(r =>
+            Math.Pow(point.X - Math.Clamp(point.X, r.Left, r.Right), 2) +
+            Math.Pow(point.Y - Math.Clamp(point.Y, r.Top, r.Bottom), 2)).FirstOrDefault();
+        return FromScreenRect(bounds.Width > 0 && bounds.Height > 0 ? bounds : _screen.Bounds);
+    }
+
+    private Rect FromScreenRect(Rectangle rect) => new(DesktopToLocal(rect.Left, rect.Top), DesktopToLocal(rect.Right, rect.Bottom));
+
+    private System.Drawing.Point ToScreenPoint(Point point)
+    {
+        var desktop = ScreenCoordinateMapper.SurfaceToDesktopPixels(point, _screen.Bounds, new System.Windows.Size(ActualWidth, ActualHeight));
+        return new((int)Math.Round(desktop.X), (int)Math.Round(desktop.Y));
+    }
 
     private PixelRect ToPixelSelection(Rect selection) => ScreenCoordinateMapper.DipRectToImagePixels(selection,
         new System.Windows.Size(ActualWidth, ActualHeight), _screen.Image.PixelWidth, _screen.Image.PixelHeight);
@@ -1697,10 +1715,12 @@ public partial class SelectionWindow : Window
         SetHandleAvailable(BottomCenterHandle, _selection.Width >= 80);
         SetHandleAvailable(MiddleLeftHandle, _selection.Height >= 80);
         SetHandleAvailable(MiddleRightHandle, _selection.Height >= 80);
-        var available = Math.Max(120, ActualWidth - 16);
+        var viewport = ChromeViewport(_lastPointer);
+        var available = Math.Max(120, viewport.Width - 16);
         var primarySize = MeasureToolbar(ToolPanel, available);
         var width = primarySize.Width;
-        var x = Math.Clamp(_selection.Left + (_selection.Width - width) / 2, 8, Math.Max(8, ActualWidth - width - 8));
+        var x = Math.Clamp(_selection.Left + (_selection.Width - width) / 2, viewport.Left + 8,
+            Math.Max(viewport.Left + 8, viewport.Right - width - 8));
         var height = primarySize.Height;
         var secondaryVisible = SecondaryToolPanel.Visibility == Visibility.Visible;
         var secondaryWidth = 0d;
@@ -1715,13 +1735,14 @@ public partial class SelectionWindow : Window
         const double gap = 6;
         var belowY = _selection.Bottom + 12;
         var totalHeight = height + (secondaryVisible ? gap + secondaryHeight : 0);
-        var mainY = belowY + totalHeight <= ActualHeight - 8
+        var mainY = belowY + totalHeight <= viewport.Bottom - 8 && belowY >= viewport.Top + 8
             ? belowY
-            : Math.Max(8, _selection.Top - totalHeight - 12);
+            : Math.Clamp(_selection.Top - totalHeight - 12, viewport.Top + 8,
+                Math.Max(viewport.Top + 8, viewport.Bottom - totalHeight - 8));
         CanvasPosition(ToolPanel, x, mainY);
         if (secondaryVisible)
         {
-            var secondaryX = Math.Clamp(x, 8, Math.Max(8, ActualWidth - secondaryWidth - 8));
+            var secondaryX = Math.Clamp(x, viewport.Left + 8, Math.Max(viewport.Left + 8, viewport.Right - secondaryWidth - 8));
             CanvasPosition(SecondaryToolPanel, secondaryX, mainY + height + gap);
         }
     }
@@ -2012,14 +2033,20 @@ public partial class SelectionWindow : Window
         _sampledColor = formatted.Value; ColorText.Text = formatted.Value; ColorFormatText.Text = formatted.Label;
         ColorCoordinates.Text = $"({px + _screen.Bounds.Left}, {py + _screen.Bounds.Top})";
         MagnifierColorSwatch.Background = new SolidColorBrush(color);
-        var scale = Math.Min(1, Math.Min(viewWidth / Magnifier.Width, viewHeight / Magnifier.Height));
+        // Virtual desktops can have holes. Keep interactive chrome on the pointer's real display.
+        var viewport = ChromeViewport(point);
+        CapturePanel.MaxWidth = viewport.Width;
+        CapturePanel.Measure(new System.Windows.Size(viewport.Width, viewport.Height));
+        var panelWidth = Math.Min(viewport.Width, CapturePanel.DesiredSize.Width);
+        CanvasPosition(CapturePanel, viewport.Left + (viewport.Width - panelWidth) / 2, viewport.Top + 66);
+        var scale = Math.Min(1, Math.Min(viewport.Width / Magnifier.Width, viewport.Height / Magnifier.Height));
         Magnifier.LayoutTransform = scale < 1 ? new ScaleTransform(scale, scale) : Transform.Identity;
         var width = Magnifier.Width * scale; var height = Magnifier.Height * scale;
-        var x = point.X + 22 + width > viewWidth ? point.X - width - 22 : point.X + 22;
-        var maxY = Math.Max(0, viewHeight - height);
-        var chromeBottom = CapturePanel.Margin.Top + CapturePanel.ActualHeight + 8;
+        var x = point.X + 22 + width > viewport.Right ? point.X - width - 22 : point.X + 22;
+        var maxY = Math.Max(viewport.Top, viewport.Bottom - height);
+        var chromeBottom = viewport.Top + 66 + CapturePanel.ActualHeight + 8;
         var y = Math.Clamp(point.Y + 22, Math.Min(chromeBottom, maxY), maxY);
-        CanvasPosition(Magnifier, Math.Clamp(x, 0, Math.Max(0, viewWidth - width)), Math.Clamp(y, 0, Math.Max(0, viewHeight - height)));
+        CanvasPosition(Magnifier, Math.Clamp(x, viewport.Left, Math.Max(viewport.Left, viewport.Right - width)), y);
     }
 
     private Rect CreateRect(Point anchor, Point pointer, double ratio, string? edge = null)
@@ -2123,7 +2150,7 @@ public partial class SelectionWindow : Window
         _selection.Height * _screen.Image.PixelHeight / ActualHeight >= 1 - 1e-7;
     private Point Clamp(Point point) => new(Math.Clamp(point.X, 0, ActualWidth), Math.Clamp(point.Y, 0, ActualHeight));
     private Point GetLogicalPointer(MouseEventArgs e) => NativeMethods.GetCursorPos(out var cursor)
-        ? ScreenCoordinateMapper.CursorToLocalDip(Root, cursor) : e.GetPosition(Root);
+        ? DesktopToLocal(cursor.X, cursor.Y) : e.GetPosition(Root);
     private static Rect Normalize(Point a, Point b) => new(new Point(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y)),
         new Point(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y)));
     private static void CanvasPosition(FrameworkElement element, double x, double y)

@@ -1,8 +1,6 @@
 using SnapSharp.Models;
-using SnapSharp.Native;
 using System.Drawing;
 using System.Windows;
-using System.Windows.Media;
 
 namespace SnapSharp.Services;
 
@@ -10,8 +8,26 @@ namespace SnapSharp.Services;
 // WpfMonitorAware's per-monitor WPF coordinate handling. Independently implemented.
 internal static class ScreenCoordinateMapper
 {
-    internal static Point CursorToLocalDip(Visual relativeTo, NativeMethods.PointL cursor) =>
-        relativeTo.PointFromScreen(new Point(cursor.X, cursor.Y));
+    internal static Point DesktopPixelsToSurface(Point desktopPixel, Rectangle bounds, System.Windows.Size surfaceDip)
+    {
+        ValidateSurface(bounds, surfaceDip);
+        return new((desktopPixel.X - bounds.Left) * surfaceDip.Width / bounds.Width,
+            (desktopPixel.Y - bounds.Top) * surfaceDip.Height / bounds.Height);
+    }
+
+    internal static Point SurfaceToDesktopPixels(Point localDip, Rectangle bounds, System.Windows.Size surfaceDip)
+    {
+        ValidateSurface(bounds, surfaceDip);
+        return new(bounds.Left + localDip.X * bounds.Width / surfaceDip.Width,
+            bounds.Top + localDip.Y * bounds.Height / surfaceDip.Height);
+    }
+
+    private static void ValidateSurface(Rectangle bounds, System.Windows.Size surface)
+    {
+        if (bounds.Width <= 0 || bounds.Height <= 0 || !double.IsFinite(surface.Width) ||
+            !double.IsFinite(surface.Height) || surface.Width <= 0 || surface.Height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(surface));
+    }
 
     internal static PixelRect DipRectToImagePixels(
         Rect selectionDip,
@@ -28,8 +44,11 @@ internal static class ScreenCoordinateMapper
         var scaleY = imagePixelHeight / surfaceDip.Height;
         var x = Math.Clamp((int)Math.Round(selectionDip.X * scaleX), 0, imagePixelWidth - 1);
         var y = Math.Clamp((int)Math.Round(selectionDip.Y * scaleY), 0, imagePixelHeight - 1);
-        var width = Math.Clamp((int)Math.Round(selectionDip.Width * scaleX), 1, imagePixelWidth - x);
-        var height = Math.Clamp((int)Math.Round(selectionDip.Height * scaleY), 1, imagePixelHeight - y);
+        // Round both edges independently so adjacent regions share the same physical boundary.
+        var right = Math.Clamp((int)Math.Round(selectionDip.Right * scaleX), x + 1, imagePixelWidth);
+        var bottom = Math.Clamp((int)Math.Round(selectionDip.Bottom * scaleY), y + 1, imagePixelHeight);
+        var width = right - x;
+        var height = bottom - y;
         return new PixelRect(x, y, width, height);
     }
 

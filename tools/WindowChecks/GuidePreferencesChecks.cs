@@ -31,7 +31,7 @@ internal static partial class Program
         var windows = System.Windows.Application.Current.Windows.OfType<SelectionWindow>().ToArray();
         try
         {
-            Require(windows.Length == 2, "Multi-monitor fixture did not open both overlays.");
+            Require(windows.Length == 1, "Multi-monitor fixture must share one continuous desktop overlay.");
             Invoke(windows[0], "Ruler_Click", windows[0], new RoutedEventArgs());
             Invoke(windows[0], "Crosshair_Click", windows[0], new RoutedEventArgs());
             foreach (var window in windows)
@@ -136,7 +136,7 @@ internal static partial class Program
         public IReadOnlyList<WindowCandidate> EnumerateTopLevelWindows() => [];
         public WindowCandidate? FindWindowAt(System.Drawing.Point point) => null;
         public System.Windows.Media.Imaging.BitmapSource CaptureRegion(System.Drawing.Rectangle bounds) => throw new NotSupportedException();
-        public CapturedScreen CaptureVirtualScreen() => throw new NotSupportedException();
+        public CapturedScreen CaptureVirtualScreen() => DesktopCaptureComposer.Compose(CaptureAllScreens());
         public CapturedScreen? CaptureWindow(nint hwnd) => throw new NotSupportedException();
     }
 }

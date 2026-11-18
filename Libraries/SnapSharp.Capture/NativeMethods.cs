@@ -196,5 +196,8 @@ internal static class NativeMethods
     internal static extern bool GetCursorPos(out PointL point);
 
     [DllImport("user32.dll")]
+    internal static extern uint GetDpiForWindow(nint window);
+
+    [DllImport("user32.dll")]
     internal static extern void mouse_event(uint flags, uint dx, uint dy, int data, nuint extraInfo);
 }
