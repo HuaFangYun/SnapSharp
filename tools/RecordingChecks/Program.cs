@@ -10,8 +10,9 @@ internal static partial class Program
     private static readonly string Root = Path.GetFullPath(Path.Combine(".artifacts", "recording-checks", Guid.NewGuid().ToString("N")));
 
     [STAThread]
-    private static int Main()
+    private static int Main(string[] args)
     {
+        if (args.Length > 0) return RecordingAcceptance.Run(args, Root);
         try
         {
             Directory.CreateDirectory(Root);

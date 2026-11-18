@@ -8,7 +8,8 @@ using Windows.Storage;
 
 namespace SnapSharp.Services;
 
-/// <summary>Checks actual encoding using generated pixels, with no screen, audio or camera source.</summary>
+/// <summary>Checks encoding and decoding of synthetic pixels. File FPS metadata is not desktop throughput;
+/// this short, software-only probe does not verify devices or long-run stability.</summary>
 public static class RecordingEncoderProbe
 {
     public static async Task<string> Check(CancellationToken token, int frameRate = 30, int bitrateKbps = 0)
@@ -65,7 +66,11 @@ public static class RecordingEncoderProbe
             var fps = properties.FrameRate.Denominator > 0 ? properties.FrameRate.Numerator / (double)properties.FrameRate.Denominator : 0;
             if (properties.Width != 160 || properties.Height != 96 || clip.OriginalDuration <= TimeSpan.Zero || Math.Abs(fps - frameRate) > .1)
                 throw new InvalidDataException(L.Get("EncodedMP4DimensionsDurationOrFrameRate"));
-            return L.Format("H264SoftwareEncodingVerifiedWithA", properties.Width, properties.Height, fps);
+            var composition = new MediaComposition(); composition.Clips.Add(clip);
+            using var thumbnail = await composition.GetThumbnailAsync(clip.OriginalDuration / 2, 160, 96, VideoFramePrecision.NearestFrame).AsTask(token);
+            if (thumbnail.Size == 0) throw new InvalidDataException(L.Get("EncodedMP4DimensionsDurationOrFrameRate"));
+            return L.Format("H264SoftwareEncodingVerifiedWithA", properties.Width, properties.Height, fps) + " " +
+                L.Get("CheckRequirementsBeforeChoosingRecordingOptionsSetup");
         }
         finally
         {

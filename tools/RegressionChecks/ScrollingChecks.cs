@@ -132,8 +132,8 @@ internal static partial class Program
         Require(shortCapture.Offsets.SequenceEqual(shortPositions.Skip(1).Select((p, i) => p - shortPositions[i])) &&
             shortOutput.PixelHeight == shortExpected.PixelHeight && Bytes(shortOutput).Zip(Bytes(shortExpected)).All(p => Math.Abs(p.First - p.Second) <= 1),
             $"Short text viewport capture lost or reordered paragraphs: height {shortOutput.PixelHeight}/{shortExpected.PixelHeight}, offsets {string.Join(',', shortCapture.Offsets)}");
-        // Reproduce four retained frames followed by a lost overlap. Returning to
-        // the known region must resume capture without inventing a seam for the gap.
+        // A lost overlap must retain the uncertain original and hand off to correction,
+        // without inventing a position or silently losing a viewport.
         var recoverFrames = new[] { 0, 100, 200, 300, 400, 500 }
             .Select(p => images.Crop(document, new Int32Rect(0, p, 240, 200))).ToList();
         recoverFrames.Insert(4, images.Crop(document, new Int32Rect(400, 0, 240, 200)));
@@ -144,10 +144,16 @@ internal static partial class Program
                 if (recoverDriver.Index == recoverFrames.Count - 1) return Task.FromResult(false);
                 recoverDriver.Index++; return Task.FromResult(true);
             }, manualDirectionProvider: () => ScrollDirection.Vertical).GetAwaiter().GetResult();
-        Require(recovered.Frames.Count == 6 && recovered.Offsets.All(x => x == 100) && recoverDriver.Ended,
-            "Capture did not recover after the fourth frame lost overlap");
-        Require(Bytes(stitcher.Stitch(recovered).Image).SequenceEqual(Bytes(images.Crop(document, new Int32Rect(0, 0, 240, 700)))),
-            "Recovery corrupted the document");
+        Require(recovered.Frames.Count == 5 && recovered.Offsets.SequenceEqual(new[] { 100, 100, 100, 0 }) &&
+            !recovered.Matches[^1].Reliable && recoverDriver.Ended && Bytes(recovered.Frames[^1]).SequenceEqual(Bytes(recoverFrames[4])),
+            "Uncertain frame was lost or capture continued past an unresolved seam");
+        Require(Bytes(stitcher.Stitch(recovered).Image).SequenceEqual(Bytes(images.Crop(document, new Int32Rect(0, 0, 240, 500)))),
+            "Unresolved frame changed trusted document pixels");
+        var unresolvedPath = Path.Combine(Root, "unresolved.ssscroll");
+        var unresolvedProjects = new ScrollProjectService(); unresolvedProjects.Save(unresolvedPath, new(recovered, new(), new()));
+        var unresolvedLoaded = unresolvedProjects.Load(unresolvedPath).Session;
+        Require(unresolvedLoaded.Offsets[^1] == 0 && !unresolvedLoaded.Matches[^1].Reliable &&
+            Bytes(unresolvedLoaded.Frames[^1]).SequenceEqual(Bytes(recoverFrames[4])), "Unresolved project lost raw pixels or review state");
         using var stop = new CancellationTokenSource(100);
         var idleDriver = new ScrollDriver([shortFrames[0]]);
         var cancelled = new ScrollingCaptureService(idleDriver).CaptureSessionAsync(new System.Drawing.Rectangle(0, 0, 680, 160),

@@ -1,0 +1,9 @@
+<!doctype html><meta charset="utf-8"><style>
+*{box-sizing:border-box}html,body{overflow:hidden}body{margin:0;background:#fff;color:#222;font:16px Arial}
+header{position:fixed;top:0;left:0;width:100%;height:40px;background:#225588;color:white;z-index:3}
+article{padding:50px 30px;width:720px}p{height:70px;margin:0;border-bottom:1px solid #ccc}
+</style><header>Fixed navigation — scrolling compatibility fixture</header><article id="article"></article>
+<script>
+for(let i=0;i<80;i++){let p=document.createElement('p');p.textContent=`Section ${i}: value ${i*7919}. Browser-rendered paragraphs and unique markers.`;article.append(p)}
+article.style.transform=`translateY(-${Number(location.hash.slice(1))||0}px)`;
+</script>

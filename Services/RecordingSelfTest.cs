@@ -29,6 +29,13 @@ internal static class RecordingSelfTest
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     public static bool Run(string directory)
     {
+        foreach (var target in new[] { 15, 30, 60 })
+        {
+            Require(RecordingService.IsFrameRateWithinTolerance(target * .95, target) &&
+                RecordingService.IsFrameRateWithinTolerance(target * 1.05, target), "Inclusive FPS tolerance failed.");
+            foreach (var actual in new[] { target * .949, target * 1.051, double.NaN, double.PositiveInfinity })
+                Require(!RecordingService.IsFrameRateWithinTolerance(actual, target), "Out-of-tolerance FPS accepted.");
+        }
         foreach (var preference in new[]
         {
             new RecordingPreferences { BitrateKbps = 499 }, new RecordingPreferences { BitrateKbps = 100001 },

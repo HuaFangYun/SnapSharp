@@ -33,6 +33,10 @@ public sealed class RecordingService
     private string? _microphone, _speaker;
     private string _stopReason = "";
     private string _display = "";
+    // Per-session fault injection for integration checks; never enabled by application UI.
+    internal Action<bool>? BeforeNativeRecord { get; init; }
+    public string? SoftwareFallbackReason { get; private set; }
+    public bool UsedSoftwareFallback => _retried;
     private System.Drawing.Rectangle _monitor;
     public RecordingState State { get; private set; } = RecordingState.Ready;
     public bool IsActive => State is RecordingState.Starting or RecordingState.Recording or RecordingState.Paused or RecordingState.Stopping or RecordingState.Encoding;
@@ -40,7 +44,9 @@ public sealed class RecordingService
     public int FrameCount => Volatile.Read(ref _frameCount);
     public double AverageFrameRate => Elapsed.TotalSeconds > 0 ? FrameCount / Elapsed.TotalSeconds : 0;
     public int TargetFrameRate => _preferences.Format == "GIF" ? 15 : _preferences.FrameRate;
-    public bool IsFrameRateLimited => Elapsed.TotalSeconds >= 2 && AverageFrameRate < TargetFrameRate * .9;
+    public bool IsFrameRateLimited => Elapsed.TotalSeconds >= 2 && !IsFrameRateWithinTolerance(AverageFrameRate, TargetFrameRate);
+    public static bool IsFrameRateWithinTolerance(double actual, int target) =>
+        target > 0 && double.IsFinite(actual) && Math.Abs(actual - target) <= target * .05 + 1e-9;
     public long OutputBytes { get; private set; }
     public string? RecoveryDirectory => State == RecordingState.Failed && Directory.Exists(_workDirectory) ? _workDirectory : null;
     public Task Completion => _completion.Task;
@@ -109,6 +115,7 @@ public sealed class RecordingService
             if (_recorder != recorder || _finishing) return;
             NativeFailure(e.Error);
         });
+        BeforeNativeRecord?.Invoke(_options!.VideoEncoderOptions.IsHardwareEncodingEnabled);
         recorder.Record(_preferences.Format == "GIF" ? Path.Combine(_workDirectory, "frames") : Path.Combine(_workDirectory, _retried ? "software.mp4" : "video.mp4"));
     }
     internal static bool CanRetrySoftware(bool retried, bool hardware, string format, int frames, RecordingState state) =>
@@ -118,6 +125,7 @@ public sealed class RecordingService
         if (_finishing) return;
         if (!CanRetrySoftware(_retried, _preferences.HardwareEncoding, _preferences.Format, FrameCount, State)) { Fail(reason); return; }
         _retried = true;
+        SoftwareFallbackReason = reason;
         var previous = _recorder; _recorder = null;
         try { previous?.Dispose(); } catch { }
         _options!.VideoEncoderOptions.IsHardwareEncodingEnabled = false; _clock = new RecordingClock();

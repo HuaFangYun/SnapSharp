@@ -1,0 +1,25 @@
+{
+  "Application": "msedge.exe",
+  "Version": "144.0.3719.82",
+  "Scenario": "Browser-rendered translated viewports; fixed header excluded; not real wheel/scroll acceptance",
+  "Frames": [
+    "frame-0.png",
+    "frame-150.png",
+    "frame-300.png"
+  ],
+  "ExpectedOffsets": [
+    150,
+    150
+  ],
+  "ExpectedReliable": [
+    true,
+    true
+  ],
+  "Trim": {
+    "Left": 0,
+    "Top": 40,
+    "Right": 0,
+    "Bottom": 0
+  },
+  "ExpectedImage": null
+}

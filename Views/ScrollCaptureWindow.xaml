@@ -43,7 +43,7 @@
         <Button x:Name="DeleteRowsButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveSelectedEdgeArea}" Click="DeleteRows_Click" IsEnabled="False" />
         <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:RestoreFullScrollingCapture}" Click="ResetCrop_Click" />
         <Expander x:Name="CaptureSettings" Header="{loc:Loc SnapSharp.Core:Resources.Strings:CaptureAgainManualAutomatic}" Margin="0,12,0,0"><StackPanel>
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ScrollDirection}" /><ComboBox x:Name="DirectionBox" SelectedIndex="0"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:DetectAutomaticallyDownThenRight}" Tag="Auto" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Down}" Tag="Vertical" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Right}" Tag="Horizontal" /></ComboBox>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ScrollDirection}" /><ComboBox x:Name="DirectionBox" SelectedIndex="0"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Vertical}" Tag="Vertical" /></ComboBox>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
             <StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FrameDelayMs}" /><TextBox x:Name="DelayBox" Text="600" /></StackPanel>
             <StackPanel Grid.Column="1"><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WheelStepsPerScroll}" /><TextBox x:Name="WheelBox" Text="1" /></StackPanel>
@@ -53,9 +53,8 @@
           <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:SelectRegionAndCaptureManually}" Click="ManualStart_Click" Background="{DynamicResource ToolbarActiveBrush}" Foreground="{DynamicResource AccentForegroundBrush}" />
           <Button x:Name="StartButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:SelectRegionAndCaptureAutomatically}" Click="Start_Click" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SnapSharpWindowsAreHiddenDuringCaptureDo}" Style="{StaticResource Hint}" />
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ManualCaptureSupportsDownwardOrRightwardScrolling}" Style="{StaticResource Hint}" />
         </StackPanel></Expander>
-        <Expander Header="{loc:Loc SnapSharp.Core:Resources.Strings:SeamsAndFixedBarsOptional}" Margin="0,18,0,0"><StackPanel>
+        <Expander x:Name="SeamSettings" Header="{loc:Loc SnapSharp.Core:Resources.Strings:SeamsAndFixedBarsOptional}" Margin="0,18,0,0"><StackPanel>
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ExcludeFixedBarsFromEachFramePixels}" FontWeight="SemiBold" />
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ForVerticalCaptureExcludeTopBottomBars}" Style="{StaticResource Hint}" />
         <UniformGrid Columns="2"><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Left}" /><TextBox x:Name="FrameLeft" Text="0" /></StackPanel><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Top}" /><TextBox x:Name="FrameTop" Text="0" /></StackPanel><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Right2}" /><TextBox x:Name="FrameRight" Text="0" /></StackPanel><StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Bottom}" /><TextBox x:Name="FrameBottom" Text="0" /></StackPanel></UniformGrid>

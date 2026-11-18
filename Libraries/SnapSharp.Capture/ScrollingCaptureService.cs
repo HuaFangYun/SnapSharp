@@ -112,7 +112,6 @@ public sealed class ScrollingCaptureService
                 }, samplingStop.Token);
             }
             var finishManual = false;
-            var matchLost = false;
             var attempts = 0;
             for (var index = 1; index < options.MaximumFrames; index++)
             {
@@ -121,7 +120,7 @@ public sealed class ScrollingCaptureService
                 if ((long)(frames.Count + 1) * region.Width * region.Height > ScrollingStitcher.MaximumFramePixels)
                 { reason = L.Get("RawFrameMemoryLimitReachedCaptureIn"); break; }
                 var manualDirection = direction == ScrollDirection.Auto ? L.Get("DownOrRight") : direction == ScrollDirection.Horizontal ? L.Get("Right4") : L.Get("Down2");
-                if (!matchLost) progress?.Report(waitForManualScroll is null ? L.Format("Captured0FramesScroll1EscTo", frames.Count, (inputAxis == ScrollDirection.Vertical ? L.Get("Down2") : L.Get("Right4"))) : L.Format("Captured0FramesScrollSlowly1Preview", frames.Count, manualDirection));
+                progress?.Report(waitForManualScroll is null ? L.Format("Captured0FramesScroll1EscTo", frames.Count, (inputAxis == ScrollDirection.Vertical ? L.Get("Down2") : L.Get("Right4"))) : L.Format("Captured0FramesScrollSlowly1Preview", frames.Count, manualDirection));
                 BitmapSource next;
                 if (samples is null)
                 {
@@ -158,17 +157,14 @@ public sealed class ScrollingCaptureService
                 unchanged = 0; retryCapture = false;
                 var match = _stitcher.Match(Content(frames[^1]), Content(next), direction);
                 diagnostic?.Invoke($"Sample {attempts}: difference={difference:F3}, match={match}, retained={frames.Count}, finishing={finishManual}");
-                if (!match.Reliable && waitForManualScroll is not null)
-                {
-                    // Keep the last valid document coordinate. An arbitrary offset
-                    // would corrupt every later frame, particularly after a reversal.
-                    progress?.Report(L.Format("ScrollJumpWasTooLargeOrContent", manualDirection));
-                    matchLost = true;
-                    if (finishManual) { reason = L.Get("LastFrameCouldNotBeMatchedReliably"); break; }
-                    index--; continue;
-                }
+                // Never discard an uncertain viewport: the preview needs both originals
+                // for manual seam correction. Stop here rather than propagating a guessed
+                // document coordinate into later frames (especially after a reversal).
                 if (direction == ScrollDirection.Auto) direction = match.Direction;
                 inputAxis = direction;
+                // Zero is an explicitly unresolved seam, not a guessed document shift.
+                // It keeps the original frame available without extending the output.
+                if (!match.Reliable) match = match with { Offset = 0 };
                 var length = direction == ScrollDirection.Vertical ? contentHeight : contentWidth;
                 var nextPosition = position + match.Offset;
                 var nextLength = (long)Math.Max(maximumPosition, nextPosition) - Math.Min(minimumPosition, nextPosition) + length;
@@ -176,11 +172,10 @@ public sealed class ScrollingCaptureService
                     nextLength * (direction == ScrollDirection.Vertical ? region.Width : region.Height) > ScrollingStitcher.MaximumPixels)
                 { reason = L.Get("OutputSizeLimitReachedCaptureInSmaller"); break; }
                 frames.Add(next); offsets.Add(match.Offset); matches.Add(match);
-                matchLost = false;
                 position = nextPosition; minimumPosition = Math.Min(minimumPosition, position); maximumPosition = Math.Max(maximumPosition, position);
-                if (finishManual) { reason = L.Get("PreviewConfirmed"); break; }
-                if (!match.Reliable && waitForManualScroll is null)
+                if (!match.Reliable)
                 { reason = L.Format("Frame0MatchIsUncertainError1", frames.Count, match.Error); break; }
+                if (finishManual) { reason = L.Get("PreviewConfirmed"); break; }
             }
         }
         catch (OperationCanceledException) when (frames.Count > 0)

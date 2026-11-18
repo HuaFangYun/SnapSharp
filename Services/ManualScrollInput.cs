@@ -24,11 +24,11 @@ internal sealed class ManualScrollInput : IDisposable
         _region = region; _cancel = cancel;
         _mouseProc = (code, message, data) =>
         {
-            if (code >= 0 && (message == 0x020A || message == 0x020E))
+            if (code >= 0 && message == 0x020A)
             {
                 var info = Marshal.PtrToStructure<MouseData>(data);
                 if (_region.Contains(info.X, info.Y))
-                    _wheel.Writer.TryWrite(message == 0x020E ? ScrollDirection.Horizontal : ScrollDirection.Vertical);
+                    _wheel.Writer.TryWrite(ScrollDirection.Vertical);
             }
             return CallNextHookEx(0, code, message, data);
         };

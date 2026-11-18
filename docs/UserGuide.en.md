@@ -179,8 +179,8 @@ When click-through is enabled, mouse input goes directly to the window behind a 
 
 1. Right-click the tray icon and choose **Scrolling Capture → Select Area and Start Scrolling Capture…**. You can also click **Scrolling Capture** on the normal area-capture toolbar.
 2. Select the content, adjust the edges, then click **Start Scrolling Capture** or press Enter.
-3. Place the pointer inside the area and scroll down slowly. For a horizontal capture, scroll right if the target application supports horizontal scrolling.
-4. During capture, SnapSharp displays a blue area border and eight circular anchors at the corners and edge midpoints. The border is click-through and does not block clicks or scrolling inside the area. Keep the window and selection in place; the first valid match determines the stitching direction.
+3. Place the pointer inside the area and scroll down slowly. Scrolling capture supports vertical scrolling only.
+4. During capture, SnapSharp displays a blue area border and eight circular anchors at the corners and edge midpoints. The border is click-through and does not block clicks or scrolling inside the area. Keep the window and selection in place; you can scroll up to revisit captured content.
 5. When finished, click `√` at the upper-right of the area to open the preview. Click `×` or press `Esc` to discard the capture.
 6. Inspect the seams in the preview, trim edges if needed, then copy, save, pin, or annotate the result.
 
@@ -188,7 +188,7 @@ Manual mode listens to your scrolling but does not generate wheel input. Reachin
 
 The anchors mark a fixed area and cannot be dragged during capture. To change the area, stop and select it again; changing coordinates while collecting frames can cause misalignment. Automatic capture uses the same area border. The border is removed after completion, cancellation, or failure and is not included in the final image.
 
-If scrolling is too fast to match a frame, that frame is not appended. Return near the previous position and scroll more slowly. Fixed navigation bars, animations, video, and dynamically loaded content can interfere with stitching.
+If a frame cannot be matched reliably, capture stops and preserves both originals. The preview opens the seam correction panel. The unresolved frame does not extend the output until corrected: compare the originals and enter the correct nonzero offset, or exclude fixed bars and rematch. If the frames have no overlap, recapture more slowly; manual correction cannot recover missing content.
 
 ### Trimming, correcting, and recapturing
 

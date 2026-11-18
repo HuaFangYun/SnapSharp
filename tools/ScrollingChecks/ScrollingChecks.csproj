@@ -4,11 +4,13 @@
     <UseWPF>true</UseWPF>
     <PlatformTarget>x64</PlatformTarget>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IsSnapSharpApp>true</IsSnapSharpApp>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../RegressionChecks/ScrollingChecks.cs" />
     <Compile Include="Program.cs" />
-    <ProjectReference Include="../../Libraries/SnapSharp.Capture/SnapSharp.Capture.csproj" />
-    <ProjectReference Include="../../Libraries/SnapSharp.Infrastructure/SnapSharp.Infrastructure.csproj" />
+    <Compile Include="VerticalSamples.cs" />
+    <ProjectReference Include="../../SnapSharp.csproj" />
   </ItemGroup>
 </Project>

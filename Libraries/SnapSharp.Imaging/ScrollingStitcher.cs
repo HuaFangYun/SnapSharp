@@ -184,7 +184,9 @@ public sealed class ScrollingStitcher
         if (trim.Left < 0 || trim.Top < 0 || trim.Right < 0 || trim.Bottom < 0 || width < 16 || height < 16) throw new ArgumentException(L.Get("AtLeast1616PixelsPerFrame"));
         var vertical = session.Direction == ScrollDirection.Vertical;
         var length = vertical ? height : width;
-        if (session.Offsets.Any(x => x == 0 || x < -length || x > length)) throw new ArgumentException(L.Format("FrameOffsetMustBe10Pixels", length));
+        if (session.Offsets.Where((x, i) => x < -length || x > length ||
+            (x == 0 && (i >= session.Matches.Count || session.Matches[i].Reliable || session.Matches[i].ManuallyAdjusted))).Any())
+            throw new ArgumentException(L.Format("FrameOffsetMustBe10Pixels", length));
         var positions = new List<int> { 0 };
         foreach (var offset in session.Offsets) positions.Add(checked(positions[^1] + offset));
         var minimum = positions.Min();

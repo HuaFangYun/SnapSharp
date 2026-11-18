@@ -129,6 +129,14 @@ public partial class ScrollCaptureWindow : Window
         MatchInfo.Text = L.Get("NoSeams");
         UpdateSelectedSeam(false); DrawSeams();
         Status.Text = L.Format("0Frames12N03N0", _session.Frames.Count, (_session.Direction == ScrollDirection.Horizontal ? L.Get("Horizontal") : L.Get("Vertical")), _output.PixelWidth, _output.PixelHeight, _session.StopReason);
+        var uncertain = Enumerable.Range(0, _session.Matches.Count).FirstOrDefault(i => !_session.Matches[i].Reliable && !_session.Matches[i].ManuallyAdjusted, -1);
+        if (uncertain >= 0)
+        {
+            SeamSettings.IsExpanded = true;
+            SeamBox.SelectedIndex = uncertain;
+            UpdateSelectedSeam(false);
+            Status.Text += " · " + L.Get("ReviewMatch");
+        }
         if (fit) Dispatcher.BeginInvoke(() => { if (!_closed) FitPreview(); });
     }
     private void DrawSeams()
@@ -231,7 +239,7 @@ public partial class ScrollCaptureWindow : Window
         if (index < 0 || index >= _session.Offsets.Count) { OffsetBox.Text = "0"; return; }
         OffsetBox.Text = _session.Offsets[index].ToString();
         var match = index < _session.Matches.Count ? _session.Matches[index] : null;
-        MatchInfo.Text = match is null ? L.Get("ManualSeam") : L.Format("AutomaticMatchError0F21Adjust", match.Error, (match.Reliable ? L.Get("ReliableMatch") : L.Get("ReviewMatch")));
+        MatchInfo.Text = match is null || match.ManuallyAdjusted ? L.Get("ManualSeam") : L.Format("AutomaticMatchError0F21Adjust", match.Error, (match.Reliable ? L.Get("ReliableMatch") : L.Get("ReviewMatch")));
         if (!scroll || _stitch is null) return;
         var seam = _stitch.Seams[index];
         if (_session.Direction == ScrollDirection.Vertical) Scroller.ScrollToVerticalOffset((seam - _crop.Top) * Zoom.Value - Scroller.ViewportHeight / 2);
@@ -246,7 +254,9 @@ public partial class ScrollCaptureWindow : Window
             var index = SeamBox.SelectedIndex;
             if (index < 0) throw new ArgumentException(L.Get("CaptureAtLeastTwoFramesAndSelect"));
             var offsets = _session.Offsets.ToArray(); offsets[index] = Number(OffsetBox, -16384, 16384, L.Get("FrameOffset")) + nudge;
-            await RenderSession(_session with { Offsets = offsets }, ReadFrameTrim(), ReadCrop());
+            var matches = _session.Matches.ToArray();
+            if (index < matches.Length) matches[index] = matches[index] with { Offset = offsets[index], ManuallyAdjusted = true };
+            await RenderSession(_session with { Offsets = offsets, Matches = matches }, ReadFrameTrim(), ReadCrop());
             UpdateSelectedSeam(true);
         }
         catch (Exception ex) { Status.Text = ex.Message; }
@@ -276,6 +286,7 @@ public partial class ScrollCaptureWindow : Window
                 return Enumerable.Range(1, session.Frames.Count - 1).Select(i => _stitcher.Match(Frame(session.Frames[i - 1]), Frame(session.Frames[i]), session.Direction)).ToArray();
             });
             SetBusy(false);
+            matches = matches.Select(m => m.Reliable ? m : m with { Offset = 0 }).ToArray();
             await RenderSession(session with { Matches = matches, Offsets = matches.Select(x => x.Offset).ToArray() }, trim, crop);
         }
         catch (Exception ex) { Status.Text = ex.Message; }
@@ -369,7 +380,7 @@ public partial class ScrollCaptureWindow : Window
             // desktop session for every sample, losing intermediate scroll positions.
             var session = await new ScrollingCaptureService(new ScreenCaptureService(false)).CaptureSessionAsync(_region,
                 options, progress, _stop.Token, _manualInput.Wait,
-                () => _manualInput?.LastDirection ?? ScrollDirection.Auto,
+                () => ScrollDirection.Vertical,
                 message => { if (captureTrace.Count < 1000) captureTrace.Add(message); },
                 _manualInput.ObserveFrame);
             try
@@ -595,6 +606,19 @@ public partial class ScrollCaptureWindow : Window
             Complete(window.RenderSession(session with { Frames = session.Frames.ToArray() }, new(), new()));
             if (window._undo.Count != 0 || window._redo.Count != 0) return false;
             if (window.CaptureSettings.Visibility != Visibility.Visible || !window.CaptureSettings.IsEnabled) return false;
+            // The production handoff must expose both originals and the unresolved seam.
+            var unresolved = new ScrollCaptureSession(session.Frames.Take(2).ToArray(), [0],
+                [session.Matches[0] with { Offset = 0, Reliable = false }], ScrollDirection.Vertical, "review");
+            Complete(window.RenderSession(unresolved, new(), new()));
+            if (!window.SeamSettings.IsExpanded || window.SeamBox.SelectedIndex != 0 || window._output.PixelHeight != 180 ||
+                window._session.Frames.Count != 2) return false;
+            window.OffsetBox.Text = "53"; Complete(window.ApplyOffset(0));
+            if (window._output.PixelHeight != 233 || !window._session.Matches[0].ManuallyAdjusted ||
+                window.MatchInfo.Text != L.Get("ManualSeam")) return false;
+            Complete(window.RestoreEdit(false));
+            if (window._session.Offsets[0] != 0 || window._session.Matches[0].ManuallyAdjusted || window._output.PixelHeight != 180) return false;
+            Complete(window.RestoreEdit(true));
+            if (window._session.Offsets[0] != 53 || !window._session.Matches[0].ManuallyAdjusted || window._output.PixelHeight != 233) return false;
             return true;
         }
         finally { window.Close(); }

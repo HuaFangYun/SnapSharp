@@ -158,8 +158,9 @@ internal static class ScrollingSelfTest
             if (++badManualEvents == 1) { badManualDriver.Advance(); return Task.FromResult(true); }
             return Task.FromResult(false);
         }).GetAwaiter().GetResult();
-        if (uncertainManual.Frames.Count != 1 || uncertainManual.Matches.Count != 0)
-            throw new Exception("manual-scroll-rejects-arbitrary-document-position");
+        if (uncertainManual.Frames.Count != 2 || uncertainManual.Matches.Count != 1 || uncertainManual.Matches[0].Reliable ||
+            uncertainManual.Offsets[0] != 0 || stitcher.Stitch(uncertainManual).Image.PixelHeight != 180)
+            throw new Exception("manual-scroll-preserves-unresolved-frame-without-inventing-document-position");
 
         var projectService = new ScrollProjectService();
         var path = Path.Combine(directory, "中文 scrolling.ss scroll.ssscroll");

@@ -58,6 +58,7 @@
     <EmbeddedResource Include="Services\AppUpdate.ps1" LogicalName="SnapSharp.AppUpdate.ps1" />
     <InternalsVisibleTo Include="SnapSharp.RegressionChecks" />
     <InternalsVisibleTo Include="SnapSharp.RecordingChecks" />
+    <InternalsVisibleTo Include="ScrollingChecks" />
     <InternalsVisibleTo Include="SnapSharp.WindowChecks" />
     <InternalsVisibleTo Include="SnapSharp.ModelStorageChecks" />
     <InternalsVisibleTo Include="SnapSharp.StabilityChecks" />
