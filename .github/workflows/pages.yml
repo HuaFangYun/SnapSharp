@@ -44,7 +44,8 @@ jobs:
         env:
           PAGES_BASE_URL: ${{ steps.pages.outputs.base_url }}
         run: |
-          python scripts/build-site.py --base-url "${PAGES_BASE_URL:-https://leelongjiang.github.io/SnapSharp}" --output .artifacts/pages
+          SITE_BASE_URL="${PAGES_BASE_URL:-https://www.snapsharp.cn}"
+          python scripts/build-site.py --base-url "${SITE_BASE_URL/#http:/https:}" --output .artifacts/pages
       - name: Check pages, links, metadata, and sitemap
         run: python scripts/check-site.py .artifacts/pages
       - name: Upload Pages artifact

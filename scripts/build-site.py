@@ -236,8 +236,8 @@ class Site:
         self.lang = 0
         body = '<section class="not-found container"><div class="eyebrow">SNAPSHARP</div><h1>404</h1><h2>这个页面还没被截到。</h2><p>页面可能已移动。回到首页，继续了解 SnapSharp。<br>This page could not be found. Head back to the homepage.</p><div class="actions" style="justify-content:center">' + self.button(self.url(), True, '返回首页', 'capture') + self.button(self.url('en/'), False, 'English homepage', 'capture') + '</div></section>'
         self.write('', '页面未找到 / Page not found | SnapSharp', '返回 SnapSharp 首页 / Return to SnapSharp.', body, [], not_found=True)
-        # Project Pages lives below /SnapSharp/. robots.txt here documents intent,
-        # but only a robots.txt at the host root controls crawler access.
+        # This is the actual crawler policy on a custom domain at its root.
+        # A preview under a repository subpath cannot control host-root policy.
         (self.output / 'robots.txt').write_text(f'User-agent: *\nAllow: /\n\nSitemap: {self.base}/sitemap.xml\n', encoding='utf-8')
         sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'  <url><loc>{xml_escape(url)}</loc></url>\n' for url in self.pages) + '</urlset>\n'
         (self.output / 'sitemap.xml').write_text(sitemap, encoding='utf-8')
@@ -249,7 +249,7 @@ class Site:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--base-url', default='https://leelongjiang.github.io/SnapSharp', help='Canonical Pages URL, including the repository subpath')
+    parser.add_argument('--base-url', default='https://www.snapsharp.cn', help='Canonical Pages URL, including any deployment subpath')
     parser.add_argument('--output', type=Path, default=ROOT / '.artifacts/pages')
     args = parser.parse_args()
     parts = urlsplit(args.base_url)

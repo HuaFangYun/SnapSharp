@@ -2,7 +2,7 @@
 
 **简体中文** | [English](README.en.md)
 
-项目地址：[GitHub](https://github.com/leelongjiang/SnapSharp) | [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [官方网站](https://leelongjiang.github.io/SnapSharp/) · [下载发布版](https://github.com/leelongjiang/SnapSharp/releases) · [完整使用指南](docs/使用指南.md)
+项目地址：[GitHub](https://github.com/leelongjiang/SnapSharp) | [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [官方网站](https://www.snapsharp.cn/) · [下载发布版](https://github.com/leelongjiang/SnapSharp/releases) · [完整使用指南](docs/使用指南.md)
 
 > SnapSharp 是 Windows 桌面端（C#/WPF/.NET 10）截图与图像工具。
 > 核心差异化：OCR/表格/公式/抠图/翻译全部可走本地模型，默认不传图到云端。
