@@ -248,7 +248,7 @@ public partial class SelectionWindow : Window
         Hint.Visibility = Visibility.Visible;
         CapturePanel.Visibility = Visibility.Visible;
         Magnifier.Visibility = Visibility.Visible;
-        Cursor = Cursors.Cross;
+        Cursor = PrecisionCursor.Cross;
 
         _mode = OverlayMode.Region;
         CaptureModePicker.SelectedIndex = 0;
@@ -298,7 +298,7 @@ public partial class SelectionWindow : Window
                     window.EditedImageView.Source is not null || window.ToolPanel.Visibility != Visibility.Collapsed ||
                     window.SecondaryToolPanel.Visibility != Visibility.Collapsed || window.Handles.Visibility != Visibility.Collapsed ||
                     window.AnnotationView.Visibility != Visibility.Collapsed || !window.AnnotationView.IsHitTestVisible ||
-                    window.CapturePanel.Visibility != Visibility.Visible || window.Cursor != Cursors.Cross ||
+                    window.CapturePanel.Visibility != Visibility.Visible || window.Cursor != PrecisionCursor.Cross ||
                     window._mode != OverlayMode.Region) return false;
             }
             return true;

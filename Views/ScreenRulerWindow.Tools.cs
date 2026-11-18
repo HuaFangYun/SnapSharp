@@ -36,7 +36,7 @@ public sealed partial class ScreenRulerWindow
     private Border _zoomPanel = null!;
     private readonly Image _zoomImage = new() { Width = 119, Height = 119, Stretch = Stretch.Fill };
     private readonly TextBlock _zoomText = new() { Foreground = Brushes.White, FontFamily = new FontFamily("Consolas"), FontSize = 10, TextAlignment = TextAlignment.Center };
-    private readonly RulerMagnifierReticle _zoomReticle = new() { IsHitTestVisible = false };
+    private readonly MagnifierReticle _zoomReticle = new() { IsHitTestVisible = false };
     private BitmapSource? _sample;
     private Exception? _sampleError;
     private System.Drawing.Rectangle _sampleBounds;
@@ -271,7 +271,7 @@ public sealed partial class ScreenRulerWindow
         var hovered = _draggedGuide ?? GuideAt(point);
         _measurementOverlay.HoveredGuide = hovered;
         _surface.Cursor = hovered is { } guideIndex && !Keyboard.Modifiers.HasFlag(ModifierKeys.Control)
-            ? (_measurements.Guides[guideIndex].Vertical ? Cursors.SizeWE : Cursors.SizeNS) : Cursors.Cross;
+            ? (_measurements.Guides[guideIndex].Vertical ? Cursors.SizeWE : Cursors.SizeNS) : PrecisionCursor.Cross;
         UpdateMeasurements();
     }
 

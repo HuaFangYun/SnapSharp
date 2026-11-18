@@ -6,6 +6,13 @@ Run from the repository root on Windows:
 dotnet run --project tools/WindowChecks/WindowChecks.csproj -p:Platform=x64
 ```
 
+Run crosshair rendering, magnifier, capture precision and guide preference checks
+without the live desktop sampling check:
+
+```powershell
+dotnet run --project tools/WindowChecks/WindowChecks.csproj -p:Platform=x64 -- --precision-only
+```
+
 The checks open and close real WPF windows, inspecting native Z-order and modal
 enablement. They do not register global hotkeys, run OCR, download models or save
 application preferences. Temporary settings live in `.artifacts/window-checks`.
@@ -43,6 +50,9 @@ Coverage:
   excluded from the sample. This check requires desktop screen-capture access.
 - Magnifier crosshair contrast on white/black/color backgrounds, center color preservation,
   off-center sampled-pixel tracking and desktop-edge positioning, with rendered previews.
+- Exactly one black and one white device pixel for capture/ruler/magnifier/annotation
+  crosshairs and pixel frames at 100/125/150/200/300% DPI, zoom and fractional offsets;
+  custom cursor arm thickness and hotspot position.
 - All guide strings localized in every language pack, compiled Simplified/Traditional
   Chinese resource checks and rendered Chinese capture/settings previews.
 

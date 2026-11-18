@@ -15,7 +15,7 @@ internal static partial class Program
     {
         foreach (var (name, color) in new[] { ("white", Colors.White), ("black", Colors.Black), ("color", Color.FromRgb(35, 86, 129)) })
         {
-            var reticle = new RulerMagnifierReticle();
+            var reticle = new MagnifierReticle();
             var lens = new Grid { Width = 119, Height = 119, Background = new SolidColorBrush(color) };
             lens.Children.Add(reticle);
             lens.Measure(new Size(119, 119)); lens.Arrange(new Rect(0, 0, 119, 119)); lens.UpdateLayout();

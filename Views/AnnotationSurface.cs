@@ -75,10 +75,11 @@ public sealed class AnnotationSurface : Canvas
 
     public AnnotationSurface()
     {
+        PixelReticle.TrackDeviceTransform(this);
         Focusable = true;
         Background = Brushes.Transparent;
         ClipToBounds = false;
-        Cursor = Cursors.Cross;
+        Cursor = PrecisionCursor.Cross;
         DataContextChanged += OnDataContextChanged;
         KeyDown += OnSurfaceKeyDown;
     }
@@ -133,7 +134,7 @@ public sealed class AnnotationSurface : Canvas
     }
 
     private void UpdateCursor() => Cursor = _viewModel?.SelectedTool == AnnotationTool.Select
-        ? Cursors.Arrow : Cursors.Cross;
+        ? Cursors.Arrow : PrecisionCursor.Cross;
 
     protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
     {
@@ -748,8 +749,8 @@ public sealed class AnnotationSurface : Canvas
             else if (_viewModel.SelectedAnnotation is { } selectedEffect) DrawSelection(drawingContext, selectedEffect);
             foreach (var lens in annotations.OfType<MagnifierAnnotation>())
             {
-                drawingContext.DrawLine(new Pen(Brushes.White, 1), lens.Source - new Vector(5, 0), lens.Source + new Vector(5, 0));
-                drawingContext.DrawLine(new Pen(Brushes.White, 1), lens.Source - new Vector(0, 5), lens.Source + new Vector(0, 5));
+                PixelReticle.DrawCrosshair(drawingContext, new Rect(lens.Source - new Vector(5, 5), new System.Windows.Size(10, 10)),
+                    lens.Source, deviceTransform: PixelReticle.DeviceTransform(this));
             }
             if (_viewModel.SelectedTool == AnnotationTool.Polygon && _points is { Count: > 0 })
                 new PenAnnotation(_points.Append(_current).ToArray(), _viewModel.SelectedColor, _viewModel.StrokeThickness).Draw(drawingContext);
@@ -1172,7 +1173,7 @@ public sealed class AnnotationSurface : Canvas
         }
         if (selected is BubbleAnnotation bubble && (VisualPoint(bubble, bubble.Tip) - _current).Length <= 12)
         {
-            Cursor = Cursors.Cross;
+            Cursor = PrecisionCursor.Cross;
             return;
         }
         Cursor = HitResizeHandle(selected, _current) switch
@@ -1181,7 +1182,7 @@ public sealed class AnnotationSurface : Canvas
             ResizeHandle.Left or ResizeHandle.Right => Cursors.SizeWE,
             ResizeHandle.TopLeft or ResizeHandle.BottomRight => Cursors.SizeNWSE,
             ResizeHandle.TopRight or ResizeHandle.BottomLeft => Cursors.SizeNESW,
-            ResizeHandle.StartPoint or ResizeHandle.EndPoint => Cursors.Cross,
+            ResizeHandle.StartPoint or ResizeHandle.EndPoint => PrecisionCursor.Cross,
             _ when AnnotationEditing.HitTest(selected, _current) => Cursors.SizeAll,
             _ => Cursors.Arrow
         };

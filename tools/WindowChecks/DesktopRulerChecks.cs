@@ -156,15 +156,16 @@ internal static partial class Program
             var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(120) };
             timer.Tick += (_, _) => { timer.Stop(); frame.Continue = false; }; timer.Start(); Dispatcher.PushFrame(frame);
             Invoke(ruler, "SampleScreen", new Point(160, 110), true);
-            var reticle = (RulerMagnifierReticle)typeof(ScreenRulerWindow).GetField("_zoomReticle", PrivateInstance)!.GetValue(ruler)!;
+            var reticle = (MagnifierReticle)typeof(ScreenRulerWindow).GetField("_zoomReticle", PrivateInstance)!.GetValue(ruler)!;
             ruler.UpdateLayout();
             var sample = (BitmapSource?)typeof(ScreenRulerWindow).GetField("_sample", PrivateInstance)!.GetValue(ruler);
             var excluded = (bool)typeof(ScreenRulerWindow).GetField("_captureExcluded", PrivateInstance)!.GetValue(ruler)!;
             if (excluded)
             {
-                Require(reticle.PixelBounds == new Rect(56, 56, 7, 7), "Live sample does not position the magnifier crosshair over the captured pixel.");
                 Require(sample is not null, "Magnifier did not capture the screen: " +
                     typeof(ScreenRulerWindow).GetField("_sampleError", PrivateInstance)!.GetValue(ruler));
+                Require(reticle.PixelBounds == new Rect(56, 56, 7, 7),
+                    $"Live sample does not position the magnifier crosshair over the captured pixel: {reticle.PixelBounds}.");
                 var color = new byte[4];
                 new FormatConvertedBitmap(sample!, PixelFormats.Bgra32, null, 0).CopyPixels(new Int32Rect(16, 16, 1, 1), color, 4, 0);
                 Require(color[2] == 35 && color[1] == 86 && color[0] == 129,

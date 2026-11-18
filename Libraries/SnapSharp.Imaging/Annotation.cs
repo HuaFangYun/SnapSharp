@@ -830,8 +830,7 @@ public sealed record MagnifierAnnotation(Point Source, Rect Destination, double 
     {
         context.DrawRectangle(new SolidColorBrush(Color.FromArgb(45, 255, 255, 255)),
             new Pen(Brushes.White, Thickness), Destination);
-        context.DrawLine(new Pen(Brushes.White, 1), Source - new Vector(6, 0), Source + new Vector(6, 0));
-        context.DrawLine(new Pen(Brushes.White, 1), Source - new Vector(0, 6), Source + new Vector(0, 6));
+        PixelReticle.DrawCrosshair(context, new Rect(Source - new Vector(6, 6), new System.Windows.Size(12, 12)), Source);
     }
     public override void DrawSkia(SKCanvas canvas) { }
     public void ApplySkia(SKSurface surface, SKImage sourceImage)

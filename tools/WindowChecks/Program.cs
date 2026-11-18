@@ -11,7 +11,7 @@ internal static partial class Program
     private static readonly BindingFlags PrivateInstance = BindingFlags.NonPublic | BindingFlags.Instance;
 
     [STAThread]
-    private static int Main()
+    private static int Main(string[] args)
     {
         Directory.CreateDirectory(Root);
         var app = new System.Windows.Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
@@ -26,6 +26,14 @@ internal static partial class Program
             app.Resources = (ResourceDictionary)System.Windows.Markup.XamlReader.Parse(resources.ToString(),
                 new System.Windows.Markup.ParserContext { BaseUri = new Uri("pack://application:,,,/SnapSharp;component/") });
             using var theme = new ThemeService(); theme.Start();
+            ReticlePixelChecks();
+            if (args.Contains("--precision-only"))
+            {
+                RulerMagnifierChecks();
+                CapturePrecisionChecks();
+                GuidePreferencesChecks();
+                return 0;
+            }
             WindowLayeringChecks();
             CapturePrecisionChecks();
             WindowShapeChecks();

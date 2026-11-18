@@ -7,7 +7,7 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False"
         Topmost="True" AllowsTransparency="True" Background="Black"
-        Cursor="Cross" KeyDown="Window_KeyDown" PreviewKeyUp="Window_KeyUp"
+        Cursor="{x:Static local:PrecisionCursor.Cross}" KeyDown="Window_KeyDown" PreviewKeyUp="Window_KeyUp"
         PreviewMouseLeftButtonDown="Window_PreviewMouseLeftButtonDown"
         PreviewMouseWheel="Window_PreviewMouseWheel"
         PreviewMouseRightButtonDown="Window_PreviewMouseRightButtonDown">
@@ -59,17 +59,8 @@
         <Grid.RowDefinitions><RowDefinition Height="154" /><RowDefinition /></Grid.RowDefinitions>
         <Grid ClipToBounds="True" Width="266" Height="154" Background="Black">
           <Image x:Name="ZoomImage" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" SnapsToDevicePixels="True" />
-          <Canvas IsHitTestVisible="False">
-            <Rectangle Width="126" Height="14" Canvas.Top="70" Fill="#66398BFF" />
-            <Rectangle Width="126" Height="14" Canvas.Left="140" Canvas.Top="70" Fill="#66398BFF" />
-            <Rectangle Width="14" Height="70" Canvas.Left="126" Fill="#66398BFF" />
-            <Rectangle Width="14" Height="70" Canvas.Left="126" Canvas.Top="84" Fill="#66398BFF" />
-          </Canvas>
           <Canvas x:Name="MagnifierPixelGrid" IsHitTestVisible="False" />
-          <Rectangle Width="14" Height="14" Stroke="#FF202020" StrokeThickness="3"
-                     HorizontalAlignment="Center" VerticalAlignment="Center" />
-          <Rectangle Width="14" Height="14" Stroke="White" StrokeThickness="1"
-                     HorizontalAlignment="Center" VerticalAlignment="Center" />
+          <local:MagnifierReticle Columns="19" Rows="11" IsHitTestVisible="False" />
         </Grid>
         <Border Grid.Row="1" Background="#E6000000" CornerRadius="0,0,4,4" Padding="4,5">
           <StackPanel>

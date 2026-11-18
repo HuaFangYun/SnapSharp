@@ -1,12 +1,15 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
+using SnapSharp.Models;
 
 namespace SnapSharp.Views;
 
 /// <summary>Screen pixel rulers and an unscaled pixel crosshair, rendered in monitor DIPs.</summary>
 public sealed class PixelGuides : FrameworkElement
 {
+    public PixelGuides() => PixelReticle.TrackDeviceTransform(this);
+
     private DrawingGroup? _rulerDrawing;
     private (double Width, double Height, int PixelWidth, int PixelHeight, int OriginX, int OriginY, bool InsetOrigin, double Dpi) _rulerState;
     public bool ShowRulers { get; set; }
@@ -69,14 +72,9 @@ public sealed class PixelGuides : FrameworkElement
     {
         var x = Math.Clamp(bounds.Left + Math.Floor((Pointer.X - bounds.Left) / px) * px + px / 2, bounds.Left, bounds.Right);
         var y = Math.Clamp(bounds.Top + Math.Floor((Pointer.Y - bounds.Top) / py) * py + py / 2, bounds.Top, bounds.Bottom);
-        foreach (var pen in new[] { new Pen(Brushes.Black, 2.5), new Pen(Brushes.White, .75) })
-        {
-            dc.DrawLine(pen, new Point(bounds.Left, y), new Point(Math.Max(bounds.Left, x - 7), y));
-            dc.DrawLine(pen, new Point(Math.Min(bounds.Right, x + 7), y), new Point(bounds.Right, y));
-            dc.DrawLine(pen, new Point(x, bounds.Top), new Point(x, Math.Max(bounds.Top, y - 7)));
-            dc.DrawLine(pen, new Point(x, Math.Min(bounds.Bottom, y + 7)), new Point(x, bounds.Bottom));
-        }
-        dc.DrawRectangle(null, new Pen(Brushes.White, .75), new Rect(x - px / 2, y - py / 2, px, py));
+        var transform = PixelReticle.DeviceTransform(this);
+        PixelReticle.DrawCrosshair(dc, bounds, new Point(x, y), 7, transform);
+        PixelReticle.DrawPixelFrame(dc, new Rect(x - px / 2, y - py / 2, px, py), transform);
     }
 
     private void DrawAxis(DrawingContext dc, int count, double scale, int origin, bool vertical, double offset)
