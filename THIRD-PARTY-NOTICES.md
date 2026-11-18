@@ -29,8 +29,6 @@ party's copyright notice or separate terms.
 - License: MIT
 - Use: observable editor state and commands
 
-No source code from PixPin is included in this project.
-
 ## Microsoft.ML.OnnxRuntime.DirectML 1.24.1
 
 - Project: https://github.com/microsoft/onnxruntime
