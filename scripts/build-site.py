@@ -4,6 +4,7 @@
 import argparse
 import html
 import json
+import re
 import runpy
 import shutil
 from pathlib import Path
@@ -221,6 +222,12 @@ class Site:
     def build(self):
         self.output.mkdir(parents=True, exist_ok=True)
         shutil.copytree(SOURCE / 'assets', self.output / 'assets', dirs_exist_ok=True)
+        # IndexNow uses a deliberately public text file to verify this site's
+        # URL prefix. This is not an account credential or an OAuth token.
+        indexnow_key = (SOURCE / 'indexnow-key.txt').read_text(encoding='utf-8').strip()
+        if not re.fullmatch(r'[A-Za-z0-9-]{8,128}', indexnow_key):
+            raise ValueError('Invalid public IndexNow key')
+        (self.output / f'{indexnow_key}.txt').write_text(indexnow_key, encoding='utf-8')
         for self.lang in [0, 1]:
             self.home()
             self.start()

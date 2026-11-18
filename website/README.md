@@ -89,3 +89,31 @@ On a project Pages site, `/SnapSharp/robots.txt` is **not** the host-root
 it cannot override the host's crawler policy. With a custom domain at its root,
 the same file can serve as the actual robots policy. Keep public content
 crawlable and maintain accurate, useful guides rather than adding hidden text.
+
+### Notify IndexNow
+
+`indexnow-key.txt` contains a deliberately public ownership key, not a password
+or account API credential. The build publishes it as `/<key>.txt` under the
+site's base path. This supports GitHub project Pages: `keyLocation` restricts
+submission to URLs below `/SnapSharp/`, rather than claiming the whole host.
+
+After the ownership file is publicly deployed, notify IndexNow manually:
+
+```powershell
+python scripts/submit-indexnow.py --dry-run
+python scripts/submit-indexnow.py --report .artifacts/site-qa/indexnow-receipt.json
+```
+
+The command verifies the live key, reads the public sitemap, and submits its
+URLs to the official IndexNow endpoint. Participating engines, including Bing,
+share notifications. HTTP 200 means received; HTTP 202 means received with key
+validation pending. Neither means indexed. Notifications are manual to avoid
+resubmitting every page on every build. Protocol: https://www.indexnow.org/documentation.
+
+Google does not participate in IndexNow. To submit there, sign in to Google
+Search Console, add the URL-prefix property
+`https://leelongjiang.github.io/SnapSharp/`, verify ownership, then submit
+`https://leelongjiang.github.io/SnapSharp/sitemap.xml` in **Sitemaps**. Account
+verification requires the property owner's session and cannot be inferred from
+GitHub repository access. The former unauthenticated Google sitemap ping
+endpoint is deprecated and is not used here.

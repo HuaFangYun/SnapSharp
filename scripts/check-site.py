@@ -168,6 +168,9 @@ def check(output):
     require(set(urls) == set(build['pages']), 'Sitemap does not match public pages')
     require(len(pages) == len(urls) + 1, 'Expected public pages plus one 404 page')
     require((output / '.nojekyll').exists(), 'Missing .nojekyll')
+    key = (Path(__file__).resolve().parents[1] / 'website/indexnow-key.txt').read_text(encoding='utf-8').strip()
+    key_file = output / f'{key}.txt'
+    require(key_file.is_file() and key_file.read_text(encoding='utf-8') == key, 'Missing or incorrect public IndexNow ownership file')
     require(build['base_url'] + '/sitemap.xml' in (output / 'robots.txt').read_text(encoding='utf-8'), 'Wrong sitemap URL in robots.txt')
     for href in urls:
         target, _ = target_of(href, output / 'index.html')
