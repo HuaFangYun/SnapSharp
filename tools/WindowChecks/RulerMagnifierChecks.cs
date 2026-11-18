@@ -17,7 +17,9 @@ internal static partial class Program
         {
             var reticle = new MagnifierReticle();
             var lens = new Grid { Width = 119, Height = 119, Background = new SolidColorBrush(color) };
+            // Match the 96-DPI render target rather than inheriting desktop DPI.
             lens.Children.Add(reticle);
+            VisualTreeHelper.SetRootDpi(lens, new DpiScale(1, 1));
             lens.Measure(new Size(119, 119)); lens.Arrange(new Rect(0, 0, 119, 119)); lens.UpdateLayout();
             reticle.SetPixel(8, 8);
             var bitmap = new RenderTargetBitmap(119, 119, 96, 96, PixelFormats.Pbgra32); bitmap.Render(lens);

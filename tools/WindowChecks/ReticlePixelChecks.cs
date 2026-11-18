@@ -79,7 +79,11 @@ internal static partial class Program
         using (var graphics = System.Drawing.Graphics.FromImage(cursorBitmap))
         {
             graphics.Clear(System.Drawing.Color.FromArgb(background.R, background.G, background.B));
-            cursor.Draw(graphics, new System.Drawing.Rectangle(0, 0, 32, 32));
+            // WinForms Cursor.Draw uses the system cursor size, which may be larger
+            // on a high-DPI desktop. Inspect the native cursor at its authored 32px size.
+            var dc = graphics.GetHdc();
+            try { Require(DrawIconEx(dc, 0, 0, handle.DangerousGetHandle(), 32, 32, 0, 0, 3), "Native cursor rendering failed."); }
+            finally { graphics.ReleaseHdc(dc); }
         }
         var cursorBackground = System.Drawing.Color.FromArgb(background.R, background.G, background.B).ToArgb();
         var horizontal = Enumerable.Range(0, 32).Select(y => cursorBitmap.GetPixel(6, y).ToArgb()).Where(c => c != cursorBackground);
@@ -89,6 +93,10 @@ internal static partial class Program
         cursorBitmap.Save(System.IO.Path.Combine(Root, "precision-cursor.png"));
         Console.WriteLine("PASS: crosshairs and frames use exactly one black and one white device pixel at 100/125/150/200/300% DPI, zoom and fractional offsets; sample centers and cursor hotspot preserved.");
     }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static extern bool DrawIconEx(nint dc, int x, int y, nint icon, int width, int height, uint step, nint brush, uint flags);
 
     private static AnnotationSurface AnnotationReticle(Color color)
     {

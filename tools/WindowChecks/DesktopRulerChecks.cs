@@ -102,26 +102,28 @@ internal static partial class Program
             var rightGrip = layout.Children.OfType<Thumb>().Single(t => t.Name == "RightResizeGrip");
             Require(layout.Children.OfType<Thumb>().Count(t => t.Name.EndsWith("ResizeEdge")) == 4,
                 "Full-edge resize hit areas are missing.");
+            // Native resize rounds DIP dimensions to physical pixels on fractional DPI.
+            var resizeTolerance = 1 / VisualTreeHelper.GetDpi(ruler).DpiScaleY + .01;
             var oldLeft = ruler.Left; var oldTop = ruler.Top; var oldWidth = ruler.ActualWidth; var oldHeight = ruler.ActualHeight;
             var fixedRight = oldLeft + oldWidth;
             leftGrip.RaiseEvent(new DragDeltaEventArgs(-40, 0) { RoutedEvent = Thumb.DragDeltaEvent }); ruler.UpdateLayout();
-            Require(Math.Abs(ruler.Width - oldWidth - 40) < .1 && Math.Abs(ruler.Left + ruler.Width - fixedRight) < .1,
+            Require(Math.Abs(ruler.Width - oldWidth - 40) < resizeTolerance && Math.Abs(ruler.Left + ruler.Width - fixedRight) < resizeTolerance,
                 "Left resize handle does not preserve the right edge.");
             bottomGrip.RaiseEvent(new DragDeltaEventArgs(0, 35) { RoutedEvent = Thumb.DragDeltaEvent }); ruler.UpdateLayout();
-            Require(Math.Abs(ruler.Height - oldHeight - 35) < .1 && ruler.Top == oldTop,
-                "Bottom resize handle moves the window instead of resizing it.");
+            Require(Math.Abs(ruler.Height - oldHeight - 35) < resizeTolerance && ruler.Top == oldTop,
+                $"Bottom resize handle moves the window instead of resizing it: height={ruler.Height}, expected={oldHeight + 35}, top={ruler.Top}, expectedTop={oldTop}.");
             var fixedBottom = ruler.Top + ruler.ActualHeight;
             topGrip.RaiseEvent(new DragDeltaEventArgs(0, -25) { RoutedEvent = Thumb.DragDeltaEvent }); ruler.UpdateLayout();
-            Require(Math.Abs(ruler.Top + ruler.Height - fixedBottom) < .1 && Math.Abs(ruler.Top - oldTop + 25) < .1,
+            Require(Math.Abs(ruler.Top + ruler.Height - fixedBottom) < resizeTolerance && Math.Abs(ruler.Top - oldTop + 25) < resizeTolerance,
                 "Top resize handle does not preserve the bottom edge.");
             var fixedLeft = ruler.Left; var beforeRight = ruler.ActualWidth;
             rightGrip.RaiseEvent(new DragDeltaEventArgs(30, 0) { RoutedEvent = Thumb.DragDeltaEvent }); ruler.UpdateLayout();
-            Require(ruler.Left == fixedLeft && Math.Abs(ruler.Width - beforeRight - 30) < .1,
+            Require(ruler.Left == fixedLeft && Math.Abs(ruler.Width - beforeRight - 30) < resizeTolerance,
                 "Right resize handle does not preserve the left edge.");
             fixedRight = ruler.Left + ruler.ActualWidth;
             leftGrip.RaiseEvent(new DragDeltaEventArgs(10000, 0) { RoutedEvent = Thumb.DragDeltaEvent }); ruler.UpdateLayout();
             bottomGrip.RaiseEvent(new DragDeltaEventArgs(0, -10000) { RoutedEvent = Thumb.DragDeltaEvent }); ruler.UpdateLayout();
-            Require(ruler.Width == ruler.MinWidth && ruler.Height == ruler.MinHeight && Math.Abs(ruler.Left + ruler.Width - fixedRight) < .1,
+            Require(Math.Abs(ruler.Width - ruler.MinWidth) < resizeTolerance && Math.Abs(ruler.Height - ruler.MinHeight) < resizeTolerance && Math.Abs(ruler.Left + ruler.Width - fixedRight) < resizeTolerance,
                 "Resize handles violate minimum size or move the fixed edge.");
             ruler.Left = oldLeft; ruler.Top = oldTop; ruler.Width = oldWidth; ruler.Height = oldHeight; ruler.UpdateLayout(); Invoke(ruler, "UpdateMeasurements");
             var guideButton = (ToggleButton)typeof(ScreenRulerWindow).GetField("_guideButton", PrivateInstance)!.GetValue(ruler)!;
@@ -164,7 +166,9 @@ internal static partial class Program
             {
                 Require(sample is not null, "Magnifier did not capture the screen: " +
                     typeof(ScreenRulerWindow).GetField("_sampleError", PrivateInstance)!.GetValue(ruler));
-                Require(reticle.PixelBounds == new Rect(56, 56, 7, 7),
+                var expectedPixel = new Rect(8 * reticle.ActualWidth / 17, 8 * reticle.ActualHeight / 17,
+                    reticle.ActualWidth / 17, reticle.ActualHeight / 17);
+                Require(reticle.Columns == 17 && reticle.Rows == 17 && reticle.PixelBounds == expectedPixel,
                     $"Live sample does not position the magnifier crosshair over the captured pixel: {reticle.PixelBounds}.");
                 var color = new byte[4];
                 new FormatConvertedBitmap(sample!, PixelFormats.Bgra32, null, 0).CopyPixels(new Int32Rect(16, 16, 1, 1), color, 4, 0);

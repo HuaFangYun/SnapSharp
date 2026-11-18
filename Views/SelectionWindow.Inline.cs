@@ -1549,7 +1549,9 @@ public partial class SelectionWindow : Window
         var window = new SelectionWindow(new CapturedScreen(new Rectangle(-800, -100, 40, 30), source), [], new ScreenCaptureService()) { Width = 640, Height = 480 };
         try
         {
-            window.Root.Measure(new System.Windows.Size(640, 480)); window.Root.Arrange(new Rect(0, 0, 640, 480));
+            // Coordinate conversion uses the window's arranged DIP surface. Laying
+            // out Root alone leaves Window.ActualWidth/ActualHeight at zero.
+            window.Show(); window.UpdateLayout();
             foreach (var point in new[] { new Point(0, 0), new Point(window.Root.ActualWidth - 1, window.Root.ActualHeight - 1), new Point(window.Root.ActualWidth / 2, window.Root.ActualHeight / 2) })
             {
                 window.UpdatePointer(point);
