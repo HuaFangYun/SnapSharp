@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>$(DefineConstants);UPDATE_CHECKS_ONLY</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\RegressionChecks\AppUpdateChecks.cs" Link="AppUpdateChecks.cs" />
+    <Compile Include="..\RegressionChecks\AppUpdateInstallerChecks.cs" Link="AppUpdateInstallerChecks.cs" />
+    <Compile Include="..\..\Services\AppUpdateService.cs" Link="AppUpdateService.cs" />
+    <Compile Include="..\..\Services\AppUpdateInstaller.cs" Link="AppUpdateInstaller.cs" />
+    <EmbeddedResource Include="..\..\Services\AppUpdate.ps1" LogicalName="SnapSharp.AppUpdate.ps1" />
+  </ItemGroup>
+</Project>

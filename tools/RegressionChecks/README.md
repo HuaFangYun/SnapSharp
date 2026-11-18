@@ -37,3 +37,9 @@ dotnet run --project tools/RegressionChecks/RegressionChecks.csproj -c Release -
 ```
 
 The browser check skips if neither supported browser executable is installed. Cross-monitor hardware, elevated target applications, and arbitrary third-party accessibility providers still require manual verification.
+
+## Application update checks
+
+Run `dotnet run --project tools/UpdateChecks/UpdateChecks.csproj -c Release` for isolated offline checks. The full regression runner includes these checks and supports `--updates-only` when it builds successfully.
+
+Checks cover stable releases, normalized versions, Windows x64 package selection, GitHub SHA256 metadata/checksum fallback, bounded downloads, ZIP path/data protection, executable version validation and cancellation. Real helper fixtures check file replacement, preservation of settings/models, and rollback when a DLL is locked. The standalone runner also checks waiting for the parent process to exit and launching the installed executable. No checks contact GitHub or replace the real SnapSharp installation.

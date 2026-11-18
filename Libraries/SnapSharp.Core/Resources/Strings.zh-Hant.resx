@@ -3817,4 +3817,24 @@ Media Foundation：{2}
   <data name="ModelSetupReady" xml:space="preserve">
     <value>模型校驗通過，配置已填入；已有有效模型直接復用。請儲存設定后使用。</value>
   </data>
+  <data name="AppUpdateTitle" xml:space="preserve"><value>線上更新</value></data>
+  <data name="AppUpdateHint" xml:space="preserve"><value>從 GitHub Releases 下載、驗證並安裝正式版，完成後自動重新啟動，保留已儲存的設定、模型和歷史記錄。</value></data>
+  <data name="AppUpdateCheck" xml:space="preserve"><value>檢查更新</value></data>
+  <data name="AppUpdateViewRelease" xml:space="preserve"><value>檢視發佈頁面</value></data>
+  <data name="AppUpdateDownload" xml:space="preserve"><value>下載並安裝更新</value></data>
+  <data name="AppUpdateChecking" xml:space="preserve"><value>正在檢查更新…</value></data>
+  <data name="AppUpdateNoRelease" xml:space="preserve"><value>暫時沒有可用的正式發佈版本。</value></data>
+  <data name="AppUpdateAvailable" xml:space="preserve"><value>發現新版本：{0}</value></data>
+  <data name="AppUpdateLatest" xml:space="preserve"><value>目前已是最新版本或更新的開發版本。</value></data>
+  <data name="AppUpdateNoNotes" xml:space="preserve"><value>此版本未提供更新說明。</value></data>
+  <data name="AppUpdateNoPackage" xml:space="preserve"><value>Windows x64 完整套件尚未上傳，請稍後檢視發佈頁面。</value></data>
+  <data name="AppUpdateFailed" xml:space="preserve"><value>檢查更新失敗。請檢查網路或稍後重試，GitHub 可能暫時無法使用或請求受限。也可直接檢視發佈頁面。</value></data>
+  <data name="AppUpdateBusy" xml:space="preserve"><value>請先結束錄影、捲動擷取和模型下載，再安裝更新。</value></data>
+  <data name="AppUpdateDownloading" xml:space="preserve"><value>正在下載並驗證更新…</value></data>
+  <data name="AppUpdateDownloadProgress" xml:space="preserve"><value>正在下載更新：{0}%</value></data>
+  <data name="AppUpdateReady" xml:space="preserve"><value>更新套件已驗證，可以安裝。</value></data>
+  <data name="AppUpdateRestartConfirm" xml:space="preserve"><value>更新已準備就緒。繼續前請儲存尚未完成的編輯和設定。現在結束並自動替換目前版本，然後重新啟動 SnapSharp 嗎？已儲存的設定、模型和歷史記錄將會保留。</value></data>
+  <data name="AppUpdateInstalling" xml:space="preserve"><value>正在結束並安裝更新…</value></data>
+  <data name="AppUpdateCancelled" xml:space="preserve"><value>更新已取消，目前版本未變更。</value></data>
+  <data name="AppUpdateInstallFailed" xml:space="preserve"><value>無法安裝更新，目前程式將繼續執行。請檢查網路、磁碟空間和程式目錄寫入權限後重試。</value></data>
 </root>

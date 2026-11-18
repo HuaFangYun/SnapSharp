@@ -3699,4 +3699,24 @@ Media Foundation：{2}
   <data name="ModelCacheChecking" xml:space="preserve"><value>正在校验已下载的模型文件…</value></data>
   <data name="ModelCacheReused" xml:space="preserve"><value>已有模型校验通过，直接复用 {0}，无需重复下载。</value></data>
   <data name="ModelSetupReady" xml:space="preserve"><value>模型校验通过，配置已填入；已有有效模型直接复用。请保存设置后使用。</value></data>
+  <data name="AppUpdateTitle" xml:space="preserve"><value>在线更新</value></data>
+  <data name="AppUpdateHint" xml:space="preserve"><value>从 GitHub Releases 下载、校验并安装正式版，完成后自动重启，保留已保存的配置、模型和历史记录。</value></data>
+  <data name="AppUpdateCheck" xml:space="preserve"><value>检查更新</value></data>
+  <data name="AppUpdateViewRelease" xml:space="preserve"><value>查看发布页面</value></data>
+  <data name="AppUpdateDownload" xml:space="preserve"><value>下载并安装更新</value></data>
+  <data name="AppUpdateChecking" xml:space="preserve"><value>正在检查更新…</value></data>
+  <data name="AppUpdateNoRelease" xml:space="preserve"><value>暂时没有可用的正式发布版。</value></data>
+  <data name="AppUpdateAvailable" xml:space="preserve"><value>发现新版本：{0}</value></data>
+  <data name="AppUpdateLatest" xml:space="preserve"><value>当前已是最新版本或更新的开发版本。</value></data>
+  <data name="AppUpdateNoNotes" xml:space="preserve"><value>此版本未提供更新说明。</value></data>
+  <data name="AppUpdateNoPackage" xml:space="preserve"><value>Windows x64 完整包尚未上传，请稍后查看发布页面。</value></data>
+  <data name="AppUpdateFailed" xml:space="preserve"><value>检查更新失败。请检查网络或稍后重试，GitHub 可能暂时不可用或请求受限。也可直接查看发布页面。</value></data>
+  <data name="AppUpdateBusy" xml:space="preserve"><value>请先结束录屏、长截图和模型下载，再安装更新。</value></data>
+  <data name="AppUpdateDownloading" xml:space="preserve"><value>正在下载并校验更新…</value></data>
+  <data name="AppUpdateDownloadProgress" xml:space="preserve"><value>正在下载更新：{0}%</value></data>
+  <data name="AppUpdateReady" xml:space="preserve"><value>更新包已校验，可以安装。</value></data>
+  <data name="AppUpdateRestartConfirm" xml:space="preserve"><value>更新已准备就绪。继续前请保存尚未完成的编辑和设置。现在退出并自动替换当前版本，然后重启 SnapSharp 吗？已保存的配置、模型和历史记录会保留。</value></data>
+  <data name="AppUpdateInstalling" xml:space="preserve"><value>正在退出并安装更新…</value></data>
+  <data name="AppUpdateCancelled" xml:space="preserve"><value>更新已取消，当前版本未改动。</value></data>
+  <data name="AppUpdateInstallFailed" xml:space="preserve"><value>无法安装更新，当前程序会保持运行。请检查网络、磁盘空间和程序目录写入权限后重试。</value></data>
 </root>

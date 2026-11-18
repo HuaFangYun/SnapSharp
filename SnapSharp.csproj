@@ -38,6 +38,7 @@
     <Compile Remove="Views\SelectionWindow.xaml.cs" />
     <Compile Remove="Libraries\**\*.cs" />
     <Compile Remove="tools\RegressionChecks\**\*.cs" />
+    <Compile Remove="tools\UpdateChecks\**\*.cs" />
     <Page Remove="Libraries\**\*.xaml" />
     <EmbeddedResource Remove="Libraries\**\*" />
     <Resource Include="logo.ico" />
@@ -47,6 +48,7 @@
     <None Update="ThirdPartyLicenses\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Services\AppUpdate.ps1" LogicalName="SnapSharp.AppUpdate.ps1" />
     <InternalsVisibleTo Include="SnapSharp.RegressionChecks" />
   </ItemGroup>
 </Project>

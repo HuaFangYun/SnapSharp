@@ -3817,4 +3817,24 @@ ScreenRecorderLib が含まれています。 NuGet または FFmpeg を個別�
   <data name="ModelSetupReady" xml:space="preserve">
     <value>モデルが検証され、パスが入力されました。既存の有効なモデルが再利用されます。適用する設定を保存します。</value>
   </data>
+  <data name="AppUpdateTitle" xml:space="preserve"><value>Online updates</value></data>
+  <data name="AppUpdateHint" xml:space="preserve"><value>Download, verify and install stable updates from GitHub Releases. SnapSharp will restart automatically; saved settings, models and history are preserved.</value></data>
+  <data name="AppUpdateCheck" xml:space="preserve"><value>Check for updates</value></data>
+  <data name="AppUpdateViewRelease" xml:space="preserve"><value>Open release page</value></data>
+  <data name="AppUpdateDownload" xml:space="preserve"><value>Download and install update</value></data>
+  <data name="AppUpdateChecking" xml:space="preserve"><value>Checking for updates…</value></data>
+  <data name="AppUpdateNoRelease" xml:space="preserve"><value>No stable release is available yet.</value></data>
+  <data name="AppUpdateAvailable" xml:space="preserve"><value>New version available: {0}</value></data>
+  <data name="AppUpdateLatest" xml:space="preserve"><value>You are running the latest version or a newer build.</value></data>
+  <data name="AppUpdateNoNotes" xml:space="preserve"><value>No release notes were provided.</value></data>
+  <data name="AppUpdateNoPackage" xml:space="preserve"><value>The Windows x64 package is not available yet. Check the release page later.</value></data>
+  <data name="AppUpdateFailed" xml:space="preserve"><value>Could not check for updates. Check your connection or try again later; GitHub may be unavailable or rate limited. You can also open the release page.</value></data>
+  <data name="AppUpdateBusy" xml:space="preserve"><value>Finish recording, scrolling capture and model downloads before installing an update.</value></data>
+  <data name="AppUpdateDownloading" xml:space="preserve"><value>Downloading and verifying update…</value></data>
+  <data name="AppUpdateDownloadProgress" xml:space="preserve"><value>Downloading update: {0}%</value></data>
+  <data name="AppUpdateReady" xml:space="preserve"><value>Update verified and ready to install.</value></data>
+  <data name="AppUpdateRestartConfirm" xml:space="preserve"><value>The update is ready. Save any unfinished edits and settings before continuing. Restart SnapSharp now to automatically replace this version? Saved settings, models and history will be preserved.</value></data>
+  <data name="AppUpdateInstalling" xml:space="preserve"><value>Restarting to install update…</value></data>
+  <data name="AppUpdateCancelled" xml:space="preserve"><value>Update cancelled. The installed version has not changed.</value></data>
+  <data name="AppUpdateInstallFailed" xml:space="preserve"><value>Could not install the update. The current version will stay open. Check the connection, disk space and write permissions, then retry.</value></data>
 </root>

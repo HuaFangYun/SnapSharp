@@ -22,6 +22,10 @@ public partial class SettingsWindow : Window
     public static readonly DependencyProperty SelectedModelDownloadSourceProperty = DependencyProperty.Register(nameof(SelectedModelDownloadSource), typeof(string), typeof(SettingsWindow), new PropertyMetadata(ModelDownloadSource.Official));
     public string SelectedModelDownloadSource { get => (string)GetValue(SelectedModelDownloadSourceProperty); set => SetValue(SelectedModelDownloadSourceProperty, value); }
     private CancellationTokenSource? _translationTest;
+    private CancellationTokenSource? _appUpdateCheck;
+    private CancellationTokenSource? _appUpdateInstall;
+    private AppRelease? _appRelease;
+    private PreparedAppUpdate? _preparedAppUpdate;
     public static readonly DependencyProperty CompactLayoutProperty = DependencyProperty.Register(nameof(CompactLayout), typeof(bool), typeof(SettingsWindow), new PropertyMetadata(false));
     public bool CompactLayout { get => (bool)GetValue(CompactLayoutProperty); private set => SetValue(CompactLayoutProperty, value); }
     private readonly SettingsService _settings;
@@ -128,6 +132,10 @@ public partial class SettingsWindow : Window
         {
             ModelDownload?.Cancel();
             _translationTest?.Cancel();
+            _appUpdateCheck?.Cancel();
+            _appUpdateInstall?.Cancel();
+            if (_appUpdateInstall is null && _preparedAppUpdate is not null)
+            { AppUpdateInstaller.Cleanup(_preparedAppUpdate.Directory); _preparedAppUpdate = null; }
             try { _hotkey.Resume(); }
             catch (Exception ex) { MessageBox.Show(ex.Message, L.Get("ShortcutRestorationFailedReopenSettingsToCheck"), MessageBoxButton.OK, MessageBoxImage.Warning); }
         };
@@ -471,6 +479,115 @@ public partial class SettingsWindow : Window
         OpenWebsite(RecognitionProviderCatalog.Translation(((System.Windows.Controls.ComboBoxItem)TranslationProviderBox.SelectedItem).Tag.ToString()!).Website);
     private void OpenProviderWebsite_Click(object sender, RoutedEventArgs e) =>
         OpenWebsite(RecognitionProviderCatalog.Website(((FrameworkElement)sender).Tag.ToString()!));
+    private async void CheckAppUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (_appUpdateCheck is not null || _appUpdateInstall is not null) return;
+        using var cancellation = new CancellationTokenSource();
+        _appUpdateCheck = cancellation;
+        CheckAppUpdateButton.IsEnabled = false;
+        AppReleaseNotesButton.Visibility = AppUpdateDownloadButton.Visibility = AppReleaseNotesPanel.Visibility = Visibility.Collapsed;
+        AppReleaseNotesButton.Tag = AppUpdateDownloadButton.Tag = null;
+        _appRelease = null;
+        if (_preparedAppUpdate is not null) { AppUpdateInstaller.Cleanup(_preparedAppUpdate.Directory); _preparedAppUpdate = null; }
+        AppReleaseNotes.Text = "";
+        AppUpdateStatus.Text = L.Get("AppUpdateChecking");
+        try
+        {
+            var release = await AppUpdateService.CheckAsync(cancellation.Token);
+            if (cancellation.IsCancellationRequested) return;
+            if (release is null) { AppUpdateStatus.Text = L.Get("AppUpdateNoRelease"); return; }
+            var current = typeof(SettingsWindow).Assembly.GetName().Version ?? new Version(0, 0, 0);
+            var newer = release.IsNewerThan(current);
+            _appRelease = release;
+            AppUpdateStatus.Text = newer ? L.Format("AppUpdateAvailable", release.Tag) : L.Get("AppUpdateLatest");
+            AppReleaseNotes.Text = string.IsNullOrWhiteSpace(release.Notes) ? L.Get("AppUpdateNoNotes") : release.Notes;
+            AppReleaseNotesPanel.Visibility = AppReleaseNotesButton.Visibility = Visibility.Visible;
+            AppReleaseNotesButton.Tag = release.Page.AbsoluteUri;
+            if (newer && release.Download is not null)
+            {
+                AppUpdateDownloadButton.Visibility = Visibility.Visible;
+            }
+            else if (newer) AppUpdateStatus.Text += Environment.NewLine + L.Get("AppUpdateNoPackage");
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception)
+        {
+            if (cancellation.IsCancellationRequested) return;
+            AppUpdateStatus.Text = L.Get("AppUpdateFailed");
+            AppReleaseNotesButton.Tag = AppUpdateService.ReleasesUrl;
+            AppReleaseNotesButton.Visibility = Visibility.Visible;
+        }
+        finally { _appUpdateCheck = null; CheckAppUpdateButton.IsEnabled = true; }
+    }
+
+    private bool AppUpdateIsBusy() => ModelDownload is not null ||
+        Application.Current.Windows.OfType<RecordingWindow>().Any(window => window.IsRecording) ||
+        Application.Current.Windows.OfType<ScrollCaptureWindow>().Any(window => window.IsCapturing);
+
+    private async void InstallAppUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (_appRelease is null || _appUpdateInstall is not null) return;
+        if (AppUpdateIsBusy()) { AppUpdateStatus.Text = L.Get("AppUpdateBusy"); return; }
+        using var cancellation = new CancellationTokenSource();
+        _appUpdateInstall = cancellation;
+        CheckAppUpdateButton.IsEnabled = AppUpdateDownloadButton.IsEnabled = false;
+        CancelAppUpdateButton.Visibility = AppUpdateProgress.Visibility = Visibility.Visible;
+        AppUpdateProgress.IsIndeterminate = true;
+        AppUpdateStatus.Text = L.Get("AppUpdateDownloading");
+        var handedOff = false;
+        var release = _appRelease;
+        var progress = new Progress<int>(value =>
+        {
+            AppUpdateProgress.IsIndeterminate = value < 0;
+            if (value >= 0) AppUpdateProgress.Value = value;
+            AppUpdateStatus.Text = value < 0 ? L.Get("AppUpdateDownloading") : L.Format("AppUpdateDownloadProgress", value);
+        });
+        try
+        {
+            _preparedAppUpdate ??= await Task.Run(() => AppUpdateInstaller.PrepareAsync(release, progress, cancellation.Token));
+            // All IO, hashing and ZIP extraction happen off the UI thread.
+            cancellation.Token.ThrowIfCancellationRequested();
+            AppUpdateProgress.IsIndeterminate = false;
+            AppUpdateProgress.Value = 100;
+            AppUpdateStatus.Text = L.Get("AppUpdateReady");
+            if (AppUpdateIsBusy()) { AppUpdateStatus.Text = L.Get("AppUpdateBusy"); return; }
+            if (MessageBox.Show(this, L.Get("AppUpdateRestartConfirm"), L.Get("AppUpdateTitle"),
+                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+            CancelAppUpdateButton.IsEnabled = false;
+            AppUpdateStatus.Text = L.Get("AppUpdateInstalling");
+            var prepared = _preparedAppUpdate;
+            await Task.Run(() => AppUpdateInstaller.StartUpdaterAsync(prepared, AppContext.BaseDirectory, cancellation.Token));
+            handedOff = true;
+            _preparedAppUpdate = null;
+            Application.Current.Shutdown();
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+            AppUpdateStatus.Text = L.Get("AppUpdateCancelled");
+        }
+        catch (Exception ex)
+        {
+            AppUpdateStatus.Text = L.Get("AppUpdateInstallFailed") + Environment.NewLine + ex.GetBaseException().Message;
+        }
+        finally
+        {
+            _appUpdateInstall = null;
+            CheckAppUpdateButton.IsEnabled = AppUpdateDownloadButton.IsEnabled = CancelAppUpdateButton.IsEnabled = true;
+            CancelAppUpdateButton.Visibility = AppUpdateProgress.Visibility = Visibility.Collapsed;
+            if (!handedOff && cancellation.IsCancellationRequested && _preparedAppUpdate is not null)
+            { AppUpdateInstaller.Cleanup(_preparedAppUpdate.Directory); _preparedAppUpdate = null; }
+        }
+    }
+
+    private void CancelAppUpdate_Click(object sender, RoutedEventArgs e) => _appUpdateInstall?.Cancel();
+
+    private void AppUpdateLink_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { Tag: string website }) return;
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(website) { UseShellExecute = true }); }
+        catch (Exception) { AppUpdateStatus.Text = L.Get("CouldNotOpenTheLinkVisitManually") + website; }
+    }
+
     private void AboutLink_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not System.Windows.Documents.Hyperlink { NavigateUri: not null } link) return;

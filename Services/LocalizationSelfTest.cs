@@ -113,10 +113,18 @@ internal static class LocalizationSelfTest
                     window.SelectCategory("Shield");
                     var categories = (System.Windows.Controls.TabControl)window.FindName("Categories");
                     Require(Equals(((TabItem)categories.SelectedItem).Tag, "Shield"), "Language-independent category navigation");
-                    foreach (var category in new[] { "Settings", "ScanText", "Video" })
+                    foreach (var category in new[] { "Settings", "ScanText", "Video", "Info" })
                     {
                         window.SelectCategory(category);
                         Render(window, 1040, 820, Path.Combine(outputDirectory, $"settings-{category}-{code}.png"));
+                        if (category == "Info")
+                        {
+                            ((TextBlock)window.FindName("AppUpdateStatus")).Text = UiText.Format("AppUpdateAvailable", "v9.9.9");
+                            ((System.Windows.Controls.TextBox)window.FindName("AppReleaseNotes")).Text = UiText.Get("AppUpdateReady");
+                            foreach (var control in new[] { "AppUpdateDownloadButton", "AppReleaseNotesButton", "AppReleaseNotesPanel" })
+                                ((FrameworkElement)window.FindName(control)).Visibility = Visibility.Visible;
+                            Render(window, 1040, 820, Path.Combine(outputDirectory, $"settings-update-available-{code}.png"));
+                        }
                     }
                     window.SelectCategory("Settings");
                     Render(window, 700, 560, Path.Combine(outputDirectory, $"settings-compact-{code}.png"));
@@ -129,7 +137,7 @@ internal static class LocalizationSelfTest
                 LocalizationService.Apply(code);
                 RenderFeatureWindows(settings, code, outputDirectory);
             }
-            return $"PASS: {keys.Count} resource keys across {LocalizationService.Languages.Count - 1} language packs; placeholders, file masks, localized WPF previews and selections, fallback, system language, settings compatibility/roundtrip/cancel, stable recording values, live XAML/tray updates, icons, model labels, 8 bilingual settings previews and 16 feature window previews.";
+            return $"PASS: {keys.Count} resource keys across {LocalizationService.Languages.Count - 1} language packs; placeholders, file masks, localized WPF previews and selections, fallback, system language, settings compatibility/roundtrip/cancel, stable recording values, live XAML/tray updates, icons, model labels, 10 bilingual settings previews and 16 feature window previews.";
         }
         finally { LocalizationService.Apply(previous.Name); }
     }

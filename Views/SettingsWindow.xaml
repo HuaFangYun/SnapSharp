@@ -301,6 +301,21 @@
           <TextBlock Margin="0,0,0,18"><Hyperlink NavigateUri="https://github.com/leelongjiang/SnapSharp" Click="AboutLink_Click" Foreground="{DynamicResource AccentForegroundBrush}">https://github.com/leelongjiang/SnapSharp</Hyperlink></TextBlock>
         </StackPanel></Border>
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:AppUpdateTitle}" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:AppUpdateHint}" Style="{StaticResource Hint}" />
+          <WrapPanel Margin="0,0,0,10">
+            <Button x:Name="CheckAppUpdateButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:AppUpdateCheck}" Click="CheckAppUpdate_Click" Margin="0,0,10,8" />
+            <Button x:Name="AppReleaseNotesButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:AppUpdateViewRelease}" Click="AppUpdateLink_Click" Visibility="Collapsed" Margin="0,0,10,8" />
+            <Button x:Name="AppUpdateDownloadButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:AppUpdateDownload}" Click="InstallAppUpdate_Click" Visibility="Collapsed" Margin="0,0,10,8" />
+            <Button x:Name="CancelAppUpdateButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:Cancel}" Click="CancelAppUpdate_Click" Visibility="Collapsed" Margin="0,0,0,8" />
+          </WrapPanel>
+          <ProgressBar x:Name="AppUpdateProgress" Height="6" Minimum="0" Maximum="100" Visibility="Collapsed" Margin="0,0,0,10" />
+          <TextBlock x:Name="AppUpdateStatus" TextWrapping="Wrap" Margin="0,0,0,10" />
+          <ScrollViewer x:Name="AppReleaseNotesPanel" MaxHeight="220" VerticalScrollBarVisibility="Auto" Visibility="Collapsed" Margin="0,0,0,10">
+            <TextBox x:Name="AppReleaseNotes" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" />
+          </ScrollViewer>
+        </StackPanel></Border>
+        <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SnapSharpSourceLicense}" Style="{StaticResource SectionTitle}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SnapSharpSourceCodeIsLicensedUnderApache}" Margin="0,0,0,12" />
           <Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ViewApplicationLicense}" Tag="LICENSE" Click="AboutDocument_Click" HorizontalAlignment="Left" Margin="0,0,0,18" />

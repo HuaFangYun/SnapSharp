@@ -32,6 +32,8 @@ internal static partial class Program
         Directory.CreateDirectory(Root);
         try
         {
+            AppUpdateChecks().GetAwaiter().GetResult();
+            if (args.Contains("--updates-only")) return 0;
             DataDirectoryChecks();
             PortableModelPathChecks();
             if (args.Contains("--data-directory-only")) return 0;
