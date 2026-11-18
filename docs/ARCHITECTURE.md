@@ -1,6 +1,6 @@
 # 架构与依赖参考
 
-> 最后按代码校准：2026-11-15。本文描述实际模块、运行边界与依赖采用规则；功能验收状态集中在路线图。
+> 最后按代码校准：2026-11-18。本文描述实际模块、运行边界与依赖采用规则；功能验收状态集中在路线图。
 
 [文档中心](README.md) · [构建与测试](构建与测试.md) · [功能规格与路线图](<SnapSharp 功能规格与路线图.md>)
 
@@ -23,11 +23,12 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 | `SnapSharp.Imaging` | 标注对象、WPF/Skia 绘制、图像变换、编码、缩略图和标注模板 | `Core` |
 | `SnapSharp.Editor` | 编辑状态、对象集合、选择状态、撤销/重做和样式属性 | `Core`、`Imaging` |
 | `SnapSharp.Capture` | GDI、WGC、DXGI/Direct3D 互操作、窗口枚举、滚动采集和坐标映射 | `Core`、`Imaging` |
+| `SnapSharp.Recording` | 录制引擎、设备枚举、录制时钟、编码探测、流式 GIF 编码和输出路径 | `Core`、`Imaging` |
 | `SnapSharp.Recognition` | ONNX CPU / DirectML GPU 推理、PaddleOCR、Windows OCR、条码、抠图与表格导出 | `Core`、`Imaging`、`Plugin.Abstractions` |
 | `SnapSharp.Infrastructure` | JSON 设置、PNG 历史、剪贴板适配器和应用数据路径 | `Core`、`Imaging` |
 | `SnapSharp.Plugin.Abstractions` | 图像处理、识别、输出和工作流动作的稳定契约 | 无其他 SnapSharp 项目 |
 | `SnapSharp.PluginHost` | 插件发现、强名称策略、独立加载上下文和能力注册表 | `Plugin.Abstractions` |
-| `SnapSharp` | WPF 视图、托盘、热键、单实例、录屏编排、在线服务授权和应用生命周期 | 上述运行时项目；直接使用 ScreenRecorderLib |
+| `SnapSharp` | WPF 视图、托盘、热键、单实例、录屏编排、在线服务授权和应用生命周期 | 上述运行时项目；窗口捕获排除仍直接使用 ScreenRecorderLib |
 
 依赖方向保持为 Shell 指向功能类库。功能类库不得反向引用主程序、`Views` 或具体窗口。
 
@@ -104,9 +105,9 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 
 ### 3.8 录屏
 
-录屏当前位于 WPF Shell 的 `RecordingService`／`RecordingWindow`，直接调用 ScreenRecorderLib，不复用截图后端的单帧循环。连续 WGC、原生帧时间戳、WASAPI 混音和摄像头叠加由库管理；H.264/AAC 使用系统 Media Foundation。
+录制引擎 `RecordingService` 位于 `SnapSharp.Recording`，由主程序的 `RecordingWindow` 编排，不复用截图后端的单帧循环。连续 WGC、原生帧时间戳、WASAPI 混音和摄像头叠加由 ScreenRecorderLib 管理；H.264/AAC 使用系统 Media Foundation。设备枚举、录制时钟、编码探测、GIF 编码和输出路径也属于录屏类库；窗口、倒计时、设置保存、环境安装及交互自检保留在主程序。共享配置与状态枚举仍位于 `Core`。
 
-应用通过显式状态机与 `RecordingClock` 管理有效录制时间、暂停、定时、停止和收尾。原生回调调度到 UI Dispatcher，GIF 转码在后台逐帧进行。`StreamingGifWriter` 使用有界调色板、抖动和 LZW，不引入 FFmpeg 或 Magick.NET。输出先保存在本次专用临时目录，成功后不覆盖移动至目标路径，失败保留临时数据。设备和输出限制见[使用指南的录屏章节](使用指南.md#recording)，环境安装见[配置与依赖](配置与依赖.md#recording)。
+应用通过显式状态机与 `RecordingClock` 管理有效录制时间、暂停、定时、停止和收尾。`RecordingService` 显式接收调用方提供的单线程 `SynchronizationContext`：构造、命令调用、属性读取和 `Changed` 通知都在该上下文所属线程执行（`FrameCount` 可跨线程读取）。原生回调和后台定时器只投递工作，待处理的定时通知最多保留一次，收尾时释放定时器；调用方须保持上下文运行至 `Completion` 完成。WPF Shell 使用 `DispatcherSynchronizationContext` 适配，录制引擎不直接引用 `Dispatcher` 或 `DispatcherTimer`。类库仍使用 WPF 位图与 WinForms 显示器信息，因此不是跨平台库。GIF 转码在后台逐帧进行；`StreamingGifWriter` 使用有界调色板、抖动和 LZW，不引入 FFmpeg 或 Magick.NET。输出先保存在本次专用临时目录，成功后不覆盖移动至目标路径，失败保留临时数据。设备和输出限制见[使用指南的录屏章节](使用指南.md#recording)，环境安装见[配置与依赖](配置与依赖.md#recording)。
 
 `RecordingDeviceService` 通过检查 HRESULT 的 Windows Core Audio COM 接口枚举录制／播放端点，按线程初始化和释放 COM；摄像头使用 Windows 设备枚举 API。避免调用录屏库可能发生原生访问违规的设备列表接口。空设备列表是正常状态，单类枚举失败不阻止无该设备的录屏；枚举不采集音频或摄像头内容。
 
@@ -140,6 +141,7 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 | 图像算法、编码、标注类型或模板字段 | `Imaging` |
 | 编辑命令、选择状态、历史合并策略 | `Editor` |
 | 捕获后端、窗口/显示器互操作、滚动采集 | `Capture` |
+| 连续录屏、录制设备、视频/GIF 编码及录制输出路径 | `Recording`；窗口和用户流程由 Shell 编排 |
 | 设置、历史索引、凭据或本地持久化适配器 | `Infrastructure` |
 | OCR、条码、抠图及模型适配 | `Recognition`；可选专用识别器使用插件 |
 | 上传、后处理、工作流能力 | 优先插件项目；授权与用户流程由 Shell 编排 |

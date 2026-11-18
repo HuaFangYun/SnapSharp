@@ -9,7 +9,7 @@ using Windows.Storage;
 namespace SnapSharp.Services;
 
 /// <summary>Checks actual encoding using generated pixels, with no screen, audio or camera source.</summary>
-internal static class RecordingEncoderProbe
+public static class RecordingEncoderProbe
 {
     public static async Task<string> Check(CancellationToken token, int frameRate = 30, int bitrateKbps = 0)
     {

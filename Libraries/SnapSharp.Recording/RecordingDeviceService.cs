@@ -5,7 +5,7 @@ namespace SnapSharp.Services;
 
 // Enumerate through checked Windows APIs: the recorder's native audio enumeration can
 // fail with an access violation on a worker thread and terminate the whole process.
-internal static class RecordingDeviceService
+public static class RecordingDeviceService
 {
     public static RecordingDevice[] Microphones() => Audio(1);
     public static RecordingDevice[] Speakers() => Audio(0);

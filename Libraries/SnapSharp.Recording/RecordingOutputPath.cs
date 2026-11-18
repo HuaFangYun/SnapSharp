@@ -2,7 +2,7 @@ using L = SnapSharp.Localization.UiText;
 
 namespace SnapSharp.Services;
 
-internal static class RecordingOutputPath
+public static class RecordingOutputPath
 {
     public static string Create(string directory, string format, DateTime now)
     {

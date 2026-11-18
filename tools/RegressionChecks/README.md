@@ -4,6 +4,14 @@
 dotnet run --project tools/RegressionChecks/RegressionChecks.csproj -c Release
 ```
 
+To run only the recording checks, using generated images without desktop, audio or camera capture:
+
+```powershell
+dotnet run --project tools/RecordingChecks/RecordingChecks.csproj -c Release
+```
+
+The standalone runner shares its engine checks with the full runner (`--recording-only`) and does not compile unrelated regression checks. These checks cover the recording library boundary, owner-thread command contract, rejected session inputs, non-overwriting output names, pause-excluding clock, GIF encode/decode, and synthetic native MP4 encoding at 15/30/60 fps. The standalone runner also loads the production resources to check the application's recording configuration, toolbar and setup layout. The full runner covers floating configuration visibility and audio selection. Hardware encoding, real capture and device behavior still require the opt-in recording capture checks or manual verification.
+
 To run the data-folder and simulated download checks without opening UI fixtures:
 
 ```powershell

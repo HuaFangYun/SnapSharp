@@ -32,6 +32,7 @@ internal static partial class Program
         Directory.CreateDirectory(Root);
         try
         {
+            if (args.Contains("--recording-only")) { RecordingChecks(); return 0; }
             AppUpdateChecks().GetAwaiter().GetResult();
             if (args.Contains("--updates-only")) return 0;
             DataDirectoryChecks();
@@ -43,6 +44,7 @@ internal static partial class Program
             ModelCacheChecks(fixtureArgument >= 0 ? Path.GetFullPath(args[fixtureArgument + 1]) : null).GetAwaiter().GetResult();
             if (args.Contains("--downloads-only")) return 0;
             SettingsChecks();
+            RecordingChecks();
             WindowChecks();
             Console.WriteLine("PASS: all screenshot interaction, recording preferences, output paths, overlay visibility and download regression checks.");
             return 0;

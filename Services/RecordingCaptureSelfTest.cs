@@ -6,6 +6,7 @@ using Windows.Media.Editing;
 using Windows.Storage;
 using SnapSharp.Views;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace SnapSharp.Services;
 
@@ -59,7 +60,7 @@ internal static class RecordingCaptureSelfTest
                 ("WGC", false, 30, "标准", 0, true)
             })
             {
-                service = new RecordingService(window.Dispatcher);
+                service = new RecordingService(new DispatcherSynchronizationContext(window.Dispatcher, DispatcherPriority.Background));
                 var session = service;
                 var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
                 service.Changed += () =>

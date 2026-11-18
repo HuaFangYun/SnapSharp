@@ -3,17 +3,23 @@ using ScreenRecorderLib;
 using SnapSharp.Models;
 using System.IO;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace SnapSharp.Services;
 
-internal sealed record RecordingDevice(string Id, string Name) { public override string ToString() => Name; }
-
-internal sealed class RecordingService
+/// <summary>A single recording session, serialized on a caller-owned synchronization context.</summary>
+/// <remarks>
+/// Construct the service and call its commands on the context's single owner thread.
+/// Native callbacks, monitoring and Changed notifications run on that same context.
+/// The context must remain running until Completion finishes; the service does not own it.
+/// FrameCount alone may also be read from other threads.
+/// </remarks>
+public sealed class RecordingService
 {
-    private readonly Dispatcher _dispatcher;
+    private readonly SynchronizationContext _context;
+    private readonly int _ownerThreadId = Environment.CurrentManagedThreadId;
     private RecordingClock _clock = new();
-    private readonly DispatcherTimer _timer;
+    private System.Threading.Timer? _timer;
+    private int _tickPending;
     private Recorder? _recorder;
     private RecordingPreferences _preferences = new();
     private readonly TaskCompletionSource _completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -41,15 +47,17 @@ internal sealed class RecordingService
     public string? SavedPath { get; private set; }
     public string Status { get; private set; } = L.Get("Ready");
     public event Action? Changed;
-    public RecordingService(Dispatcher dispatcher)
+    public RecordingService(SynchronizationContext context)
     {
-        _dispatcher = dispatcher; _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(250), DispatcherPriority.Background, Tick, dispatcher); _timer.Stop();
+        ArgumentNullException.ThrowIfNull(context);
+        _context = context;
     }
     public static RecordingDevice[] Microphones() => RecordingDeviceService.Microphones();
     public static RecordingDevice[] Speakers() => RecordingDeviceService.Speakers();
     public static RecordingDevice[] Cameras() => RecordingDeviceService.Cameras();
     public void Start(System.Drawing.Rectangle region, System.Drawing.Rectangle monitor, string display, string destination, RecordingPreferences preferences, string? microphone, string? speaker, string? camera)
     {
+        VerifyAccess();
         if (State != RecordingState.Ready) throw new InvalidOperationException(L.Get("ARecordingSessionCannotBeStartedTwice"));
         preferences.Validate();
         if (!monitor.Contains(region) || region.Width < 16 || region.Height < 16 || region.Width > 7680 || region.Height > 4320 || (long)region.Width * region.Height > 16_600_000) throw new ArgumentException(L.Get("TheRegionMustFitWithinOneMonitor"));
@@ -82,7 +90,7 @@ internal sealed class RecordingService
         Directory.CreateDirectory(_workDirectory);
         SetState(RecordingState.Starting, L.Get("InitializingCaptureAndEncoder"));
         try { CreateNative(); } catch (Exception ex) { NativeFailure(ex.Message); }
-        if (IsActive) _timer.Start();
+        if (IsActive) _timer = new System.Threading.Timer(QueueTick, null, 250, 250);
     }
     private void CreateNative()
     {
@@ -116,8 +124,33 @@ internal sealed class RecordingService
         SetState(RecordingState.Starting, L.Get("HardwareEncoderInitializationFailedTryingTheSystem"));
         try { CreateNative(); } catch (Exception ex) { Fail(ex.Message); }
     }
-    private void Dispatch(Action action) { if (!_dispatcher.HasShutdownStarted) _dispatcher.BeginInvoke(action); }
-    private async void Tick(object? sender, EventArgs e)
+    private void VerifyAccess()
+    {
+        if (Environment.CurrentManagedThreadId != _ownerThreadId)
+            throw new InvalidOperationException("Recording commands must run on the synchronization context's owner thread.");
+    }
+    private void Dispatch(Action action) => _context.Post(_ =>
+    {
+        VerifyAccess();
+        var previous = SynchronizationContext.Current;
+        try
+        {
+            SynchronizationContext.SetSynchronizationContext(_context);
+            action();
+        }
+        finally { SynchronizationContext.SetSynchronizationContext(previous); }
+    }, null);
+    private void QueueTick(object? state)
+    {
+        // Keep at most one pending notification while the owner thread is busy.
+        if (Interlocked.Exchange(ref _tickPending, 1) != 0) return;
+        Dispatch(() =>
+        {
+            Interlocked.Exchange(ref _tickPending, 0);
+            if (IsActive && !_finishing) Tick();
+        });
+    }
+    private async void Tick()
     {
         Changed?.Invoke();
         if (State == RecordingState.Starting && System.Diagnostics.Stopwatch.GetElapsedTime(_stateTimestamp).TotalSeconds > 30) { Fail(L.Get("CaptureInitializationExceeded30SecondsCheckThe")); return; }
@@ -151,12 +184,14 @@ internal sealed class RecordingService
     }
     public void PauseOrResume()
     {
+        VerifyAccess();
         if (State == RecordingState.Recording) { _recorder!.Pause(); _clock.Pause(); SetState(RecordingState.Paused, L.Get("PausedClickResumeToContinueRecording")); }
         else if (State == RecordingState.Paused) { _recorder!.Resume(); _clock.Resume(); SetState(RecordingState.Recording, L.Get("Recording2")); }
     }
     public void Stop() => Stop("");
     private void Stop(string reason)
     {
+        VerifyAccess();
         if (State is not (RecordingState.Recording or RecordingState.Paused or RecordingState.Starting)) return;
         _stopReason = reason;
         _clock.Stop(); SetState(RecordingState.Stopping, (reason.Length > 0 ? reason + "。" : "") + L.Get("StoppingAndWritingTheFileIndexPlease"));
@@ -164,7 +199,7 @@ internal sealed class RecordingService
     }
     private async Task Finish(List<FrameData> frames)
     {
-        if (_finishing) return; _finishing = true; _timer.Stop(); _clock.Stop();
+        if (_finishing) return; _finishing = true; _timer?.Dispose(); _clock.Stop();
         try
         {
             _recorder?.Dispose(); _recorder = null;
@@ -206,7 +241,7 @@ internal sealed class RecordingService
     }
     private void Fail(string reason)
     {
-        if (_finishing) return; _finishing = true; _timer.Stop(); _clock.Stop();
+        if (_finishing) return; _finishing = true; _timer?.Dispose(); _clock.Stop();
         try { _recorder?.Dispose(); } catch { } _recorder = null;
         SetState(RecordingState.Failed, L.Get("RecordingFailed") + reason + L.Get("TemporaryDataRetainedAt") + _workDirectory); _completion.TrySetResult();
     }

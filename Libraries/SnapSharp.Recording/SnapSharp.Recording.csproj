@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>SnapSharp.Recording</AssemblyName>
+    <RootNamespace>SnapSharp</RootNamespace>
+    <Platforms>x64</Platforms>
+    <Platform>x64</Platform>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SnapSharp.Core\SnapSharp.Core.csproj" />
+    <ProjectReference Include="..\SnapSharp.Imaging\SnapSharp.Imaging.csproj" />
+    <PackageReference Include="ScreenRecorderLib" Version="7.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="SnapSharp" />
+    <InternalsVisibleTo Include="SnapSharp.RegressionChecks" />
+    <InternalsVisibleTo Include="SnapSharp.RecordingChecks" />
+  </ItemGroup>
+</Project>

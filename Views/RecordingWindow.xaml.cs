@@ -8,6 +8,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using ComboBox = System.Windows.Controls.ComboBox;
 
 namespace SnapSharp.Views;
@@ -148,7 +149,7 @@ public partial class RecordingWindow : Window
             var currentScreen = System.Windows.Forms.Screen.FromRectangle(_region);
             if (currentScreen.DeviceName != screen.DeviceName || currentScreen.Bounds != screen.Bounds || !currentScreen.Bounds.Contains(_region))
                 throw new InvalidOperationException(L.Get("MonitorLayoutChangedDuringTheCountdownSelect"));
-            _service = new RecordingService(Dispatcher); _service.Changed += UpdateState;
+            _service = new RecordingService(new DispatcherSynchronizationContext(Dispatcher, DispatcherPriority.Background)); _service.Changed += UpdateState;
             // Resolve default audio after the countdown so recent Windows output changes apply.
             var mic = p.Format == "GIF" ? null : Selected(MicBox, MicDevices, RecordingDeviceService.DefaultMicrophone);
             var speaker = p.Format == "GIF" ? null : Selected(SpeakerBox, SpeakerDevices, RecordingDeviceService.DefaultSpeaker);

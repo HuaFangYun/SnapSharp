@@ -14,6 +14,9 @@
     <Project Path="Libraries/SnapSharp.Recognition/SnapSharp.Recognition.csproj" />
     <Project Path="Libraries/SnapSharp.Editor/SnapSharp.Editor.csproj" />
     <Project Path="Libraries/SnapSharp.Capture/SnapSharp.Capture.csproj" />
+    <Project Path="Libraries/SnapSharp.Recording/SnapSharp.Recording.csproj">
+      <Platform Project="x64" />
+    </Project>
     <Project Path="Libraries/SnapSharp.Infrastructure/SnapSharp.Infrastructure.csproj" />
     <Project Path="Libraries/SnapSharp.Plugin.Abstractions/SnapSharp.Plugin.Abstractions.csproj" />
     <Project Path="Libraries/SnapSharp.PluginHost/SnapSharp.PluginHost.csproj" />
