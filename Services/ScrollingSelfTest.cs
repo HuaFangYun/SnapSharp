@@ -19,10 +19,12 @@ internal static class ScrollingSelfTest
         public bool Ended { get; private set; }
         public bool StopRequested { get; set; }
         public Action<int>? OnDelay { get; set; }
+        public Queue<BitmapSource>? CaptureOverrides { get; set; }
         public void Begin() { }
         public void Advance() => _index = Math.Min(frames.Length - 1, _index + 1);
         public void End() => Ended = true;
-        public BitmapSource Capture(System.Drawing.Rectangle region) { Regions.Add(region); return frames[_index]; }
+        public BitmapSource Capture(System.Drawing.Rectangle region)
+        { Regions.Add(region); return CaptureOverrides is { Count: > 0 } ? CaptureOverrides.Dequeue() : frames[_index]; }
         public void Scroll(System.Drawing.Rectangle region, ScrollDirection direction, int notches)
         { Inputs.Add(direction); if (direction == axis) _index = Math.Min(frames.Length - 1, _index + 1); }
         public Task Delay(int milliseconds, CancellationToken cancellationToken)
@@ -64,14 +66,16 @@ internal static class ScrollingSelfTest
         if (matches.Any(x => !x.Reliable || x.Direction != ScrollDirection.Vertical || x.Offset != 53)) throw new Exception("scroll-match-vertical");
         var session = new ScrollCaptureSession(frames, matches.Select(x => x.Offset).ToArray(), matches, ScrollDirection.Vertical, "test");
         var manualDriver = new Driver(frames, ScrollDirection.Vertical); var wheelEvents = 0;
+        var baselineReady = true;
         var manual = new ScrollingCaptureService(manualDriver).CaptureSessionAsync(new System.Drawing.Rectangle(-1200, 20, 240, 180),
             new ScrollCaptureOptions(ScrollDirection.Vertical, 120, 1, 20), waitForManualScroll: _ =>
             {
+                baselineReady &= manualDriver.Regions.Count > 0;
                 wheelEvents++;
                 if (wheelEvents < 4) return Task.FromResult(true); // Idle/no-change must not finish a manual session.
                 manualDriver.Advance(); return Task.FromResult(wheelEvents < 8);
             }).GetAwaiter().GetResult();
-        if (manualDriver.Inputs.Count != 0 || manual.Frames.Count != 5 || !manualDriver.Ended || manual.Offsets.Any(x => x != 53)) throw new Exception("manual-scroll-real-input-only");
+        if (!baselineReady || manualDriver.Inputs.Count != 0 || manual.Frames.Count != 5 || !manualDriver.Ended || manual.Offsets.Any(x => x != 53)) throw new Exception("manual-scroll-baseline-before-input");
         var stitched = stitcher.Stitch(session);
         if (!Same(stitched.Image, images.Crop(document, new Int32Rect(0, 0, 240, 392))) || !stitched.Seams.SequenceEqual(new[] { 180, 233, 286, 339 })) throw new Exception("scroll-vertical-pixels");
         var horizontal = Pattern(1000, 180, 2);
@@ -88,11 +92,21 @@ internal static class ScrollingSelfTest
             {
                 manualHorizontalDriver.Advance();
                 return Task.FromResult(++manualHorizontalEvents < 4);
-            }).GetAwaiter().GetResult();
+            }, manualDirectionProvider: () => ScrollDirection.Horizontal).GetAwaiter().GetResult();
         if (manualHorizontal.Direction != ScrollDirection.Horizontal || manualHorizontal.Frames.Count != 4 ||
             manualHorizontal.Offsets.Any(x => x != 67) || manualHorizontalDriver.Inputs.Count != 0 ||
             !Same(stitcher.Stitch(manualHorizontal).Image, stitcher.Stitch(horizontalSession).Image))
             throw new Exception("manual-horizontal-auto-axis-and-pixels");
+        // Even if image similarity favors horizontal movement, vertical wheel input
+        // must prevent the session from turning into a wide, horizontally stitched image.
+        var axisDriver = new Driver(horizontalFrames, ScrollDirection.Horizontal);
+        var axisEvents = 0;
+        var axisSession = new ScrollingCaptureService(axisDriver).CaptureSessionAsync(
+            new System.Drawing.Rectangle(0, 0, 220, 180), new ScrollCaptureOptions(),
+            waitForManualScroll: _ => { axisDriver.Advance(); return Task.FromResult(++axisEvents < 4); },
+            manualDirectionProvider: () => ScrollDirection.Vertical).GetAwaiter().GetResult();
+        if (axisSession.Direction != ScrollDirection.Vertical || axisSession.Matches.Any(x => x.Direction != ScrollDirection.Vertical) ||
+            stitcher.Stitch(axisSession).Image.PixelWidth != 220) throw new Exception("manual-wheel-axis-overrides-image-similarity");
         var trim = new ScrollTrim(7, 20, 9, 18);
         var trimmed = stitcher.Stitch(session, trim);
         if (!Same(trimmed.Image, images.Crop(document, new Int32Rect(7, 20, 224, 354)))) throw new Exception("scroll-frame-trim");
@@ -125,6 +139,11 @@ internal static class ScrollingSelfTest
         var horizontalDriver = new Driver(horizontalFrames, ScrollDirection.Horizontal);
         var horizontalCapture = new ScrollingCaptureService(horizontalDriver).CaptureSessionAsync(new System.Drawing.Rectangle(100, 100, 220, 180), new()).GetAwaiter().GetResult();
         if (horizontalCapture.Direction != ScrollDirection.Horizontal || horizontalCapture.Frames.Count != horizontalFrames.Length || !horizontalDriver.Inputs.Contains(ScrollDirection.Horizontal)) throw new Exception("scroll-auto-input-axis");
+        var delayedDriver = new Driver(frames, ScrollDirection.Vertical) { CaptureOverrides = new Queue<BitmapSource>([frames[0], frames[0]]) };
+        var delayedCapture = new ScrollingCaptureService(delayedDriver).CaptureSessionAsync(region,
+            new ScrollCaptureOptions(ScrollDirection.Vertical, MaximumFrames: 3)).GetAwaiter().GetResult();
+        if (delayedDriver.Inputs.Count != 1 || delayedCapture.Frames.Count != 2 || delayedCapture.Offsets[0] != 53)
+            throw new Exception("scroll-waits-for-delayed-render-without-stacking-wheel-input");
         using var stop = new CancellationTokenSource();
         var cancelDriver = new Driver(frames, ScrollDirection.Vertical) { OnDelay = count => { if (count >= 2) stop.Cancel(); } };
         var partial = new ScrollingCaptureService(cancelDriver).CaptureSessionAsync(region, new(), cancellationToken: stop.Token).GetAwaiter().GetResult();
@@ -132,6 +151,15 @@ internal static class ScrollingSelfTest
         var badDriver = new Driver([frames[0], Pattern(240, 180, 92)], ScrollDirection.Vertical);
         var uncertain = new ScrollingCaptureService(badDriver).CaptureSessionAsync(region, new()).GetAwaiter().GetResult();
         if (uncertain.Frames.Count != 2 || !uncertain.StopReason.Contains("不确定")) throw new Exception("scroll-preserve-unmatched");
+        var badManualDriver = new Driver([frames[0], Pattern(240, 180, 93)], ScrollDirection.Vertical);
+        var badManualEvents = 0;
+        var uncertainManual = new ScrollingCaptureService(badManualDriver).CaptureSessionAsync(region, new(), waitForManualScroll: _ =>
+        {
+            if (++badManualEvents == 1) { badManualDriver.Advance(); return Task.FromResult(true); }
+            return Task.FromResult(false);
+        }).GetAwaiter().GetResult();
+        if (uncertainManual.Frames.Count != 1 || uncertainManual.Matches.Count != 0)
+            throw new Exception("manual-scroll-rejects-arbitrary-document-position");
 
         var projectService = new ScrollProjectService();
         var path = Path.Combine(directory, "中文 scrolling.ss scroll.ssscroll");

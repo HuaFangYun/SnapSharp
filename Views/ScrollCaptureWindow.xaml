@@ -46,7 +46,7 @@
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ScrollDirection}" /><ComboBox x:Name="DirectionBox" SelectedIndex="0"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:DetectAutomaticallyDownThenRight}" Tag="Auto" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Down}" Tag="Vertical" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:Right}" Tag="Horizontal" /></ComboBox>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
             <StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FrameDelayMs}" /><TextBox x:Name="DelayBox" Text="600" /></StackPanel>
-            <StackPanel Grid.Column="1"><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WheelStepsPerScroll}" /><TextBox x:Name="WheelBox" Text="2" /></StackPanel>
+            <StackPanel Grid.Column="1"><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WheelStepsPerScroll}" /><TextBox x:Name="WheelBox" Text="1" /></StackPanel>
           </Grid>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:MaximumFrames280}" /><TextBox x:Name="FrameLimitBox" Text="40" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CapturingAgainOpensTheStandardRegionSelector}" Style="{StaticResource Hint}" />

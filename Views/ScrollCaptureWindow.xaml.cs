@@ -245,7 +245,7 @@ public partial class ScrollCaptureWindow : Window
         {
             var index = SeamBox.SelectedIndex;
             if (index < 0) throw new ArgumentException(L.Get("CaptureAtLeastTwoFramesAndSelect"));
-            var offsets = _session.Offsets.ToArray(); offsets[index] = Number(OffsetBox, 1, 16384, L.Get("FrameOffset")) + nudge;
+            var offsets = _session.Offsets.ToArray(); offsets[index] = Number(OffsetBox, -16384, 16384, L.Get("FrameOffset")) + nudge;
             await RenderSession(_session with { Offsets = offsets }, ReadFrameTrim(), ReadCrop());
             UpdateSelectedSeam(true);
         }
@@ -347,7 +347,7 @@ public partial class ScrollCaptureWindow : Window
         try
         {
             options = new ScrollCaptureOptions(Enum.Parse<ScrollDirection>(((ComboBoxItem)DirectionBox.SelectedItem).Tag.ToString()!),
-                preservePreviewOnCancel ? Number(DelayBox, 100, 5000, L.Get("FrameDelay")) : 120,
+                120,
                 Number(WheelBox, 1, 6, L.Get("WheelSteps")), preservePreviewOnCancel ? Number(FrameLimitBox, 2, 80, L.Get("MaximumFrames")) : 80, ReadFrameTrim());
             _ = _stitcher.Stitch(new ScrollCaptureSession([_session.Frames[0]], [], [], ScrollDirection.Vertical, ""), options.MatchingTrim);
         }
@@ -364,8 +364,21 @@ public partial class ScrollCaptureWindow : Window
             controls = ShowManualControls();
             await Task.Delay(350, _stop.Token);
             var progress = new Progress<string>(message => { if (!_closed) { Status.Text = message; if (controls.Content is Border { Child: DockPanel panel } && panel.Children[0] is TextBlock label) label.Text = message; } });
-            var session = await new ScrollingCaptureService(new ResilientCaptureService(true, false)).CaptureSessionAsync(_region,
-                options, progress, _stop.Token, _manualInput.Wait);
+            var captureTrace = new List<string>();
+            // Capture only the selected region. One-shot WGC reconstructs a full
+            // desktop session for every sample, losing intermediate scroll positions.
+            var session = await new ScrollingCaptureService(new ScreenCaptureService(false)).CaptureSessionAsync(_region,
+                options, progress, _stop.Token, _manualInput.Wait,
+                () => _manualInput?.LastDirection ?? ScrollDirection.Auto,
+                message => { if (captureTrace.Count < 1000) captureTrace.Add(message); },
+                _manualInput.ObserveFrame);
+            try
+            {
+                Directory.CreateDirectory(AppPaths.DiagnosticsRoot);
+                File.WriteAllLines(Path.Combine(AppPaths.DiagnosticsRoot, "last-scrolling-capture.txt"), captureTrace);
+            }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
             SetBusy(false);
             if (!_discard && !_closed)
             {

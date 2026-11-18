@@ -4,7 +4,9 @@ namespace SnapSharp.Models;
 
 public enum ScrollDirection { Auto, Vertical, Horizontal }
 public sealed record ScrollCaptureOptions(ScrollDirection Direction = ScrollDirection.Auto, int DelayMilliseconds = 600,
-    int WheelNotches = 2, int MaximumFrames = 40, ScrollTrim? MatchingTrim = null);
+    int WheelNotches = 1, int MaximumFrames = 40, ScrollTrim? MatchingTrim = null);
+// Offset is the next viewport's document coordinate relative to the previous one:
+// positive = down/right, negative = up/left. Direction identifies the axis only.
 public sealed record ScrollMatch(ScrollDirection Direction, int Offset, double Error, bool Reliable, double Texture);
 public sealed record ScrollCaptureSession(IReadOnlyList<BitmapSource> Frames, IReadOnlyList<int> Offsets,
     IReadOnlyList<ScrollMatch> Matches, ScrollDirection Direction, string StopReason);

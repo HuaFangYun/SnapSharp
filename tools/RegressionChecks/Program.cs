@@ -32,6 +32,7 @@ internal static partial class Program
         Directory.CreateDirectory(Root);
         try
         {
+            if (args.Contains("--scrolling-only")) { ScrollingChecks(); return 0; }
             if (args.Contains("--model-storage-only")) { ModelStorageChecks(); return 0; }
             if (args.Contains("--recording-only")) { RecordingChecks(); return 0; }
             AppUpdateChecks().GetAwaiter().GetResult();

@@ -40,6 +40,7 @@
     <Compile Remove="Views\SelectionWindow.xaml.cs" />
     <Compile Remove="Libraries\**\*.cs" />
     <Compile Remove="tools\RegressionChecks\**\*.cs" />
+    <Compile Remove="tools\ScrollingChecks\**\*.cs" />
     <Compile Remove="tools\RecordingChecks\**\*.cs" />
     <Compile Remove="tools\UpdateChecks\**\*.cs" />
     <Compile Remove="tools\WindowChecks\**\*.cs" />
