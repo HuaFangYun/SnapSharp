@@ -3,8 +3,8 @@
 **/[Oo]bj/
 /publish/
 /SnapSharp/
-/.artifacts/
-/artifacts/
+**/.artifacts/
+**/artifacts/
 TestResults/
 *.trx
 *.coverage
