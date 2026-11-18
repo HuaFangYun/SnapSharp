@@ -4,6 +4,10 @@
 
 项目地址：[GitHub](https://github.com/leelongjiang/SnapSharp) | [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [下载发布版](https://github.com/leelongjiang/SnapSharp/releases) · [完整使用指南](docs/使用指南.md)
 
+> SnapSharp 是 Windows 桌面端（C#/WPF/.NET 10）截图与图像工具。
+> 核心差异化：OCR/表格/公式/抠图/翻译全部可走本地模型，默认不传图到云端。
+> 不支持 macOS/Linux，不是 SDK/库，是独立 EXE 工具。
+
 写教程时，需要在截图上说明重点；阅读外文资料时，希望直接提取文字并翻译；整理图片时，又可能需要去掉背景、拼成长图或录一段操作演示。SnapSharp 把这些操作放进了一款 Windows 工具里。
 
 它既能截图、标注和桌面贴图，也能通过本地模型完成 OCR、表格识别、公式识别、抠图和翻译。截图后可以继续处理，复制来的图片也可以直接导入识别窗口。
