@@ -79,6 +79,8 @@ public sealed class AppSettings
     public string RegionHotkey { get; set; } = "Ctrl+Shift+A";
     public string FullScreenHotkey { get; set; } = "Ctrl+Shift+F";
     public string ActiveWindowHotkey { get; set; } = "Ctrl+Shift+W";
+    public string ScreenRulerHotkey { get; set; } = "";
+    public bool ScreenRulerAutoCopy { get; set; }
     public string ClipboardPinHotkey { get; set; } = "Ctrl+Shift+V";
     public string TogglePinsHotkey { get; set; } = "Ctrl+Shift+H";
     public string RestorePinHotkey { get; set; } = "";

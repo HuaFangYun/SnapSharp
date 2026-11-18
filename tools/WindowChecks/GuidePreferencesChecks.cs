@@ -101,6 +101,22 @@ internal static partial class Program
                 "Saving settings would overwrite remembered toolbar states.");
             candidate.ShowCaptureCrosshair = false;
             Require(disabled.Current.ShowCaptureCrosshair, "Settings candidate changed current toolbar preferences.");
+            var rulerShortcut = (TextBox)configuration.FindName("ScreenRulerHotkey");
+            rulerShortcut.Text = "Ctrl+Shift+M";
+            candidate = configuration.BuildCandidate();
+            Require(candidate.ScreenRulerHotkey == "Ctrl+Shift+M" && disabled.Current.ScreenRulerHotkey == "" &&
+                GlobalHotkeyHost.CreateRegistrations(candidate).Values.Any(x => x.Action == GlobalAction.ScreenRuler),
+                "Standalone ruler hotkey is not configurable or registered.");
+            disabled.Update(candidate);
+            var shortcutReload = new SettingsService(file); shortcutReload.Load();
+            Require(shortcutReload.Current.ScreenRulerHotkey == "Ctrl+Shift+M", "Standalone ruler shortcut was not persisted.");
+            rulerShortcut.Text = candidate.RegionHotkey;
+            try { configuration.BuildCandidate(); throw new Exception("Duplicate ruler shortcut accepted."); }
+            catch (InvalidOperationException) { }
+            rulerShortcut.Text = "";
+            Require(!GlobalHotkeyHost.CreateRegistrations(configuration.BuildCandidate()).Values.Any(x => x.Action == GlobalAction.ScreenRuler),
+                "Clearing the standalone ruler hotkey did not disable it.");
+            Require(GlobalHotkeyHost.RunPinRoutingSelfTest(), "Standalone ruler shortcut routing affected capture/pin actions.");
         }
         finally { configuration.Close(); }
         Console.WriteLine("PASS: guides default off; independent state persistence/reload; multi-monitor synchronization; fixed R/X shortcuts/hints; auxiliary settings removed; movement hints only when movement is available.");

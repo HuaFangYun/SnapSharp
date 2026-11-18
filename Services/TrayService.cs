@@ -18,6 +18,7 @@ public sealed class TrayService : IDisposable
     private readonly MenuItem _regionItem;
     private readonly MenuItem _fullScreenItem;
     private readonly MenuItem _activeWindowItem;
+    private readonly MenuItem _screenRulerItem;
     private readonly MenuItem _clipboardPinItem;
     private readonly MenuItem _togglePinsItem;
     private readonly MenuItem _restorePinItem;
@@ -58,7 +59,7 @@ public sealed class TrayService : IDisposable
         _activeWindowItem = AddLocalizedItem(menu, "ActiveWindowCapture", () => CaptureRequested?.Invoke(this,
             new CaptureModeEventArgs(Models.CaptureMode.ActiveWindow)));
         AddLocalizedItem(menu, "RecognizeClipboardImage2", () => RecognitionClipboardRequested?.Invoke(this, EventArgs.Empty));
-        AddLocalizedItem(menu, "ScreenRuler", () => ScreenRulerRequested?.Invoke(this, EventArgs.Empty));
+        _screenRulerItem = AddLocalizedItem(menu, "ScreenRuler", () => ScreenRulerRequested?.Invoke(this, EventArgs.Empty));
 
         _screenWordsItem = LocalizedMenu("ScreenTextCaptureThisSession", isCheckable: true);
         _screenWordsItem.Click += (_, _) => ScreenWordsRequested?.Invoke(_screenWordsItem.IsChecked);
@@ -149,6 +150,7 @@ public sealed class TrayService : IDisposable
         _regionItem.InputGestureText = settings.RegionHotkey;
         _fullScreenItem.InputGestureText = settings.FullScreenHotkey;
         _activeWindowItem.InputGestureText = settings.ActiveWindowHotkey;
+        _screenRulerItem.InputGestureText = settings.ScreenRulerHotkey;
         _clipboardPinItem.InputGestureText = settings.ClipboardPinHotkey;
         _togglePinsItem.InputGestureText = settings.TogglePinsHotkey;
         _restorePinItem.InputGestureText = settings.RestorePinHotkey;

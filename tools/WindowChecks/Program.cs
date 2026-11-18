@@ -28,6 +28,11 @@ internal static partial class Program
             using var theme = new ThemeService(); theme.Start();
             WindowLayeringChecks();
             CapturePrecisionChecks();
+            WindowShapeChecks();
+            DesktopRulerChecks();
+            RulerLabelChecks();
+            RulerMagnifierChecks();
+            RulerClipboardChecks();
             GuidePreferencesChecks();
             GuideLocalizationChecks();
             return 0;

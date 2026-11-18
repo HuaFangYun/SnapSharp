@@ -16,7 +16,12 @@ internal static partial class Program
     private static void GuideLocalizationChecks()
     {
         string[] keys = ["ScreenRuler", "ScreenRulerToggle", "PrecisionKeysHint", "ScreenRulerHelp", "ScreenRulerResize",
-            "CaptureCrosshair", "CaptureToolShortcutHint", "CapturePointerMoveHint", "ScreenRulerReadout"];
+            "CaptureCrosshair", "CaptureToolShortcutHint", "CapturePointerMoveHint", "ScreenRulerReadout",
+            "DesktopRulerLine", "DesktopRulerBox", "DesktopRulerDistance", "DesktopRulerGuides", "DesktopRulerAngle", "DesktopRulerMore",
+            "DesktopRulerMagnifier", "DesktopRulerClear", "DesktopRulerMeasureHint", "DesktopRulerAngleHint", "DesktopRulerGuidesHint", "DesktopRulerCaptureUnavailable",
+            "DesktopRulerLineSteps", "DesktopRulerBoxSteps", "DesktopRulerDistanceSteps", "DesktopRulerAngleStep1", "DesktopRulerAngleStep2",
+            "DesktopRulerAngleStep3", "DesktopRulerQuickHelp", "DesktopRulerLayers", "DesktopRulerMoveKeys",
+            "DesktopRulerAutoCopy", "DesktopRulerAutoCopyHint", "DesktopRulerLengthCopy", "DesktopRulerDistanceCopy", "DesktopRulerCopied", "DesktopRulerCopyBusy"];
         foreach (var language in LocalizationService.Languages.Where(l => l.Code.Length > 0))
         {
             var culture = CultureInfo.GetCultureInfo(language.Code);
@@ -63,6 +68,6 @@ internal static partial class Program
                 "Compiled Traditional Chinese guide resources are corrupted.");
         }
         finally { LocalizationService.Apply(original); }
-        Console.WriteLine("PASS: all 9 guide/ruler strings translated in 21 language packs; compiled Chinese resources and capture/settings previews verified.");
+        Console.WriteLine($"PASS: all {keys.Length} guide/ruler strings translated in 21 language packs; compiled Chinese resources and capture/settings previews verified.");
     }
 }

@@ -3846,4 +3846,31 @@ Los modelos grandes pueden tardar algún tiempo en copiarse. Los datos existente
   <data name="CaptureToolShortcutHint" xml:space="preserve"><value>{0} ({1})</value></data>
   <data name="CapturePointerMoveHint" xml:space="preserve"><value>Flechas: mover el puntero 1 px</value></data>
   <data name="ScreenRulerReadout" xml:space="preserve"><value>{0} × {1} px | X: {2}, Y: {3}</value></data>
+  <data name="DesktopRulerLine" xml:space="preserve"><value>Recta</value></data>
+  <data name="DesktopRulerBox" xml:space="preserve"><value>Marco</value></data>
+  <data name="DesktopRulerDistance" xml:space="preserve"><value>Dos puntos</value></data>
+  <data name="DesktopRulerGuides" xml:space="preserve"><value>Guías</value></data>
+  <data name="DesktopRulerAngle" xml:space="preserve"><value>Transportador</value></data>
+  <data name="DesktopRulerMore" xml:space="preserve"><value>Más herramientas</value></data>
+  <data name="DesktopRulerMagnifier" xml:space="preserve"><value>Lupa</value></data>
+  <data name="DesktopRulerClear" xml:space="preserve"><value>Borrar medidas y guías</value></data>
+  <data name="DesktopRulerMeasureHint" xml:space="preserve"><value>Arrastra o pulsa dos puntos · Mayús: restringir línea · Alt: ajustar · Pulsa otra vez la herramienta activa para ocultarla</value></data>
+  <data name="DesktopRulerAngleHint" xml:space="preserve"><value>Pulsa el vértice y un punto en cada lado · Alt: ajustar · Esc: cancelar</value></data>
+  <data name="DesktopRulerGuidesHint" xml:space="preserve"><value>Arrastra guías desde la regla superior/izquierda; arrastra para mover; clic derecho para borrar. Ctrl: medir sobre una guía.</value></data>
+  <data name="DesktopRulerCaptureUnavailable" xml:space="preserve"><value>Muestreo de pantalla no disponible</value></data>
+  <data name="DesktopRulerLineSteps" xml:space="preserve"><value>Recta Arrastra o pulsa dos puntos · Mayús: restringir línea · Alt: ajustar</value></data>
+  <data name="DesktopRulerBoxSteps" xml:space="preserve"><value>Marco Arrastra o pulsa dos puntos · Mayús: restringir línea · Alt: ajustar</value></data>
+  <data name="DesktopRulerDistanceSteps" xml:space="preserve"><value>Dos puntos Arrastra o pulsa dos puntos · Mayús: restringir línea · Alt: ajustar</value></data>
+  <data name="DesktopRulerAngleStep1" xml:space="preserve"><value>1 / 3 Pulsa el vértice y un punto en cada lado · Alt: ajustar · Esc: cancelar</value></data>
+  <data name="DesktopRulerAngleStep2" xml:space="preserve"><value>2 / 3 Pulsa el vértice y un punto en cada lado · Alt: ajustar · Esc: cancelar</value></data>
+  <data name="DesktopRulerAngleStep3" xml:space="preserve"><value>3 / 3 Pulsa el vértice y un punto en cada lado · Alt: ajustar · Esc: cancelar</value></data>
+  <data name="DesktopRulerQuickHelp" xml:space="preserve"><value>Arrastra el encabezado para mover · Arrastra la esquina para redimensionar · Flechas: 1 px · Esc: cerrar · Alt</value></data>
+  <data name="DesktopRulerLayers" xml:space="preserve"><value>Capas de medidas</value></data>
+  <data name="DesktopRulerMoveKeys" xml:space="preserve"><value>Alt: ajustar · Flechas: mover 1 px · Esc: cerrar · Ctrl+C</value></data>
+  <data name="DesktopRulerAutoCopy" xml:space="preserve"><value>Copia automática</value></data>
+  <data name="DesktopRulerAutoCopyHint" xml:space="preserve"><value>Copiar automáticamente las mediciones terminadas. Ctrl+C: copiar el resultado actual.</value></data>
+  <data name="DesktopRulerLengthCopy" xml:space="preserve"><value>Longitud: {0} px</value></data>
+  <data name="DesktopRulerDistanceCopy" xml:space="preserve"><value>Δx: {0} px, Δy: {1} px, distancia: {2} px</value></data>
+  <data name="DesktopRulerCopied" xml:space="preserve"><value>Copiado: {0}</value></data>
+  <data name="DesktopRulerCopyBusy" xml:space="preserve"><value>El portapapeles está ocupado. Pulsa Ctrl+C para reintentar.</value></data>
 </root>

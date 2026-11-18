@@ -20,6 +20,7 @@ public sealed class GlobalHotkeyHost : IDisposable
     private bool _suspended;
 
     public event EventHandler<CaptureModeEventArgs>? CaptureRequested;
+    public event EventHandler? ScreenRulerRequested;
     public event Action<GlobalAction>? PinActionRequested;
 
     public void Suspend()
@@ -88,7 +89,8 @@ public sealed class GlobalHotkeyHost : IDisposable
             (0x5020 + (int)GlobalAction.ClipboardPin, GlobalAction.ClipboardPin, settings.ClipboardPinHotkey, L.Get("PinClipboardContent")),
             (0x5020 + (int)GlobalAction.TogglePins, GlobalAction.TogglePins, settings.TogglePinsHotkey, L.Get("ShowHidePins")),
             (0x5020 + (int)GlobalAction.RestorePin, GlobalAction.RestorePin, settings.RestorePinHotkey, L.Get("RestorePin")),
-            (0x5020 + (int)GlobalAction.RestoreInteraction, GlobalAction.RestoreInteraction, settings.RestorePinInteractionHotkey, L.Get("RestorePinInteraction"))
+            (0x5020 + (int)GlobalAction.RestoreInteraction, GlobalAction.RestoreInteraction, settings.RestorePinInteractionHotkey, L.Get("RestorePinInteraction")),
+            (0x5020 + (int)GlobalAction.ScreenRuler, GlobalAction.ScreenRuler, settings.ScreenRulerHotkey, L.Get("ScreenRuler"))
         };
         foreach (var (id, action, text, label) in shortcuts)
             if (!string.IsNullOrWhiteSpace(text)) desired[id] = (action, Parse(text, label));
@@ -152,6 +154,7 @@ public sealed class GlobalHotkeyHost : IDisposable
         if (action is GlobalAction.Region or GlobalAction.FullScreen or GlobalAction.ActiveWindow)
             CaptureRequested?.Invoke(this, new CaptureModeEventArgs(action switch
             { GlobalAction.Region => CaptureMode.Region, GlobalAction.FullScreen => CaptureMode.FullScreen, _ => CaptureMode.ActiveWindow }));
+        else if (action == GlobalAction.ScreenRuler) ScreenRulerRequested?.Invoke(this, EventArgs.Empty);
         else PinActionRequested?.Invoke(action);
     }
 
@@ -159,10 +162,12 @@ public sealed class GlobalHotkeyHost : IDisposable
     {
         using var host = new GlobalHotkeyHost();
         var captures = new List<CaptureMode>(); var pins = new List<GlobalAction>();
+        var rulers = 0;
         host.CaptureRequested += (_, e) => captures.Add(e.Mode);
         host.PinActionRequested += pins.Add;
+        host.ScreenRulerRequested += (_, _) => rulers++;
         foreach (var action in Enum.GetValues<GlobalAction>()) { host._lastTrigger = 0; host.Trigger(action, "self-test"); }
-        if (!captures.SequenceEqual(new[] { CaptureMode.Region, CaptureMode.FullScreen, CaptureMode.ActiveWindow }) ||
+        if (rulers != 1 || !captures.SequenceEqual(new[] { CaptureMode.Region, CaptureMode.FullScreen, CaptureMode.ActiveWindow }) ||
             !pins.SequenceEqual(new[] { GlobalAction.ClipboardPin, GlobalAction.TogglePins, GlobalAction.RestorePin, GlobalAction.RestoreInteraction })) return false;
         host.Suspend(); host._lastTrigger = 0; host.Trigger(GlobalAction.ClipboardPin, "self-test-suspended");
         if (pins.Count != 4) return false;
@@ -214,7 +219,7 @@ public sealed class GlobalHotkeyHost : IDisposable
     }
 }
 
-public enum GlobalAction { Region, FullScreen, ActiveWindow, ClipboardPin, TogglePins, RestorePin, RestoreInteraction }
+public enum GlobalAction { Region, FullScreen, ActiveWindow, ClipboardPin, TogglePins, RestorePin, RestoreInteraction, ScreenRuler }
 
 public sealed class CaptureModeEventArgs(CaptureMode mode) : EventArgs
 {

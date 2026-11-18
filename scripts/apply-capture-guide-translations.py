@@ -7,8 +7,7 @@ from xml.sax.saxutils import escape
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def main():
-    catalog = json.loads((ROOT / "scripts/capture-guide-translations.json").read_text(encoding="utf-8"))
+def apply_catalog(catalog):
     for culture, language in catalog["cultures"].items():
         suffix = "" if culture == "en" else "." + culture
         path = ROOT / f"Libraries/SnapSharp.Core/Resources/Strings{suffix}.resx"
@@ -21,6 +20,11 @@ def main():
                 content = content.replace("</root>", entry + "</root>")
         path.write_text(content, encoding="utf-8")
     print(f'Applied {len(catalog["keys"])} reviewed translations to {len(catalog["cultures"])} resource packs.')
+
+
+def main():
+    for name in ("capture-guide-translations.json", "desktop-ruler-translations.json"):
+        apply_catalog(json.loads((ROOT / "scripts" / name).read_text(encoding="utf-8")))
 
 
 if __name__ == "__main__":

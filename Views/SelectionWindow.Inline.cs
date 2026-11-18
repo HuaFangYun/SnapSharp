@@ -430,8 +430,15 @@ public partial class SelectionWindow : Window
         var previousSelection = _pixelSelection;
         var nextSelection = ToPixelSelection(_selection);
         if (nextSelection.IsEmpty) return;
-        var cropped = new CroppedBitmap(_screen.Image, nextSelection.ToInt32Rect());
+        BitmapSource cropped = new CroppedBitmap(_screen.Image, nextSelection.ToInt32Rect());
         cropped.Freeze();
+        var selectedWindow = _mode == OverlayMode.Element ? _elementWindow : _mode == OverlayMode.Window ? _suggestedWindow : null;
+        var desktopSelection = new Rectangle(_screen.Bounds.Left + nextSelection.X, _screen.Bounds.Top + nextSelection.Y,
+            nextSelection.Width, nextSelection.Height);
+        // Only automatic element/window selections inherit a silhouette. Manual region captures
+        // and selections expanded outside the window must retain the requested desktop pixels.
+        if (selectedWindow?.CaptureShape is { } shape && selectedWindow.Bounds.Contains(desktopSelection))
+            cropped = _skia.ApplyWindowShape(cropped, desktopSelection, shape);
         if (_editor is null)
         {
             _editor = new EditorViewModel(cropped);

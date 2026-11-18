@@ -81,6 +81,7 @@ public partial class SettingsWindow : Window
         RegionHotkey.Text = current.RegionHotkey;
         FullScreenHotkey.Text = current.FullScreenHotkey;
         ActiveWindowHotkey.Text = current.ActiveWindowHotkey;
+        ScreenRulerHotkey.Text = current.ScreenRulerHotkey;
         ClipboardPinHotkey.Text = current.ClipboardPinHotkey;
         TogglePinsHotkey.Text = current.TogglePinsHotkey;
         RestorePinHotkey.Text = current.RestorePinHotkey;
@@ -292,6 +293,7 @@ public partial class SettingsWindow : Window
         candidate.RegionHotkey = NormalizeHotkey(RegionHotkey.Text, L.Get("RegionCapture"));
         candidate.FullScreenHotkey = NormalizeHotkey(FullScreenHotkey.Text, L.Get("FullScreenCapture"));
         candidate.ActiveWindowHotkey = NormalizeHotkey(ActiveWindowHotkey.Text, L.Get("ActiveWindowCapture"));
+        candidate.ScreenRulerHotkey = NormalizeHotkey(ScreenRulerHotkey.Text, L.Get("ScreenRuler"));
         candidate.ClipboardPinHotkey = NormalizeHotkey(ClipboardPinHotkey.Text, L.Get("PinClipboardContent"));
         candidate.TogglePinsHotkey = NormalizeHotkey(TogglePinsHotkey.Text, L.Get("TogglePins"));
         candidate.RestorePinHotkey = NormalizeHotkey(RestorePinHotkey.Text, L.Get("RestorePin"));

@@ -3846,4 +3846,31 @@ ScreenRecorderLib включен. Никакой отдельной устано
   <data name="CaptureToolShortcutHint" xml:space="preserve"><value>{0} ({1})</value></data>
   <data name="CapturePointerMoveHint" xml:space="preserve"><value>Стрелки: сдвиг указателя на 1 px</value></data>
   <data name="ScreenRulerReadout" xml:space="preserve"><value>{0} × {1} px | X: {2}, Y: {3}</value></data>
+  <data name="DesktopRulerLine" xml:space="preserve"><value>Линия</value></data>
+  <data name="DesktopRulerBox" xml:space="preserve"><value>Рамка</value></data>
+  <data name="DesktopRulerDistance" xml:space="preserve"><value>Две точки</value></data>
+  <data name="DesktopRulerGuides" xml:space="preserve"><value>Направляющие</value></data>
+  <data name="DesktopRulerAngle" xml:space="preserve"><value>Транспортир</value></data>
+  <data name="DesktopRulerMore" xml:space="preserve"><value>Другие инструменты</value></data>
+  <data name="DesktopRulerMagnifier" xml:space="preserve"><value>Лупа</value></data>
+  <data name="DesktopRulerClear" xml:space="preserve"><value>Очистить измерения и направляющие</value></data>
+  <data name="DesktopRulerMeasureHint" xml:space="preserve"><value>Перетащите или щёлкните две точки · Shift: ограничить линию · Alt: привязка · Повторный щелчок по активному инструменту скрывает его</value></data>
+  <data name="DesktopRulerAngleHint" xml:space="preserve"><value>Щёлкните вершину, затем по точке на каждом луче · Alt: привязка · Esc: отмена</value></data>
+  <data name="DesktopRulerGuidesHint" xml:space="preserve"><value>Вытяните направляющие из верхней/левой шкалы; перетаскивайте для перемещения, правый щелчок удаляет. Ctrl: измерение на направляющей.</value></data>
+  <data name="DesktopRulerCaptureUnavailable" xml:space="preserve"><value>Считывание экрана недоступно</value></data>
+  <data name="DesktopRulerLineSteps" xml:space="preserve"><value>Линия Перетащите или щёлкните две точки · Shift: ограничить линию · Alt: привязка</value></data>
+  <data name="DesktopRulerBoxSteps" xml:space="preserve"><value>Рамка Перетащите или щёлкните две точки · Shift: ограничить линию · Alt: привязка</value></data>
+  <data name="DesktopRulerDistanceSteps" xml:space="preserve"><value>Две точки Перетащите или щёлкните две точки · Shift: ограничить линию · Alt: привязка</value></data>
+  <data name="DesktopRulerAngleStep1" xml:space="preserve"><value>1 / 3 Щёлкните вершину, затем по точке на каждом луче · Alt: привязка · Esc: отмена</value></data>
+  <data name="DesktopRulerAngleStep2" xml:space="preserve"><value>2 / 3 Щёлкните вершину, затем по точке на каждом луче · Alt: привязка · Esc: отмена</value></data>
+  <data name="DesktopRulerAngleStep3" xml:space="preserve"><value>3 / 3 Щёлкните вершину, затем по точке на каждом луче · Alt: привязка · Esc: отмена</value></data>
+  <data name="DesktopRulerQuickHelp" xml:space="preserve"><value>Перетащите заголовок для перемещения · Потяните угол для изменения размера · Стрелки: 1 px · Esc: закрыть · Alt</value></data>
+  <data name="DesktopRulerLayers" xml:space="preserve"><value>Слои измерений</value></data>
+  <data name="DesktopRulerMoveKeys" xml:space="preserve"><value>Alt: привязка · Стрелки: сдвиг на 1 px · Esc: закрыть · Ctrl+C</value></data>
+  <data name="DesktopRulerAutoCopy" xml:space="preserve"><value>Автокопирование</value></data>
+  <data name="DesktopRulerAutoCopyHint" xml:space="preserve"><value>Автоматически копировать завершённые измерения. Ctrl+C: копировать текущий результат.</value></data>
+  <data name="DesktopRulerLengthCopy" xml:space="preserve"><value>Длина: {0} px</value></data>
+  <data name="DesktopRulerDistanceCopy" xml:space="preserve"><value>Δx: {0} px, Δy: {1} px, расстояние: {2} px</value></data>
+  <data name="DesktopRulerCopied" xml:space="preserve"><value>Скопировано: {0}</value></data>
+  <data name="DesktopRulerCopyBusy" xml:space="preserve"><value>Буфер обмена занят. Повторите с помощью Ctrl+C.</value></data>
 </root>

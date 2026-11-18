@@ -3728,4 +3728,31 @@ Media Foundation：{2}
   <data name="CaptureToolShortcutHint" xml:space="preserve"><value>{0}（{1}）</value></data>
   <data name="CapturePointerMoveHint" xml:space="preserve"><value>方向键：移动取景点 1 px</value></data>
   <data name="ScreenRulerReadout" xml:space="preserve"><value>{0} × {1} px | X：{2}，Y：{3}</value></data>
+  <data name="DesktopRulerLine" xml:space="preserve"><value>直尺</value></data>
+  <data name="DesktopRulerBox" xml:space="preserve"><value>框尺</value></data>
+  <data name="DesktopRulerDistance" xml:space="preserve"><value>两点</value></data>
+  <data name="DesktopRulerGuides" xml:space="preserve"><value>参考线</value></data>
+  <data name="DesktopRulerAngle" xml:space="preserve"><value>角度尺</value></data>
+  <data name="DesktopRulerMore" xml:space="preserve"><value>更多工具</value></data>
+  <data name="DesktopRulerMagnifier" xml:space="preserve"><value>放大镜</value></data>
+  <data name="DesktopRulerClear" xml:space="preserve"><value>清除测量和参考线</value></data>
+  <data name="DesktopRulerMeasureHint" xml:space="preserve"><value>拖动或点击两点 · Shift：水平/垂直 · Alt：吸附 · 再次点击当前工具可隐藏</value></data>
+  <data name="DesktopRulerAngleHint" xml:space="preserve"><value>依次点击顶点和两条边上的点 · Alt：吸附 · Esc：取消</value></data>
+  <data name="DesktopRulerGuidesHint" xml:space="preserve"><value>点击或按 G 生成居中参考线，再次操作隐藏或恢复；可从上/左刻度拖出更多线，拖动调整，右键删除；Ctrl：在参考线上测量。</value></data>
+  <data name="DesktopRulerCaptureUnavailable" xml:space="preserve"><value>暂时无法采样屏幕</value></data>
+  <data name="DesktopRulerLineSteps" xml:space="preserve"><value>按住鼠标，从起点拖到终点测长度；按住 Shift 可锁定水平或垂直。</value></data>
+  <data name="DesktopRulerBoxSteps" xml:space="preserve"><value>在元素上按住鼠标拖出一个框，即可测量宽高；框左上角为零点。</value></data>
+  <data name="DesktopRulerDistanceSteps" xml:space="preserve"><value>先点击起点，再点击终点，查看横向、纵向间距和斜距。</value></data>
+  <data name="DesktopRulerAngleStep1" xml:space="preserve"><value>第 1 / 3 步：点击角的顶点。</value></data>
+  <data name="DesktopRulerAngleStep2" xml:space="preserve"><value>第 2 / 3 步：点击第一条边上的点。</value></data>
+  <data name="DesktopRulerAngleStep3" xml:space="preserve"><value>第 3 / 3 步：点击第二条边上的点，完成测量。</value></data>
+  <data name="DesktopRulerQuickHelp" xml:space="preserve"><value>移动：拖工具栏空白处 · 缩放：拖四边手柄或边缘 · Alt：吸附 · 右键：取消</value></data>
+  <data name="DesktopRulerLayers" xml:space="preserve"><value>显示测量结果</value></data>
+  <data name="DesktopRulerMoveKeys" xml:space="preserve"><value>Alt：吸附 · 方向键：移动 1 px · Esc：关闭 · Ctrl+C</value></data>
+  <data name="DesktopRulerAutoCopy" xml:space="preserve"><value>自动复制</value></data>
+  <data name="DesktopRulerAutoCopyHint" xml:space="preserve"><value>测量完成后自动复制结果；Ctrl+C：手动复制当前结果。</value></data>
+  <data name="DesktopRulerLengthCopy" xml:space="preserve"><value>长度：{0} px</value></data>
+  <data name="DesktopRulerDistanceCopy" xml:space="preserve"><value>Δx：{0} px，Δy：{1} px，距离：{2} px</value></data>
+  <data name="DesktopRulerCopied" xml:space="preserve"><value>已复制：{0}</value></data>
+  <data name="DesktopRulerCopyBusy" xml:space="preserve"><value>剪贴板正忙，请按 Ctrl+C 重试。</value></data>
 </root>

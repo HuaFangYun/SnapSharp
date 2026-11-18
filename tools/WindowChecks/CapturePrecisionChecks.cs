@@ -33,6 +33,8 @@ internal static partial class Program
                     var ratio = (ComboBox)overlay.FindName("RatioPicker");
                     var initialGuides = (PixelGuides)overlay.FindName("PrecisionGuides");
                     Require(!initialGuides.ShowRulers && !initialGuides.ShowCrosshair, "Capture guides are visible before the user enables them.");
+                    Require(!initialGuides.InsetOrigin && initialGuides.MeasurementBounds.TopLeft == new Point(),
+                        "Full-screen capture rulers no longer start at the screen edge.");
                     Require(mode.SelectedIndex == 1 && shape.IsEnabled && ratio.IsEnabled, "Element mode disabled shape/ratio options.");
                     shape.SelectedIndex = 1;
                     Require(mode.SelectedIndex == 0 && ratio.IsEnabled, "Ellipse selection did not switch to region mode.");
@@ -102,15 +104,24 @@ internal static partial class Program
                 var guides = (PixelGuides)typeof(ScreenRulerWindow).GetField("_guides", PrivateInstance)!.GetValue(ruler)!;
                 var surface = (FrameworkElement)typeof(ScreenRulerWindow).GetField("_surface", PrivateInstance)!.GetValue(ruler)!;
                 var dpi = VisualTreeHelper.GetDpi(ruler);
-                Require(guides.PixelWidth == (int)Math.Round(surface.ActualWidth * dpi.DpiScaleX) &&
-                    guides.PixelHeight == (int)Math.Round(surface.ActualHeight * dpi.DpiScaleY), "Desktop ruler uses DIPs instead of screen pixels.");
+                var bounds = guides.MeasurementBounds;
+                Require(guides.InsetOrigin && bounds.TopLeft == new Point(24, 24) &&
+                    bounds.Width == surface.ActualWidth - 24 && bounds.Height == surface.ActualHeight - 24,
+                    "Desktop ruler zero is not inside the scale bands.");
+                Require(guides.PixelWidth == (int)Math.Round(bounds.Width * dpi.DpiScaleX) &&
+                    guides.PixelHeight == (int)Math.Round(bounds.Height * dpi.DpiScaleY), "Desktop ruler counts scale bands as measuring space or uses DIPs instead of pixels.");
                 var readout = (TextBlock)typeof(ScreenRulerWindow).GetField("_readout", PrivateInstance)!.GetValue(ruler)!;
-                guides.Pointer = new Point(100, 60); Invoke(ruler, "UpdateMeasurements");
+                string Reading(int x, int y) => SnapSharp.Localization.UiText.Get("ScreenRuler") + "  " +
+                    SnapSharp.Localization.UiText.Format("ScreenRulerReadout", guides.PixelWidth, guides.PixelHeight, x, y);
+                guides.Pointer = bounds.TopLeft; Invoke(ruler, "UpdateMeasurements");
+                Require(readout.Text == Reading(0, 0), "The marked inset origin does not read zero.");
+                SavePreview((FrameworkElement)ruler.Content, Path.Combine(Root, "screen-ruler-origin.png"));
+                guides.Pointer = new Point(5, 5); Invoke(ruler, "UpdateMeasurements");
+                Require(readout.Text == Reading(0, 0), "Hovering the scale bands produces negative measurements.");
+                guides.Pointer = bounds.TopLeft + new Vector(100, 60); Invoke(ruler, "UpdateMeasurements");
                 var measured = readout.Text;
-                var expected = SnapSharp.Localization.UiText.Get("ScreenRuler") + "  " +
-                    SnapSharp.Localization.UiText.Format("ScreenRulerReadout", guides.PixelWidth, guides.PixelHeight,
-                        (int)Math.Floor(100 * dpi.DpiScaleX), (int)Math.Floor(60 * dpi.DpiScaleY));
-                Require(measured == expected, "Desktop ruler reports absolute screen coordinates instead of local distances.");
+                var expected = Reading((int)Math.Floor(100 * dpi.DpiScaleX), (int)Math.Floor(60 * dpi.DpiScaleY));
+                Require(measured == expected, "Desktop ruler distances do not start at the marked inset origin.");
                 ruler.Left += 137; ruler.Top += 51; ruler.UpdateLayout(); Invoke(ruler, "UpdateMeasurements");
                 Require(readout.Text == measured && guides.OriginX == 0 && guides.OriginY == 0,
                     "Moving the ruler changed its zero or measured distance.");
@@ -121,11 +132,14 @@ internal static partial class Program
                 Require(readout.Text == SnapSharp.Localization.UiText.Get("ScreenRuler") + "  " +
                     SnapSharp.Localization.UiText.Format("ScreenRulerReadout", guides.PixelWidth, guides.PixelHeight, guides.PixelWidth, guides.PixelHeight),
                     "The far ruler corner does not match the ruler's own dimensions.");
+                guides.Pointer = guides.MeasurementBounds.TopLeft; Invoke(ruler, "UpdateMeasurements");
+                Require(readout.Text == Reading(0, 0), "Resizing the ruler changed its zero.");
+                guides.Pointer = guides.MeasurementBounds.TopLeft + new Vector(100, 60); Invoke(ruler, "UpdateMeasurements");
                 SavePreview((FrameworkElement)ruler.Content, Path.Combine(Root, "screen-ruler.png"));
             }
             finally { ruler.Close(); }
             Console.WriteLine("PASS: capture shape/ratio switching; pointer/selection movement and resizing at 100%, 150%, 200%; edge clamping; keyboard snap bypass; capture and desktop rulers.");
-            Console.WriteLine("PASS: desktop ruler zero and relative readout stay fixed when moved; resizing and endpoint distances use its own physical pixel dimensions.");
+            Console.WriteLine("PASS: desktop ruler has an inset zero; scale bands excluded from physical pixel measurements; zero/readout stable after moving and resizing; endpoint distances match effective dimensions.");
             Console.WriteLine("Previews: " + Root);
         }
         finally { System.Windows.Forms.Cursor.Position = originalCursor; }

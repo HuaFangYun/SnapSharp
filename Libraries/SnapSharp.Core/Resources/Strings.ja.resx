@@ -3846,4 +3846,31 @@ ScreenRecorderLib が含まれています。 NuGet または FFmpeg を個別�
   <data name="CaptureToolShortcutHint" xml:space="preserve"><value>{0}（{1}）</value></data>
   <data name="CapturePointerMoveHint" xml:space="preserve"><value>方向キー：ポインターを 1 px 移動</value></data>
   <data name="ScreenRulerReadout" xml:space="preserve"><value>{0} × {1} px | X: {2}, Y: {3}</value></data>
+  <data name="DesktopRulerLine" xml:space="preserve"><value>直線</value></data>
+  <data name="DesktopRulerBox" xml:space="preserve"><value>矩形</value></data>
+  <data name="DesktopRulerDistance" xml:space="preserve"><value>2点間</value></data>
+  <data name="DesktopRulerGuides" xml:space="preserve"><value>ガイド</value></data>
+  <data name="DesktopRulerAngle" xml:space="preserve"><value>分度器</value></data>
+  <data name="DesktopRulerMore" xml:space="preserve"><value>その他のツール</value></data>
+  <data name="DesktopRulerMagnifier" xml:space="preserve"><value>拡大鏡</value></data>
+  <data name="DesktopRulerClear" xml:space="preserve"><value>測定とガイドを消去</value></data>
+  <data name="DesktopRulerMeasureHint" xml:space="preserve"><value>ドラッグまたは2点をクリック · Shift：水平・垂直に固定 · Alt：吸着 · 選択中のツールを再クリックで非表示</value></data>
+  <data name="DesktopRulerAngleHint" xml:space="preserve"><value>頂点、各辺上の点の順にクリック · Alt：吸着 · Esc：キャンセル</value></data>
+  <data name="DesktopRulerGuidesHint" xml:space="preserve"><value>上・左の目盛りからガイドをドラッグ。ドラッグで移動、右クリックで削除。Ctrl：ガイド上で測定。</value></data>
+  <data name="DesktopRulerCaptureUnavailable" xml:space="preserve"><value>画面の取得を利用できません</value></data>
+  <data name="DesktopRulerLineSteps" xml:space="preserve"><value>直線 ドラッグまたは2点をクリック · Shift：水平・垂直に固定 · Alt：吸着</value></data>
+  <data name="DesktopRulerBoxSteps" xml:space="preserve"><value>矩形 ドラッグまたは2点をクリック · Shift：水平・垂直に固定 · Alt：吸着</value></data>
+  <data name="DesktopRulerDistanceSteps" xml:space="preserve"><value>2点間 ドラッグまたは2点をクリック · Shift：水平・垂直に固定 · Alt：吸着</value></data>
+  <data name="DesktopRulerAngleStep1" xml:space="preserve"><value>1 / 3 頂点、各辺上の点の順にクリック · Alt：吸着 · Esc：キャンセル</value></data>
+  <data name="DesktopRulerAngleStep2" xml:space="preserve"><value>2 / 3 頂点、各辺上の点の順にクリック · Alt：吸着 · Esc：キャンセル</value></data>
+  <data name="DesktopRulerAngleStep3" xml:space="preserve"><value>3 / 3 頂点、各辺上の点の順にクリック · Alt：吸着 · Esc：キャンセル</value></data>
+  <data name="DesktopRulerQuickHelp" xml:space="preserve"><value>タイトルをドラッグして移動 · 右下をドラッグしてサイズ変更 · 方向キー：1 px · Esc：閉じる · Alt</value></data>
+  <data name="DesktopRulerLayers" xml:space="preserve"><value>測定レイヤー</value></data>
+  <data name="DesktopRulerMoveKeys" xml:space="preserve"><value>Alt: 吸着 · 矢印: 1 px 移動 · Esc: 閉じる · Ctrl+C</value></data>
+  <data name="DesktopRulerAutoCopy" xml:space="preserve"><value>自動コピー</value></data>
+  <data name="DesktopRulerAutoCopyHint" xml:space="preserve"><value>測定完了時に自動コピー。Ctrl+C: 現在の結果をコピー。</value></data>
+  <data name="DesktopRulerLengthCopy" xml:space="preserve"><value>長さ: {0} px</value></data>
+  <data name="DesktopRulerDistanceCopy" xml:space="preserve"><value>Δx: {0} px、Δy: {1} px、距離: {2} px</value></data>
+  <data name="DesktopRulerCopied" xml:space="preserve"><value>コピー済み: {0}</value></data>
+  <data name="DesktopRulerCopyBusy" xml:space="preserve"><value>クリップボードが使用中です。Ctrl+C で再試行してください。</value></data>
 </root>

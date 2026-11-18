@@ -20,20 +20,36 @@ Coverage:
 - Active-window fallback for tray commands, hidden owners, dialog failures and pins
   closed during a modal dialog.
 - Capture shape/aspect-ratio availability and switching from element capture to region capture.
+- Native window regions and DWM corner preferences, dialog corner transparency through
+  element editing and PNG export, square/maximized windows, rectangular child elements,
+  manual region captures and clipped windows on monitors with negative coordinates.
 - Pixel movement/resizing at simulated 100%, 150% and 200% scales, monitor edge clamping,
   precision snap bypass, original image output, capture rulers and the desktop ruler.
 - Guides default off, independent persistence of enabled/disabled states, restoring
   preferences in a new capture and synchronization between monitors.
 - Fixed capture shortcuts R/X, top hint text and toolbar tooltips, removal of auxiliary
   settings and movement hints that follow focus and selection constraints.
-- Desktop ruler distances relative to its own zero after moving/resizing, including
-  the far corner matching the ruler's physical pixel dimensions.
+- Desktop ruler distances relative to its marked inset zero after moving/resizing,
+  excluding scale bands from measurement and matching endpoints to effective pixel dimensions.
+- Independent linear/box/two-point layers and three-point angles, axis constraints,
+  guide hiding and snapping, image-edge detection, cancellation and clearing.
+- Readout placement for horizontal, vertical and diagonal measurements, angle arcs,
+  endpoints, projection lines, canvas edges, multiple labels and magnifier exclusion;
+  actual compact-window labels are checked against every measurement line.
+- Ruler auto-copy defaults, persistence on reopening, manual copy, four result formats,
+  commit-only triggers, busy-clipboard recovery and transient footer notifications.
+  An injected writer verifies copy behavior without changing the user's clipboard.
+- Live magnifier sampling against a known background window, verifying the ruler is
+  excluded from the sample. This check requires desktop screen-capture access.
+- Magnifier crosshair contrast on white/black/color backgrounds, center color preservation,
+  off-center sampled-pixel tracking and desktop-edge positioning, with rendered previews.
 - All guide strings localized in every language pack, compiled Simplified/Traditional
   Chinese resource checks and rendered Chinese capture/settings previews.
 
 The suite saves capture and ruler previews under its temporary output directory.
 
-Reviewed guide translations live in `scripts/capture-guide-translations.json`.
+Reviewed guide translations live in `scripts/capture-guide-translations.json`
+and `scripts/desktop-ruler-translations.json`.
 Apply them with `python scripts/apply-capture-guide-translations.py` and validate
 all packs with `python scripts/validate-language-packs.py`. The translation generator
 also preserves these reviewed strings.

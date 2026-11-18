@@ -3846,4 +3846,31 @@ Kopiowanie dużych modeli może zająć trochę czasu. Istniejące dane w miejsc
   <data name="CaptureToolShortcutHint" xml:space="preserve"><value>{0} ({1})</value></data>
   <data name="CapturePointerMoveHint" xml:space="preserve"><value>Strzałki: przesuń wskaźnik o 1 px</value></data>
   <data name="ScreenRulerReadout" xml:space="preserve"><value>{0} × {1} px | X: {2}, Y: {3}</value></data>
+  <data name="DesktopRulerLine" xml:space="preserve"><value>Linia</value></data>
+  <data name="DesktopRulerBox" xml:space="preserve"><value>Ramka</value></data>
+  <data name="DesktopRulerDistance" xml:space="preserve"><value>Dwa punkty</value></data>
+  <data name="DesktopRulerGuides" xml:space="preserve"><value>Prowadnice</value></data>
+  <data name="DesktopRulerAngle" xml:space="preserve"><value>Kątomierz</value></data>
+  <data name="DesktopRulerMore" xml:space="preserve"><value>Więcej narzędzi</value></data>
+  <data name="DesktopRulerMagnifier" xml:space="preserve"><value>Lupa</value></data>
+  <data name="DesktopRulerClear" xml:space="preserve"><value>Wyczyść pomiary i prowadnice</value></data>
+  <data name="DesktopRulerMeasureHint" xml:space="preserve"><value>Przeciągnij lub kliknij dwa punkty · Shift: ogranicz linię · Alt: przyciągaj · Kliknij ponownie aktywne narzędzie, aby ukryć</value></data>
+  <data name="DesktopRulerAngleHint" xml:space="preserve"><value>Kliknij wierzchołek i punkt na każdym ramieniu · Alt: przyciągaj · Esc: anuluj</value></data>
+  <data name="DesktopRulerGuidesHint" xml:space="preserve"><value>Wyciągnij prowadnice z górnej/lewej linijki; przeciągnij, aby przesunąć; prawy klik usuwa. Ctrl: pomiar na prowadnicy.</value></data>
+  <data name="DesktopRulerCaptureUnavailable" xml:space="preserve"><value>Próbkowanie ekranu niedostępne</value></data>
+  <data name="DesktopRulerLineSteps" xml:space="preserve"><value>Linia Przeciągnij lub kliknij dwa punkty · Shift: ogranicz linię · Alt: przyciągaj</value></data>
+  <data name="DesktopRulerBoxSteps" xml:space="preserve"><value>Ramka Przeciągnij lub kliknij dwa punkty · Shift: ogranicz linię · Alt: przyciągaj</value></data>
+  <data name="DesktopRulerDistanceSteps" xml:space="preserve"><value>Dwa punkty Przeciągnij lub kliknij dwa punkty · Shift: ogranicz linię · Alt: przyciągaj</value></data>
+  <data name="DesktopRulerAngleStep1" xml:space="preserve"><value>1 / 3 Kliknij wierzchołek i punkt na każdym ramieniu · Alt: przyciągaj · Esc: anuluj</value></data>
+  <data name="DesktopRulerAngleStep2" xml:space="preserve"><value>2 / 3 Kliknij wierzchołek i punkt na każdym ramieniu · Alt: przyciągaj · Esc: anuluj</value></data>
+  <data name="DesktopRulerAngleStep3" xml:space="preserve"><value>3 / 3 Kliknij wierzchołek i punkt na każdym ramieniu · Alt: przyciągaj · Esc: anuluj</value></data>
+  <data name="DesktopRulerQuickHelp" xml:space="preserve"><value>Przeciągnij nagłówek, aby przesunąć · Przeciągnij róg, aby zmienić rozmiar · Strzałki: 1 px · Esc: zamknij · Alt</value></data>
+  <data name="DesktopRulerLayers" xml:space="preserve"><value>Warstwy pomiarowe</value></data>
+  <data name="DesktopRulerMoveKeys" xml:space="preserve"><value>Alt: przyciągaj · Strzałki: przesuń o 1 px · Esc: zamknij · Ctrl+C</value></data>
+  <data name="DesktopRulerAutoCopy" xml:space="preserve"><value>Kopiuj automatycznie</value></data>
+  <data name="DesktopRulerAutoCopyHint" xml:space="preserve"><value>Automatycznie kopiuj zakończone pomiary. Ctrl+C: kopiuj bieżący wynik.</value></data>
+  <data name="DesktopRulerLengthCopy" xml:space="preserve"><value>Długość: {0} px</value></data>
+  <data name="DesktopRulerDistanceCopy" xml:space="preserve"><value>Δx: {0} px, Δy: {1} px, odległość: {2} px</value></data>
+  <data name="DesktopRulerCopied" xml:space="preserve"><value>Skopiowano: {0}</value></data>
+  <data name="DesktopRulerCopyBusy" xml:space="preserve"><value>Schowek jest zajęty. Naciśnij Ctrl+C, aby ponowić.</value></data>
 </root>

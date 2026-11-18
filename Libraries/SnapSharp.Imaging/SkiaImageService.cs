@@ -11,6 +11,29 @@ namespace SnapSharp.Services;
 
 public sealed class SkiaImageService
 {
+    public BitmapSource ApplyWindowShape(BitmapSource source, System.Drawing.Rectangle captureBounds, SnapSharp.Models.WindowCaptureShape shape)
+    {
+        using var bitmap = ToSkBitmap(source);
+        using var surface = SKSurface.Create(new SKImageInfo(bitmap.Width, bitmap.Height, SKColorType.Bgra8888, SKAlphaType.Premul));
+        surface.Canvas.Clear(SKColors.Transparent);
+        SKRect Local(System.Drawing.Rectangle r) => new(r.Left - captureBounds.Left, r.Top - captureBounds.Top,
+            r.Right - captureBounds.Left, r.Bottom - captureBounds.Top);
+        using var path = new SKPath();
+        if (shape.RegionRectangles is { } regions)
+        {
+            foreach (var rectangle in regions) path.AddRect(Local(rectangle));
+            surface.Canvas.ClipPath(path, SKClipOperation.Intersect, false);
+        }
+        else
+        {
+            path.AddRoundRect(Local(shape.Bounds), (float)shape.CornerRadius, (float)shape.CornerRadius);
+            surface.Canvas.ClipPath(path, SKClipOperation.Intersect, true);
+        }
+        surface.Canvas.DrawBitmap(bitmap, 0, 0);
+        using var image = surface.Snapshot();
+        return ToBitmapSource(image);
+    }
+
     public BitmapSource ApplySelectionMask(BitmapSource source, IReadOnlyList<System.Windows.Point> points, bool ellipse)
     {
         using var bitmap = ToSkBitmap(source);

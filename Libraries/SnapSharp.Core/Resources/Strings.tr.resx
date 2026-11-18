@@ -3846,4 +3846,31 @@ Büyük modellerin kopyalanması biraz zaman alabilir. Hedefteki mevcut verileri
   <data name="CaptureToolShortcutHint" xml:space="preserve"><value>{0} ({1})</value></data>
   <data name="CapturePointerMoveHint" xml:space="preserve"><value>Ok tuşları: işaretçiyi 1 px taşı</value></data>
   <data name="ScreenRulerReadout" xml:space="preserve"><value>{0} × {1} px | X: {2}, Y: {3}</value></data>
+  <data name="DesktopRulerLine" xml:space="preserve"><value>Doğru</value></data>
+  <data name="DesktopRulerBox" xml:space="preserve"><value>Çerçeve</value></data>
+  <data name="DesktopRulerDistance" xml:space="preserve"><value>İki nokta</value></data>
+  <data name="DesktopRulerGuides" xml:space="preserve"><value>Kılavuzlar</value></data>
+  <data name="DesktopRulerAngle" xml:space="preserve"><value>Açıölçer</value></data>
+  <data name="DesktopRulerMore" xml:space="preserve"><value>Diğer araçlar</value></data>
+  <data name="DesktopRulerMagnifier" xml:space="preserve"><value>Büyüteç</value></data>
+  <data name="DesktopRulerClear" xml:space="preserve"><value>Ölçümleri ve kılavuzları temizle</value></data>
+  <data name="DesktopRulerMeasureHint" xml:space="preserve"><value>Sürükleyin veya iki noktaya tıklayın · Shift: çizgiyi sınırla · Alt: yapıştır · Gizlemek için etkin araca tekrar tıklayın</value></data>
+  <data name="DesktopRulerAngleHint" xml:space="preserve"><value>Köşeye, ardından her koldaki bir noktaya tıklayın · Alt: yapıştır · Esc: iptal</value></data>
+  <data name="DesktopRulerGuidesHint" xml:space="preserve"><value>Üst/sol cetvelden kılavuz sürükleyin; taşımak için sürükleyin; silmek için sağ tıklayın. Ctrl: kılavuz üzerinde ölç.</value></data>
+  <data name="DesktopRulerCaptureUnavailable" xml:space="preserve"><value>Ekran örneklemesi kullanılamıyor</value></data>
+  <data name="DesktopRulerLineSteps" xml:space="preserve"><value>Doğru Sürükleyin veya iki noktaya tıklayın · Shift: çizgiyi sınırla · Alt: yapıştır</value></data>
+  <data name="DesktopRulerBoxSteps" xml:space="preserve"><value>Çerçeve Sürükleyin veya iki noktaya tıklayın · Shift: çizgiyi sınırla · Alt: yapıştır</value></data>
+  <data name="DesktopRulerDistanceSteps" xml:space="preserve"><value>İki nokta Sürükleyin veya iki noktaya tıklayın · Shift: çizgiyi sınırla · Alt: yapıştır</value></data>
+  <data name="DesktopRulerAngleStep1" xml:space="preserve"><value>1 / 3 Köşeye, ardından her koldaki bir noktaya tıklayın · Alt: yapıştır · Esc: iptal</value></data>
+  <data name="DesktopRulerAngleStep2" xml:space="preserve"><value>2 / 3 Köşeye, ardından her koldaki bir noktaya tıklayın · Alt: yapıştır · Esc: iptal</value></data>
+  <data name="DesktopRulerAngleStep3" xml:space="preserve"><value>3 / 3 Köşeye, ardından her koldaki bir noktaya tıklayın · Alt: yapıştır · Esc: iptal</value></data>
+  <data name="DesktopRulerQuickHelp" xml:space="preserve"><value>Taşımak için başlığı sürükleyin · Boyutlandırmak için köşeyi sürükleyin · Oklar: 1 px · Esc: kapat · Alt</value></data>
+  <data name="DesktopRulerLayers" xml:space="preserve"><value>Olcum katmanlari</value></data>
+  <data name="DesktopRulerMoveKeys" xml:space="preserve"><value>Alt: yapıştır · Oklar: 1 px taşı · Esc: kapat · Ctrl+C</value></data>
+  <data name="DesktopRulerAutoCopy" xml:space="preserve"><value>Otomatik kopyala</value></data>
+  <data name="DesktopRulerAutoCopyHint" xml:space="preserve"><value>Tamamlanan ölçümleri otomatik kopyala. Ctrl+C: geçerli sonucu kopyala.</value></data>
+  <data name="DesktopRulerLengthCopy" xml:space="preserve"><value>Uzunluk: {0} px</value></data>
+  <data name="DesktopRulerDistanceCopy" xml:space="preserve"><value>Δx: {0} px, Δy: {1} px, mesafe: {2} px</value></data>
+  <data name="DesktopRulerCopied" xml:space="preserve"><value>Kopyalandı: {0}</value></data>
+  <data name="DesktopRulerCopyBusy" xml:space="preserve"><value>Pano meşgul. Tekrar denemek için Ctrl+C tuşlarına basın.</value></data>
 </root>

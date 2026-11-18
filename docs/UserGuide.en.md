@@ -87,7 +87,7 @@ Start a capture with `Ctrl+Shift+A`. It opens in **Element** mode by default. Ho
 
 No browser extension is needed. Page buttons, links, inputs, and other elements exposed through the browser's accessibility interface can also be selected by hovering. Coverage depends on the browser and page. CSS selectors, full DOM inspection, and screenshots of entire offscreen elements are not supported. Custom-drawn controls, canvases, and content without accessibility support may expose only their containing region.
 
-The image is cropped from the desktop snapshot taken when capture begins, including the actual background and any overlapping content. It does not automatically become transparent. Elements spanning monitors are cropped to the current monitor. Restart capture after moving the target window to refresh both the image and its bounds.
+The image is cropped from the desktop snapshot taken when capture begins, retaining backgrounds and overlapping content inside the element. Element and Window modes make pixels outside system-rounded corners or an application's native window region transparent, excluding desktop content outside dialog corners. PNG preserves this transparency. Rectangular child controls retain their shape, and manual Region captures do not inherit the window silhouette. Custom per-pixel transparent windows without a native region and translucency inside a window are not automatically reconstructed. Elements spanning monitors are cropped to the current monitor. Restart capture after moving the target window to refresh both the image and its bounds.
 
 ### Pick a color from the screen
 
@@ -98,6 +98,28 @@ Before you begin selecting an area, the magnifier beside the pointer displays a 
 - Each new capture starts in HEX mode. While dragging a selection, `Shift` locks the aspect ratio instead of changing the color format.
 
 A screen snapshot cannot recover a window's original transparency, so the RGBA alpha value is 1. Color names may be approximate, and CMYK values are conversions from RGB rather than color-managed print results.
+
+### Standalone screen ruler
+
+Open **Screen ruler** from the tray menu, or assign its global shortcut under **Settings → Keyboard shortcuts**. The shortcut is initially empty; clear it to disable it. Duplicate shortcuts are rejected. Drag the toolbar background to move. Drag any of the four blue edge handles or an entire edge to resize; the lower-right corner resizes both dimensions. Arrow keys move the window by one physical pixel. The blue intersection inside the scale bands is the base `(0, 0)`; measurement coordinates exclude the scale bands. In Box mode, internal scales start at the box's top-left zero, its size appears beside the box, and magnifier coordinates are relative to it. Hover over the toolbar title for coordinates and dimensions.
+
+| Tool | Interaction and purpose |
+| --- | --- |
+| Linear `1` | Drag or click two points for length; any orientation, with `Shift` to constrain horizontally or vertically |
+| Box `2` | Drag a rectangle for live `W × H` readings |
+| Two points `3` | Read endpoint coordinates, `Δx`, `Δy` and diagonal distance |
+| Guides `G` | Click or press `G` to create a centered horizontal and vertical guide on first use, then hide/show them. Pull more guides from the top/left scales; drag to move, right-click to delete |
+| Angle `A` | Select on the toolbar, then click the vertex and a point on each ray; disabled initially |
+
+All tools and their shortcuts are visible on the top toolbar, which wraps in narrow windows. Each tool retains one result, and results can be displayed together. Click a tool to make it active; clicking it again keeps it active. The small eye on the right of each tool button controls result visibility. Readings appear beside measurements; the footer has one line of instructions with full details on hover. Angle measurements show one step at a time. Hold `Alt` to snap to nearby screen edges, guides or measurement-area boundaries. Hold `Ctrl` to measure on a guide without moving it. Guides highlight and display their coordinate on hover, with a directional drag cursor. The magnifier starts enabled and displays pixels and HEX color; toggle it with `M`. Its position automatically avoids the pointer and measurement endpoints where space permits. A message appears if screen sampling is unavailable.
+
+The magnifier uses a black-and-white outlined crosshair and pixel frame for visibility on white and black backgrounds. The reticle follows the actual sampled pixel, including off-center positions near desktop edges. Its center remains clear to preserve the sampled color.
+
+Readouts prefer positions outside their measurement bounds and avoid measurement lines, angle arcs, endpoints, other readouts and the magnifier. Labels switch sides near window edges and search available space when crowded.
+
+The toolbar's **Auto copy** toggle defaults off and remembers its state. When enabled, only completed measurements are copied: length for Linear, `width × height px` for Box, `Δx`, `Δy` and diagonal distance for Two points, or degrees for Angle. Press `Ctrl+C` to copy the active tool's completed result manually. Drafts, cancellation, guide movement and window resizing do not trigger copying. A brief footer message confirms success; if the clipboard is busy, press `Ctrl+C` to retry.
+
+`Delete` removes a selected guide or the active tool's result. Right-click or `Esc` cancels an unfinished measurement; `Esc` closes the ruler when no measurement is pending. The trash button clears all measurements and guides. These tools do not change the full-screen capture ruler.
 
 <a id="output"></a>
 

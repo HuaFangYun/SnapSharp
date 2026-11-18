@@ -58,7 +58,7 @@ public sealed class ScreenCaptureService(bool includeCursor = false) : ICaptureS
                 if (clipped.Width > 0 && clipped.Height > 0) client = clipped;
             }
         }
-        return new WindowCandidate(bounds, hwnd, client);
+        return new WindowCandidate(bounds, hwnd, client) { CaptureShape = WindowShapeService.Snapshot(hwnd, bounds) };
     }
 
     internal static bool TryGetWindowBounds(nint hwnd, out Rectangle bounds)

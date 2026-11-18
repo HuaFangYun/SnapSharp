@@ -76,6 +76,7 @@ public sealed class AppController : IDisposable
         _tray.CancelDelayedScreenshotRequested += CancelDelayedScreenshot;
         _tray.HistoryRequested += (_, _) => ShowHistory();
         _tray.ScreenRulerRequested += (_, _) => ShowScreenRuler();
+        _hotkey.ScreenRulerRequested += (_, _) => ShowScreenRuler();
         _tray.SettingsRequested += (_, _) => ShowSettings();
         _tray.RecordingRequested += (_, _) => OpenRecording(System.Windows.Forms.Screen.FromPoint(System.Windows.Forms.Cursor.Position).Bounds);
         _tray.PauseRecordingRequested += (_, _) => _recordingWindow?.PauseRecording();
@@ -381,7 +382,7 @@ public sealed class AppController : IDisposable
     {
         var existing = _openWindows.OfType<ScreenRulerWindow>().FirstOrDefault();
         if (existing is not null) { existing.Show(); existing.Activate(); return; }
-        var ruler = new ScreenRulerWindow();
+        var ruler = new ScreenRulerWindow(_settings);
         _openWindows.Add(ruler);
         ruler.Closed += (_, _) => _openWindows.Remove(ruler);
         ruler.Show();

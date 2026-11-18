@@ -8,7 +8,7 @@ namespace SnapSharp.Views;
 public sealed class PixelGuides : FrameworkElement
 {
     private DrawingGroup? _rulerDrawing;
-    private (double Width, double Height, int PixelWidth, int PixelHeight, int OriginX, int OriginY, double Dpi) _rulerState;
+    private (double Width, double Height, int PixelWidth, int PixelHeight, int OriginX, int OriginY, bool InsetOrigin, double Dpi) _rulerState;
     public bool ShowRulers { get; set; }
     public bool ShowCrosshair { get; set; } = true;
     public Point Pointer { get; set; }
@@ -16,16 +16,28 @@ public sealed class PixelGuides : FrameworkElement
     public int PixelHeight { get; set; }
     public int OriginX { get; set; }
     public int OriginY { get; set; }
+    public bool InsetOrigin { get; set; }
+
+    internal Rect MeasurementBounds
+    {
+        get
+        {
+            var inset = InsetOrigin ? 24 : 0;
+            return new Rect(inset, inset, Math.Max(0, ActualWidth - inset), Math.Max(0, ActualHeight - inset));
+        }
+    }
 
     protected override void OnRender(DrawingContext dc)
     {
         base.OnRender(dc);
         if (ActualWidth <= 0 || ActualHeight <= 0 || PixelWidth <= 0 || PixelHeight <= 0) return;
-        var px = ActualWidth / PixelWidth;
-        var py = ActualHeight / PixelHeight;
+        var bounds = MeasurementBounds;
+        if (bounds.Width <= 0 || bounds.Height <= 0) return;
+        var px = bounds.Width / PixelWidth;
+        var py = bounds.Height / PixelHeight;
         if (ShowRulers)
         {
-            var state = (ActualWidth, ActualHeight, PixelWidth, PixelHeight, OriginX, OriginY, VisualTreeHelper.GetDpi(this).PixelsPerDip);
+            var state = (ActualWidth, ActualHeight, PixelWidth, PixelHeight, OriginX, OriginY, InsetOrigin, VisualTreeHelper.GetDpi(this).PixelsPerDip);
             if (_rulerDrawing is null || state != _rulerState)
             {
                 _rulerState = state;
@@ -35,34 +47,46 @@ public sealed class PixelGuides : FrameworkElement
                     var background = new SolidColorBrush(Color.FromArgb(235, 24, 27, 32));
                     drawing.DrawRectangle(background, null, new Rect(0, 0, ActualWidth, 24));
                     drawing.DrawRectangle(background, null, new Rect(0, 24, 24, Math.Max(0, ActualHeight - 24)));
-                    DrawAxis(drawing, PixelWidth, px, OriginX, false);
-                    DrawAxis(drawing, PixelHeight, py, OriginY, true);
+                    DrawAxis(drawing, PixelWidth, px, OriginX, false, bounds.Left);
+                    DrawAxis(drawing, PixelHeight, py, OriginY, true, bounds.Top);
+                    if (InsetOrigin)
+                    {
+                        var baseline = new Pen(Brushes.DodgerBlue, 1);
+                        drawing.DrawLine(baseline, bounds.TopLeft, bounds.TopRight);
+                        drawing.DrawLine(baseline, bounds.TopLeft, bounds.BottomLeft);
+                    }
                 }
                 _rulerDrawing.Freeze();
             }
             dc.DrawDrawing(_rulerDrawing);
         }
-        if (!ShowCrosshair) return;
-        var x = Math.Clamp(Math.Floor(Pointer.X / px) * px + px / 2, 0, ActualWidth);
-        var y = Math.Clamp(Math.Floor(Pointer.Y / py) * py + py / 2, 0, ActualHeight);
+        if (ShowCrosshair) DrawCrosshair(dc, bounds, px, py);
+        if (ShowRulers && InsetOrigin)
+            dc.DrawEllipse(Brushes.DodgerBlue, new Pen(Brushes.White, 1), bounds.TopLeft, 3, 3);
+    }
+
+    private void DrawCrosshair(DrawingContext dc, Rect bounds, double px, double py)
+    {
+        var x = Math.Clamp(bounds.Left + Math.Floor((Pointer.X - bounds.Left) / px) * px + px / 2, bounds.Left, bounds.Right);
+        var y = Math.Clamp(bounds.Top + Math.Floor((Pointer.Y - bounds.Top) / py) * py + py / 2, bounds.Top, bounds.Bottom);
         foreach (var pen in new[] { new Pen(Brushes.Black, 2.5), new Pen(Brushes.White, .75) })
         {
-            dc.DrawLine(pen, new Point(0, y), new Point(Math.Max(0, x - 7), y));
-            dc.DrawLine(pen, new Point(Math.Min(ActualWidth, x + 7), y), new Point(ActualWidth, y));
-            dc.DrawLine(pen, new Point(x, 0), new Point(x, Math.Max(0, y - 7)));
-            dc.DrawLine(pen, new Point(x, Math.Min(ActualHeight, y + 7)), new Point(x, ActualHeight));
+            dc.DrawLine(pen, new Point(bounds.Left, y), new Point(Math.Max(bounds.Left, x - 7), y));
+            dc.DrawLine(pen, new Point(Math.Min(bounds.Right, x + 7), y), new Point(bounds.Right, y));
+            dc.DrawLine(pen, new Point(x, bounds.Top), new Point(x, Math.Max(bounds.Top, y - 7)));
+            dc.DrawLine(pen, new Point(x, Math.Min(bounds.Bottom, y + 7)), new Point(x, bounds.Bottom));
         }
         dc.DrawRectangle(null, new Pen(Brushes.White, .75), new Rect(x - px / 2, y - py / 2, px, py));
     }
 
-    private void DrawAxis(DrawingContext dc, int count, double scale, int origin, bool vertical)
+    private void DrawAxis(DrawingContext dc, int count, double scale, int origin, bool vertical, double offset)
     {
         var pen = new Pen(Brushes.LightGray, .75);
         var step = scale >= .75 ? 1 : 5;
         var major = scale >= .6 ? 50 : 100;
         for (var pixel = 0; pixel <= count; pixel += step)
         {
-            var position = pixel * scale;
+            var position = offset + pixel * scale;
             var length = pixel % major == 0 ? 12 : pixel % 10 == 0 ? 8 : pixel % 5 == 0 ? 5 : 2;
             dc.DrawLine(pen, vertical ? new Point(24 - length, position) : new Point(position, 24 - length),
                 vertical ? new Point(24, position) : new Point(position, 24));

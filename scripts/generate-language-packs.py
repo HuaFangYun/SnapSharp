@@ -130,9 +130,10 @@ def translate_batch(values, target):
 
 def translate_language(target, cultures):
     overrides = json.loads((ROOT / "scripts/language-overrides.json").read_text(encoding="utf-8"))[target]
-    guides = json.loads((ROOT / "scripts/capture-guide-translations.json").read_text(encoding="utf-8"))
-    language = guides["cultures"][cultures[0]]
-    overrides.update(zip(guides["keys"], guides["translations"][language], strict=True))
+    for name in ("capture-guide-translations.json", "desktop-ruler-translations.json"):
+        guides = json.loads((ROOT / "scripts" / name).read_text(encoding="utf-8"))
+        language = guides["cultures"][cultures[0]]
+        overrides.update(zip(guides["keys"], guides["translations"][language], strict=True))
     if target == "zh-TW":
         tree = traditional_chinese(ET.parse(RESOURCES / "Strings.zh-CN.resx"))
         write_resources(tree, cultures, overrides)
