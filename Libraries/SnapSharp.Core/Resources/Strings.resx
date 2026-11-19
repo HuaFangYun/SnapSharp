@@ -3814,4 +3814,9 @@ Images are processed locally.</value></data>
   <data name="RecognitionTransformConfirm" xml:space="preserve"><value>Changing image orientation clears recognition results and your edits. Continue?</value></data>
   <data name="RecognitionImageTransformed" xml:space="preserve"><value>Image orientation changed. Start recognition to read this image.</value></data>
   <data name="RecognitionPreviewHint" xml:space="preserve"><value>Wheel to zoom · drag to pan · double-click to fit</value></data>
+  <data name="OneClickRedact" xml:space="preserve"><value>One-click redaction</value></data>
+  <data name="RedactionProcessing" xml:space="preserve"><value>Finding sensitive text…</value></data>
+  <data name="RedactionNoMatches" xml:space="preserve"><value>No matching sensitive text was found. The image was left unchanged.</value></data>
+  <data name="RedactionImageChanged" xml:space="preserve"><value>The image was edited during recognition. Run redaction again on the current image.</value></data>
+  <data name="RedactionFailed" xml:space="preserve"><value>Redaction could not be completed: {0}</value></data>
 </root>

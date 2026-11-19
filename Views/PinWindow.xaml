@@ -96,6 +96,7 @@
         <Button Style="{StaticResource PinToolButton}" Tag="Number" Click="EditTool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Number}"><iconPacks:PackIconLucide Kind="Hash" /></Button>
         <Button Style="{StaticResource PinToolButton}" Tag="Mosaic" Click="EditTool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Pixelate}"><iconPacks:PackIconLucide Kind="Grid3X3" /></Button>
         <Button Style="{StaticResource PinToolButton}" Tag="Blur" Click="EditTool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Blur}"><iconPacks:PackIconLucide Kind="Droplets" /></Button>
+        <Button x:Name="RedactEditButton" Style="{StaticResource PinToolButton}" Click="Redact_Click" ToolTipService.ShowOnDisabled="True" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:OneClickRedact}"><iconPacks:PackIconLucide Kind="Shield" /></Button>
         <Button Style="{StaticResource PinToolButton}" Tag="Spotlight" Click="EditTool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Spotlight}"><iconPacks:PackIconLucide Kind="Focus" /></Button>
         <Button Style="{StaticResource PinToolButton}" Tag="Bubble" Click="EditTool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:Callout}"><iconPacks:PackIconLucide Kind="MessageCircle" /></Button>
         <Button Style="{StaticResource PinToolButton}" Tag="Magnifier" Click="EditTool_Click" ToolTip="{loc:Loc SnapSharp.Core:Resources.Strings:MagnifierAnnotation}"><iconPacks:PackIconLucide Kind="ZoomIn" /></Button>

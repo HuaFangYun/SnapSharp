@@ -28,6 +28,7 @@ public partial class PinWindow : Window
     private bool _editing;
     private bool _positioned;
     private EditorViewModel? _editViewModel;
+    private readonly SensitiveRedactionAction _redaction = new();
 
     public PinWindow(BitmapSource image, SkiaImageService images, SettingsService settings,
         IClipboardService clipboard, PinWorkspace? workspace = null, PinContent? content = null)
@@ -169,6 +170,7 @@ public partial class PinWindow : Window
 
     private void CancelEditing()
     {
+        _redaction.Cancel();
         _editing = false;
         if (_editViewModel is not null) _editViewModel.PropertyChanged -= EditViewModel_PropertyChanged;
         _editViewModel = null;
@@ -176,10 +178,13 @@ public partial class PinWindow : Window
         EditToolbar.DataContext = null;
         AnnotationView.Visibility = Visibility.Collapsed;
         EditToolbar.Visibility = Visibility.Collapsed;
+        ImageView.Source = Image;
     }
 
     private void EditViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(EditorViewModel.Image) && _editViewModel is not null)
+            ImageView.Source = _editViewModel.Image;
         if (e.PropertyName == nameof(EditorViewModel.SelectedTool) && _editViewModel is not null)
             UpdateSelectedTool(_editViewModel.SelectedTool);
     }
@@ -187,13 +192,21 @@ public partial class PinWindow : Window
     private void ApplyEdit_Click(object sender, RoutedEventArgs e)
     {
         if (_editViewModel is null) return;
-        Image = _images.Render(Image, _editViewModel.Annotations);
+        Image = _images.Render(_editViewModel.Image, _editViewModel.Annotations);
         ImageView.Source = Image;
         ContentInfo = ContentInfo with { Image = Image };
         CancelEditing();
     }
 
     private void CancelEdit_Click(object sender, RoutedEventArgs e) => CancelEditing();
+
+    private async void Redact_Click(object sender, RoutedEventArgs e)
+    {
+        if (_editViewModel is not { } editor) return;
+        AnnotationView.CommitInlineEdit();
+        await _redaction.Run(this, RedactEditButton, editor, _settings.Current,
+            () => _editing && ReferenceEquals(_editViewModel, editor));
+    }
 
     private void EditTool_Click(object sender, RoutedEventArgs e)
     {
@@ -267,7 +280,7 @@ public partial class PinWindow : Window
         menu.IsOpen = true;
     }
 
-    private BitmapSource OutputImage() => _editViewModel is null ? Image : _images.Render(Image, _editViewModel.Annotations);
+    private BitmapSource OutputImage() => _editViewModel is null ? Image : _images.Render(_editViewModel.Image, _editViewModel.Annotations);
     private void Recognition_Click(object sender, RoutedEventArgs e) => RecognitionUi.Open(OutputImage(), this, ((MenuItem)sender).Tag.ToString()!);
 
     private void Copy_Click(object sender, RoutedEventArgs e)

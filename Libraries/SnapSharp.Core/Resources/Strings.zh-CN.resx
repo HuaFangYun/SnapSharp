@@ -3814,4 +3814,9 @@ Media Foundation：{2}
   <data name="RecognitionTransformConfirm" xml:space="preserve"><value>改变图片方向会清除识别结果及手动修改，是否继续？</value></data>
   <data name="RecognitionImageTransformed" xml:space="preserve"><value>图片方向已调整，请开始识别以读取当前图片。</value></data>
   <data name="RecognitionPreviewHint" xml:space="preserve"><value>滚轮缩放 · 拖动平移 · 双击适应窗口</value></data>
+  <data name="OneClickRedact" xml:space="preserve"><value>一键脱敏</value></data>
+  <data name="RedactionProcessing" xml:space="preserve"><value>正在查找敏感文字…</value></data>
+  <data name="RedactionNoMatches" xml:space="preserve"><value>未找到符合脱敏规则的文字，图片未更改。</value></data>
+  <data name="RedactionImageChanged" xml:space="preserve"><value>识别期间图片已被编辑，请对当前图片重新执行一键脱敏。</value></data>
+  <data name="RedactionFailed" xml:space="preserve"><value>脱敏未完成：{0}</value></data>
 </root>

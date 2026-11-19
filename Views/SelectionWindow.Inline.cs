@@ -42,6 +42,7 @@ public partial class SelectionWindow : Window
     private WindowCandidate? _suggestedWindow;
     private bool _includeWindowFrame;
     private EditorViewModel? _editor;
+    private readonly SensitiveRedactionAction _redaction = new();
     private PixelRect _pixelSelection;
     private string _sampledColor = "#000000";
     private ScreenColorFormat _colorFormat;
@@ -70,7 +71,7 @@ public partial class SelectionWindow : Window
             PrimaryCaptureButton.Content = new TextBlock { Text = L.Get("StartScrollingCapture") };
             PrimaryCaptureButton.Width = double.NaN;
             PrimaryCaptureButton.ToolTip = L.Get("ConfirmRegionAndStartScrollingCaptureEnter");
-            foreach (var button in new[] { ScrollCaptureButton, PinCaptureButton, RecognitionCaptureButton, CutoutCaptureButton, RecordingCaptureButton, SaveCaptureButton })
+            foreach (var button in new[] { ScrollCaptureButton, PinCaptureButton, RecognitionCaptureButton, RedactCaptureButton, CutoutCaptureButton, RecordingCaptureButton, SaveCaptureButton })
                 button.Visibility = Visibility.Collapsed;
             ShapePicker.IsEnabled = false;
         }
@@ -220,6 +221,7 @@ public partial class SelectionWindow : Window
 
     private void RestartRegionSelection()
     {
+        _redaction.Cancel();
         _pixelNudgeActive = false;
         // Discard this selection and its annotations, retaining the original desktop snapshot.
         // Clear editing before releasing capture so drag completion cannot rebuild the editor.
@@ -1406,6 +1408,13 @@ public partial class SelectionWindow : Window
     private void Save_Click(object sender, RoutedEventArgs e) => Complete(CaptureAction.Save);
     private void Pin_Click(object sender, RoutedEventArgs e) => Complete(CaptureAction.Pin);
     private void Recognition_Click(object sender, RoutedEventArgs e) => Complete(CaptureAction.OCR);
+    private async void Redact_Click(object sender, RoutedEventArgs e)
+    {
+        if (_editor is not { } editor) return;
+        AnnotationView.CommitInlineEdit();
+        await _redaction.Run(this, RedactCaptureButton, editor, PrecisionPreferences,
+            () => _editing && ReferenceEquals(_editor, editor));
+    }
     private void Cutout_Click(object sender, RoutedEventArgs e) => Complete(CaptureAction.Cutout);
     private void Recording_Click(object sender, RoutedEventArgs e)
     {

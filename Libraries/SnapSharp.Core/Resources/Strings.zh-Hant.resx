@@ -3932,4 +3932,9 @@ Media Foundation：{2}
   <data name="RecognitionTransformConfirm" xml:space="preserve"><value>變更圖片方向會清除辨識結果及手動修改，是否繼續？</value></data>
   <data name="RecognitionImageTransformed" xml:space="preserve"><value>圖片方向已調整，請開始辨識以讀取目前圖片。</value></data>
   <data name="RecognitionPreviewHint" xml:space="preserve"><value>滾輪縮放 · 拖動平移 · 按兩下適應視窗</value></data>
+  <data name="OneClickRedact" xml:space="preserve"><value>一鍵脫敏</value></data>
+  <data name="RedactionProcessing" xml:space="preserve"><value>正在尋找敏感文字…</value></data>
+  <data name="RedactionNoMatches" xml:space="preserve"><value>未找到符合脫敏規則的文字，圖片未更改。</value></data>
+  <data name="RedactionImageChanged" xml:space="preserve"><value>辨識期間圖片已被編輯，請對目前圖片重新執行一鍵脫敏。</value></data>
+  <data name="RedactionFailed" xml:space="preserve"><value>脫敏未完成：{0}</value></data>
 </root>

@@ -1,5 +1,10 @@
 {
   "en": {
+    "OneClickRedact": "One-click redaction",
+    "RedactionProcessing": "Finding sensitive text…",
+    "RedactionNoMatches": "No matching sensitive text was found. The image was left unchanged.",
+    "RedactionImageChanged": "The image was edited during recognition. Run redaction again on the current image.",
+    "RedactionFailed": "Redaction could not be completed: {0}",
     "RecognitionPreviewHint": "Wheel to zoom · drag to pan · double-click to fit",
     "DocumentIdCardBoth": "Resident ID · both sides",
     "RecognitionRotateLeft": "Left 90°",
@@ -13,6 +18,11 @@
     "DocumentFieldsHint": "Type is detected automatically. ID cards support front, back or both sides in either order. Edit the text directly, select a field line to locate it, and copy or export as TXT. Review the result against the image."
   },
   "zh-CN": {
+    "OneClickRedact": "一键脱敏",
+    "RedactionProcessing": "正在查找敏感文字…",
+    "RedactionNoMatches": "未找到符合脱敏规则的文字，图片未更改。",
+    "RedactionImageChanged": "识别期间图片已被编辑，请对当前图片重新执行一键脱敏。",
+    "RedactionFailed": "脱敏未完成：{0}",
     "RecognitionPreviewHint": "滚轮缩放 · 拖动平移 · 双击适应窗口",
     "DocumentIdCardBoth": "居民身份证 · 正反面合图",
     "RecognitionRotateLeft": "左转 90°",
@@ -48,6 +58,11 @@
     "DocumentNoResult": "请先识别证件。"
   },
   "zh-Hant": {
+    "OneClickRedact": "一鍵脫敏",
+    "RedactionProcessing": "正在尋找敏感文字…",
+    "RedactionNoMatches": "未找到符合脫敏規則的文字，圖片未更改。",
+    "RedactionImageChanged": "辨識期間圖片已被編輯，請對目前圖片重新執行一鍵脫敏。",
+    "RedactionFailed": "脫敏未完成：{0}",
     "RecognitionPreviewHint": "滾輪縮放 · 拖動平移 · 按兩下適應視窗",
     "DocumentIdCardBoth": "居民身分證 · 正反面合圖",
     "RecognitionRotateLeft": "左轉 90°",

@@ -1,5 +1,13 @@
 # Window layering checks
 
+One-click redaction rules and screenshot/pin integration (synthetic OCR input, no model required):
+
+```powershell
+dotnet run --project tools/WindowChecks/WindowChecks.csproj -p:Platform=x64 -- --redaction-only
+```
+
+Checks split numbers, multiline fields, source bounds, mosaic pixels, toolbar entries, pin preview/output, batch undo/redo and cancellation of obsolete editing sessions.
+
 Mixed DPI coordinates, portrait rotation, synthetic adapter composition, cross-screen
 production crop, five-scale pixel nudging and guide persistence (no desktop capture):
 
