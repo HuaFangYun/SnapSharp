@@ -1,264 +1,97 @@
-# SnapSharp：截图、AI 识别与图像处理工具
+# SnapSharp：Windows 截图、OCR、翻译、抠图与录屏工具
 
 **简体中文** | [English](README.en.md)
 
-项目地址：[GitHub](https://github.com/leelongjiang/SnapSharp) | [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [官方网站](https://www.snapsharp.cn/) · [下载发布版](https://github.com/leelongjiang/SnapSharp/releases) · [完整使用指南](docs/使用指南.md)
+[GitHub](https://github.com/leelongjiang/SnapSharp) · [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [官方网站](https://www.snapsharp.cn/) · [下载发布版](https://github.com/leelongjiang/SnapSharp/releases)
 
-> SnapSharp 是 Windows 桌面端（C#/WPF/.NET 10）截图与图像工具。
-> 核心差异化：OCR/表格/公式/抠图/翻译全部可走本地模型，默认不传图到云端。
-> 不支持 macOS/Linux，不是 SDK/库，是独立 EXE 工具。
+SnapSharp 已实现区域／全屏／当前窗口截图、元素选取、截图标注与一键脱敏、桌面贴图、滚动长截图、图片文字 OCR、证件字段提取、表格转 CSV／XLSX、公式转 LaTeX、二维码／条码识别、本地翻译、透明背景抠图、屏幕取色与测量，以及 MP4／GIF 录屏。**本地 AI、离线可用、数据留在本机**：OCR、表格、公式、抠图和翻译均可通过本地模型处理，图片与文字无需上传云端。提前准备好程序、所需模型及运行依赖后，可在断网或无互联网连接的内网环境中使用这些本地功能，减少敏感资料外传风险，适合重视隐私与数据安全的个人及内网办公场景。在线翻译与以图搜图为可选功能，默认关闭，启用后每次发送仍需确认。
 
-写教程时，需要在截图上说明重点；阅读外文资料时，希望直接提取文字并翻译；整理图片时，又可能需要去掉背景、拼成长图或录一段操作演示。SnapSharp 把这些操作放进了一款 Windows 工具里。
+## 软件介绍
 
-它既能截图、标注和桌面贴图，也能通过本地模型完成 OCR、表格识别、公式识别、抠图和翻译。截图后可以继续处理，复制来的图片也可以直接导入识别窗口。
+SnapSharp 是用 C#、WPF 和 .NET 10 开发的 Windows x64 桌面工具。启动后驻留系统托盘，通过全局快捷键或托盘菜单工作，适合制作教程、反馈界面问题、整理图片资料、提取表格和公式，以及录制操作演示。
 
-支持中英文界面，可在“设置 → 常规 → 界面语言”中选择跟随系统、简体中文或 English，保存后切换。新增语言的方法见[界面本地化](docs/本地化.md)。
+截图后可以直接标注、脱敏、复制、保存或贴到桌面；外部复制的图片也能从“识别粘贴板图片…”进入统一识别窗口。普通截图、编辑、贴图和测量不需要下载 AI 模型。
 
-<p align="center">
-  <img src="Screenshot/Blog/00-cover.png" alt="SnapSharp 功能介绍：截图标注、OCR、翻译、抠图与录屏" width="1000">
-</p>
+界面提供英文及中文、日文、韩文、德文、法文等语言／地区资源包。在“设置 → 常规 → 界面语言”选择并保存后生效；部分新增翻译为机器翻译初稿。界面语言与 OCR、翻译语言独立配置。
 
-| 想完成的事情 | SnapSharp 提供的功能 |
-|---|---|
-| 说明界面问题、制作教程配图 | 区域截图、箭头、文字、序号、马赛克、模糊等标注 |
-| 从图片里拿到可编辑的内容 | 中英文 OCR、表格转 CSV / XLSX、公式转 LaTeX |
-| 阅读外文资料 | OCR 后翻译，支持本地 Qwen 模型与可选在线服务 |
-| 分离图片主体 | 一键抠图、透明背景预览与 PNG / WebP 输出 |
-| 边看资料边工作 | 图片、文字和颜色贴图，置顶、缩放、透明度与分组 |
-| 保留连续内容或演示操作 | 滚动长截图、MP4 录屏与 GIF 动图 |
+## 已实现的功能
 
-[截图标注](#selection) · [AI 图像处理](#recognition) · [桌面贴图](#pins) · [长截图](#scrolling) · [录屏](#recording) · [快速上手](#start)
+| 功能 | 可以完成什么 | 输出与使用条件 |
+|---|---|---|
+| 屏幕截图 | 区域、全屏、当前窗口、延时截图；矩形、椭圆、自由套索、多边形选区；自动吸附控件与浏览器辅助功能元素 | 复制、保存、贴图或继续识别；支持多屏及混合 DPI，元素选取处理当前可见内容 |
+| 标注与图像编辑 | 矩形、椭圆、箭头、文字、序号、荧光笔、马赛克、模糊；对象移动、缩放、旋转、层级调整、撤销／重做与标注模板 | 将标注合成到图片；支持图像旋转、翻转和扩展画布 |
+| 一键脱敏 | 本地 OCR 与规则定位手机号、身份证号、银行卡号、邮箱、车牌号、姓名字段和地址，模糊对应文字范围 | 截图与贴图编辑工具栏可用；需配置 OCR，可选本地 Qwen 辅助识别人名与地址，结果需核对 |
+| 桌面贴图 | 将图片、文字、颜色置顶；缩放、透明度、旋转、鼠标穿透、分组、隐藏／恢复及恢复最近关闭贴图 | 在桌面保留参考资料，可继续编辑、识别或抠图 |
+| 滚动长截图 | 手动或自动滚动采集，拼接预览、裁边和接缝调整 | 输出长图或分页 PDF；`.ssscroll` 项目保留原始帧和调整参数，目前以竖向内容为主 |
+| 文字 OCR | PaddleOCR、Windows OCR、Tesseract 本地引擎；结果编辑、识别框与文字互相定位 | 复制或导出 TXT；分别需要模型、系统语言包或字库 |
+| 证件识别 | 提取身份证正反面及合图、驾驶证、行驶证、户口本、护照、银行卡、营业执照的当前页字段 | 编辑、复制、导出 TXT；复用本地 OCR，无需另装证件模型；规则提取，不提供真伪鉴定 |
+| 表格识别 | 本地 SLANet 识别结构，结合 OCR 填充文字，修正行列与合并单元格 | CSV／XLSX；需配置表格模型与 OCR，适合框选单张表格 |
+| 公式识别 | 本地 LaTeX-OCR 将单个公式图片转为可编辑文本 | 复制 LaTeX 或导出 `.tex`；需配套模型，复杂公式需校对 |
+| 二维码／条码 | 识别图片中的二维码及一维码 | 文本结果，不需要下载 AI 模型 |
+| 翻译与屏幕取词 | OCR 全文／选中文字翻译；鼠标停留后局部 OCR | 本地 Qwen3.5 + llama.cpp 支持 CPU／Vulkan；另可选 MyMemory、Google 网页适配、LibreTranslate；取词仅本次会话开启 |
+| 背景移除／抠图 | U²-Net、BiRefNet 系列分离主体，透明预览、原图对比、临时切换模型 | 保留原图尺寸与透明度，复制、贴图或保存 PNG／WebP；需下载模型，设备决定可选预设 |
+| 取色与屏幕尺子 | 放大镜取色；独立直尺、框尺、两点距离、角度、参考线与像素测量 | 复制颜色值或测量读数；无需 AI 模型 |
+| MP4／GIF 录屏 | 单显示器内区域录制、暂停／继续、倒计时、定时停止、光标与点击高亮；MP4 可选系统声音、麦克风、摄像头 | MP4 使用 H.264／可选 AAC；GIF 无音频，最高 15 fps、最长 60 秒；可检查并配置环境 |
+| 图片输出与历史 | PNG、JPEG、WebP、TIFF、BMP、A4 分页 PDF；尺寸与编码预览、自动保存、日期目录、文件名模板、截图历史 | 历史保存合成 PNG，不保存可编辑标注对象；自动保存和历史分别控制 |
+| 配置与扩展 | 多语言、快捷键、主题、开机启动、数据目录迁移、模型下载源切换、已下载模型管理、手动检查更新 | 外部识别插件可选；通用上传、动作链等仍属后续能力 |
+
+功能范围与源码入口见[功能与代码对照](docs/功能与代码对照.md)，模型与设备条件见[配置与依赖](docs/配置与依赖.md)。
 
 <a id="selection"></a>
 
-## 1. 截图后，直接把重点说明白
+### 截图与标注
 
-按 `Ctrl+Shift+A` 框选区域，就可以在截图上继续标注。矩形、椭圆、箭头、文字、序号和荧光笔可以组合使用；需要遮挡内容时，可以选择马赛克或模糊。
+按 `Ctrl+Shift+A` 进入截图，默认元素模式可悬停吸附控件，也可直接拖动框选。使用 `Tab` 或顶部选择器切换模式，选定后添加箭头、文字、序号或模糊效果。完成后复制、保存，或继续识别。
 
-标注支持选择、移动、缩放、旋转、调整层级，以及撤销和重做。除了矩形选区，还支持椭圆、自由套索和多边形选区，适合截取不同形状的内容。
-
-截图工具栏与置顶图片的编辑工具栏均提供“一键脱敏”：使用本地 OCR 和规则查找手机号、身份证号、银行卡号、邮箱、车牌号、姓名字段及地址，仅对敏感词对应的文字范围应用高斯模糊，保留字段标题和周围正文。已配置“本地翻译”的 Qwen 模型与运行库时，额外分析无标签的人名和地址；返回内容须与 OCR 原文匹配后才应用到图片。处理结果写入图片，复制、保存时保留；整次处理支持撤销和重做。
-
-截图默认进入“元素”模式，悬停自动吸附按钮、输入框等控件，滚轮切换父级，单击后即可标注或导出，也可直接拖动框选。按 `Tab` 或使用顶部模式选择器切换模式。浏览器暴露的辅助功能元素也可识别，无需安装扩展；目前不支持 CSS 选择器或视口外完整元素截图。
-
-<p align="center">
-  <img src="Screenshot/1.png" alt="框选区域时即可使用截图工具栏，选择标注工具或下一步处理操作。" width="950">
-</p>
-<p align="center"><em>框选区域时即可使用截图工具栏，选择标注工具或下一步处理操作。</em></p>
-
-<p align="center">
-  <img src="Screenshot/Blog/01-annotation-editor.png" alt="SnapSharp 标注编辑器：在示例工作台上添加矩形、箭头、文字和序号" width="950">
-</p>
-<p align="center"><em>示例配图：用箭头指明入口，用矩形框出任务，再用文字补充说明。</em></p>
-
-<p align="center">
-  <img src="Screenshot/7.png" alt="在 RabbitMQ 文章截图上组合箭头、高亮和文字，直接说明需要关注的内容。" width="950">
-</p>
-<p align="center"><em>在 RabbitMQ 文章截图上组合箭头、高亮和文字，直接说明需要关注的内容。</em></p>
-
-完成后可以复制、保存、置顶贴图，或继续识别文字、抠图。尚未框选时，鼠标旁的放大镜还能显示像素网格与颜色值，按 `C` 可复制当前色值。
+![SnapSharp 截图选区与标注工具栏](Screenshot/1.png)
 
 <a id="recognition"></a>
-
-## 2. 本地 AI：把图片变成可继续使用的内容
-
-复制图片后，从托盘打开“识别粘贴板图片…”，即可从左侧功能导航选择文字 OCR、证件、表格、二维码／条码、公式或一键抠图。截图选区、贴图和编辑器也提供相应入口。
-
-这些功能需要先下载对应模型；配置完成后，OCR、表格、公式、抠图和本地翻译均可在本机处理。普通截图与标注可以直接使用。
-
-<p align="center">
-  <img src="Screenshot/2.png" alt="统一识别窗口：从模式列表切换文字、条码、表格、公式与一键抠图。" width="950">
-</p>
-<p align="center"><em>统一识别窗口：从模式列表切换文字、条码、表格、公式与一键抠图。</em></p>
-
-### 中英文 OCR：从图片里提取文字
-
-资料截图、操作说明和图片中的段落，可以先交给 OCR，再复制或导出文本。左侧识别框与右侧文本、原始识别行可以相互定位，便于对照校对。
-
-<p align="center">
-  <img src="Screenshot/Blog/14-ai-ocr-chinese.png" alt="本地 PaddleOCR 实际识别中文交付清单，展示识别框、文本和置信度" width="950">
-</p>
-<p align="center"><em>中文示例：本地 PaddleOCR 识别多行文字，结果可继续编辑、复制或导出。</em></p>
-
-<p align="center">
-  <img src="Screenshot/Blog/15-ai-ocr-english.png" alt="英文示例：本地 PaddleOCR 提取项目说明，右侧可对照文本和各行置信度。" width="950">
-</p>
-<p align="center"><em>英文示例：本地 PaddleOCR 提取项目说明，右侧可对照文本和各行置信度。</em></p>
-
-<p align="center">
-  <img src="Screenshot/5.png" alt="较长英文资料的识别示例：左侧显示文字定位框，右侧集中查看识别文本和原始行。" width="950">
-</p>
-<p align="center"><em>较长英文资料的识别示例：左侧显示文字定位框，右侧集中查看识别文本和原始行。</em></p>
-
-软件提供 PaddleOCR、Windows OCR 和 Tesseract 三种本地引擎。PaddleOCR 与抠图支持选择 CPU 或 DirectML GPU。识别结果仍需检查，尤其是空格、标点和复杂排版。
-
-### 证件识别：自动判断类型并提取字段
-
-“证件识别”复用已配置的本地 OCR，通过文字标签、位置和字段组合判断身份证正反面、驾驶证、行驶证、户口本、护照、银行卡和营业执照，提取当前页可识别的字段。无需联网或另外下载证件模型。
-
-证件结果以“字段：内容”逐行显示，可直接编辑、整段复制或导出 TXT，点击字段所在行可定位原图。识别字段自动去除空格、换行、制表符及不可见空白，多行地址直接拼接；复制和导出使用当前编辑后的文本。先按坐标合并分散标签和同行文字，PaddleOCR 另对完整文字行和身份证号码区域重识别。未识别到的字段也会列出，值留空，请对照原图核对结果。类型不明确时保留 OCR 原文，也可通过“更改类型”重新提取。
-
-身份证支持自动判断人像面、国徽面及正反面合图；合图上下顺序不限，合并提取六个人像面字段与签发机关、有效期。也可在“更改类型”中指定这三种模式，之后重新识别会保留该选择。图片区提供左转／右转 90°、旋转 180°（纠正倒置）及上下翻转（垂直镜像）；变换应用到识别输入，并清除旧结果，有手动修改时先确认。
-
-营业执照支持横版双栏、竖版单栏，列出统一社会信用代码、注册号、证照编号、名称、类型、法定代表人、负责人、注册资本、成立日期、营业期限、经营范围、地址、登记机关及发照日期；“营业场所／经营场所”作为地址标签兼容。跨行经营范围在对应栏内拼接，页脚日期在有登记机关位置依据且结果明确时提取为发照日期。没有对应内容的字段保持为空。证件 OCR 使用最高 2048 像素长边进行文字检测；长字段在结果中自动换行显示，复制和导出仍不含空白。
-
-营业执照使用独立的字段续行规则，保留检测框坐标以区分标签间距、左右栏及正文与页脚；跨行字段实际文本直接拼接，结果框仍自动折行。注册号末尾的 `(1/4)` 类页码会去除，证照编号的 `(1-1)` 类后缀保留。字段候选按内容和位置选择，不因文本更长而跨越字段边界；提取过程保留原始内容，不自动补造字符。开发检查工具可分别输出本地原图的 OCR 检测框和字段提取结果，参见 `tools/WindowChecks/README.md`。
-
-其他证件当前按单页处理，使用规则提取，不包含证件真伪检测、完整护照 MRZ 解析、银行卡 BIN 查询、CVV 提取、户口本跨页成员汇总或复杂票据明细解析。
-
-护照按原始检测框定位标签下方的内容，区分中英文标签、左右栏、姓名与姓／名，列出国家码、性别、出生地点、签发日期及机关；未印刷的国籍不会用国家码推断填充。户口本先还原同一表格行，以相邻单元格标签界定内容，避免把曾用名、婚姻状况等串入姓名或文化程度。银行卡支持通过银行名称和银联标识辅助分类，读取无标签的号码、发卡行与有效期；号码长度检查、候选冲突和 Luhn 校验用于设置核对提示，不用于改造号码。公开样本测试方式及代码检查范围见 `tools/WindowChecks/README.md`。
-
-### 本地翻译：提取文字后，接着阅读译文
-
-OCR 后点击“翻译…”，可以处理全文或选中的一段文字。本地翻译使用 Qwen 模型与 llama.cpp，支持 CPU 或 Vulkan GPU；模型下载完成后，文字无需发送到外部服务。
-
-<p align="center">
-  <img src="Screenshot/Blog/20-ai-local-translation.png" alt="SnapSharp 本地翻译结果局部：将 RabbitMQ 英文安装说明翻译为中文" width="800">
-</p>
-<p align="center"><em>已有本地翻译结果的局部展示；可对照<a href="Screenshot/6.png">完整原文与翻译界面</a>阅读。</em></p>
-
-<p align="center">
-  <img src="Screenshot/6.png" alt="完整翻译界面：对照 RabbitMQ 英文资料、OCR 内容与已有的本地中文译文。" width="950">
-</p>
-<p align="center"><em>完整翻译界面：对照 RabbitMQ 英文资料、OCR 内容与已有的本地中文译文。</em></p>
-
-也可以按需选择 MyMemory、Google 网页适配或 LibreTranslate 等在线服务。在线发送需要主动启用并确认；小模型译文和 OCR 原文都应核对。
-
-### 表格识别：从截图走向 CSV / Excel
-
-遇到表格图片，可以用本地 SLANet 识别结构，并结合 OCR 匹配单元格文字。结果页支持检查和修正行、列、跨行、跨列及文本，再导出 CSV 或 XLSX。
-
-<p align="center">
-  <img src="Screenshot/Blog/16-ai-table-recognition.png" alt="SLANet 与 PaddleOCR 实际识别四行三列表格，右侧展示十二个结构化单元格" width="950">
-</p>
-<p align="center"><em>示例表格实际识别为 4 行 × 3 列；右侧可核对单元格内容并导出。</em></p>
-
-### 公式识别：把公式图片转成 LaTeX
-
-框选单个公式后，选择“公式（本地 LaTeX）”，就可以获得可编辑、可复制的 LaTeX，也能导出 `.tex` 文件，方便继续写作和排版。
-
-<p align="center">
-  <img src="Screenshot/Blog/17-ai-formula-latex.png" alt="本地 LaTeX-OCR 识别圆方程 x²+y²=1，右侧保留模型原始 LaTeX 输出" width="950">
-</p>
-<p align="center"><em>圆方程示例：左侧为公式图片，右侧为实际模型输出，使用前可继续调整排版与校对。</em></p>
-
 <a id="cutout"></a>
 
-### 一键抠图：留下主体，去掉背景
+### 本地识别、翻译与抠图
 
-切换到“一键抠图（ONNX）”，选择已配置的模型后运行。棋盘格表示透明区域，可以勾选“查看原图”对比，完成后复制图片、保存或置顶贴图。
+复制图片后，从托盘打开“识别粘贴板图片…”，选择文字、证件、条码、表格、公式或抠图，再开始处理。翻译先使用 OCR 结果或输入文字；透明背景请保存为 PNG 或支持透明度的 WebP。
 
-<p align="center">
-  <img src="Screenshot/Blog/19-ai-cutout-comparison.png" alt="BiRefNet General Lite 在 CPU 上实际抠图的原图与透明背景结果对比" width="900">
-</p>
-<p align="center"><em>同一张人像的原图与实际抠图结果：BiRefNet General Lite，CPU 推理，保留原图尺寸。</em></p>
+![SnapSharp 统一图片识别窗口](Screenshot/2.png)
 
-<p align="center">
-  <img src="Screenshot/Blog/18-ai-cutout-result.png" alt="SnapSharp 一键抠图窗口，显示 General Lite 模型、透明结果和复制、保存、贴图入口" width="950">
-</p>
-<p align="center"><em>在抠图窗口检查边缘，再复制、保存或直接贴到桌面。</em></p>
-
-模型可按用途选择：U²-Net 轻量模型适合快速尝试，BiRefNet General Lite 适合日常使用，还提供人像、Matting 和 HR 等选项。透明背景建议保存为 PNG 或支持透明度的 WebP。发丝、玻璃和半透明边缘需要检查，大模型的资源要求与已知限制见[使用指南](docs/使用指南.md#cutout)。
-
-此外，软件还能识别二维码／一维码，并支持本次会话内的屏幕悬停取词。条码识别不需要下载 AI 模型。
+| 原图 | 抠图结果 |
+|---|---|
+| ![抠图前的原始人像](Screenshot/3.png) | ![SnapSharp 本地抠图结果](Screenshot/4.png) |
 
 <a id="pins"></a>
 
-## 3. 把参考图片、文字和颜色放在桌面上
+### 桌面贴图
 
-复制图片后按 `Ctrl+Shift+V`，可以创建置顶贴图。文字和颜色也能做成贴图，适合一边看参考资料、一边写代码、整理文章或调整设计。
-
-<p align="center">
-  <img src="Screenshot/Blog/12-pin-workspace.png" alt="图片、文字待办和颜色样本贴图的使用场景示意" width="950">
-</p>
-<p align="center"><em>贴图场景示意：把参考图片、待办清单和色值留在手边。</em></p>
-
-滚轮缩放贴图，`Ctrl+滚轮` 调整透明度，`Ctrl+Shift+H` 隐藏或显示全部贴图。右键还可以编辑标注、旋转、分组、开启鼠标穿透，或继续识别和抠图。
-
-<p align="center">
-  <img src="Screenshot/Blog/13-pin-context-menu.png" alt="贴图右键菜单：继续编辑、识别或抠图，也可调整透明度、旋转、鼠标穿透和分组。" width="950">
-</p>
-<p align="center"><em>贴图右键菜单：继续编辑、识别或抠图，也可调整透明度、旋转、鼠标穿透和分组。</em></p>
-
-<p align="center">
-  <img src="Screenshot/Blog/10-pin-settings.png" alt="贴图设置：集中调整透明度、边缘吸附，以及文本贴图的字体、字号和背景颜色。" width="800">
-</p>
-<p align="center"><em>贴图设置：集中调整透明度、边缘吸附，以及文本贴图的字体、字号和背景颜色。</em></p>
+复制图片后按 `Ctrl+Shift+V` 置顶到桌面。滚轮缩放，`Ctrl+滚轮` 调整透明度；右键菜单提供分组、鼠标穿透、编辑和识别。文字和颜色也可从托盘创建贴图。
 
 <a id="scrolling"></a>
 
-## 4. 超出一屏的内容，拼成完整长图
+### 长截图
 
-网页、列表和连续资料可以通过滚动长截图保留下来。选好区域后缓慢滚动，采集完成再进入预览，检查接缝、裁掉边缘，或继续添加标注。
-
-<p align="center">
-  <img src="Screenshot/Blog/02-scrolling-preview.png" alt="SnapSharp 长截图预览，显示四帧拼接示例、接缝线和裁边功能" width="950">
-</p>
-<p align="center"><em>重叠示例图经软件拼接后的预览；可检查接缝、裁边并继续输出。<a href="Screenshot/Blog/03-long-image-result.png">查看完整长图</a>。</em></p>
-
-<p align="center">
-  <img src="Screenshot/Blog/03-long-image-result.png" alt="完整拼接结果：四张重叠示例图经软件拼接，输出为 860 × 2220 像素长图。" width="430">
-</p>
-<p align="center"><em>完整拼接结果：四张重叠示例图经软件拼接，输出为 860 × 2220 像素长图。</em></p>
-
-手动模式监听滚动，完成时点击 `√`；自动模式会发送滚轮操作。拼接工程可保存为 `.ssscroll`，以后重新打开继续修正。
+托盘“滚动长截图”选择区域后开始采集。手动模式随实际滚轮采集，自动模式发送滚轮输入；结束后检查接缝、调整裁边，再输出或保存 `.ssscroll` 项目。
 
 <a id="recording"></a>
 
-## 5. 操作演示，可以录成 MP4 或 GIF
+### 录屏
 
-需要展示连续操作时，可以录制单屏矩形区域。MP4 支持可选音频，GIF 适合简短、无声的操作演示；还可以设置倒计时、光标显示、点击高亮与定时停止。
-
-<p align="center">
-  <img src="Screenshot/Blog/06-recording-mp4.png" alt="SnapSharp MP4 录制配置：格式、帧率、采集引擎、光标和音频选项" width="650">
-</p>
-<p align="center"><em>MP4 录制配置；目标帧率可选 15／30／60 fps，实际表现取决于采集与编码性能。</em></p>
-
-<p align="center">
-  <img src="Screenshot/Blog/07-recording-gif.png" alt="GIF 录制配置：用于简短无声演示，界面会禁用不适用的音频等参数。" width="650">
-</p>
-<p align="center"><em>GIF 录制配置：用于简短无声演示，界面会禁用不适用的音频等参数。</em></p>
-
-<p align="center">
-  <img src="Screenshot/Blog/08-recording-toolbar.png" alt="SnapSharp 录屏悬浮工具条，处于准备录制状态" width="635">
-</p>
-<p align="center"><em>悬浮工具条集中提供开始、暂停、停止和配置入口。</em></p>
-
-音频与摄像头首次使用时默认关闭，之后记住上次的开关与设备选择。系统声音默认跟随 Windows 当前默认输出设备，也可以手动指定。可在“设置 → 输出与文件”中配置独立的录屏保存目录，录制时自动生成文件名，无需每次选择位置。GIF 不含声音，最高 15 fps，最长 60 秒。首次使用可通过“一键配置录屏环境”检查所需组件。
+在矩形选区工具栏点击录像图标，或从托盘进入录屏工具条。选择 MP4 或 GIF，按需启用音频与摄像头，开始、暂停、继续并停止保存。音频和摄像头初始关闭，后续录制记住选择；实际帧率与设备、编码性能有关。
 
 <a id="output"></a>
 
-## 6. 保存前，选好格式和尺寸
+### 测量与输出
 
-截图、贴图、编辑器和长截图共用输出窗口。PNG 适合界面文字与透明图片，JPEG 适合照片，WebP 提供有损与无损模式；也支持 TIFF、BMP 和 A4 分页 PDF。
+托盘“屏幕尺子”可测长度、宽高、两点距离和角度；截图放大镜可复制颜色值。图片保存窗口可调整尺寸和编码选项并预览结果，长图可输出为 A4 分页 PDF。
 
-<p align="center">
-  <img src="Screenshot/Blog/04-export-webp.png" alt="SnapSharp WebP 无损导出窗口，展示编码预览、图片尺寸和实际体积" width="950">
-</p>
-<p align="center"><em>实际编码预览帮助确认图片效果、像素尺寸和文件体积；长图也可以<a href="Screenshot/Blog/05-export-pdf.png">导出为 PDF</a>。</em></p>
-
-<p align="center">
-  <img src="Screenshot/Blog/05-export-pdf.png" alt="PDF 输出配置：长图可按 A4 分页导出，左侧预览仍显示完整源图。" width="950">
-</p>
-<p align="center"><em>PDF 输出配置：长图可按 A4 分页导出，左侧预览仍显示完整源图。</em></p>
-
-需要持续整理素材时，可以配置自动保存、按日期归档和文件名模板。自动保存与截图历史是两个独立开关。
-
-<p align="center">
-  <img src="Screenshot/Blog/09-output-settings.png" alt="输出设置：选择保存目录与默认格式，配置自动保存、日期归档和文件名模板。" width="800">
-</p>
-<p align="center"><em>输出设置：选择保存目录与默认格式，配置自动保存、日期归档和文件名模板。</em></p>
+![SnapSharp 屏幕尺子与测量工具](Screenshot/屏幕尺子.png)
 
 <a id="start"></a>
 
-## 7. 下载与快速上手
+## 下载与快速上手
 
-从 [GitHub Releases](https://github.com/leelongjiang/SnapSharp/releases) 获取发布包，保留整个程序目录后运行 `SnapSharp.exe`。软件启动后驻留任务栏托盘，不会默认打开主窗口。
-
-1. 按 `Ctrl+Shift+A`，框选需要的区域。
-2. 添加箭头、文字、序号或马赛克。
-3. 复制、保存，或选择置顶贴图。
-4. 需要 AI 处理时，从托盘打开“识别粘贴板图片…”，选择模式并运行。
+1. 从 [GitHub Releases](https://github.com/leelongjiang/SnapSharp/releases) 下载 Windows x64 发布包，解压并保留整个目录，运行 `SnapSharp.exe`。
+2. 在任务栏右下角找到托盘图标，按 `Ctrl+Shift+A` 框选截图。
+3. 添加标注后复制、保存或贴图；按 `Esc` 取消当前截图。
+4. 需要 OCR、表格、公式、抠图或本地翻译时，再打开设置下载对应模型并保存配置。
 
 | 默认快捷键 | 功能 |
 |---|---|
@@ -268,56 +101,38 @@ OCR 后点击“翻译…”，可以处理全文或选中的一段文字。本�
 | `Ctrl+Shift+V` | 从剪贴板创建贴图 |
 | `Ctrl+Shift+H` | 隐藏／显示全部贴图 |
 
-<p align="center">
-  <img src="Screenshot/Blog/11-keyboard-shortcuts.png" alt="快捷键设置：按自己的使用习惯调整截图、贴图和显示隐藏等操作。" width="800">
-</p>
-<p align="center"><em>快捷键设置：按自己的使用习惯调整截图、贴图和显示隐藏等操作。</em></p>
+屏幕尺子、恢复贴图等快捷键默认留空，可在“设置 → 快捷键”中配置。
 
 <a id="settings"></a>
 
-### 首次配置 AI 功能
+## 首次配置与运行要求
 
-在设置里为需要的功能一键下载对应模型，然后点击“保存设置”。无需一次安装全部模型，也无需另装 Python。
-
-| 功能 | 设置入口 |
+| 功能 | 配置入口 |
 |---|---|
-| 推荐中英文 OCR | OCR 与识别 → 一键配置推荐 ONNX OCR，约 14.2 MB |
-| 表格与公式 | OCR 与识别 → 本地表格与公式 |
-| 一键抠图 | 一键抠图 → 下载模型，再选择默认模型 |
-| 本地翻译 | 翻译、API 与隐私 → 本地引擎，模型与运行库约 1.04 GiB |
+| PaddleOCR 中英文 | 设置 → OCR 与识别 → 一键配置推荐 ONNX OCR；也可选择 Windows OCR 或 Tesseract |
+| 表格与公式 | 设置 → OCR 与识别 → 本地表格与公式，分别下载配置 |
+| 抠图 | 设置 → 一键抠图，选择 CPU／DirectML、下载模型并设置默认项；CPU 预设为 U²-Net、General Lite |
+| 本地翻译 | 设置 → 翻译、API 与隐私，下载 Qwen3.5 GGUF 与配套 llama.cpp；默认 4B Q4_K_M 模型约 2.81 GiB，运行库另计 |
+| 录屏 | 设置 → 录屏 → 检查并一键配置录屏环境 |
 
-<p align="center">
-  <img src="Screenshot/8.png" alt="OCR 与识别设置：配置识别引擎、本地模型及 CPU / DirectML 运行设备。" width="850">
-</p>
-<p align="center"><em>OCR 与识别设置：配置识别引擎、本地模型及 CPU / DirectML 运行设备。</em></p>
-
-<p align="center">
-  <img src="Screenshot/9.png" alt="翻译、API 与隐私设置：配置本地翻译运行环境，以及可选的在线服务。" width="850">
-</p>
-<p align="center"><em>翻译、API 与隐私设置：配置本地翻译运行环境，以及可选的在线服务。</em></p>
-
-### 运行环境与本地数据
-
-- Windows 10 2004 及以上版本或 Windows 11，x64。
-- 自包含发布版无需另装 .NET Desktop Runtime；依赖框架版需要 .NET 10 Desktop Runtime。
-- 录屏可能需要 VC++ x64 运行库与 Windows 媒体组件。
-- 模型首次下载需要联网；本地 AI 处理不上传图片或文字。在线翻译、以图搜图等按需授权。
-
-设置、模型和历史默认保存在 `SnapSharp.exe` 所在目录。可在“设置 → 常规 → 本地数据”修改，确认后下次启动会迁移已下载模型、设置和历史记录；旧版本已有数据会继续使用原目录，直到手动修改。截图历史未加密；更详细的模型选择、数据说明和故障处理见完整指南。
+- 系统：Windows 10 2004 及以上或 Windows 11，x64。
+- 自包含发布版无需另装 .NET；依赖框架构建需要 .NET 10 Desktop Runtime。录屏等原生功能可能需要 VC++ x64 与 Windows 媒体组件。
+- 模型首次下载需要联网，无需 Python 或 CUDA。本地图像推理使用 ONNX CPU／DirectML，本地翻译使用 CPU／Vulkan。
+- ONNX 推理在独立子进程运行；GPU 初始化、推理失败或预算不足时可回退 CPU，不改保存的设备偏好。本地翻译的 Vulkan 失败不会自动切换 CPU。
+- 在线翻译和图片搜索需主动开启并逐次确认发送。截图历史是本地文件，未加密；数据目录默认在程序目录，可在“设置 → 常规 → 本地数据”中迁移，重启后生效。
 
 <a id="faq"></a>
 
-### 遇到问题时
+启动没有主窗口时请查看托盘。快捷键无响应时检查冲突；识别提示缺少模型时完成对应配置并保存。更多步骤见[使用指南](docs/使用指南.md#faq)。
 
-启动后看不到窗口，先找任务栏托盘图标；快捷键无响应，到设置中检查冲突；AI 提示缺少模型，下载配置完成后记得保存。更多问题见[常见问题速查](docs/使用指南.md#faq)。
+## 文档与开发
 
-## 文档与开源
+- [文档中心](docs/README.md) · [功能与代码对照](docs/功能与代码对照.md)
+- [中文使用指南](docs/使用指南.md) · [English user guide](docs/UserGuide.en.md)
+- [配置与依赖](docs/配置与依赖.md) · [构建与测试](docs/构建与测试.md)
+- [架构](docs/ARCHITECTURE.md) · [多语言](docs/本地化.md) · [异常与推理隔离](docs/异常与推理隔离.md)
+- [功能规格与路线图](<docs/SnapSharp 功能规格与路线图.md>) · [配图来源说明](Screenshot/Blog/README.md)
 
-- [完整使用指南](docs/使用指南.md) / [English user guide](docs/UserGuide.en.md)：详细操作、首次配置与常见问题。
-- [配置与依赖](docs/配置与依赖.md)：模型、运行环境与服务配置。
-- [构建与测试](docs/构建与测试.md)：开发构建与验证方法。
-- [文档中心](docs/README.md) · [配图说明与来源](Screenshot/Blog/README.md)。
+功能清单依据当前仓库代码整理；识别准确率、复杂页面拼接、真实大模型与不同硬件兼容性仍需按具体输入核对。规划与候选方案单独记录在路线图，不计入已实现功能。
 
-本文配图包含示例内容、实际模型结果与标明的组合场景图。AI 输出应结合原图核对，效果随输入、模型和设备而变化。
-
-Copyright 2026 leelongjiang and SnapSharp contributors。项目基于 [Apache License 2.0](LICENSE) 开源，第三方组件与模型的许可见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+Copyright 2026 leelongjiang 与 SnapSharp contributors。项目采用 [Apache License 2.0](LICENSE)，第三方组件和模型许可见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。

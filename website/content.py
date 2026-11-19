@@ -5,18 +5,18 @@ Do not imply that illustrative UI renders are live desktop captures.
 """
 
 HOME = {
-    "title": ("SnapSharp — Windows 截图、本地 OCR 与图像工具", "SnapSharp — Windows Screenshots, Offline OCR & Image Tools"),
+    "title": ("SnapSharp — Windows 截图、本地 AI 与离线图像工具", "SnapSharp — Windows Screenshots, Local AI & Offline Image Tools"),
     "description": (
-        "SnapSharp 是开源 Windows 截图与本地 AI 工具，支持本地 OCR、表格转 Excel、公式转 LaTeX、本地 Qwen 翻译与 ONNX 抠图。模型配置后可离线处理，图片与文字留在本机。",
-        "An open-source Windows screenshot and local AI tool. On-device OCR, tables to Excel, formulas to LaTeX, local Qwen translation, and ONNX background removal. Work offline after model setup.",
+        "SnapSharp 是开源 Windows 截图与本地 AI 工具，支持 OCR、证件识别、一键脱敏、表格转 Excel、公式转 LaTeX、翻译、抠图、屏幕测量与录屏。模型及依赖配置后可离线、内网使用本地功能，图片与文字无需上传。",
+        "Open-source Windows screenshots and local AI: OCR, document fields, sensitive-text blur, tables to Excel, formulas to LaTeX, translation, cutouts, measurement, and recording. Local features work offline and on internal networks after setup, without uploading images or text.",
     ),
     "badge": ("开源软件 · Windows 桌面端", "OPEN SOURCE · MADE FOR WINDOWS"),
     "headline": ("截图之后，<br>交给 <em>本地 AI。</em>", "Capture it.<br><em>Keep it local.</em>"),
-    "intro": ("本地 OCR、表格与公式识别，Qwen 翻译和 ONNX 抠图。模型下载完成后，离线也能处理，图片和文字不必上传。", "Local OCR, tables and formulas. Qwen translation and ONNX background removal. Download your models, then work offline without uploading images or text."),
+    "intro": ("截图、识别、翻译、抠图，让本地 AI 接着处理。提前配置模型与运行依赖，断网或内网也能使用本地功能，图片与文字留在本机，减少敏感资料外传风险。", "Capture, recognize, translate, and remove backgrounds with local AI. Prepare models and runtimes, then use local features offline or on internal networks. Keep images and text on your device and reduce exposure of sensitive material."),
     "hero_note": ("Windows 10 / 11 · x64 · Apache-2.0 开源", "Windows 10 / 11 · x64 · Apache-2.0 license"),
     "local_badge": ("你的图片，在你的电脑处理", "Your images. Processed on your device."),
     "local_badge_small": ("本地 OCR · 公式 · 表格 · 抠图 · 翻译", "Local OCR · formulas · tables · cutouts · translation"),
-    "strip": [("截图 + 标注 + 贴图", "Capture + annotate + pin"), ("本地模型，按需下载", "Local models, downloaded as needed"), ("中英文界面", "English & Chinese interface")],
+    "strip": [("截图 + 标注 + 贴图", "Capture + annotate + pin"), ("本地模型，按需下载", "Local models, downloaded as needed"), ("多语言界面", "Multilingual interface")],
     "features_eyebrow": ("从截图开始", "START WITH A SCREENSHOT"),
     "features_title": ("常用的图像操作，顺手完成。", "Small tasks. A smoother workflow."),
     "features_intro": ("从记下一个想法，到整理一份资料。少一点窗口切换，多一点专注。", "From capturing an idea to preparing a document. Keep useful tools close, and keep your work moving."),
@@ -54,6 +54,10 @@ FEATURES = [
     ("pin", ("桌面贴图", "Desktop pins"), ("把图片、文字或颜色放在手边，支持置顶、缩放、透明度调整与分组。", "Keep images, text, and color references close with pins, zoom, opacity controls, and groups.")),
     ("cutout", ("抠图与图像导出", "Cutouts & image export"), ("使用本地模型分离主体，导出透明 PNG / WebP。也支持 JPEG 和分页 PDF 等格式。", "Separate a subject with local models and export transparent PNG / WebP. Save other images as JPEG or paginated PDF.")),
     ("video", ("长截图与录屏", "Scroll & record"), ("拼接连续内容，保存长图；录制 MP4 操作演示，或制作简短 GIF 动图。", "Stitch continuous content into a long image. Record an MP4 walkthrough or create a short GIF.")),
+    ("text", ("证件字段提取", "Document field extraction"), ("本地 OCR 提取身份证、驾驶证、行驶证、户口本、护照、银行卡及营业执照的当前页字段，可编辑并导出 TXT。", "Extract current-page fields from Chinese IDs, driving and vehicle licenses, household registers, passports, bank cards, and business licenses with local OCR. Edit and export TXT.")),
+    ("shield", ("一键脱敏", "Sensitive-text blurring"), ("本地 OCR 与规则定位敏感文字并模糊对应范围，可选本地 Qwen 辅助，输出前检查漏检与误检。", "Local OCR and rules locate and blur sensitive text, with optional local Qwen assistance. Review for missed or incorrect matches before sharing.")),
+    ("monitor", ("屏幕尺子与取色", "Screen ruler & color picking"), ("测量长度、宽高、两点距离及角度，使用参考线与像素放大镜，复制测量读数或颜色值。", "Measure lengths, boxes, distances, and angles. Use guides and pixel magnification, then copy measurements or color values.")),
+
 ]
 
 SHOWCASES = [
@@ -67,8 +71,8 @@ SHOWCASES = [
 FAQ = [
     (("SnapSharp 支持哪些系统？", "Which systems does SnapSharp support?"), ("支持 Windows 10 2004 及以上版本和 Windows 11，x64 架构。当前不支持 macOS 或 Linux。", "Windows 10 version 2004 or later, and Windows 11, on x64. macOS and Linux are not currently supported.")),
     (("需要付费或安装 Python 吗？", "Do I need to pay or install Python?"), ("SnapSharp 以 Apache-2.0 许可证开源，公开发布包可免费下载。使用本地 AI 功能无需另装 Python；首次使用需下载对应模型。第三方组件与模型遵循各自许可。", "SnapSharp is open source under Apache-2.0, with free public release downloads. Local AI features do not need a separate Python installation. Download the relevant models first; third-party components and models have their own licenses.")),
-    (("图片会上传到云端吗？", "Are my images uploaded to the cloud?"), ("本地 OCR、表格、公式、抠图与本地翻译在本机运行，不上传图片或文字。可选在线翻译和以图搜图等服务会涉及网络请求，需按提示主动启用或确认。", "Local OCR, table and formula recognition, background removal, and local translation run on your device without uploading images or text. Optional online translation and image search involve network requests and require enabling or confirmation.")),
-    (("断网后还能使用吗？", "Can I use it offline?"), ("普通截图与标注可以离线使用。AI 功能在对应模型与运行组件下载、配置完成后可在本地使用；首次模型下载和可选在线服务需要联网。", "Capturing and annotating work offline. Local AI features work after the relevant models and runtime components are downloaded and configured. Initial downloads and optional online services need internet access.")),
+    (("图片会上传到云端吗？", "Are my images uploaded to the cloud?"), ("本地 OCR、表格、公式、抠图与本地翻译在本机运行，不上传图片或文字。在线翻译和以图搜图默认关闭，需主动启用，并在每次发送前确认。", "Local OCR, table and formula recognition, background removal, and local translation run on your device without uploading images or text. Online translation and image search are disabled by default and require explicit enablement and confirmation for each request.")),
+    (("断网后还能使用吗？", "Can I use it offline?"), ("普通截图、标注与测量可离线使用。提前准备好模型及运行依赖后，本地 AI 功能也可在断网或无互联网连接的内网中使用，图片与文字无需上传云端。首次下载及可选在线服务需要联网。", "Capture, annotations, and measurement work offline. Once models and runtimes are prepared, local AI also works without internet access, including on internal networks, without uploading images or text. Initial downloads and optional online services need internet access.")),
     (("启动后没有窗口，怎么办？", "Why is there no window after launch?"), ("这是正常的托盘启动方式。请在任务栏通知区域找到 SnapSharp 图标，也可以直接按 Ctrl+Shift+A 截图。快捷键无响应时，到设置检查是否与其他软件冲突。", "The app starts in the system tray. Find the SnapSharp icon in the notification area, or press Ctrl+Shift+A to capture. If a shortcut does not respond, check Settings for conflicts with other apps.")),
     (("AI 识别结果需要检查吗？", "Should I check the AI results?"), ("需要。OCR 可能出现空格、标点和文字错误；表格需要核对结构和单元格；公式需要核对 LaTeX；抠图需要检查发丝、透明和复杂边缘。处理效果与输入、模型和硬件有关。", "Yes. OCR can make text, spacing, and punctuation errors. Check table structure and cell values, validate formula LaTeX, and inspect hair, transparency, and complex cutout edges. Results depend on the input, model, and device.")),
 ]

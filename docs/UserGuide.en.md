@@ -99,6 +99,12 @@ Before you begin selecting an area, the magnifier beside the pointer displays a 
 
 A screen snapshot cannot recover a window's original transparency, so the RGBA alpha value is 1. Color names may be approximate, and CMYK values are conversions from RGB rather than color-managed print results.
 
+### Sensitive-text blurring
+
+Use the capture or pin-editing toolbar action to blur sensitive text. Configured local OCR and rules locate phone numbers, identity/card numbers, email, license plates, name fields, and addresses. A configured local Qwen translation model can assist with unlabeled names and addresses; candidates must match OCR text.
+
+The result is applied to image pixels and retained when copied or saved. Undo/redo covers the operation. Review for missed or incorrectly blurred text and add manual blur as needed.
+
 ### Standalone screen ruler
 
 Open **Screen ruler** from the tray menu, or assign its global shortcut under **Settings → Keyboard shortcuts**. The shortcut is initially empty; clear it to disable it. Duplicate shortcuts are rejected. Drag the toolbar background to move. Drag any of the four blue edge handles or an entire edge to resize; the lower-right corner resizes both dimensions. Arrow keys move the window by one physical pixel. The blue intersection inside the scale bands is the base `(0, 0)`; measurement coordinates exclude the scale bands. In Box mode, internal scales start at the box's top-left zero, its size appears beside the box, and magnifier coordinates are relative to it. Hover over the toolbar title for coordinates and dimensions.
@@ -250,7 +256,7 @@ After checking the text, click **Translate…**. You can translate the entire re
 
 For first-time translation, choose an engine under **Settings → Translation, APIs, and Privacy**:
 
-- Local translation uses a Qwen model and the bundled llama.cpp runtime. The one-click download is approximately 1.04 GiB and supports CPU or Vulkan GPU. Save the settings after download; the text remains on your computer.
+- Local translation uses a Qwen model and the bundled llama.cpp runtime. Choose CPU or Vulkan GPU and download the selected model plus runtime. The default Qwen3.5 4B Q4_K_M model is about 2.81 GiB, excluding the runtime; 2B, 9B, and 27B options are also available, with 27B Q5_K_M shown only for at least 24 GiB of dedicated VRAM. Save the settings after download; the text remains on your computer.
 - Online translation supports MyMemory, the Google web adapter, or LibreTranslate. You must explicitly authorize online processing and confirm the destination and text before sending. Quotas, pricing, and availability are determined by the provider.
 
 <p align="center">
@@ -264,6 +270,14 @@ For first-time translation, choose an engine under **Settings → Translation, A
 <p align="center"><em>OCR output can be translated by a local model without uploading it to an external service.</em></p>
 
 Local translation accepts up to 6,000 characters per request and may be slower on first load. Small models can mistranslate, and OCR errors affect the translation. Review important source text and then verify the translation. A failure does not automatically switch services or compute devices.
+
+### Document field extraction
+
+Select document mode to classify a Chinese ID card, driving license, vehicle license, household register, passport, bank card, or business license using the configured local OCR engine. Change the document type to extract again. No separate document model is needed.
+
+Chinese ID cards support front, back, and combined images. Edit, copy, or export field text as TXT, and click a field line to locate its source. Missing fields stay blank; unclear types retain OCR text. Rotate or flip the source and rerun when necessary.
+
+Extraction covers the current page. It does not verify authenticity, aggregate household-register pages, or provide complete passport MRZ parsing. Check names, numbers, dates, and addresses against the source.
 
 ### Barcodes, tables, formulas, and hover OCR
 
@@ -311,27 +325,17 @@ Start with General Lite, or U²-Net on resource-constrained systems. Add a portr
 
 Background removal preserves the source resolution and multiplies the generated mask by the image's existing alpha. Hair, glass, and sheer fabric require manual inspection. A transparent mask may not completely remove background colors visible through glass. Continuous live background-removal previews are not currently generated while dragging a selection.
 
-### GPU and timeout settings
+### GPU, timeout, and failure recovery
 
-Models are configured on the **One-Click Background Removal** page, but the compute device and timeout currently share settings on the **OCR and Recognition** page:
+Choose CPU or DirectML independently under **Settings → Background Removal**. CPU presets are U²-Net and General Lite; Portrait, Matting, full General, and HR are offered with DirectML. The adapter index follows the OCR GPU index. Older configurations without a separate device inherit the ONNX device.
 
-1. Open **Settings → OCR and Recognition**.
-2. Under **ONNX Compute Device (PaddleOCR and Background Removal)**, choose CPU or DirectML GPU. On a multi-GPU system, you can change the GPU index.
-3. Scroll to **Language and Resource Limits**. **Inference Timeout (1–120 seconds, cancelable)** appears below the CPU thread count.
-4. For a large model, increase the timeout from the default 30 seconds to 120 seconds, save, and rerun.
+The shared timeout remains under **Settings → OCR and Recognition → Language and Resource Limits**, from 1–120 seconds, default 30. Waiting, loading, preprocessing, and inference can consume the limit. Increase it for slow models, but reduce model workload for memory-allocation errors. Fixed 2048-input models do not shrink when you enter 1024.
 
-Waiting for another task, loading a model for the first time, preprocessing, and inference can all consume the timeout. A longer timeout does not resolve insufficient GPU memory or guarantee that an HR model will finish. A model with a fixed 2048 input does not automatically run at a lower resolution if you manually enter 1024.
+Each ONNX operation runs in a separate worker and releases sessions on completion. DirectML initialization/inference errors, insufficient GPU budget, or GPU-worker exits can trigger a CPU retry within the remaining timeout. A failed adapter uses CPU for the rest of this application session; saved preferences remain unchanged. Cancellation and timeout terminate the worker.
 
-### Large-model errors or crashes
+For stopped or timed-out operations, try General Lite or U²-Net. For `8007000E` or `E_OUTOFMEMORY`, reduce workload; CPU retries also need system memory. Worker isolation reduces the risk of native GPU failures terminating the application, but real large models and drivers still require device testing.
 
-The DirectML path for current HR models has known risks of out-of-memory errors and native driver crashes. Do not use an HR model as the routine default on hardware where it has not been verified.
-
-- **Processing stopped or timed out**: if you did not stop it, the time limit may have been exceeded. Check the timeout and then try a lighter model.
-- `8007000E` or `E_OUTOFMEMORY`: memory allocation failed. Reduce the model workload instead of increasing the timeout further.
-- High GPU memory use with low GPU utilization: stopped computation does not mean that the model and buffers have been released. SnapSharp caches model sessions; fully exit the application to observe resource release more clearly.
-- Application exits immediately: do not rerun the same HR + DirectML combination repeatedly. Restart and use General Lite or U²-Net. You can switch to CPU for verification, but CPU processing still requires system memory and may be slow.
-
-Local GPU processing uses DirectML and does not require CUDA. A GPU failure does not automatically fall back to CPU. Compatibility varies by model, driver, and GPU; the ability to download a model does not mean it has been validated on every device.
+DirectML does not need CUDA. Local translation uses a separate Vulkan path and does not automatically fall back to CPU.
 
 <a id="recording"></a>
 

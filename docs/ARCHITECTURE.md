@@ -2,7 +2,7 @@
 
 异常捕获、热键单路径与 ONNX 子进程边界见[异常与推理隔离](异常与推理隔离.md)。
 
-> 最后按代码校准：2026-11-18。本文描述实际模块、运行边界与依赖采用规则；功能验收状态集中在路线图。
+> 最后按代码校准：2026-11-19。本文描述实际模块、运行边界与依赖采用规则；功能验收状态集中在路线图。
 
 [文档中心](README.md) · [构建与测试](构建与测试.md) · [功能规格与路线图](<SnapSharp 功能规格与路线图.md>)
 
@@ -97,7 +97,7 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 
 `CutoutModels` 集中维护六个下载预设；`AppSettings.CutoutModels` 分模型保存路径、契约和尺寸，`CutoutDefaultModelId` 保存默认项。窗口临时选择使用配置快照，不修改默认；旧单模型配置有迁移逻辑。General / Portrait 使用 sigmoid + min-max，Matting 使用 sigmoid，配套 HR Matting 的 `BiRefNetAlpha` 直接保留概率输出。下载服务流式落盘，执行固定校验和 ONNX 契约检查后回填设置。
 
-当前 ONNX 仍在主进程内执行并最多缓存四个会话，超时与计算设备由 OCR 页共用；没有按显存预算管理、失败会话专项清理或推理子进程隔离。HR + DirectML 已观察到原生驱动崩溃，资源限制不等于崩溃隔离。后续设计不能仅依赖托管异常捕获保护主程序。
+PaddleOCR、表格、公式与抠图通过 `OnnxWorker` 在每次操作独立启动的进程中执行，主进程不创建 ONNX 原生会话。图片与结构化结果经当前用户专用命名管道传输；同次操作最多缓存四个会话，完成、失败、取消后释放／终止 worker。DirectML 失败或显存预算不足可回退 CPU；出错适配器在本次启动期间后续使用 CPU，不改变保存的偏好。跨请求重载增加延迟，实际 HR 模型和多品牌 GPU 仍需验收。详见[异常与推理隔离](异常与推理隔离.md)。
 
 `RecognitionWindow` 提供编辑与图像定位，`LocalRecognitionService` 选择 PaddleOCR、Tesseract、Windows OCR 或 ZXing 条码。`OnnxImageRuntime` 在后台串行推理，限制线程、超时和会话缓存；输入和结果统一用原图像素坐标。模型为本地文件，不隐式下载。设置页通过 `OcrModelDownloadService` 主动下载固定版本中英文包，限制大小、校验 SHA256，仅提取明确命名的 ONNX 文件并从模型元数据生成字典，验证后回填配置；失败不改原路径。翻译源／目标语言分别配置，默认 `en → zh`。
 
@@ -173,7 +173,7 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 | [Tesseract](https://www.nuget.org/packages/Tesseract) | 可选离线 OCR 引擎 | Apache-2.0 | 已使用，原生引擎来自 Charles Weld 的 Tesseract NuGet 分发；官方 tessdata_fast 简中／英文字库按需下载并固定 SHA256 校验 |
 | [GTranslate](https://www.nuget.org/packages/GTranslate) | 可选 Google 在线翻译适配器 | MIT | 已使用，包随程序提供；不是离线翻译模型，服务可用性与额度由第三方决定；逐次确认接收地址与文字 |
 | [ZXing.Net](https://www.nuget.org/packages/ZXing.Net) | QR 与指定一维码离线解码 | Apache-2.0 | 已使用；限制格式、旋转重试及输入大小 |
-| [WPFLocalizeExtension](https://www.nuget.org/packages/WPFLocalizeExtension) | 中英文界面与运行时切换 | Ms-PL | 已使用；共享 RESX 资源位于 Core，新增语言及校验见[本地化](本地化.md)；传递依赖 XAMLMarkupExtensions 同为 Ms-PL |
+| [WPFLocalizeExtension](https://www.nuget.org/packages/WPFLocalizeExtension) | 多语言界面与运行时切换 | Ms-PL | 已使用；共享 RESX 资源位于 Core，新增语言及校验见[本地化](本地化.md)；传递依赖 XAMLMarkupExtensions 同为 Ms-PL |
 | [ScreenRecorderLib](https://www.nuget.org/packages/ScreenRecorderLib) | 连续 WGC／DXGI 录屏、WASAPI 音频、摄像头叠加和 Media Foundation 编码 | MIT | 已使用；VC++ x64 官方下载／签名验证和 N/KN 媒体组件系统安装提供一键配置；合成图实际编码检查；系统组件及编解码器许可独立 |
 
 版本由各 `.csproj` 和 NuGet 还原结果管理，文档不重复维护易过期的版本号。
