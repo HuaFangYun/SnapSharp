@@ -50,6 +50,18 @@ public sealed partial class LocalRecognitionService
                 using var iterator = page.GetIterator();
                 var blocks = new List<RecognizedBlock>();
                 var sx = image.PixelWidth / (double)input.PixelWidth; var sy = image.PixelHeight / (double)input.PixelHeight;
+                var words = new List<(string Text, System.Windows.Rect Bounds)>();
+                using (var wordIterator = page.GetIterator())
+                {
+                    wordIterator.Begin();
+                    do
+                    {
+                        timeout.Token.ThrowIfCancellationRequested();
+                        var word = wordIterator.GetText(PageIteratorLevel.Word)?.Trim();
+                        if (!string.IsNullOrWhiteSpace(word) && wordIterator.TryGetBoundingBox(PageIteratorLevel.Word, out var wordBox))
+                            words.Add((word, new System.Windows.Rect(wordBox.X1 * sx, wordBox.Y1 * sy, wordBox.Width * sx, wordBox.Height * sy)));
+                    } while (wordIterator.Next(PageIteratorLevel.Word));
+                }
                 iterator.Begin();
                 do
                 {
@@ -59,7 +71,9 @@ public sealed partial class LocalRecognitionService
                     var text = iterator.GetText(PageIteratorLevel.TextLine)?.Trim();
                     if (!string.IsNullOrWhiteSpace(text) && iterator.TryGetBoundingBox(PageIteratorLevel.TextLine, out var box))
                         blocks.Add(new RecognizedBlock(text, new System.Windows.Rect(box.X1 * sx, box.Y1 * sy, box.Width * sx, box.Height * sy),
-                            Math.Clamp(iterator.GetConfidence(PageIteratorLevel.TextLine) / 100d, 0, 1)));
+                            Math.Clamp(iterator.GetConfidence(PageIteratorLevel.TextLine) / 100d, 0, 1))
+                        { TextSpans = WordPositions(text, words.Where(w => w.Bounds.Left >= box.X1 * sx - 1 && w.Bounds.Right <= box.X2 * sx + 1
+                            && w.Bounds.Top >= box.Y1 * sy - 1 && w.Bounds.Bottom <= box.Y2 * sy + 1)) });
                 } while (blocks.Count < 256 && iterator.Next(PageIteratorLevel.TextLine));
                 timeout.Token.ThrowIfCancellationRequested();
                 return new RecognitionDocument(blocks, "Tesseract 5 / " + settings.TesseractLanguages);

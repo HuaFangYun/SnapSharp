@@ -8,6 +8,8 @@ dotnet run --project tools/WindowChecks/WindowChecks.csproj -p:Platform=x64 -- -
 
 Checks split numbers, license plates, unlabeled addresses, multiline fields, source bounds, Gaussian blur pixels, toolbar entries, pin preview/output, batch undo/redo and cancellation of obsolete editing sessions. AI response fixtures verify source-text matching and bounded prompts without running a language model.
 
+Precision checks preserve surrounding prose and field labels while locating repeated names, plates and addresses within an OCR line. They also cover native text positions and their transfer through the isolated OCR worker. Add `--recognition-model-dir <folder>` to validate positions using the local Paddle OCR model on the generated text fixture; before/after PNGs are written to the check output folder.
+
 Mixed DPI coordinates, portrait rotation, synthetic adapter composition, cross-screen
 production crop, five-scale pixel nudging and guide persistence (no desktop capture):
 

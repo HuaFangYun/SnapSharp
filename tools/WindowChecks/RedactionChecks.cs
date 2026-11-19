@@ -54,12 +54,13 @@ internal static partial class Program
             B("138", 10, 230, 30), B("0013", 45, 230, 40), B("8000", 90, 230, 40)
         ], "fixture");
         var regions = SensitiveTextDetection.FindRegions(multiline, 600, 500);
-        foreach (var index in new[] { 0, 1, 3, 4, 5, 7, 8, 9 })
+        foreach (var index in new[] { 1, 4, 5, 7, 8, 9 })
             Require(regions.Any(r => r.Contains(multiline.Blocks[index].Bounds)), "Separate/multiline sensitive value was missed.");
-        foreach (var index in new[] { 2, 6 })
+        foreach (var index in new[] { 0, 2, 6 })
             Require(!regions.Any(r => r.Contains(multiline.Blocks[index].Bounds)), "Sensitive field consumed the next ordinary field.");
         var clipped = SensitiveTextDetection.FindRegions(new([B("13800138000", -10, -5)], "fixture"), 100, 50);
         Require(clipped.Count == 1 && new Rect(0, 0, 100, 50).Contains(clipped[0]), "Redaction bounds must stay inside the image.");
+        MinimalRedactionChecks();
 
         // A gradient plus fine texture distinguishes smooth Gaussian blur from pixel blocks.
         var pixels = new byte[400 * 240 * 4];

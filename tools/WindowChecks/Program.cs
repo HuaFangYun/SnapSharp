@@ -28,7 +28,10 @@ internal static partial class Program
             using var theme = new ThemeService(); theme.Start();
             if (args.Contains("--redaction-only"))
             {
-                RedactionChecks(); return 0;
+                RedactionChecks();
+                var models = Array.IndexOf(args, "--recognition-model-dir");
+                if (models >= 0 && models + 1 < args.Length) RedactionModelPositions(args[models + 1]);
+                return 0;
             }
             if (args.Contains("--dpi-only"))
             {

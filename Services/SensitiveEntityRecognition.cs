@@ -16,6 +16,9 @@ internal static class SensitiveEntityRecognition
         Include vehicle license plate numbers. Exclude ordinary words, organizations, dates, amounts,
         and general place names without an address. Copy original text exactly; do not infer, translate,
         complete, or invent values. If none are present, return {"entities":[]}.
+        Return minimal spans: a person entity must contain only the name, never their actions or the
+        surrounding sentence. An address entity must contain only the location. Never return an
+        entire sentence or paragraph just because it contains private information.
         """;
     private static readonly HashSet<string> Types = ["person", "address", "license_plate", "phone", "id_number", "bank_card", "email"];
 

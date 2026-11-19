@@ -18,7 +18,8 @@ public static class OnnxWorker
     private static readonly HashSet<int> DisabledAdapters = [];
     public static bool IsWorker { get; private set; }
     public sealed record Request(string Operation, AppSettings Settings, byte[] Image, string Culture);
-    public sealed record Block(string Text, double X, double Y, double Width, double Height, double? Confidence, string Kind);
+    public sealed record TextSpan(int Start, int Length, double X, double Y, double Width, double Height);
+    public sealed record Block(string Text, double X, double Y, double Width, double Height, double? Confidence, string Kind, TextSpan[]? TextSpans = null);
     public sealed record Response(Block[]? Blocks = null, string Backend = "", RecognizedCell[]? Cells = null,
         byte[]? Image = null, string? Error = null, bool GpuFailed = false, string? GpuMemory = null,
         string? ErrorDiagnostic = null);
@@ -161,10 +162,12 @@ public static class OnnxWorker
     }
 
     private static Response FromDocument(RecognitionDocument document) => new(document.Blocks.Select(b =>
-        new Block(b.Text, b.Bounds.X, b.Bounds.Y, b.Bounds.Width, b.Bounds.Height, b.Confidence, b.Kind)).ToArray(), document.Backend);
+        new Block(b.Text, b.Bounds.X, b.Bounds.Y, b.Bounds.Width, b.Bounds.Height, b.Confidence, b.Kind,
+            b.TextSpans?.Select(s => new TextSpan(s.Start, s.Length, s.Bounds.X, s.Bounds.Y, s.Bounds.Width, s.Bounds.Height)).ToArray())).ToArray(), document.Backend);
     private static Response FromTable(LocalRecognitionService.TableResult table) => FromDocument(table.Document) with { Cells = table.Cells };
     public static RecognitionDocument ToDocument(Response response) => new((response.Blocks ?? []).Select(b =>
-        new RecognizedBlock(b.Text, new System.Windows.Rect(b.X, b.Y, b.Width, b.Height), b.Confidence, b.Kind)).ToArray(), response.Backend);
+        new RecognizedBlock(b.Text, new System.Windows.Rect(b.X, b.Y, b.Width, b.Height), b.Confidence, b.Kind)
+        { TextSpans = b.TextSpans?.Select(s => new RecognizedTextSpan(s.Start, s.Length, new System.Windows.Rect(s.X, s.Y, s.Width, s.Height))).ToArray() }).ToArray(), response.Backend);
     public static byte[] Encode(BitmapSource image)
     {
         using var stream = new MemoryStream();

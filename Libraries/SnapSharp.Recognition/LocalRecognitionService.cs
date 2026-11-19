@@ -52,32 +52,60 @@ public sealed partial class LocalRecognitionService
                 using (var canvas = new SKCanvas(crop)) canvas.DrawBitmap(source, new SKRect((float)bounds.Left, (float)bounds.Top, (float)bounds.Right, (float)bounds.Bottom), new SKRect(0, 0, crop.Width, crop.Height));
                 var recSize = OnnxImageRuntime.ModelAccess.Size(recognizer, 48, Math.Clamp((int)Math.Ceiling(48d * crop.Width / crop.Height / 8) * 8, 32, 2048));
                 var recognized = OnnxImageRuntime.ModelAccess.Run(recognizer, OnnxImageRuntime.Tensor(crop, recSize.Height, recSize.Width, "MinusOne", true), cancellation);
-                var (text, confidence) = DecodeCtc(recognized.Data, recognized.Shape, dictionary);
-                if (!string.IsNullOrWhiteSpace(text)) blocks.Add(new RecognizedBlock(text, bounds, confidence));
+                var drawWidth = Math.Min(recSize.Width, Math.Max(1, (int)Math.Ceiling(crop.Width * (double)recSize.Height / crop.Height)));
+                var (text, confidence, positions) = DecodeCtcWithPositions(recognized.Data, recognized.Shape, dictionary, bounds, drawWidth / (double)recSize.Width);
+                if (!string.IsNullOrWhiteSpace(text)) blocks.Add(new RecognizedBlock(text, bounds, confidence) { TextSpans = positions });
             }
             return new RecognitionDocument(ReadingOrder(blocks), L.Get("LocalPaddleOCRONNX") + models.DeviceLabel);
         }, token).ConfigureAwait(false);
     }
 
     public static (string Text, double Confidence) DecodeCtc(float[] values, int[] shape, string[] dictionary)
+        => DecodeCtcCore(values, shape, dictionary, null);
+
+    public static (string Text, double Confidence, IReadOnlyList<RecognizedTextSpan> Positions) DecodeCtcWithPositions(
+        float[] values, int[] shape, string[] dictionary, Rect bounds, double contentFraction = 1)
+    {
+        if (!double.IsFinite(contentFraction) || contentFraction <= 0 || contentFraction > 1) throw new ArgumentOutOfRangeException(nameof(contentFraction));
+        var tokens = new List<(int Start, int Length, double Position)>();
+        var (text, confidence) = DecodeCtcCore(values, shape, dictionary, tokens);
+        var positions = new List<RecognizedTextSpan>();
+        for (var i = 0; i < tokens.Count; i++)
+        {
+            var left = i == 0 ? 0 : Math.Clamp((tokens[i - 1].Position + tokens[i].Position) / (2 * contentFraction), 0, 1);
+            var right = i == tokens.Count - 1 ? 1 : Math.Clamp((tokens[i].Position + tokens[i + 1].Position) / (2 * contentFraction), 0, 1);
+            if (right > left) positions.Add(new(tokens[i].Start, tokens[i].Length,
+                new Rect(bounds.Left + bounds.Width * left, bounds.Top, bounds.Width * (right - left), bounds.Height)));
+        }
+        return (text, confidence, positions);
+    }
+
+    private static (string Text, double Confidence) DecodeCtcCore(float[] values, int[] shape, string[] dictionary, List<(int Start, int Length, double Position)>? positions)
     {
         if (shape.Length != 3 || shape[0] != 1 || shape[1] < 1) throw new NotSupportedException(L.Get("PaddleOCRRecognitionOutputMustBeA1"));
         var classes = shape[2];
         var labels = new[] { "" }.Concat(dictionary).ToList();
         if (classes == labels.Count + 1) labels.Add(" ");
         if (classes != labels.Count || values.Length != shape[1] * classes) throw new InvalidDataException(L.Format("DictionaryModelMismatch0ModelClasses1", classes, dictionary.Length));
-        var text = new System.Text.StringBuilder(); double confidence = 0; var count = 0; var previous = -1;
+        var text = new System.Text.StringBuilder(); double confidence = 0; var count = 0; var previous = -1; var tokenStart = 0;
         for (var t = 0; t < shape[1]; t++)
         {
             var best = 0; var sum = 0d; var probabilities = true;
             for (var c = 0; c < classes; c++) { var value = values[t * classes + c]; if (!float.IsFinite(value)) throw new InvalidDataException(L.Get("RecognitionOutputContainsInvalidValues")); if (value > values[t * classes + best]) best = c; if (value < 0 || value > 1) probabilities = false; sum += value; }
             if (best != 0 && best != previous)
             {
+                tokenStart = t;
+                positions?.Add((text.Length, labels[best].Length, (t + .5) / shape[1]));
                 text.Append(labels[best]);
                 double score;
                 if (probabilities && Math.Abs(sum - 1) < .05) score = values[t * classes + best];
                 else { var maximum = values[t * classes + best]; double denominator = 0; for (var c = 0; c < classes; c++) denominator += Math.Exp(values[t * classes + c] - maximum); score = 1 / denominator; }
                 confidence += score; count++;
+            }
+            else if (best != 0 && positions is { Count: > 0 })
+            {
+                var last = positions[^1];
+                positions[^1] = (last.Start, last.Length, (tokenStart + t + 1) / (2d * shape[1]));
             }
             previous = best;
         }
@@ -138,9 +166,28 @@ public sealed partial class LocalRecognitionService
         {
             var left = line.Words.Min(x => x.BoundingRect.Left); var top = line.Words.Min(x => x.BoundingRect.Top);
             var right = line.Words.Max(x => x.BoundingRect.Right); var bottom = line.Words.Max(x => x.BoundingRect.Bottom);
-            return new RecognizedBlock(line.Text, new Rect(left * sx, top * sy, (right - left) * sx, (bottom - top) * sy));
+            return new RecognizedBlock(line.Text, new Rect(left * sx, top * sy, (right - left) * sx, (bottom - top) * sy))
+            {
+                TextSpans = WordPositions(line.Text, line.Words.Select(w => (w.Text,
+                    new Rect(w.BoundingRect.Left * sx, w.BoundingRect.Top * sy, w.BoundingRect.Width * sx, w.BoundingRect.Height * sy))))
+            };
         }).ToArray();
         return new RecognitionDocument(blocks, "Windows.Media.Ocr / " + engine.RecognizerLanguage.LanguageTag);
+    }
+
+    private static IReadOnlyList<RecognizedTextSpan> WordPositions(string text, IEnumerable<(string Text, Rect Bounds)> words)
+    {
+        var positions = new List<RecognizedTextSpan>();
+        var from = 0;
+        foreach (var word in words)
+        {
+            if (string.IsNullOrEmpty(word.Text)) continue;
+            var start = text.IndexOf(word.Text, from, StringComparison.Ordinal);
+            if (start < 0) continue;
+            positions.Add(new(start, word.Text.Length, word.Bounds));
+            from = start + word.Text.Length;
+        }
+        return positions;
     }
 
     public Task<RecognitionDocument> Barcodes(BitmapSource image, AppSettings settings, CancellationToken token = default) => Task.Run(() =>
