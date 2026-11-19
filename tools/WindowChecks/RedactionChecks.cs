@@ -18,11 +18,36 @@ internal static partial class Program
     {
         SynchronizationContext.SetSynchronizationContext(new System.Windows.Threading.DispatcherSynchronizationContext());
         RecognizedBlock B(string text, double x, double y, double width = 260) => new(text, new Rect(x, y, width, 20));
-        foreach (var value in new[] { "13800138000", "+86 138 0013 8000", "138-0013-8000", "11010519491231002X", "6225 1688 8888 8888", "user@example.com", "姓名：张三", "住址：示例市幸福路1号", "Name: Alice", "Address: Main Street" })
+        foreach (var value in new[] { "13800138000", "+86 138 0013 8000", "138-0013-8000", "11010519491231002X", "6225 1688 8888 8888", "user@example.com", "姓名：张三", "住址：示例市幸福路1号", "Name: Alice", "Address: Main Street",
+            "京A12345", "粤B·12345", "沪AD12345", "粤B12345D", "鲁B1234挂", "粤Z1234港", "车牌号：川A12345", "北京市朝阳区幸福路12号", "幸福路12号", "123 Main Street" })
             Require(SensitiveTextDetection.FindRegions(new([B(value, 10, 10)], "fixture"), 600, 500).Count > 0,
                 "Sensitive text was not found: " + value);
         var ordinary = new RecognitionDocument([B("会议时间：2026年11月20日", 10, 10), B("总金额：1234.56", 10, 50), B("今天讨论项目进度", 10, 90), B("版本1.1.1", 10, 130)], "fixture");
         Require(SensitiveTextDetection.FindRegions(ordinary, 600, 500).Count == 0, "Ordinary text should remain unchanged.");
+        var entityDocument = new RecognitionDocument([B("张三今天来办理业务", 10, 10), B("幸福大厦", 10, 50), B("三单元1201室", 10, 78), B("今天讨论项目进度", 10, 130)], "fixture");
+        var entities = SensitiveEntityRecognition.Parse("""{"entities":[{"type":"person","text":"张三"},{"type":"address","text":"幸福大厦\n三单元1201室"},{"type":"person","text":"未出现在原文的姓名"},{"type":"organization","text":"今天讨论项目进度"}]}""");
+        var entityRegions = SensitiveTextDetection.FindRegions(entityDocument, 600, 500, entities);
+        Require(entityRegions.Count == 3 && !entityRegions.Any(r => r.Contains(entityDocument.Blocks[3].Bounds)),
+            "AI entities must map to actual OCR blocks, including multiline addresses; absent text and unsupported types must not redact pixels.");
+        Require(SensitiveEntityRecognition.Parse("""{"entities":[]}""").Count == 0, "Empty AI analysis must be valid.");
+        var chunks = SensitiveEntityRecognition.CreateChunks(new([B(new string('张', 3500), 10, 10)], "fixture"));
+        Require(chunks.Count >= 3 && chunks.All(c => c.Length <= 1202) && string.Concat(chunks).Count(c => c == '张') == 3500,
+            "Long OCR text must be split into bounded prompts without dropping text.");
+        WaitRedaction(Task.Run(async () =>
+        {
+            var preferences = new AppSettings();
+            using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
+            try { await LocalTranslationService.Translate("Hello", preferences, cancelled.Token); throw new Exception("Translation cancellation ignored."); }
+            catch (OperationCanceledException) { }
+            try { await LocalTranslationService.Analyze(["张三"], preferences, "Privacy analysis", cancelled.Token); throw new Exception("Analysis cancellation ignored."); }
+            catch (OperationCanceledException) { }
+            try { await LocalTranslationService.Translate(new string('x', 6001), preferences, default); throw new Exception("Translation size limit lost."); }
+            catch (ArgumentException) { }
+            try { await LocalTranslationService.Analyze([new string('x', 1801)], preferences, "Privacy analysis", default); throw new Exception("Analysis size limit lost."); }
+            catch (ArgumentException) { }
+            try { await LocalTranslationService.Analyze(["张三"], preferences, "Privacy analysis", default); throw new Exception("Missing local runtime accepted."); }
+            catch (InvalidOperationException) { }
+        }));
         var multiline = new RecognitionDocument([
             B("姓名", 10, 10, 40), B("张三", 160, 10, 50), B("性别：男", 10, 42),
             B("住址：示例市", 10, 90), B("幸福镇", 45, 118), B("幸福路1号", 45, 146), B("有效期限：长期", 10, 174),
@@ -36,15 +61,16 @@ internal static partial class Program
         var clipped = SensitiveTextDetection.FindRegions(new([B("13800138000", -10, -5)], "fixture"), 100, 50);
         Require(clipped.Count == 1 && new Rect(0, 0, 100, 50).Contains(clipped[0]), "Redaction bounds must stay inside the image.");
 
-        // A varied pixel fixture makes actual mosaic pixels distinguishable from the input.
+        // A gradient plus fine texture distinguishes smooth Gaussian blur from pixel blocks.
         var pixels = new byte[400 * 240 * 4];
         for (var y = 0; y < 240; y++)
         for (var x = 0; x < 400; x++)
         {
             var i = (y * 400 + x) * 4;
-            pixels[i] = (byte)((x * 31 + y * 13) % 256);
-            pixels[i + 1] = (byte)((x * 7 + y * 29) % 256);
-            pixels[i + 2] = (byte)((x * 17 + y * 3) % 256);
+            var texture = ((x + y) % 2) * 40;
+            pixels[i] = (byte)(x / 2 + texture);
+            pixels[i + 1] = (byte)(y / 2 + texture);
+            pixels[i + 2] = (byte)((x + y) / 4 + texture);
             pixels[i + 3] = 255;
         }
         var source = BitmapSource.Create(400, 240, 96, 96, PixelFormats.Bgra32, null, pixels, 400 * 4); source.Freeze();
@@ -71,7 +97,10 @@ internal static partial class Program
             Require(button.IsEnabled && editor.Annotations.Count == 0 && editor.CanUndo && !ReferenceEquals(editor.Image, source),
                 "Redaction should flatten into one undoable image edit and restore the action button.");
             Require(!At(editor.Image, 31, 51).SequenceEqual(At(source, 31, 51)) && At(editor.Image, 5, 5).SequenceEqual(At(source, 5, 5)),
-                "Mosaic must alter sensitive pixels while preserving surrounding pixels.");
+                "Gaussian blur must alter sensitive pixels while preserving surrounding pixels.");
+            Require(Enumerable.Range(60, 60).Select(x => At(editor.Image, x, 60)[0]).Distinct().Count() > 10
+                && Math.Abs(At(editor.Image, 80, 60)[0] - At(editor.Image, 81, 60)[0]) <= 2,
+                "Redaction should form a smooth gradient rather than mosaic blocks or original fine texture.");
             Require(ReferenceEquals(((System.Windows.Controls.Image)pin.FindName("ImageView")).Source, editor.Image), "Pin preview must display the redacted image.");
             Require(At((BitmapSource)Invoke(pin, "OutputImage")!, 31, 51).SequenceEqual(At(editor.Image, 31, 51)), "Pin copy/save output must include redaction.");
             editor.UndoCommand.Execute(null);
@@ -93,7 +122,7 @@ internal static partial class Program
                 Require(ReferenceEquals(untouched.Image, source) && !untouched.CanUndo && button.IsEnabled,
                     "Cancelled or discarded OCR results must leave the editor untouched.");
             }
-            Console.WriteLine("PASS: sensitive text rules, split/multiline fields, clipping, mosaic pixels, both toolbar entries, pin output, undo/redo, cancel and stale session cleanup.");
+            Console.WriteLine("PASS: plates/addresses, AI source mapping and bounded prompts, split/multiline fields, Gaussian blur pixels, both toolbar entries, pin output, undo/redo and cancellation.");
         }
         finally { overlay.Close(); pin.Close(); }
     }

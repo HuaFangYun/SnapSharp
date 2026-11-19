@@ -6,7 +6,7 @@ One-click redaction rules and screenshot/pin integration (synthetic OCR input, n
 dotnet run --project tools/WindowChecks/WindowChecks.csproj -p:Platform=x64 -- --redaction-only
 ```
 
-Checks split numbers, multiline fields, source bounds, mosaic pixels, toolbar entries, pin preview/output, batch undo/redo and cancellation of obsolete editing sessions.
+Checks split numbers, license plates, unlabeled addresses, multiline fields, source bounds, Gaussian blur pixels, toolbar entries, pin preview/output, batch undo/redo and cancellation of obsolete editing sessions. AI response fixtures verify source-text matching and bounded prompts without running a language model.
 
 Mixed DPI coordinates, portrait rotation, synthetic adapter composition, cross-screen
 production crop, five-scale pixel nudging and guide persistence (no desktop capture):

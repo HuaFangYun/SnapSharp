@@ -43,7 +43,8 @@ internal sealed class SensitiveRedactionAction
             {
                 var document = await _recognize(rendered, settings, cancellation.Token);
                 cancellation.Token.ThrowIfCancellationRequested();
-                var regions = SensitiveTextDetection.FindRegions(document, rendered.PixelWidth, rendered.PixelHeight);
+                var entities = await SensitiveEntityRecognition.Find(document, settings, cancellation.Token);
+                var regions = SensitiveTextDetection.FindRegions(document, rendered.PixelWidth, rendered.PixelHeight, entities);
                 return (Regions: regions, Image: regions.Count > 0 ? Render(images, rendered, regions) : null);
             }, cancellation.Token);
             if (cancellation.IsCancellationRequested || !isCurrent()) return;
@@ -77,6 +78,6 @@ internal sealed class SensitiveRedactionAction
     }
 
     internal static BitmapSource Render(SkiaImageService images, BitmapSource source, IReadOnlyList<Rect> regions) =>
-        images.Render(source, regions.Select(r => new RegionEffectAnnotation(AnnotationTool.Mosaic,
-            r, Math.Clamp(r.Height * .8, 12, 40))));
+        images.Render(source, regions.Select(r => new RegionEffectAnnotation(AnnotationTool.Blur,
+            r, Math.Clamp(r.Height * .65, 10, 40))));
 }
