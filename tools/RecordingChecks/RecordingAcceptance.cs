@@ -6,12 +6,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Brushes = System.Windows.Media.Brushes;
 using System.Windows.Threading;
-using SnapSharp.Models;
-using SnapSharp.Services;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
 using Windows.Media.Editing;
 using Windows.Storage;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 // Opt-in desktop/device capture. No PnP disable commands or machine-wide fault switches.
 internal static class RecordingAcceptance

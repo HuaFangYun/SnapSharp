@@ -2,10 +2,10 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using SkiaSharp;
-using SnapSharp.Models;
-using SnapSharp.Views;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Views;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal static class OutputSelfTest
 {

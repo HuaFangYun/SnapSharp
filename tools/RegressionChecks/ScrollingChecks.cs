@@ -2,14 +2,14 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using SnapSharp.Models;
-using SnapSharp.Services;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
 using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
 using FlowDirection = System.Windows.FlowDirection;
 using Point = System.Windows.Point;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {

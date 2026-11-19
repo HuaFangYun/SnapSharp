@@ -1,10 +1,10 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using SnapSharp.Localization;
+using NimCap.Screenshot.Localization;
 using WPFLocalizeExtension.Engine;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed record InterfaceLanguage(string Code, string NativeName)
 {
@@ -35,7 +35,7 @@ public static class LocalizationService
         // Adding a Strings.<culture>.resx automatically adds it to the selector.
         foreach (var directory in Directory.EnumerateDirectories(AppContext.BaseDirectory).Order(StringComparer.Ordinal))
         {
-            if (!File.Exists(Path.Combine(directory, "SnapSharp.Core.resources.dll"))) continue;
+            if (!File.Exists(Path.Combine(directory, "NimCap.Screenshot.Core.resources.dll"))) continue;
             try
             {
                 var culture = CultureInfo.GetCultureInfo(Path.GetFileName(directory));

@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
-using SnapSharp.Models;
+using NimCap.Screenshot.Models;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>Uses the configured local language model; returned entities must occur in OCR source text.</summary>
 internal static class SensitiveEntityRecognition

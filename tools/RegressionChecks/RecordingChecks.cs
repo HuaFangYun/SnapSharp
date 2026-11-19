@@ -1,21 +1,21 @@
 using System.Drawing;
 using System.IO;
 using System.Windows.Threading;
-using SnapSharp.Models;
-using SnapSharp.Services;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {
     private static void RecordingChecks()
     {
         var assembly = typeof(RecordingService).Assembly;
-        Require(assembly.GetName().Name == "SnapSharp.Recording" &&
+        Require(assembly.GetName().Name == "NimCap.Screenshot.Recording" &&
             new[] { typeof(RecordingDevice), typeof(RecordingDeviceService), typeof(RecordingClock),
                 typeof(RecordingEncoderProbe), typeof(RecordingOutputPath), typeof(StreamingGifWriter) }
                 .All(type => type.Assembly == assembly), "Recording implementation escaped its library boundary.");
-        Require(assembly.GetReferencedAssemblies().All(name => name.Name != "SnapSharp"),
+        Require(assembly.GetReferencedAssemblies().All(name => name.Name != "NimCap.Screenshot"),
             "The recording library must not depend on the application.");
 
         void Reject<T>(Action command) where T : Exception

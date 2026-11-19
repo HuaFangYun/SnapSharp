@@ -6,7 +6,7 @@ using MahApps.Metro.IconPacks;
 using Control = System.Windows.Controls.Control;
 using Binding = System.Windows.Data.Binding;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 // Shared icon mapping for WPF menus.
 // Each WPF item owns its own icon; never share UIElements between menu parents.
@@ -69,9 +69,9 @@ internal static class MenuIcons
     internal static PackIconLucideKind Kind(string? header)
     {
         var text = (header ?? "").Replace("_", "").Replace("&", "");
-        if (_rulesCulture != SnapSharp.Localization.UiText.Culture.Name)
+        if (_rulesCulture != NimCap.Screenshot.Localization.UiText.Culture.Name)
         {
-            var resources = SnapSharp.Localization.UiText.Resources;
+            var resources = NimCap.Screenshot.Localization.UiText.Resources;
             var chinese = resources.GetResourceSet(CultureInfo.GetCultureInfo("zh-CN"), true, true)!;
             var translated = new List<(string Prefix, PackIconLucideKind Icon)>();
             foreach (System.Collections.DictionaryEntry entry in chinese)
@@ -79,10 +79,10 @@ internal static class MenuIcons
                 var original = (string)entry.Value!;
                 var rule = Rules.FirstOrDefault(rule => original.StartsWith(rule.Prefix, StringComparison.Ordinal));
                 if (rule.Prefix is not null)
-                    translated.Add((SnapSharp.Localization.UiText.Get((string)entry.Key).Replace("_", "").Replace("&", ""), rule.Icon));
+                    translated.Add((NimCap.Screenshot.Localization.UiText.Get((string)entry.Key).Replace("_", "").Replace("&", ""), rule.Icon));
             }
             _localizedRules = translated.OrderByDescending(rule => rule.Prefix.Length).ToArray();
-            _rulesCulture = SnapSharp.Localization.UiText.Culture.Name;
+            _rulesCulture = NimCap.Screenshot.Localization.UiText.Culture.Name;
         }
         foreach (var (prefix, icon) in _localizedRules)
             if (text.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) return icon;

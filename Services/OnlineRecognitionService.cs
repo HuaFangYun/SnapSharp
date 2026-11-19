@@ -1,12 +1,12 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text;
 using GTranslate.Translators;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>No request is created until both the saved policy and per-request consent pass.</summary>
 public sealed class OnlineRecognitionService : IDisposable

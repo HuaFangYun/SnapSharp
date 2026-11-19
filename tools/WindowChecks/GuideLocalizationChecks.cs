@@ -2,14 +2,14 @@ using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using SnapSharp.Localization;
-using SnapSharp.Models;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Localization;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using ComboBox = System.Windows.Controls.ComboBox;
 using Point = System.Windows.Point;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

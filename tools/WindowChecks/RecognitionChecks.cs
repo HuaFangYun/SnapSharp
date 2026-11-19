@@ -4,10 +4,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using SnapSharp.Localization;
-using SnapSharp.Models;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Localization;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using ListBox = System.Windows.Controls.ListBox;
 using Brushes = System.Windows.Media.Brushes;
 using FlowDirection = System.Windows.FlowDirection;
@@ -15,7 +15,7 @@ using DataGrid = System.Windows.Controls.DataGrid;
 using TabControl = System.Windows.Controls.TabControl;
 using Image = System.Windows.Controls.Image;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

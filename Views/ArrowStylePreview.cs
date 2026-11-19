@@ -1,9 +1,9 @@
 using System.Windows;
 using System.Windows.Media;
-using SnapSharp.Models;
+using NimCap.Screenshot.Models;
 using Brush = System.Windows.Media.Brush;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 // Use the actual annotation renderer instead of font-dependent arrow glyphs.
 public sealed class ArrowStylePreview : FrameworkElement

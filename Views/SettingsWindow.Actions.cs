@@ -1,14 +1,14 @@
-using SnapSharp.Models;
-using SnapSharp.Services;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
 using System.Windows;
 using System.Windows.Controls;
 using TextBox = System.Windows.Controls.TextBox;
 using CheckBox = System.Windows.Controls.CheckBox;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using MenuItem = System.Windows.Controls.MenuItem;
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class SettingsWindow
 {

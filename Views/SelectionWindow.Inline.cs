@@ -1,8 +1,8 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
-using SnapSharp.Native;
-using SnapSharp.Services;
-using SnapSharp.ViewModels;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Native;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.ViewModels;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,7 +12,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class SelectionWindow : Window
 {
@@ -711,7 +711,7 @@ public partial class SelectionWindow : Window
     private void SaveTemplate_Click(object sender, RoutedEventArgs e)
     {
         if (_editor is null || _editor.Annotations.Count == 0) return;
-        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = L.Get("SnapSharpAnnotationTemplateSstemplate"), DefaultExt = ".sstemplate" };
+        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = L.Get("NimCapAnnotationTemplateSstemplate"), DefaultExt = ".sstemplate" };
         if (WindowDialogService.ShowDialog(dialog, this) == true)
             _templates.Save(dialog.FileName, _editor.Annotations, _editor.Image.PixelWidth, _editor.Image.PixelHeight);
     }
@@ -719,7 +719,7 @@ public partial class SelectionWindow : Window
     private void LoadTemplate_Click(object sender, RoutedEventArgs e)
     {
         if (_editor is null) return;
-        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("SnapSharpAnnotationTemplateSstemplate") };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("NimCapAnnotationTemplateSstemplate") };
         if (WindowDialogService.ShowDialog(dialog, this) != true) return;
         try
         {

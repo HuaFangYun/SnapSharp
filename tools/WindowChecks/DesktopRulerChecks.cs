@@ -6,16 +6,16 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using SnapSharp.Localization;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Localization;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
 using ButtonBase = System.Windows.Controls.Primitives.ButtonBase;
 using Pen = System.Windows.Media.Pen;
 using Brushes = System.Windows.Media.Brushes;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

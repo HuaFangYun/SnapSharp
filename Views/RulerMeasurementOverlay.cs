@@ -4,7 +4,7 @@ using System.Windows.Media;
 using Brush = System.Windows.Media.Brush;
 using Size = System.Windows.Size;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 internal sealed class RulerMeasurementOverlay(RulerMeasurements measurements) : FrameworkElement
 {

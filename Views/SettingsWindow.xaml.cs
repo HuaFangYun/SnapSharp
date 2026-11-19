@@ -1,13 +1,13 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
-using SnapSharp.Services;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
 using System.Globalization;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 using TextBox = System.Windows.Controls.TextBox;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class SettingsWindow : Window
 {

@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using Size = System.Windows.Size;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 internal enum RulerTool { None, Line, Rectangle, Distance, Angle }
 internal sealed record RulerGuide(bool Vertical, double Position);

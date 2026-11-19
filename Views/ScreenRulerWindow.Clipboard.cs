@@ -6,11 +6,11 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Threading;
 using MahApps.Metro.IconPacks;
-using SnapSharp.Services;
-using L = SnapSharp.Localization.UiText;
+using NimCap.Screenshot.Services;
+using L = NimCap.Screenshot.Localization.UiText;
 using TextBlock = System.Windows.Controls.TextBlock;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public sealed partial class ScreenRulerWindow
 {

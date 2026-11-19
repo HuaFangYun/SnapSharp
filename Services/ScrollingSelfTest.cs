@@ -1,5 +1,5 @@
-using SnapSharp.Models;
-using SnapSharp.Views;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Views;
 using System.IO;
 using System.IO.Compression;
 using System.Windows;
@@ -7,7 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SkiaSharp;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal static class ScrollingSelfTest
 {

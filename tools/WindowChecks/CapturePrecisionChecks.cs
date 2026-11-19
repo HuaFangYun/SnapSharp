@@ -4,13 +4,13 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using SnapSharp.Models;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using ComboBox = System.Windows.Controls.ComboBox;
 using Point = System.Windows.Point;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {
@@ -111,8 +111,8 @@ internal static partial class Program
                 Require(guides.PixelWidth == (int)Math.Round(bounds.Width * dpi.DpiScaleX) &&
                     guides.PixelHeight == (int)Math.Round(bounds.Height * dpi.DpiScaleY), "Desktop ruler counts scale bands as measuring space or uses DIPs instead of pixels.");
                 var readout = (TextBlock)typeof(ScreenRulerWindow).GetField("_readout", PrivateInstance)!.GetValue(ruler)!;
-                string Reading(int x, int y) => SnapSharp.Localization.UiText.Get("ScreenRuler") + "  " +
-                    SnapSharp.Localization.UiText.Format("ScreenRulerReadout", guides.PixelWidth, guides.PixelHeight, x, y);
+                string Reading(int x, int y) => NimCap.Screenshot.Localization.UiText.Get("ScreenRuler") + "  " +
+                    NimCap.Screenshot.Localization.UiText.Format("ScreenRulerReadout", guides.PixelWidth, guides.PixelHeight, x, y);
                 guides.Pointer = bounds.TopLeft; Invoke(ruler, "UpdateMeasurements");
                 Require(readout.Text == Reading(0, 0), "The marked inset origin does not read zero.");
                 SavePreview((FrameworkElement)ruler.Content, Path.Combine(Root, "screen-ruler-origin.png"));
@@ -129,8 +129,8 @@ internal static partial class Program
                 ruler.Width += 50; ruler.UpdateLayout(); Invoke(ruler, "UpdateMeasurements");
                 Require(guides.PixelWidth > width, "Resizing the ruler did not update its scale.");
                 guides.Pointer = new Point(surface.ActualWidth, surface.ActualHeight); Invoke(ruler, "UpdateMeasurements");
-                Require(readout.Text == SnapSharp.Localization.UiText.Get("ScreenRuler") + "  " +
-                    SnapSharp.Localization.UiText.Format("ScreenRulerReadout", guides.PixelWidth, guides.PixelHeight, guides.PixelWidth, guides.PixelHeight),
+                Require(readout.Text == NimCap.Screenshot.Localization.UiText.Get("ScreenRuler") + "  " +
+                    NimCap.Screenshot.Localization.UiText.Format("ScreenRulerReadout", guides.PixelWidth, guides.PixelHeight, guides.PixelWidth, guides.PixelHeight),
                     "The far ruler corner does not match the ruler's own dimensions.");
                 guides.Pointer = guides.MeasurementBounds.TopLeft; Invoke(ruler, "UpdateMeasurements");
                 Require(readout.Text == Reading(0, 0), "Resizing the ruler changed its zero.");

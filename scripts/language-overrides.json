@@ -11,5 +11,5 @@
   "pt-PT": {"General": "Geral", "FollowSystem": "Usar o idioma do sistema", "InterfaceLanguage": "Idioma da interface", "Free": "Livre", "Pins": "Imagens afixadas", "Capture": "Captura"},
   "ru": {"General": "Общие", "FollowSystem": "Использовать язык системы", "InterfaceLanguage": "Язык интерфейса", "Free": "Свободное", "Pins": "Закреплённые изображения", "Capture": "Захват"},
   "tr": {"General": "Genel", "FollowSystem": "Sistem dilini kullan", "InterfaceLanguage": "Arayüz dili", "Free": "Serbest", "Pins": "Sabitlenen görseller", "Capture": "Yakalama"},
-  "zh-TW": {"General": "一般", "FollowSystem": "跟隨系統", "InterfaceLanguage": "介面語言", "Free": "自由", "Pins": "釘選圖片", "Capture": "擷取", "Save": "儲存", "SaveSettings": "儲存設定", "SaveAs": "另存新檔", "Cancel": "取消", "Close": "關閉", "SnapSharpSettings": "NimCap Screenshot 設定"}
+  "zh-TW": {"General": "一般", "FollowSystem": "跟隨系統", "InterfaceLanguage": "介面語言", "Free": "自由", "Pins": "釘選圖片", "Capture": "擷取", "Save": "儲存", "SaveSettings": "儲存設定", "SaveAs": "另存新檔", "Cancel": "取消", "Close": "關閉", "NimCapSettings": "NimCap Screenshot 設定"}
 }

@@ -1,15 +1,15 @@
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using MahApps.Metro.IconPacks;
-using SnapSharp.Models;
+using NimCap.Screenshot.Models;
 using Button = System.Windows.Controls.Button;
 using Control = System.Windows.Controls.Control;
 using Orientation = System.Windows.Controls.Orientation;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public sealed class ToolGroupButton : StackPanel
 {

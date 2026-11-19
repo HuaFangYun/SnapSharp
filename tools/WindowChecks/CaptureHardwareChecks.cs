@@ -1,12 +1,12 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
-using SnapSharp.Services;
+using NimCap.Screenshot.Services;
 using Application = System.Windows.Application;
 using Point = System.Windows.Point;
 using Rectangle = System.Drawing.Rectangle;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

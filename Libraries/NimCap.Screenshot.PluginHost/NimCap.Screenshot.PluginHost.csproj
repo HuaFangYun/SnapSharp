@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>NimCap.Screenshot.PluginHost</AssemblyName>
+    <RootNamespace>NimCap.Screenshot.Plugins</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NimCap.Screenshot.Plugin.Abstractions\NimCap.Screenshot.Plugin.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

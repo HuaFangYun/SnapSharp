@@ -1,7 +1,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace SnapSharp.StabilityChecks;
+namespace NimCap.Screenshot.StabilityChecks;
 
 internal static partial class Program
 {

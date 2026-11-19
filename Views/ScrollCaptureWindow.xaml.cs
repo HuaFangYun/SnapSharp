@@ -1,7 +1,7 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
-using SnapSharp.Native;
-using SnapSharp.Services;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Native;
+using NimCap.Screenshot.Services;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -14,7 +14,7 @@ using TextBox = System.Windows.Controls.TextBox;
 using Button = System.Windows.Controls.Button;
 using Brush = System.Windows.Media.Brush;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class ScrollCaptureWindow : Window
 {
@@ -502,7 +502,7 @@ public partial class ScrollCaptureWindow : Window
 
     private async void SaveProject_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = L.Get("SnapSharpScrollingCaptureProjectSsscroll"), FileName = $"NimCap-Screenshot-scroll-{DateTime.Now:yyyyMMdd-HHmmss-fff}.ssscroll", OverwritePrompt = false };
+        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = L.Get("NimCapScrollingCaptureProjectSsscroll"), FileName = $"NimCap-Screenshot-scroll-{DateTime.Now:yyyyMMdd-HHmmss-fff}.ssscroll", OverwritePrompt = false };
         if (WindowDialogService.ShowDialog(dialog, this) != true) return;
         var overwrite = File.Exists(dialog.FileName);
         if (overwrite && MessageBox.Show(this, L.Get("TheProjectAlreadyExistsReplaceIt"), L.Get("ConfirmOverwrite"), MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
@@ -513,7 +513,7 @@ public partial class ScrollCaptureWindow : Window
     }
     private async void OpenProject_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("SnapSharpScrollingCaptureProjectSsscroll") };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("NimCapScrollingCaptureProjectSsscroll") };
         if (WindowDialogService.ShowDialog(dialog, this) == true) await LoadProject(dialog.FileName);
     }
     public async Task LoadProject(string path)

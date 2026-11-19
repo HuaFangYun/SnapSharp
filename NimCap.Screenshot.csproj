@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
-    <IsSnapSharpApp>true</IsSnapSharpApp>
+    <IsNimCapApp>true</IsNimCapApp>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>logo.ico</ApplicationIcon>
@@ -13,7 +13,7 @@
     <RepositoryUrl>https://github.com/nimcap/nimcap-screenshot</RepositoryUrl>
     <PackageProjectUrl>https://jietu.nimcap.com</PackageProjectUrl>
     <Description>NimCap 截图工具</Description>
-    <RootNamespace>SnapSharp</RootNamespace>
+    <RootNamespace>NimCap.Screenshot</RootNamespace>
     <Version>1.1.4</Version>
     <Platforms>x64</Platforms>
     <Platform>x64</Platform>
@@ -38,15 +38,15 @@
     <PackageReference Include="WPFLocalizeExtension" Version="3.10.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Libraries\SnapSharp.Core\SnapSharp.Core.csproj" />
-    <ProjectReference Include="Libraries\SnapSharp.Imaging\SnapSharp.Imaging.csproj" />
-    <ProjectReference Include="Libraries\SnapSharp.Recognition\SnapSharp.Recognition.csproj" />
-    <ProjectReference Include="Libraries\SnapSharp.Editor\SnapSharp.Editor.csproj" />
-    <ProjectReference Include="Libraries\SnapSharp.Capture\SnapSharp.Capture.csproj" />
-    <ProjectReference Include="Libraries\SnapSharp.Recording\SnapSharp.Recording.csproj" />
-    <ProjectReference Include="Libraries\SnapSharp.Infrastructure\SnapSharp.Infrastructure.csproj" />
-    <ProjectReference Include="Libraries\SnapSharp.Plugin.Abstractions\SnapSharp.Plugin.Abstractions.csproj" />
-    <ProjectReference Include="Libraries\SnapSharp.PluginHost\SnapSharp.PluginHost.csproj" />
+    <ProjectReference Include="Libraries\NimCap.Screenshot.Core\NimCap.Screenshot.Core.csproj" />
+    <ProjectReference Include="Libraries\NimCap.Screenshot.Imaging\NimCap.Screenshot.Imaging.csproj" />
+    <ProjectReference Include="Libraries\NimCap.Screenshot.Recognition\NimCap.Screenshot.Recognition.csproj" />
+    <ProjectReference Include="Libraries\NimCap.Screenshot.Editor\NimCap.Screenshot.Editor.csproj" />
+    <ProjectReference Include="Libraries\NimCap.Screenshot.Capture\NimCap.Screenshot.Capture.csproj" />
+    <ProjectReference Include="Libraries\NimCap.Screenshot.Recording\NimCap.Screenshot.Recording.csproj" />
+    <ProjectReference Include="Libraries\NimCap.Screenshot.Infrastructure\NimCap.Screenshot.Infrastructure.csproj" />
+    <ProjectReference Include="Libraries\NimCap.Screenshot.Plugin.Abstractions\NimCap.Screenshot.Plugin.Abstractions.csproj" />
+    <ProjectReference Include="Libraries\NimCap.Screenshot.PluginHost\NimCap.Screenshot.PluginHost.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Libraries\**\*.cs" />
@@ -66,13 +66,13 @@
     <None Update="ThirdPartyLicenses\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Services\AppUpdate.ps1" LogicalName="SnapSharp.AppUpdate.ps1" />
-    <EmbeddedResource Include="Resources\Models\slbr-install.json.gz" LogicalName="SnapSharp.SlbrInstallRecipe" />
-    <InternalsVisibleTo Include="SnapSharp.RegressionChecks" />
-    <InternalsVisibleTo Include="SnapSharp.RecordingChecks" />
+    <EmbeddedResource Include="Services\AppUpdate.ps1" LogicalName="NimCap.Screenshot.AppUpdate.ps1" />
+    <EmbeddedResource Include="Resources\Models\slbr-install.json.gz" LogicalName="NimCap.Screenshot.SlbrInstallRecipe" />
+    <InternalsVisibleTo Include="NimCap.Screenshot.RegressionChecks" />
+    <InternalsVisibleTo Include="NimCap.Screenshot.RecordingChecks" />
     <InternalsVisibleTo Include="ScrollingChecks" />
-    <InternalsVisibleTo Include="SnapSharp.WindowChecks" />
-    <InternalsVisibleTo Include="SnapSharp.ModelStorageChecks" />
-    <InternalsVisibleTo Include="SnapSharp.StabilityChecks" />
+    <InternalsVisibleTo Include="NimCap.Screenshot.WindowChecks" />
+    <InternalsVisibleTo Include="NimCap.Screenshot.ModelStorageChecks" />
+    <InternalsVisibleTo Include="NimCap.Screenshot.StabilityChecks" />
   </ItemGroup>
 </Project>

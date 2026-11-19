@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
-using SnapSharp.Models;
+using NimCap.Screenshot.Models;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 /// <summary>Screen pixel rulers and an unscaled pixel crosshair, rendered in monitor DIPs.</summary>
 public sealed class PixelGuides : FrameworkElement

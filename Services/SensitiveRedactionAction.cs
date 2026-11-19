@@ -1,12 +1,12 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
-using SnapSharp.ViewModels;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Button = System.Windows.Controls.Button;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>Shared screenshot/pin action. One undo restores both image and annotations.</summary>
 internal sealed class SensitiveRedactionAction

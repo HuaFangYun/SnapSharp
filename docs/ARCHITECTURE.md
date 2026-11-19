@@ -21,15 +21,15 @@ NimCap Screenshot 是 Windows 桌面截图工具。主截图链路必须保持�
 
 | 项目 | 当前职责 | 直接依赖 |
 |---|---|---|
-| `SnapSharp.Core` | 捕获结果、像素矩形、配置、历史条目和启动参数 | 无其他 NimCap Screenshot 项目 |
-| `SnapSharp.Imaging` | 标注对象、WPF/Skia 绘制、图像变换、编码、缩略图和标注模板 | `Core` |
-| `SnapSharp.Editor` | 编辑状态、对象集合、选择状态、撤销/重做和样式属性 | `Core`、`Imaging` |
-| `SnapSharp.Capture` | GDI、WGC、DXGI/Direct3D 互操作、窗口枚举、滚动采集和坐标映射 | `Core`、`Imaging` |
-| `SnapSharp.Recording` | 录制引擎、设备枚举、录制时钟、编码探测、流式 GIF 编码和输出路径 | `Core`、`Imaging` |
-| `SnapSharp.Recognition` | 独立进程 ONNX CPU / DirectML GPU 推理、PaddleOCR、Windows OCR、条码、抠图与表格导出 | `Core`、`Imaging`、`Infrastructure`、`Plugin.Abstractions` |
-| `SnapSharp.Infrastructure` | JSON 设置、PNG 历史、剪贴板适配器和应用数据路径 | `Core`、`Imaging` |
-| `SnapSharp.Plugin.Abstractions` | 图像处理、识别、输出和工作流动作的稳定契约 | 无其他 NimCap Screenshot 项目 |
-| `SnapSharp.PluginHost` | 插件发现、强名称策略、独立加载上下文和能力注册表 | `Plugin.Abstractions` |
+| `NimCap.Screenshot.Core` | 捕获结果、像素矩形、配置、历史条目和启动参数 | 无其他 NimCap Screenshot 项目 |
+| `NimCap.Screenshot.Imaging` | 标注对象、WPF/Skia 绘制、图像变换、编码、缩略图和标注模板 | `Core` |
+| `NimCap.Screenshot.Editor` | 编辑状态、对象集合、选择状态、撤销/重做和样式属性 | `Core`、`Imaging` |
+| `NimCap.Screenshot.Capture` | GDI、WGC、DXGI/Direct3D 互操作、窗口枚举、滚动采集和坐标映射 | `Core`、`Imaging` |
+| `NimCap.Screenshot.Recording` | 录制引擎、设备枚举、录制时钟、编码探测、流式 GIF 编码和输出路径 | `Core`、`Imaging` |
+| `NimCap.Screenshot.Recognition` | 独立进程 ONNX CPU / DirectML GPU 推理、PaddleOCR、Windows OCR、条码、抠图与表格导出 | `Core`、`Imaging`、`Infrastructure`、`Plugin.Abstractions` |
+| `NimCap.Screenshot.Infrastructure` | JSON 设置、PNG 历史、剪贴板适配器和应用数据路径 | `Core`、`Imaging` |
+| `NimCap.Screenshot.Plugin.Abstractions` | 图像处理、识别、输出和工作流动作的稳定契约 | 无其他 NimCap Screenshot 项目 |
+| `NimCap.Screenshot.PluginHost` | 插件发现、强名称策略、独立加载上下文和能力注册表 | `Plugin.Abstractions` |
 | `NimCap Screenshot` | WPF 视图、托盘、热键、单实例、录屏编排、在线服务授权和应用生命周期 | 上述运行时项目；窗口捕获排除仍直接使用 ScreenRecorderLib |
 
 依赖方向保持为 Shell 指向功能类库。功能类库不得反向引用主程序、`Views` 或具体窗口。
@@ -101,13 +101,13 @@ PaddleOCR、表格、公式与抠图通过 `OnnxWorker` 在每次操作独立启
 
 `RecognitionWindow` 提供编辑与图像定位，`LocalRecognitionService` 选择 PaddleOCR、Tesseract、Windows OCR 或 ZXing 条码。`OnnxImageRuntime` 在后台串行推理，限制线程、超时和会话缓存；输入和结果统一用原图像素坐标。模型为本地文件，不隐式下载。设置页通过 `OcrModelDownloadService` 主动下载固定版本中英文包，限制大小、校验 SHA256，仅提取明确命名的 ONNX 文件并从模型元数据生成字典，验证后回填配置；失败不改原路径。翻译源／目标语言分别配置，默认 `en → zh`。
 
-内置识别器以 `snapsharp.ocr`／`snapsharp.barcode` 注册到插件目录。表格默认由 `TableRecognition` 解码 SLANet 结构与合并单元格，再调用所选 OCR 并匹配文字；公式由 `FormulaRecognition` 执行尺寸预测、编码器和有界自回归解码，输出 LaTeX。`SpecialistModelDownloadService` 提供固定大小／SHA256 的配套模型安装。表格／公式也可按已配置 ID 使用外部插件；缺失模型明确提示配置，不降级冒充识别结果。抠图保留原始分辨率，并将蒙版与已有透明度相乘。
+内置识别器以 `nimcap.screenshot.ocr`／`nimcap.screenshot.barcode` 注册到插件目录。表格默认由 `TableRecognition` 解码 SLANet 结构与合并单元格，再调用所选 OCR 并匹配文字；公式由 `FormulaRecognition` 执行尺寸预测、编码器和有界自回归解码，输出 LaTeX。`SpecialistModelDownloadService` 提供固定大小／SHA256 的配套模型安装。表格／公式也可按已配置 ID 使用外部插件；缺失模型明确提示配置，不降级冒充识别结果。抠图保留原始分辨率，并将蒙版与已有透明度相乘。
 
 `OnlineRecognitionService` 仅在保存的隐私开关与逐次确认同时满足后发送请求；默认禁用重定向。`ScreenWordService` 为会话级离线局部 OCR，受鼠标停留、任务并发、超时和应用活动状态限制。本地翻译由 `LocalTranslationService` 启动按需下载的 llama.cpp 子进程，通过带随机鉴权的本机回环端口交互，结束、取消或超时后收尾；不把本地路径作为 API 授权。模型契约、引擎选择和 API 边界见[配置与依赖](配置与依赖.md)。
 
 ### 3.8 录屏
 
-录制引擎 `RecordingService` 位于 `SnapSharp.Recording`，由主程序的 `RecordingWindow` 编排，不复用截图后端的单帧循环。连续 WGC、原生帧时间戳、WASAPI 混音和摄像头叠加由 ScreenRecorderLib 管理；H.264/AAC 使用系统 Media Foundation。设备枚举、录制时钟、编码探测、GIF 编码和输出路径也属于录屏类库；窗口、倒计时、设置保存、环境安装及交互自检保留在主程序。共享配置与状态枚举仍位于 `Core`。
+录制引擎 `RecordingService` 位于 `NimCap.Screenshot.Recording`，由主程序的 `RecordingWindow` 编排，不复用截图后端的单帧循环。连续 WGC、原生帧时间戳、WASAPI 混音和摄像头叠加由 ScreenRecorderLib 管理；H.264/AAC 使用系统 Media Foundation。设备枚举、录制时钟、编码探测、GIF 编码和输出路径也属于录屏类库；窗口、倒计时、设置保存、环境安装及交互自检保留在主程序。共享配置与状态枚举仍位于 `Core`。
 
 应用通过显式状态机与 `RecordingClock` 管理有效录制时间、暂停、定时、停止和收尾。`RecordingService` 显式接收调用方提供的单线程 `SynchronizationContext`：构造、命令调用、属性读取和 `Changed` 通知都在该上下文所属线程执行（`FrameCount` 可跨线程读取）。原生回调和后台定时器只投递工作，待处理的定时通知最多保留一次，收尾时释放定时器；调用方须保持上下文运行至 `Completion` 完成。WPF Shell 使用 `DispatcherSynchronizationContext` 适配，录制引擎不直接引用 `Dispatcher` 或 `DispatcherTimer`。类库仍使用 WPF 位图与 WinForms 显示器信息，因此不是跨平台库。GIF 转码在后台逐帧进行；`StreamingGifWriter` 使用有界调色板、抖动和 LZW，不引入 FFmpeg 或 Magick.NET。输出先保存在本次专用临时目录，成功后不覆盖移动至目标路径，失败保留临时数据。设备和输出限制见[使用指南的录屏章节](使用指南.md#recording)，环境安装见[配置与依赖](配置与依赖.md#recording)。
 

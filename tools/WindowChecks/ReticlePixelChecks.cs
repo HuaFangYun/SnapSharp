@@ -2,14 +2,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using SnapSharp.Models;
-using SnapSharp.Views;
-using SnapSharp.ViewModels;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Views;
+using NimCap.Screenshot.ViewModels;
 using Color = System.Windows.Media.Color;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

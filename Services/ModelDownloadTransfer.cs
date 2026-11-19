@@ -1,7 +1,7 @@
 using System.Net.Http;
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal static class ModelDownloadTransfer
 {

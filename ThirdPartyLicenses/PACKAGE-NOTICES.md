@@ -1,7 +1,7 @@
 # Packaged third-party licenses
 
 This directory contains the license and notice texts that accompany the
-third-party binaries distributed with SnapSharp. The root
+third-party binaries distributed with NimCap.Screenshot. The root
 `THIRD-PARTY-NOTICES.md` describes how each dependency is used.
 The offline license self-test requires the self-contained runtime version to
 match the 10.0.14 notices retained here. A runtime update therefore requires

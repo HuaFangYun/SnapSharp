@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class TextInputDialog : Window
 {

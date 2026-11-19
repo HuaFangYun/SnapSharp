@@ -1,8 +1,8 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>Changes transport only; callers still verify the pinned upstream bytes.</summary>
 internal static class ModelDownloadSource
@@ -31,7 +31,7 @@ internal static class ModelDownloadSource
 
     internal static bool Allowed(Uri uri, string sourceKind = Official) =>
         uri.Scheme == "https" && uri.IsDefaultPort && string.IsNullOrEmpty(uri.UserInfo) &&
-        (uri.AbsoluteUri == SnapSharp.Models.WatermarkModels.Detector.Source ||
+        (uri.AbsoluteUri == NimCap.Screenshot.Models.WatermarkModels.Detector.Source ||
          uri.Host is "github.com" or "api.github.com" or "raw.githubusercontent.com" or
             "release-assets.githubusercontent.com" or "objects.githubusercontent.com" or
             "files.pythonhosted.org" or "www.modelscope.cn" or "modelscope.cn" or

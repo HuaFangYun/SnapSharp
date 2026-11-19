@@ -1,8 +1,8 @@
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 using System.Globalization;
 using System.Windows.Media;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal enum ScreenColorFormat { Hex, Rgb, Rgba, Hsl, Hsv, Cmyk, Name }
 

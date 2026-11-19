@@ -1,11 +1,11 @@
-using SnapSharp.Native;
+using NimCap.Screenshot.Native;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Brush = System.Windows.Media.Brush;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 internal sealed class RecordingRegionWindow : Window
 {

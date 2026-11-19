@@ -4,7 +4,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>Constrain dialogs in DIPs to their current monitor, without bitmap scaling.</summary>
 internal static class DialogLayoutService

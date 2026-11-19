@@ -1,7 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <UseWPF>true</UseWPF>
-    <AssemblyName>SnapSharp.Plugin.Abstractions</AssemblyName>
-    <RootNamespace>SnapSharp.Plugins</RootNamespace>
-  </PropertyGroup>
-</Project>

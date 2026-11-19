@@ -1,5 +1,5 @@
-using SnapSharp.Models;
-using SnapSharp.Views;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Views;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -9,7 +9,7 @@ using TextBox = System.Windows.Controls.TextBox;
 using TabControl = System.Windows.Controls.TabControl;
 using ContextMenu = System.Windows.Controls.ContextMenu;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal static class WindowThemeSelfTest
 {

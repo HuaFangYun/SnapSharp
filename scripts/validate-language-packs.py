@@ -8,7 +8,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-RESOURCES = ROOT / "Libraries/SnapSharp.Core/Resources"
+RESOURCES = ROOT / "Libraries/NimCap.Screenshot.Core/Resources"
 EXPECTED = "cs de de-AT de-CH es es-ES es-419 fr fr-FR fr-CA it ja ko pl pt-BR pt-PT ru tr zh-CN zh-Hans zh-Hant".split()
 FIELDS = re.compile(r"\{[^{}]+\}")
 

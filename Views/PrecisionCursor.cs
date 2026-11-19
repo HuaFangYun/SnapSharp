@@ -1,6 +1,6 @@
 using Cursor = System.Windows.Input.Cursor;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 /// <summary>A fixed-size cross with adjacent one-pixel black and white arms.</summary>
 public static class PrecisionCursor

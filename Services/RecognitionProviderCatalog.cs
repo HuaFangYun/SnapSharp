@@ -1,5 +1,5 @@
-using L = SnapSharp.Localization.UiText;
-namespace SnapSharp.Services;
+using L = NimCap.Screenshot.Localization.UiText;
+namespace NimCap.Screenshot.Services;
 
 internal static class RecognitionProviderCatalog
 {

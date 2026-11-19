@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>SnapSharp.StabilityChecks</AssemblyName>
+    <AssemblyName>NimCap.Screenshot.StabilityChecks</AssemblyName>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <Platform>x64</Platform>

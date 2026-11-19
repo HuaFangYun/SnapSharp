@@ -1,9 +1,9 @@
 using System.IO;
 using System.Text.Json.Nodes;
-using SnapSharp.Models;
-using SnapSharp.Services;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {
@@ -111,7 +111,7 @@ internal static partial class Program
         settings.Current.TableStructureModel = model;
         settings.Current.FormulaModelDirectory = directory;
         settings.Current.LocalTranslationModel = model;
-        var window = new SnapSharp.Views.SettingsWindow(settings, new StartupRegistrationService(), hotkeys);
+        var window = new NimCap.Screenshot.Views.SettingsWindow(settings, new StartupRegistrationService(), hotkeys);
         try
         {
             var detection = (System.Windows.Controls.TextBox)window.FindName("OcrDetPath");

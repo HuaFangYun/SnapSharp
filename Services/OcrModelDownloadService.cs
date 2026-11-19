@@ -1,8 +1,8 @@
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 using Microsoft.ML.OnnxRuntime;
 using System.Net.Http;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal sealed class OcrModelDownloadService
 {
@@ -55,7 +55,7 @@ internal sealed class OcrModelDownloadService
         Packages.FirstOrDefault(package => package.Id.Equals(id, StringComparison.OrdinalIgnoreCase)) ?? DefaultPackage;
 
     // Tiny avoids GPU startup overhead; Medium is intentionally GPU-only in the settings workflow.
-    internal static bool SupportsDevice(string packageId, string device) => SnapSharp.Models.ModelDeviceSupport.OcrSupports(packageId, device);
+    internal static bool SupportsDevice(string packageId, string device) => NimCap.Screenshot.Models.ModelDeviceSupport.OcrSupports(packageId, device);
 
     public async Task<ModelPaths> Download(string root, IProgress<string> progress, CancellationToken token,
         string sourceKind = ModelDownloadSource.Official, HttpClient? httpClient = null, string packageId = DefaultPackageId)

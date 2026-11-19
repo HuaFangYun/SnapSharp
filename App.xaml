@@ -1,7 +1,7 @@
-<Application x:Class="SnapSharp.App"
+<Application x:Class="NimCap.Screenshot.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:services="clr-namespace:SnapSharp.Services"
+             xmlns:services="clr-namespace:NimCap.Screenshot.Services"
              ShutdownMode="OnExplicitShutdown">
   <Application.Resources>
     <ResourceDictionary>

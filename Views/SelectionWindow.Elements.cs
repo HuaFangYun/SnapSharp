@@ -1,11 +1,11 @@
 using System.Drawing;
 using System.Windows;
 using System.Windows.Threading;
-using SnapSharp.Models;
-using SnapSharp.Services;
-using L = SnapSharp.Localization.UiText;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class SelectionWindow
 {
@@ -28,7 +28,7 @@ public partial class SelectionWindow
         _elementHoverTimer.Tick += (_, _) =>
         {
             if (_mode != OverlayMode.Element || _editing || _dragging || _elementClosed || !IsVisible || CapturePanel.IsMouseOver) return;
-            if (!SnapSharp.Native.NativeMethods.GetCursorPos(out var cursor) || !_screen.Bounds.Contains(cursor.X, cursor.Y)) return;
+            if (!NimCap.Screenshot.Native.NativeMethods.GetCursorPos(out var cursor) || !_screen.Bounds.Contains(cursor.X, cursor.Y)) return;
             _ = RefreshElementSuggestionAsync();
         };
         Closed += (_, _) => { _elementClosed = true; _elementHoverTimer.Stop(); CancelElementQuery(); };

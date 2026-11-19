@@ -1,6 +1,6 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
-using SnapSharp.Services;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
 using ScreenRecorderLib;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,7 +11,7 @@ using System.Windows.Interop;
 using System.Windows.Threading;
 using ComboBox = System.Windows.Controls.ComboBox;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class RecordingWindow : Window
 {
@@ -105,7 +105,7 @@ public partial class RecordingWindow : Window
         RecordingSetupWindow.Open(this);
         if (!RecordingSetupService.Check().Ready) return;
         try { Recorder.SetExcludeFromCapture(new WindowInteropHelper(this).Handle, true); await RefreshDevices(); }
-        catch (Exception ex) { StatusLabel.Text = L.Get("RecordingComponentsFailedToLoad") + ex.GetBaseException().Message + L.Get("RestartingSnapSharpOrWindowsMayBeRequired"); }
+        catch (Exception ex) { StatusLabel.Text = L.Get("RecordingComponentsFailedToLoad") + ex.GetBaseException().Message + L.Get("RestartingNimCapOrWindowsMayBeRequired"); }
     }
     private static string? Selected(System.Windows.Controls.CheckBox check, System.Windows.Controls.ComboBox devices, Func<string>? defaultDevice = null)
     {
@@ -272,7 +272,7 @@ public partial class RecordingWindow : Window
     internal static bool RunLayoutSelfTest()
     {
         var window = new RecordingWindow(new System.Drawing.Rectangle(-100, 20, 640, 480),
-            new SettingsService(Path.Combine(Path.GetTempPath(), "SnapSharp", "RecordingSelfTests", Guid.NewGuid().ToString("N"), "settings.json")));
+            new SettingsService(Path.Combine(Path.GetTempPath(), "NimCap.Screenshot", "RecordingSelfTests", Guid.NewGuid().ToString("N"), "settings.json")));
         try
         {
             var content = (FrameworkElement)window.Content; content.Measure(new System.Windows.Size(700, 740)); content.Arrange(new Rect(0, 0, 700, 740)); content.UpdateLayout();
@@ -298,7 +298,7 @@ public partial class RecordingWindow : Window
     internal static async Task TestFloatingConfiguration()
     {
         var window = new RecordingWindow(new System.Drawing.Rectangle(40, 40, 320, 192),
-            new SettingsService(Path.Combine(Path.GetTempPath(), "SnapSharp", "RecordingSelfTests", Guid.NewGuid().ToString("N"), "settings.json")));
+            new SettingsService(Path.Combine(Path.GetTempPath(), "NimCap.Screenshot", "RecordingSelfTests", Guid.NewGuid().ToString("N"), "settings.json")));
         try
         {
             window.ShowRecordingTools();

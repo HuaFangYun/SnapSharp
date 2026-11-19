@@ -1,8 +1,8 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
-using SnapSharp.Views;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Views;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed class CaptureCoordinator
 {
@@ -54,7 +54,7 @@ public sealed class CaptureCoordinator
             { Interval = TimeSpan.FromMilliseconds(30) };
         escape.Tick += (_, _) =>
         {
-            if ((SnapSharp.Native.NativeMethods.GetAsyncKeyState(0x1B) & 0x8000) != 0) pending.Cancel();
+            if ((NimCap.Screenshot.Native.NativeMethods.GetAsyncKeyState(0x1B) & 0x8000) != 0) pending.Cancel();
         };
         try
         {
@@ -118,7 +118,7 @@ public sealed class CaptureCoordinator
             _windows.Add(window);
         }
         foreach (var window in _windows) window.Show();
-        if (SnapSharp.Native.NativeMethods.GetCursorPos(out var cursor))
+        if (NimCap.Screenshot.Native.NativeMethods.GetCursorPos(out var cursor))
         {
             var index = screens.ToList().FindIndex(screen => screen.Bounds.Contains(cursor.X, cursor.Y));
             if (index >= 0) { _windows[index].Activate(); _windows[index].Focus(); }

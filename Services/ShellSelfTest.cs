@@ -1,5 +1,5 @@
-using SnapSharp.Models;
-using SnapSharp.Views;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Views;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -9,7 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal static class ShellSelfTest
 {

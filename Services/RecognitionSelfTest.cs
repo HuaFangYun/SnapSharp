@@ -1,4 +1,4 @@
-using SnapSharp.Models;
+using NimCap.Screenshot.Models;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
@@ -10,7 +10,7 @@ using System.Xml.Linq;
 using ZXing;
 using ZXing.Common;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal static class RecognitionSelfTest
 {
@@ -161,7 +161,7 @@ internal static class RecognitionSelfTest
             var sampleImage = new RenderTargetBitmap((int)(840 * scale), (int)(240 * scale), 96 * scale, 96 * scale, PixelFormats.Pbgra32);
             sampleImage.Render(sample); sampleImage.Freeze();
             var sampleResult = new LocalRecognitionService().RecognizePaddle(sampleImage, settings).GetAwaiter().GetResult();
-            Require(new[] { "123456", "SnapSharp", "2026", "99.50" }.All(value => sampleResult.Text.Contains(value, StringComparison.OrdinalIgnoreCase)),
+            Require(new[] { "123456", "NimCap.Screenshot", "2026", "99.50" }.All(value => sampleResult.Text.Contains(value, StringComparison.OrdinalIgnoreCase)),
                 "Multiline/scaled OCR failed at " + scale + ": " + sampleResult.Text);
             Require(sampleResult.Blocks.Count >= 3 && sampleResult.Blocks.All(x => x.Bounds.Left >= 0 && x.Bounds.Top >= 0 && x.Bounds.Right <= sampleImage.PixelWidth && x.Bounds.Bottom <= sampleImage.PixelHeight),
                 "Multiline/scaled OCR bounds failed.");
@@ -230,7 +230,7 @@ internal static class RecognitionSelfTest
         try { OnnxImageRuntime.RequireFile(Path.Combine(directory, "missing.onnx"), "model"); throw new Exception("Missing model accepted."); } catch (FileNotFoundException) { }
         foreach (var format in new[] { BarcodeFormat.QR_CODE, BarcodeFormat.CODE_128, BarcodeFormat.EAN_13 })
         {
-            var text = format == BarcodeFormat.EAN_13 ? "5901234123457" : "SnapSharp-123";
+            var text = format == BarcodeFormat.EAN_13 ? "5901234123457" : "NimCap.Screenshot-123";
             var barcode = new BarcodeWriterPixelData { Format = format, Options = new EncodingOptions { Width = 480, Height = format == BarcodeFormat.QR_CODE ? 480 : 160, Margin = 16 } }.Write(text);
             var bitmap = BitmapSource.Create(barcode.Width, barcode.Height, 96, 96, PixelFormats.Bgra32, null, barcode.Pixels, barcode.Width * 4); bitmap.Freeze();
             Require(service.Barcodes(bitmap, settings).GetAwaiter().GetResult().Blocks.Any(x => x.Text == text), "Barcode decode failed: " + format);
@@ -405,6 +405,6 @@ internal static class RecognitionSelfTest
         var attribute = Join(S(1, "value"), B(5, tensor), V(20, 4));
         var node = Join(S(2, "result"), S(4, "Constant"), B(5, attribute));
         var graph = Join(B(1, node), S(2, "fixture"), B(11, Info("image", input)), B(12, Info("result", output)));
-        File.WriteAllBytes(path, Join(V(1, 8), S(2, "SnapSharp-self-test"), B(7, graph), B(8, V(2, 13))));
+        File.WriteAllBytes(path, Join(V(1, 8), S(2, "NimCap.Screenshot-self-test"), B(7, graph), B(8, V(2, 13))));
     }
 }

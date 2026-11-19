@@ -5,12 +5,12 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using SnapSharp.Services;
-using L = SnapSharp.Localization.UiText;
+using NimCap.Screenshot.Services;
+using L = NimCap.Screenshot.Localization.UiText;
 using Button = System.Windows.Controls.Button;
 using TextBlock = System.Windows.Controls.TextBlock;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 /// <summary>A movable, resizable desktop ruler. All measurements are physical screen pixels.</summary>
 public sealed partial class ScreenRulerWindow : Window

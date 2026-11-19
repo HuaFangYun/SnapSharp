@@ -15,7 +15,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-RESOURCES = ROOT / "Libraries/SnapSharp.Core/Resources"
+RESOURCES = ROOT / "Libraries/NimCap.Screenshot.Core/Resources"
 CACHE = ROOT / ".artifacts/language-cache"
 TARGETS = {
     "cs": ["cs"], "de": ["de", "de-AT", "de-CH"],
@@ -29,7 +29,7 @@ PROTECTED = re.compile(
     r"\{[^{}]+\}|https?://[^\s)]+|\*\.[\w]+|"
     r"\b[\w.-]+\.(?:exe|dll|onnx|json|gguf|traineddata|zip|csv|xlsx|png|jpg|webp)\b|"
     r"\b(?:Ctrl|Alt|Shift|Win)\+[A-Za-z0-9+]+|yyyy-MM-dd|"
-    r"\b(?:NimCap Screenshot|NimCap|SnapSharp|DirectML|ONNX|WGC|DXGI|GDI|WASAPI|FFmpeg|NuGet|"
+    r"\b(?:NimCap Screenshot|NimCap|NimCap.Screenshot|DirectML|ONNX|WGC|DXGI|GDI|WASAPI|FFmpeg|NuGet|"
     r"PaddleOCR|Tesseract|SLANet|LaTeX|BiRefNet|ModelScope|Hugging Face|"
     r"chi_sim\+eng|chi_sim|eng|float32|NCHW|CTC)\b"
 )

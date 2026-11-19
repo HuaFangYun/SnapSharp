@@ -1,11 +1,11 @@
-"""Validate shared UI resources without building or launching SnapSharp."""
+"""Validate shared UI resources without building or launching NimCap.Screenshot."""
 from pathlib import Path
 import re
 import sys
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent.parent
-RESOURCES = ROOT / "Libraries/SnapSharp.Core/Resources"
+RESOURCES = ROOT / "Libraries/NimCap.Screenshot.Core/Resources"
 
 
 def load(path):
@@ -40,7 +40,7 @@ def main():
                 continue
             text = path.read_text(encoding="utf-8-sig")
             references = re.findall(r'L\.(?:Get|Format)\("([^"\n]+)"', text)
-            references += re.findall(r"loc:Loc SnapSharp.Core:Resources.Strings:([A-Za-z0-9_]+)", text)
+            references += re.findall(r"loc:Loc NimCap.Screenshot.Core:Resources.Strings:([A-Za-z0-9_]+)", text)
             for key in references:
                 if key not in english:
                     errors.append(f"{path.relative_to(ROOT)}: missing key {key}")

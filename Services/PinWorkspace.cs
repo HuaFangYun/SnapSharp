@@ -1,10 +1,10 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Views;
-using SnapSharp.Native;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Views;
+using NimCap.Screenshot.Native;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed class PinWorkspace
 {

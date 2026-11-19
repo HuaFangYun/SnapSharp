@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal sealed record AppRelease(Version Version, string Tag, string Notes, Uri Page, Uri? Download,
     string? Sha256 = null, Uri? Checksums = null)

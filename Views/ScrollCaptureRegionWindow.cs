@@ -1,11 +1,11 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Native;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Native;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Size = System.Windows.Size;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 /// <summary>A live, non-activating region indicator with capture exclusion and an outside-only fallback.</summary>
 internal sealed class ScrollCaptureRegionWindow : Window

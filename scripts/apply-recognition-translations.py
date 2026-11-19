@@ -6,7 +6,7 @@ from xml.sax.saxutils import escape
 
 ROOT = Path(__file__).resolve().parents[1]
 translations = json.loads((ROOT / "scripts/recognition-translations.json").read_text(encoding="utf-8"))
-for path in (ROOT / "Libraries/SnapSharp.Core/Resources").glob("Strings*.resx"):
+for path in (ROOT / "Libraries/NimCap.Screenshot.Core/Resources").glob("Strings*.resx"):
     culture = path.name.removeprefix("Strings.").removesuffix(".resx")
     source = "zh-CN" if culture in ("zh-CN", "zh-Hans") else "zh-Hant" if culture == "zh-Hant" else "en"
     text = path.read_text(encoding="utf-8")

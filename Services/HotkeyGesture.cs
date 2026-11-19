@@ -1,8 +1,8 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Native;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Native;
 using System.Windows.Input;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed record HotkeyGesture(uint Modifiers, uint VirtualKey, string DisplayText)
 {

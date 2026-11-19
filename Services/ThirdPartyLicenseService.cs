@@ -1,5 +1,5 @@
-using L = SnapSharp.Localization.UiText;
-namespace SnapSharp.Services;
+using L = NimCap.Screenshot.Localization.UiText;
+namespace NimCap.Screenshot.Services;
 
 using System.Text.Json;
 
@@ -131,7 +131,7 @@ internal static class ThirdPartyLicenseService
     internal static bool RunSelfTest()
     {
         if (!ValidateDistribution(AppContext.BaseDirectory)) return false;
-        var directory = Path.Combine(Path.GetTempPath(), "SnapSharp-LicenseTest-" + Guid.NewGuid().ToString("N"));
+        var directory = Path.Combine(Path.GetTempPath(), "NimCap.Screenshot-LicenseTest-" + Guid.NewGuid().ToString("N"));
         try
         {
             var names = new[] { "Apache-2.0.txt", "BiRefNet-LICENSE.txt", "LaTeX-OCR-LICENSE.txt", "llama.cpp-LICENSE.txt" };

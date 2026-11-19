@@ -1,7 +1,7 @@
-using SnapSharp.Models;
-using L = SnapSharp.Localization.UiText;
+using NimCap.Screenshot.Models;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal static class WatermarkModelDownloadService
 {

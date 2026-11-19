@@ -10,14 +10,14 @@ and Xinggang Wang. Moebius: 0.2B Lightweight Image Inpainting Framework
 with 10B-Level Performance (2026), arXiv:2606.19195.
 
 The ONNX conversion is credited to simonw/Moebius-ONNX. Three FP32 graphs
-are required: unet.onnx, vae_encoder.onnx, vae_decoder.onnx. SnapSharp pins
+are required: unet.onnx, vae_encoder.onnx, vae_decoder.onnx. NimCap Screenshot pins
 the SHA256 and exact size of each graph in WatermarkModels.cs and downloads
 the weights separately. Both download sources must deliver identical bytes.
 
 Runtime contract: 512x512 images, VAE scale 0.13025, learned conditional
 IDs 0..9 and unconditional IDs 10..19, DDIM scaled-linear beta schedule
 0.00085..0.012, 20 inference steps at strength 0.99 (19 denoising steps),
-classifier-free guidance 7.5. Mask white means replace. SnapSharp preserves
+classifier-free guidance 7.5. Mask white means replace. NimCap Screenshot preserves
 original pixels and alpha outside the user mask.
 
 This optional detail candidate synthesizes image content. Its result is

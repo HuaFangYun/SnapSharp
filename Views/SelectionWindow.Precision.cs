@@ -2,13 +2,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using SnapSharp.Native;
-using SnapSharp.Models;
-using SnapSharp.Services;
+using NimCap.Screenshot.Native;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
 using System.Text.Json;
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class SelectionWindow
 {

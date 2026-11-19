@@ -1,6 +1,6 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Services;
-using SnapSharp.Models;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Models;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using TextBox = System.Windows.Controls.TextBox;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class SaveImageWindow : Window
 {

@@ -1,7 +1,7 @@
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 using H.NotifyIcon;
 using H.NotifyIcon.Core;
-using SnapSharp.Models;
+using NimCap.Screenshot.Models;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -9,7 +9,7 @@ using WinForms = System.Windows.Forms;
 using MenuItem = System.Windows.Controls.MenuItem;
 using Separator = System.Windows.Controls.Separator;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed class TrayService : IDisposable
 {
@@ -63,7 +63,7 @@ public sealed class TrayService : IDisposable
         foreach (var group in _groups.Values)
             group.Visibility = group.Items.OfType<MenuItem>().Any(x => x.Visibility == Visibility.Visible) ? Visibility.Visible : Visibility.Collapsed;
         _settingsItem.Visibility = _exitItem.Visibility = Visibility.Visible;
-        LocalizationService.Bind(_notifyIcon, TaskbarIcon.ToolTipTextProperty, "SnapSharp0RegionCapture", settings.RegionHotkey);
+        LocalizationService.Bind(_notifyIcon, TaskbarIcon.ToolTipTextProperty, "NimCap0RegionCapture", settings.RegionHotkey);
     }
 
     public void SetScreenWordsChecked(bool value) => _actions[GlobalAction.ScreenWords].IsChecked = value;

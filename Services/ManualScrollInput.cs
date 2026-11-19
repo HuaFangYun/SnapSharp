@@ -1,9 +1,9 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>Observes real wheel input without swallowing it or moving the pointer.</summary>
 internal sealed class ManualScrollInput : IDisposable

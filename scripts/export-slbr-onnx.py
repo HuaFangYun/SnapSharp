@@ -1,4 +1,4 @@
-"""Export the official SLBR checkpoint to SnapSharp's fixed, named ONNX contract.
+"""Export the official SLBR checkpoint to NimCap.Screenshot's fixed, named ONNX contract.
 
 Development-only tool; the desktop app does not require Python or PyTorch.
 Use a local checkout of bcmi/SLBR-Visible-Watermark-Removal at commit

@@ -1,23 +1,23 @@
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using SnapSharp.Services;
+using NimCap.Screenshot.Services;
 using Button = System.Windows.Controls.Button;
 using Orientation = System.Windows.Controls.Orientation;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 /// <summary>Application confirmations use the same theme as their owner.</summary>
 internal static class ThemedMessageBox
 {
-    public static MessageBoxResult Show(string text, string caption = "SnapSharp",
+    public static MessageBoxResult Show(string text, string caption = "NimCap.Screenshot",
         MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage icon = MessageBoxImage.None,
         MessageBoxResult defaultResult = MessageBoxResult.None) =>
         Show(Application.Current.Windows.Cast<Window>().FirstOrDefault(w => w.IsActive), text, caption, buttons, icon, defaultResult);
 
-    public static MessageBoxResult Show(Window? owner, string text, string caption = "SnapSharp",
+    public static MessageBoxResult Show(Window? owner, string text, string caption = "NimCap.Screenshot",
         MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage icon = MessageBoxImage.None,
         MessageBoxResult defaultResult = MessageBoxResult.None)
     {

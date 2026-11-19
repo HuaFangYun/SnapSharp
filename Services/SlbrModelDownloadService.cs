@@ -1,9 +1,9 @@
 using System.IO.Compression;
 using System.Text.Json;
-using SnapSharp.Models;
-using L = SnapSharp.Localization.UiText;
+using NimCap.Screenshot.Models;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal static class SlbrModelDownloadService
 {
@@ -54,7 +54,7 @@ internal static class SlbrModelDownloadService
     {
         var checkpoint = Checkpoint(sourceKind);
         if (!await ModelInstallCache.Matches(checkpointPath, checkpoint, token)) throw new InvalidDataException("Unrecognized SLBR checkpoint.");
-        using var resource = typeof(SlbrModelDownloadService).Assembly.GetManifestResourceStream("SnapSharp.SlbrInstallRecipe")
+        using var resource = typeof(SlbrModelDownloadService).Assembly.GetManifestResourceStream("NimCap.Screenshot.SlbrInstallRecipe")
             ?? throw new InvalidDataException("SLBR installation recipe is missing.");
         using var compressed = new GZipStream(resource, CompressionMode.Decompress);
         var recipe = await JsonSerializer.DeserializeAsync<Recipe>(compressed, cancellationToken: token)

@@ -1,5 +1,5 @@
 <Project>
-  <ItemGroup Condition="'$(UseWPF)' == 'true' and '$(IsSnapSharpApp)' != 'true'">
+  <ItemGroup Condition="'$(UseWPF)' == 'true' and '$(IsNimCapApp)' != 'true'">
     <Compile Include="$(MSBuildThisFileDirectory)Libraries\SharedGlobalUsings.cs" Link="SharedGlobalUsings.cs" />
   </ItemGroup>
 </Project>

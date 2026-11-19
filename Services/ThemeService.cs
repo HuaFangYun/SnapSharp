@@ -1,9 +1,9 @@
-using SnapSharp.Native;
+using NimCap.Screenshot.Native;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed class ThemeService : IDisposable
 {
@@ -78,7 +78,7 @@ public sealed class ThemeService : IDisposable
     private static void ApplyCurrentTheme()
     {
         var resources = Application.Current.Resources;
-        // SnapSharp always uses its own dark palette, independent of Windows settings.
+        // NimCap.Screenshot always uses its own dark palette, independent of Windows settings.
         SetBrush(resources, "WindowBackgroundBrush", "#17181B");
         SetBrush(resources, "SurfaceBrush", "#242529");
         SetBrush(resources, "SurfaceAltBrush", "#2D2F34");

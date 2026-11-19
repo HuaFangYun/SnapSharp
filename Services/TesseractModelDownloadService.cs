@@ -1,8 +1,8 @@
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 using System.Net.Http;
 using System.Security.Cryptography;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal sealed class TesseractModelDownloadService
 {

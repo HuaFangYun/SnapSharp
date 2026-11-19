@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>NimCap.Screenshot.Plugin.Abstractions</AssemblyName>
+    <RootNamespace>NimCap.Screenshot.Plugins</RootNamespace>
+  </PropertyGroup>
+</Project>

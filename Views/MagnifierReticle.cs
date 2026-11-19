@@ -1,8 +1,8 @@
 using System.Windows;
 using System.Windows.Media;
-using SnapSharp.Models;
+using NimCap.Screenshot.Models;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 /// <summary>Targets the sampled pixel, including when a desktop edge shifts it away from the lens center.</summary>
 public sealed class MagnifierReticle : FrameworkElement

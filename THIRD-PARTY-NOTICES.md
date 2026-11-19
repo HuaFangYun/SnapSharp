@@ -183,7 +183,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 - Official runtime distribution: https://aka.ms/vs/17/release/vc_redist.x64.exe
 - Use: user-triggered recording dependency setup. The runtime installer is downloaded directly from Microsoft's HTTPS hosts and checked using Windows Authenticode trust and the Microsoft Corporation publisher before execution. It is not bundled with the application.
-- Media Feature Pack is installed on Windows N/KN via Windows DISM/Windows Update, not redistributed by SnapSharp. Installation requires Windows administrator authorization and can require a restart.
+- Media Feature Pack is installed on Windows N/KN via Windows DISM/Windows Update, not redistributed by NimCap.Screenshot. Installation requires Windows administrator authorization and can require a restart.
 - These system components have Microsoft's own terms; the ScreenRecorderLib MIT license does not replace them. No installer or system-component source code has been modified.
 # Moebius ONNX FP32 (optional image repair model)
 

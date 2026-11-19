@@ -3,15 +3,15 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using SnapSharp.Models;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using Point = System.Windows.Point;
 using Rectangle = System.Drawing.Rectangle;
 using Size = System.Windows.Size;
 using ComboBox = System.Windows.Controls.ComboBox;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

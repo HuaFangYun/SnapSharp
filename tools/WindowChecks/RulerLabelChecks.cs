@@ -1,12 +1,12 @@
 using System.Windows;
 using System.Windows.Media;
-using SnapSharp.Views;
+using NimCap.Screenshot.Views;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
 using Pen = System.Windows.Media.Pen;
 using Brushes = System.Windows.Media.Brushes;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

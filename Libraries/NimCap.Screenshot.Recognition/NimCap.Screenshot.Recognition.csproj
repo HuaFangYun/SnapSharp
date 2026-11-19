@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><UseWPF>true</UseWPF><AssemblyName>NimCap.Screenshot.Recognition</AssemblyName><RootNamespace>NimCap.Screenshot</RootNamespace></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NimCap.Screenshot.Core\NimCap.Screenshot.Core.csproj" />
+    <ProjectReference Include="..\NimCap.Screenshot.Infrastructure\NimCap.Screenshot.Infrastructure.csproj" />
+    <ProjectReference Include="..\NimCap.Screenshot.Imaging\NimCap.Screenshot.Imaging.csproj" />
+    <ProjectReference Include="..\NimCap.Screenshot.Plugin.Abstractions\NimCap.Screenshot.Plugin.Abstractions.csproj" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.DirectML" Version="1.24.1" />
+    <PackageReference Include="ZXing.Net" Version="0.16.11" />
+    <PackageReference Include="Tesseract" Version="5.2.0" />
+  </ItemGroup>
+</Project>

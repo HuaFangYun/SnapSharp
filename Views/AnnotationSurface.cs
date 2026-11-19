@@ -1,7 +1,7 @@
-using SnapSharp.Models;
-using SnapSharp.Native;
-using SnapSharp.Services;
-using SnapSharp.ViewModels;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Native;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.ViewModels;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Windows;
@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using WpfTextBox = System.Windows.Controls.TextBox;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public sealed class AnnotationSurface : Canvas
 {

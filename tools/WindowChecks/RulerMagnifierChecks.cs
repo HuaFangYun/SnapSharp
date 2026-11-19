@@ -3,11 +3,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using SnapSharp.Views;
+using NimCap.Screenshot.Views;
 using Color = System.Windows.Media.Color;
 using Size = System.Windows.Size;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

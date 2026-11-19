@@ -1,11 +1,11 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Services;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Services;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Size = System.Windows.Size;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class RecordingSetupWindow : Window
 {

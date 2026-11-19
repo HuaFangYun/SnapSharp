@@ -5,9 +5,9 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SnapSharp.Services;
+using NimCap.Screenshot.Services;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {
@@ -149,14 +149,14 @@ internal static partial class Program
             Ready = Path.Combine(work, "ready"), Abort = Path.Combine(work, "abort"), Result = Path.Combine(work, "result.json")
         }));
         var script = Path.Combine(work, "install.ps1");
-        using (var resource = typeof(AppUpdateInstaller).Assembly.GetManifestResourceStream("SnapSharp.AppUpdate.ps1")!)
+        using (var resource = typeof(AppUpdateInstaller).Assembly.GetManifestResourceStream("NimCap.Screenshot.AppUpdate.ps1")!)
         using (var output = File.Create(script)) resource.CopyTo(output);
         using var fileLock = locked ? new FileStream(Path.Combine(target, "b.dll"), FileMode.Open, FileAccess.Read, FileShare.Read) : null;
         var start = new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "powershell.exe"))
         { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true, RedirectStandardOutput = true };
         foreach (var argument in new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", script, "-Plan", plan }) start.ArgumentList.Add(argument);
         if (!restart) start.ArgumentList.Add("-TestMode");
-        else start.Environment["SNAPSHARP_UPDATE_RESTART_MARKER"] = Path.Combine(work, "restart-marker");
+        else start.Environment["NIMCAP_SCREENSHOT_UPDATE_RESTART_MARKER"] = Path.Combine(work, "restart-marker");
         using var process = Process.Start(start)!;
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         if (restart)

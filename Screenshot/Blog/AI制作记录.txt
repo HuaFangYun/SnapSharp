@@ -3,7 +3,7 @@
 确认安装包版本与使用指南。
 整理截图、长图和演示录屏。
 发布之前检查图片中的隐私信息。
-SnapSharp supportslocal OCR
+NimCap.Screenshot supportslocal OCR
 15-ai-ocr-english.png: 本地 PaddleOCR / ONNX CPU · 5 个区域。点击区域或原始识别行可双向定位。
 Project notes
 Capture the important details.

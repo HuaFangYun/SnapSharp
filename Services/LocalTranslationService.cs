@@ -1,5 +1,5 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>Runs a verified llama.cpp child on authenticated loopback; never sends text to an external API.</summary>
 internal static class LocalTranslationService

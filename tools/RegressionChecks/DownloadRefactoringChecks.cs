@@ -4,13 +4,13 @@ using System.Net;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using Button = System.Windows.Controls.Button;
 using Control = System.Windows.Controls.Control;
 using ComboBox = System.Windows.Controls.ComboBox;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {

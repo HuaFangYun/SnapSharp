@@ -1,0 +1,64 @@
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
+
+namespace NimCap.Screenshot.Services;
+
+public sealed record LaunchCommand(CaptureMode? Mode, int DelaySeconds, bool CopyToClipboard)
+{
+    public static bool TryParse(IReadOnlyList<string> args, out LaunchCommand command, out string error)
+    {
+        CaptureMode? mode = null;
+        var delay = 0;
+        var copy = false;
+        error = string.Empty;
+
+        for (var i = 0; i < args.Count; i++)
+        {
+            switch (args[i].ToLowerInvariant())
+            {
+                case "-region":
+                case "--region":
+                    if (!SetMode(CaptureMode.Region)) return Fail(out command, out error, L.Get("OnlyOneCaptureModeCanBeSpecified"));
+                    break;
+                case "-full":
+                case "--full":
+                    if (!SetMode(CaptureMode.FullScreen)) return Fail(out command, out error, L.Get("OnlyOneCaptureModeCanBeSpecified"));
+                    break;
+                case "-window":
+                case "--window":
+                    if (!SetMode(CaptureMode.ActiveWindow)) return Fail(out command, out error, L.Get("OnlyOneCaptureModeCanBeSpecified"));
+                    break;
+                case "-delay":
+                case "--delay":
+                    if (++i >= args.Count || !int.TryParse(args[i], out delay) || delay is < 1 or > 3600)
+                        return Fail(out command, out error, L.Get("DelayRequiresANumberOfSecondsFrom"));
+                    break;
+                case "-clip":
+                case "--clip":
+                    copy = true;
+                    break;
+                default:
+                    return Fail(out command, out error, L.Format("UnknownCommandLineArgument0", args[i]));
+            }
+        }
+
+        if (delay > 0 && mode is null) mode = CaptureMode.Region;
+        command = new LaunchCommand(mode, delay, copy);
+        return true;
+
+        bool SetMode(CaptureMode value)
+        {
+            if (mode is not null && mode != value) return false;
+            mode = value;
+            return true;
+        }
+
+    }
+
+    private static bool Fail(out LaunchCommand command, out string error, string message)
+    {
+        error = message;
+        command = new LaunchCommand(null, 0, false);
+        return false;
+    }
+}

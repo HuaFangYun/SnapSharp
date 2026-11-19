@@ -7,10 +7,10 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using SnapSharp.Models;
-using SnapSharp.Services;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
 
-namespace SnapSharp.StabilityChecks;
+namespace NimCap.Screenshot.StabilityChecks;
 
 internal static partial class Program
 {
@@ -124,7 +124,7 @@ internal static partial class Program
             await OnnxImageRuntime.Shared.RemoveBackground(image, settings);
             throw new Exception("Invalid model returned success.");
         }
-        catch (InvalidOperationException error) when (error.Message == SnapSharp.Localization.UiText.Get("IsolatedInferenceFailed")) { }
+        catch (InvalidOperationException error) when (error.Message == NimCap.Screenshot.Localization.UiText.Get("IsolatedInferenceFailed")) { }
         var failureLog = File.ReadAllText(Path.Combine(AppPaths.DiagnosticsRoot, "inference-status.log"));
         Require(failureLog.Contains("Managed inference failure:") && failureLog.Contains("OnnxRuntimeException") &&
             failureLog.Contains("  at ") && failureLog.Contains("InferenceSession"), "Worker stack did not cross IPC into diagnostics.");
@@ -144,7 +144,7 @@ internal static partial class Program
         var deadline = Stopwatch.StartNew();
         while (!request.IsCompleted && deadline.Elapsed < TimeSpan.FromSeconds(10))
         {
-            foreach (var process in Process.GetProcessesByName("SnapSharp"))
+            foreach (var process in Process.GetProcessesByName("NimCap.Screenshot"))
             {
                 using (process)
                 {
@@ -157,7 +157,7 @@ internal static partial class Program
         }
         Require(killed, "Did not observe the inference worker to kill.");
         try { await request; throw new Exception("Killed worker returned success."); }
-        catch (InvalidOperationException error) when (error.Message == SnapSharp.Localization.UiText.Get("IsolatedInferenceFailed")) { }
+        catch (InvalidOperationException error) when (error.Message == NimCap.Screenshot.Localization.UiText.Get("IsolatedInferenceFailed")) { }
         // A fresh worker after failure proves the parent and queue remain usable.
         output = await OnnxImageRuntime.Shared.RemoveBackground(image, settings);
         Require(output.PixelWidth == 32, "Worker death poisoned subsequent inference.");

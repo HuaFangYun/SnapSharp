@@ -1,12 +1,12 @@
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 using Microsoft.Win32;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed class StartupRegistrationService
 {
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string ValueName = "SnapSharp";
+    private const string ValueName = "NimCap.Screenshot";
 
     public bool IsEnabled()
     {
@@ -34,7 +34,7 @@ public sealed class StartupRegistrationService
     {
         var executable = Environment.ProcessPath;
         if (string.IsNullOrWhiteSpace(executable))
-            throw new InvalidOperationException(L.Get("CouldNotDetermineTheSnapSharpExecutablePath"));
+            throw new InvalidOperationException(L.Get("CouldNotDetermineTheNimCapExecutablePath"));
         return $"\"{executable}\"";
     }
 }

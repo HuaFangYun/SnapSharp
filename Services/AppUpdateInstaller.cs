@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal sealed record PreparedAppUpdate(string Directory, string Stage, string[] Files);
 
@@ -39,7 +39,7 @@ internal static class AppUpdateInstaller
         }
         if (checksum is null || !Regex.IsMatch(checksum, "\\A[0-9a-fA-F]{64}\\z"))
             throw new InvalidDataException("The release does not provide a valid SHA256 checksum.");
-        var directory = Path.Combine(workRoot ?? Path.Combine(Path.GetTempPath(), "SnapSharp-updates"), Guid.NewGuid().ToString("N"));
+        var directory = Path.Combine(workRoot ?? Path.Combine(Path.GetTempPath(), "NimCap.Screenshot-updates"), Guid.NewGuid().ToString("N"));
         System.IO.Directory.CreateDirectory(directory);
         try
         {
@@ -192,7 +192,7 @@ internal static class AppUpdateInstaller
     {
         target = Path.GetFullPath(target);
         // Check write access before closing the application. Elevation is never requested automatically.
-        var probe = Path.Combine(target, ".snapsharp-update-probe-" + Guid.NewGuid().ToString("N"));
+        var probe = Path.Combine(target, ".nimcap-screenshot-update-probe-" + Guid.NewGuid().ToString("N"));
         using (File.Create(probe)) { }
         File.Delete(probe);
         var handoff = Path.Combine(update.Directory, "handoff-" + Guid.NewGuid().ToString("N"));
@@ -214,7 +214,7 @@ internal static class AppUpdateInstaller
             Result = Path.Combine(handoff, "result.json")
         }), cancellation).ConfigureAwait(false);
         var script = Path.Combine(handoff, "install.ps1");
-        using (var resource = typeof(AppUpdateInstaller).Assembly.GetManifestResourceStream("SnapSharp.AppUpdate.ps1")
+        using (var resource = typeof(AppUpdateInstaller).Assembly.GetManifestResourceStream("NimCap.Screenshot.AppUpdate.ps1")
             ?? throw new InvalidOperationException("Missing update helper."))
         await using (var output = File.Create(script)) await resource.CopyToAsync(output, cancellation).ConfigureAwait(false);
         var start = new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "powershell.exe"))

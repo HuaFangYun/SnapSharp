@@ -8,7 +8,7 @@ Windows 截图、OCR、翻译、抠图与录屏工具。
 
 NimCap Screenshot 已实现区域／全屏／当前窗口截图、元素选取、截图标注与一键脱敏、桌面贴图、滚动长截图、图片文字 OCR、证件字段提取、表格转 CSV／XLSX、公式转 LaTeX、二维码／条码识别、本地翻译、透明背景抠图、屏幕取色与测量，以及 MP4／GIF 录屏。**本地 AI、离线可用、数据留在本机**：OCR、表格、公式、抠图和翻译均可通过本地模型处理，图片与文字无需上传云端。提前准备好程序、所需模型及运行依赖后，可在断网或无互联网连接的内网环境中使用这些本地功能，减少敏感资料外传风险，适合重视隐私与数据安全的个人及内网办公场景。在线翻译与以图搜图为可选功能，默认关闭，启用后每次发送仍需确认。
 
-这是 `nimcap` 旗下的截图工具，英文名为 **NimCap Screenshot**，仓库为 `nimcap/nimcap-screenshot`。项目原名 SnapSharp，内部命名空间、插件接口和已有用户数据目录保持兼容。[nimcap 的 GitHub 项目](https://github.com/nimcap)
+这是 `nimcap` 旗下的截图工具，英文名为 **NimCap Screenshot**，仓库为 `nimcap/nimcap-screenshot`。项目原名 SnapSharp，已有用户数据目录保持兼容。[nimcap 的 GitHub 项目](https://github.com/nimcap)
 
 ## 软件介绍
 

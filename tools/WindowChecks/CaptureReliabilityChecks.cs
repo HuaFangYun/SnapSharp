@@ -4,13 +4,13 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using SnapSharp.Models;
-using SnapSharp.Services;
-using SnapSharp.ViewModels;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.ViewModels;
 using Rectangle = System.Drawing.Rectangle;
 using Application = System.Windows.Application;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {
@@ -255,7 +255,7 @@ internal static partial class Program
         finally { release.Set(); }
         try { await capture; throw new Exception("Late canceled capture returned success."); }
         catch (OperationCanceledException) { }
-        Require(events == 0 && !coordinator.IsActive && !Application.Current.Windows.OfType<SnapSharp.Views.SelectionWindow>().Any(), "Canceled result opened an overlay or retained active state.");
+        Require(events == 0 && !coordinator.IsActive && !Application.Current.Windows.OfType<NimCap.Screenshot.Views.SelectionWindow>().Any(), "Canceled result opened an overlay or retained active state.");
         backend.Capture = null;
         await coordinator.BeginAsync(CaptureMode.FullScreen);
         Require(events == 1 && !coordinator.IsActive, "Capture did not recover after cancellation.");

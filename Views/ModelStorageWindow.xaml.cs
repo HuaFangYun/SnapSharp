@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using SnapSharp.Services;
-using L = SnapSharp.Localization.UiText;
+using NimCap.Screenshot.Services;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class ModelStorageWindow : Window
 {

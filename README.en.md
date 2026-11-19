@@ -6,7 +6,7 @@
 
 NimCap Screenshot implements region, full-screen, and active-window screenshots; element selection; annotations and sensitive-text blurring; desktop pins; scrolling capture; image OCR; identity-document field extraction; tables to CSV/XLSX; formulas to LaTeX; QR/barcode recognition; local translation; background removal; screen color picking and measurement; and MP4/GIF recording. **Local AI, offline operation, and data kept on your computer**: OCR, tables, formulas, background removal, and translation can run with local models without uploading images or text to the cloud. Once the application, required models, and runtime dependencies are prepared, these local features work without internet access, including on internal networks. This reduces the risk of sensitive material leaving your device and supports privacy-conscious personal and internal office use. Online translation and image search are optional, disabled by default, and require confirmation for each request.
 
-**NimCap Screenshot** is a screenshot tool from `nimcap`. Its repository is `nimcap/nimcap-screenshot`. The project was formerly called SnapSharp. Internal namespaces, plugin contracts and existing user data directories remain compatible. [nimcap projects on GitHub](https://github.com/nimcap)
+**NimCap Screenshot** is a screenshot tool from `nimcap`. Its repository is `nimcap/nimcap-screenshot`. The project was formerly called SnapSharp. Existing user data directories remain compatible. [nimcap projects on GitHub](https://github.com/nimcap)
 
 ## About NimCap Screenshot
 

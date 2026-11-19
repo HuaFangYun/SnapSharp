@@ -1,15 +1,15 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Services;
-using SnapSharp.Models;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Models;
 using System.IO;
 using System.Threading;
 using System.Windows;
 
-namespace SnapSharp;
+namespace NimCap.Screenshot;
 
 public partial class App : Application
 {
-    private const string MutexName = "Local\\SnapSharp.SingleInstance";
+    private const string MutexName = "Local\\NimCap.Screenshot.SingleInstance";
     private Mutex? _singleInstanceMutex;
     private AppController? _controller;
     private SingleInstanceChannel? _instanceChannel;
@@ -48,7 +48,7 @@ public partial class App : Application
                 }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException or TypeInitializationException) { }
                 LocalizationService.Apply(language);
-                MessageBox.Show(L.Get("SnapSharpIsAlreadyRunningButTheExisting"), L.Get("NimCapAppTitle"),
+                MessageBox.Show(L.Get("NimCapIsAlreadyRunningButTheExisting"), L.Get("NimCapAppTitle"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             Shutdown();

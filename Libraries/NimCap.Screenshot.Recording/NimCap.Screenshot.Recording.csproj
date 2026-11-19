@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>NimCap.Screenshot.Recording</AssemblyName>
+    <RootNamespace>NimCap.Screenshot</RootNamespace>
+    <Platforms>x64</Platforms>
+    <Platform>x64</Platform>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NimCap.Screenshot.Core\NimCap.Screenshot.Core.csproj" />
+    <ProjectReference Include="..\NimCap.Screenshot.Imaging\NimCap.Screenshot.Imaging.csproj" />
+    <PackageReference Include="ScreenRecorderLib" Version="7.0.1" />
+    <Reference Include="ScreenRecorderLib">
+      <HintPath>$(NuGetPackageRoot)screenrecorderlib\7.0.1\build\x64\ScreenRecorderLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="NimCap.Screenshot" />
+    <InternalsVisibleTo Include="NimCap.Screenshot.RegressionChecks" />
+    <InternalsVisibleTo Include="NimCap.Screenshot.RecordingChecks" />
+  </ItemGroup>
+</Project>

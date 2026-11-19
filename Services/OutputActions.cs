@@ -1,4 +1,4 @@
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public static class OutputActions
 {
@@ -54,6 +54,6 @@ public static class OutputActions
         if (printable.Width <= 0 || printable.Height <= 0) throw new InvalidOperationException(L.Get("ThePrinterDidNotProvideAValid"));
         var visual = new DrawingVisual();
         using (var context = visual.RenderOpen()) context.DrawImage(image, FitPrintRect(image.PixelWidth, image.PixelHeight, printable));
-        dialog.PrintVisual(visual, L.Get("SnapSharpScreenshot"));
+        dialog.PrintVisual(visual, L.Get("NimCapScreenshot"));
     }
 }

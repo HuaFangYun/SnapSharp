@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Interop;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>Keeps modal windows above their caller and temporarily clears obstructing app pins.</summary>
 internal static class WindowDialogService

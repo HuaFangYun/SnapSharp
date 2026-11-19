@@ -9,6 +9,6 @@
     <Compile Include="..\RegressionChecks\AppUpdateInstallerChecks.cs" Link="AppUpdateInstallerChecks.cs" />
     <Compile Include="..\..\Services\AppUpdateService.cs" Link="AppUpdateService.cs" />
     <Compile Include="..\..\Services\AppUpdateInstaller.cs" Link="AppUpdateInstaller.cs" />
-    <EmbeddedResource Include="..\..\Services\AppUpdate.ps1" LogicalName="SnapSharp.AppUpdate.ps1" />
+    <EmbeddedResource Include="..\..\Services\AppUpdate.ps1" LogicalName="NimCap.Screenshot.AppUpdate.ps1" />
   </ItemGroup>
 </Project>

@@ -1,20 +1,20 @@
-<Window x:Class="SnapSharp.Views.RecordingSetupWindow" Style="{StaticResource AppWindow}" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:loc="http://wpflocalizeextension.codeplex.com"
+<Window x:Class="NimCap.Screenshot.Views.RecordingSetupWindow" Style="{StaticResource AppWindow}" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:loc="http://wpflocalizeextension.codeplex.com"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{loc:Loc SnapSharp.Core:Resources.Strings:RecordingSetupSnapSharp}" Width="660" Height="610" MinWidth="520" MinHeight="420" WindowStartupLocation="CenterOwner" Closing="Window_Closing">
+        Title="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:RecordingSetupNimCap}" Width="660" Height="610" MinWidth="520" MinHeight="420" WindowStartupLocation="CenterOwner" Closing="Window_Closing">
   <Window.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="ToolbarStyles.xaml" /></ResourceDictionary.MergedDictionaries>
     <Style TargetType="Button" BasedOn="{StaticResource DialogButton}"><Setter Property="Width" Value="Auto" /><Setter Property="Margin" Value="0,5,8,5" /><Setter Property="Padding" Value="12,7" /></Style>
   </ResourceDictionary></Window.Resources>
   <Grid Margin="22"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-    <StackPanel><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RecordingRequirements}" FontSize="23" FontWeight="SemiBold" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CheckAndInstallMissingComponentsInstalledComponents}" TextWrapping="Wrap" Margin="0,10,0,16" /></StackPanel>
+    <StackPanel><TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:RecordingRequirements}" FontSize="23" FontWeight="SemiBold" /><TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:CheckAndInstallMissingComponentsInstalledComponents}" TextWrapping="Wrap" Margin="0,10,0,16" /></StackPanel>
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><StackPanel>
       <TextBlock x:Name="EnvironmentStatus" TextWrapping="Wrap" Margin="0,0,0,16" />
-      <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SetupDownloadsMissingVisualCX64Components}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
-      <WrapPanel Margin="0,12"><Button x:Name="ConfigureButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CheckAndInstallMissingComponents}" Click="Configure_Click" /><Button x:Name="CancelDownloadButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="Cancel_Click" IsEnabled="False" /><Button x:Name="RefreshButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CheckAgain}" Click="Refresh_Click" /></WrapPanel>
-      <TextBlock x:Name="SetupStatus" Text="{loc:Loc SnapSharp.Core:Resources.Strings:CheckRequirementsBeforeChoosingRecordingOptionsSetup}" TextWrapping="Wrap" Margin="0,0,0,16" />
-      <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:DevicePermissionsAndSystemRepair}" FontWeight="SemiBold" />
-      <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:MicrophonePermissions}" Tag="ms-settings:privacy-microphone" Click="SystemSettings_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:CameraPermissions}" Tag="ms-settings:privacy-webcam" Click="SystemSettings_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:WindowsOptionalFeatures}" Tag="ms-settings:optionalfeatures" Click="SystemSettings_Click" /></WrapPanel>
-      <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:EnableDesktopAppAccessInWindowsPrivacy}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+      <TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:SetupDownloadsMissingVisualCX64Components}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+      <WrapPanel Margin="0,12"><Button x:Name="ConfigureButton" Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:CheckAndInstallMissingComponents}" Click="Configure_Click" /><Button x:Name="CancelDownloadButton" Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:CancelDownload}" Click="Cancel_Click" IsEnabled="False" /><Button x:Name="RefreshButton" Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:CheckAgain}" Click="Refresh_Click" /></WrapPanel>
+      <TextBlock x:Name="SetupStatus" Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:CheckRequirementsBeforeChoosingRecordingOptionsSetup}" TextWrapping="Wrap" Margin="0,0,0,16" />
+      <TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:DevicePermissionsAndSystemRepair}" FontWeight="SemiBold" />
+      <WrapPanel><Button Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:MicrophonePermissions}" Tag="ms-settings:privacy-microphone" Click="SystemSettings_Click" /><Button Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:CameraPermissions}" Tag="ms-settings:privacy-webcam" Click="SystemSettings_Click" /><Button Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:WindowsOptionalFeatures}" Tag="ms-settings:optionalfeatures" Click="SystemSettings_Click" /></WrapPanel>
+      <TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:EnableDesktopAppAccessInWindowsPrivacy}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
     </StackPanel></ScrollViewer>
-    <Button Grid.Row="2" Content="{loc:Loc SnapSharp.Core:Resources.Strings:Close}" Click="Close_Click" HorizontalAlignment="Right" />
+    <Button Grid.Row="2" Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:Close}" Click="Close_Click" HorizontalAlignment="Right" />
   </Grid>
 </Window>

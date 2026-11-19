@@ -3,15 +3,15 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using SnapSharp.Models;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using ComboBox = System.Windows.Controls.ComboBox;
 using TextBox = System.Windows.Controls.TextBox;
-using CaptureMode = SnapSharp.Models.CaptureMode;
+using CaptureMode = NimCap.Screenshot.Models.CaptureMode;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

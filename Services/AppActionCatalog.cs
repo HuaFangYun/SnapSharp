@@ -1,7 +1,7 @@
-using SnapSharp.Models;
-using L = SnapSharp.Localization.UiText;
+using NimCap.Screenshot.Models;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal sealed record AppActionDefinition(GlobalAction Action, string LabelKey, string Group = "", bool DefaultVisible = true, int Delay = 0, bool ShowInTray = true)
 {

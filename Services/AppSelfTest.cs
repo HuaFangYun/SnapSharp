@@ -1,12 +1,12 @@
-using SnapSharp.Models;
-using SnapSharp.Plugins;
-using SnapSharp.ViewModels;
-using SnapSharp.Views;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Plugins;
+using NimCap.Screenshot.ViewModels;
+using NimCap.Screenshot.Views;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 // Explicit diagnostic commands run before the normal application controller starts.
 internal static class AppSelfTest
@@ -119,7 +119,7 @@ internal static class AppSelfTest
     {
         // Existing UI fixtures assert Chinese text; localization has its own bilingual checks.
         LocalizationService.Apply("zh-CN");
-        var testDirectory = Path.Combine(Path.GetTempPath(), "SnapSharp-SelfTest-" + Guid.NewGuid().ToString("N"));
+        var testDirectory = Path.Combine(Path.GetTempPath(), "NimCap.Screenshot-SelfTest-" + Guid.NewGuid().ToString("N"));
         try
         {
             using var theme = new ThemeService();
@@ -546,7 +546,7 @@ internal static class AppSelfTest
         return ReferenceEquals(output, source) && catalog.Failures.Count == 0;
     }
 
-    private sealed class SelfTestPlugin : ISnapSharpPlugin, IImageProcessorPlugin
+    private sealed class SelfTestPlugin : INimCapPlugin, IImageProcessorPlugin
     {
         public PluginMetadata Metadata { get; } = new("self-test.identity", "Self-test identity",
             new Version(1, 0), "NimCap Screenshot", [PluginCapability.ImageProcessor]);
@@ -652,7 +652,7 @@ internal static class AppSelfTest
         }
         catch (Exception ex)
         {
-            try { File.WriteAllText(Path.Combine(Path.GetTempPath(), "SnapSharp-CaptureSelfTest.log"), ex.ToString()); } catch { }
+            try { File.WriteAllText(Path.Combine(Path.GetTempPath(), "NimCap.Screenshot-CaptureSelfTest.log"), ex.ToString()); } catch { }
             return 1;
         }
     }

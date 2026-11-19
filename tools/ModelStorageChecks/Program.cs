@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Threading;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {

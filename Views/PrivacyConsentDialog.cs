@@ -1,12 +1,12 @@
-using SnapSharp.Services;
-using L = SnapSharp.Localization.UiText;
+using NimCap.Screenshot.Services;
+using L = NimCap.Screenshot.Localization.UiText;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Button = System.Windows.Controls.Button;
 using TextBox = System.Windows.Controls.TextBox;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 internal static class PrivacyConsentDialog
 {
@@ -17,7 +17,7 @@ internal static class PrivacyConsentDialog
 
     internal static Window Create(Window? owner, Uri endpoint, string? text, BitmapSource? image)
     {
-        var window = new Window { Title = L.Get("ConfirmSendingSnapSharp"), Owner = owner, Width = 640, Height = 540,
+        var window = new Window { Title = L.Get("ConfirmSendingNimCap"), Owner = owner, Width = 640, Height = 540,
             WindowStartupLocation = WindowStartupLocation.CenterOwner };
         window.SetResourceReference(FrameworkElement.StyleProperty, "AppWindow");
         window.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/NimCap.Screenshot;component/Views/ToolbarStyles.xaml", UriKind.Relative) });

@@ -7,12 +7,12 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using Application = System.Windows.Application;
 using TabControl = System.Windows.Controls.TabControl;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

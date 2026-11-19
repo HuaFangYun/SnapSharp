@@ -1,5 +1,5 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,7 +9,7 @@ using System.Windows.Threading;
 using System.Windows.Media.Imaging;
 using System.Text.Json;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>Session-only opt-in. One local recognition per stationary pointer position.</summary>
 internal sealed class ScreenWordService(Func<AppSettings> settings, Func<bool> suspended) : IDisposable

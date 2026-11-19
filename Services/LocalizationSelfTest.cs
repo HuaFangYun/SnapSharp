@@ -8,11 +8,11 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using SnapSharp.Localization;
-using SnapSharp.Models;
-using SnapSharp.Views;
+using NimCap.Screenshot.Localization;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Views;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal static class LocalizationSelfTest
 {
@@ -76,7 +76,7 @@ internal static class LocalizationSelfTest
                 try
                 {
                     Flush();
-                    Require(localizedWindow.Title == resources.GetString("SnapSharpSettings"), $"Localized WPF title: {language.Code}");
+                    Require(localizedWindow.Title == resources.GetString("NimCapSettings"), $"Localized WPF title: {language.Code}");
                     var languageBox = (System.Windows.Controls.ComboBox)localizedWindow.FindName("InterfaceLanguageBox");
                     languageBox.SelectedValue = language.Code;
                     Require(localizedWindow.BuildCandidate().InterfaceLanguage == language.Code, $"Language selection: {language.Code}");
@@ -94,7 +94,7 @@ internal static class LocalizationSelfTest
                 try
                 {
                     Flush();
-                    Require(window.Title == UiText.Get("SnapSharpSettings"), $"WPF resource lookup: {code}; actual '{window.Title}', expected '{UiText.Get("SnapSharpSettings")}'");
+                    Require(window.Title == UiText.Get("NimCapSettings"), $"WPF resource lookup: {code}; actual '{window.Title}', expected '{UiText.Get("NimCapSettings")}'");
                     var languageBox = (System.Windows.Controls.ComboBox)window.FindName("InterfaceLanguageBox");
                     languageBox.SelectedValue = code;
                     Require(languageBox.SelectedItem.ToString() == (code == "en" ? "English" : "中文（中国大陆）"), "Readable language selection");
@@ -131,7 +131,7 @@ internal static class LocalizationSelfTest
                     // Existing XAML controls update in place when the language changes.
                     LocalizationService.Apply(code == "en" ? "zh-CN" : "en");
                     Flush();
-                    Require(window.Title == UiText.Get("SnapSharpSettings"), "Live XAML language switch");
+                    Require(window.Title == UiText.Get("NimCapSettings"), "Live XAML language switch");
                 }
                 finally { window.Close(); }
                 LocalizationService.Apply(code);

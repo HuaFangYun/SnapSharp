@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using Rectangle = System.Windows.Shapes.Rectangle;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class RecognitionWindow
 {

@@ -1,12 +1,12 @@
 using ScreenRecorderLib;
-using SnapSharp.Models;
+using NimCap.Screenshot.Models;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Windows.Media.Editing;
 using Windows.Storage;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal static class RecordingSelfTest
 {

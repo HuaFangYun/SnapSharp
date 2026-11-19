@@ -1,14 +1,14 @@
-﻿using SnapSharp.Models;
-using SnapSharp.Services;
+﻿using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
 using System.Windows;
 using System.Windows.Controls;
 using Button = System.Windows.Controls.Button;
 using ComboBox = System.Windows.Controls.ComboBox;
 using Orientation = System.Windows.Controls.Orientation;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class RecognitionWindow
 {

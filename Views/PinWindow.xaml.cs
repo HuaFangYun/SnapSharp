@@ -1,8 +1,8 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
-using SnapSharp.Native;
-using SnapSharp.Services;
-using SnapSharp.ViewModels;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Native;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Runtime.InteropServices;
 using MenuItem = System.Windows.Controls.MenuItem;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class PinWindow : Window
 {

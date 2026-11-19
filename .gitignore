@@ -3,6 +3,7 @@
 **/[Oo]bj/
 /publish/
 /SnapSharp/
+/NimCap.Screenshot/
 **/.artifacts/
 **/artifacts/
 TestResults/
@@ -39,11 +40,13 @@ TestResults/
 /settings.json.*
 /data-location.json
 /.snapsharp-migration-*/
+/.nimcap-screenshot-migration-*/
 /History/
 /Diagnostics/
 /Cache/
 recording-check-*/
 .SnapSharp-record-*/
+.NimCap.Screenshot-record-*/
 *.log
 *.dmp
 *.tmp

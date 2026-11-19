@@ -4,7 +4,7 @@ global using FlowDirection = System.Windows.FlowDirection;
 global using Point = System.Windows.Point;
 using System.IO;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {
@@ -30,18 +30,18 @@ internal static partial class Program
                 System.Xml.Linq.XNamespace wpf = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
                 var resources = System.Xml.Linq.XDocument.Load("App.xaml").Root!.Element(wpf + "Application.Resources")!.Elements().Single();
                 resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "x", "http://schemas.microsoft.com/winfx/2006/xaml");
-                resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "services", "clr-namespace:SnapSharp.Services;assembly=SnapSharp");
+                resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "services", "clr-namespace:NimCap.Screenshot.Services;assembly=NimCap.Screenshot");
                 app.Resources = (System.Windows.ResourceDictionary)System.Windows.Markup.XamlReader.Parse(resources.ToString(),
                     new System.Windows.Markup.ParserContext { BaseUri = new Uri("pack://application:,,,/NimCap.Screenshot;component/") });
-                var previous = SnapSharp.Localization.UiText.Culture;
+                var previous = NimCap.Screenshot.Localization.UiText.Culture;
                 var previousContext = SynchronizationContext.Current;
                 try
                 {
                     SynchronizationContext.SetSynchronizationContext(new System.Windows.Threading.DispatcherSynchronizationContext(app.Dispatcher));
-                    SnapSharp.Localization.UiText.SetCulture(System.Globalization.CultureInfo.GetCultureInfo("zh-CN"));
-                    Require(SnapSharp.Services.ScrollingSelfTest.Run(Root), "Scrolling capture/correction UI workflow failed.");
+                    NimCap.Screenshot.Localization.UiText.SetCulture(System.Globalization.CultureInfo.GetCultureInfo("zh-CN"));
+                    Require(NimCap.Screenshot.Services.ScrollingSelfTest.Run(Root), "Scrolling capture/correction UI workflow failed.");
                 }
-                finally { SnapSharp.Localization.UiText.SetCulture(previous); SynchronizationContext.SetSynchronizationContext(previousContext); }
+                finally { NimCap.Screenshot.Localization.UiText.SetCulture(previous); SynchronizationContext.SetSynchronizationContext(previousContext); }
                 Console.WriteLine("PASS: vertical capture -> unresolved preview -> manual seam -> undo/redo and project workflow.");
             }
             finally { app.Shutdown(); }

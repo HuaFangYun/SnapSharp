@@ -1,9 +1,9 @@
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
-using SnapSharp.Services;
+using NimCap.Screenshot.Services;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {
@@ -11,7 +11,7 @@ internal static partial class Program
     private static async Task<int> Main(string[] args)
     {
         if (args.Contains("--update-parent")) { await Task.Delay(5000); return 0; }
-        if (Environment.GetEnvironmentVariable("SNAPSHARP_UPDATE_RESTART_MARKER") is { } marker)
+        if (Environment.GetEnvironmentVariable("NIMCAP_SCREENSHOT_UPDATE_RESTART_MARKER") is { } marker)
         { File.WriteAllText(marker, "restarted"); return 0; }
         try { await AppUpdateChecks(); return 0; }
         catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }

@@ -10,9 +10,9 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using SnapSharp.Models;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using Button = System.Windows.Controls.Button;
 using ComboBox = System.Windows.Controls.ComboBox;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
@@ -21,7 +21,7 @@ using Point = System.Windows.Point;
 using Rectangle = System.Drawing.Rectangle;
 using TextBox = System.Windows.Controls.TextBox;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {
@@ -124,7 +124,7 @@ internal static partial class Program
             Invoke(overlay, "BeginInlineEditing");
             Require(lockRequest.Token.IsCancellationRequested, "Locking the selection did not cancel detection.");
             lockRequest.Completion.SetResult([panel]); PumpUntil(() => afterLock.IsCompleted);
-            var editor = Field<SnapSharp.ViewModels.EditorViewModel>(overlay, "_editor");
+            var editor = Field<NimCap.Screenshot.ViewModels.EditorViewModel>(overlay, "_editor");
             Require(editor.Image.PixelWidth == secondLeaf.Bounds.Width && editor.Image.PixelHeight == secondLeaf.Bounds.Height,
                 "Element export includes content outside the selected control.");
             var actual = new byte[secondLeaf.Bounds.Width * secondLeaf.Bounds.Height * 4];
@@ -264,7 +264,7 @@ internal static partial class Program
         if (browser is null) { Console.WriteLine("SKIP: no Chromium browser installed for the optional accessibility check."); return; }
         var page = Path.Combine(Root, "browser-element-fixture.html");
         File.WriteAllText(page, """
-            <!doctype html><html><head><meta charset="utf-8"><title>SnapSharp browser element fixture</title>
+            <!doctype html><html><head><meta charset="utf-8"><title>NimCap.Screenshot browser element fixture</title>
             <style>body{margin:32px;font:16px sans-serif}button{width:220px;height:48px}input{display:block;margin-top:32px;width:240px;height:32px}</style>
             </head><body><button aria-label="Browser fixture button">Browser fixture button</button>
             <input aria-label="Browser fixture input" value="Local test only"></body></html>
@@ -285,7 +285,7 @@ internal static partial class Program
                 if (host.HasExited) throw new InvalidOperationException($"Browser fixture exited before creating its window (exit {host.ExitCode}).");
                 candidate = new ScreenCaptureService().EnumerateTopLevelWindows().FirstOrDefault(window =>
                 {
-                    SnapSharp.Native.NativeMethods.GetWindowThreadProcessId(window.Handle, out var processId);
+                    NimCap.Screenshot.Native.NativeMethods.GetWindowThreadProcessId(window.Handle, out var processId);
                     return processId == host.Id;
                 });
                 return candidate is not null;

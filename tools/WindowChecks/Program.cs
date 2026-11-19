@@ -1,9 +1,9 @@
 using System.IO;
 using System.Reflection;
 using System.Windows;
-using SnapSharp.Services;
+using NimCap.Screenshot.Services;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {
@@ -22,7 +22,7 @@ internal static partial class Program
             var document = System.Xml.Linq.XDocument.Load("App.xaml");
             var resources = document.Root!.Element(wpf + "Application.Resources")!.Elements().Single();
             resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "x", "http://schemas.microsoft.com/winfx/2006/xaml");
-            resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "services", "clr-namespace:SnapSharp.Services;assembly=SnapSharp");
+            resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "services", "clr-namespace:NimCap.Screenshot.Services;assembly=NimCap.Screenshot");
             app.Resources = (ResourceDictionary)System.Windows.Markup.XamlReader.Parse(resources.ToString(),
                 new System.Windows.Markup.ParserContext { BaseUri = new Uri("pack://application:,,,/NimCap.Screenshot;component/") });
             using var theme = new ThemeService(); theme.Start();

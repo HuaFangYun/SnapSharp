@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Media;
 using Size = System.Windows.Size;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 internal static class RulerLabelLayout
 {

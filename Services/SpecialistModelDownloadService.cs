@@ -1,9 +1,9 @@
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 using Microsoft.ML.OnnxRuntime;
 using System.Net.Http;
 using System.Security.Cryptography;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>Data-only downloads. Fixed sizes and SHA256; never installs or executes Python.</summary>
 internal static class SpecialistModelDownloadService

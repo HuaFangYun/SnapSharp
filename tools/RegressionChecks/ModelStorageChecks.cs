@@ -4,11 +4,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using SnapSharp.Services;
-using SnapSharp.Views;
-using SnapSharp.Localization;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
+using NimCap.Screenshot.Localization;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {
@@ -82,7 +82,7 @@ internal static partial class Program
         Require(ModelStorageService.Scan(Path.Combine(root, "missing"), []).Count == 0, "Absent model storage should be empty.");
         Console.WriteLine("PASS: model storage sizes, legacy folders, translation assets, reference protection, deletion boundary and link protection.");
         if (Environment.GetCommandLineArgs().Contains("--model-storage-only")
-            || typeof(Program).Assembly.GetName().Name == "SnapSharp.ModelStorageChecks") ModelStorageWindowChecks(root, references);
+            || typeof(Program).Assembly.GetName().Name == "NimCap.Screenshot.ModelStorageChecks") ModelStorageWindowChecks(root, references);
     }
 
     private static void CreateStorageJunction(string link, string target)
@@ -104,7 +104,7 @@ internal static partial class Program
         System.Xml.Linq.XNamespace wpf = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
         var resources = System.Xml.Linq.XDocument.Load("App.xaml").Root!.Element(wpf + "Application.Resources")!.Elements().Single();
         resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "x", "http://schemas.microsoft.com/winfx/2006/xaml");
-        resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "services", "clr-namespace:SnapSharp.Services;assembly=SnapSharp");
+        resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "services", "clr-namespace:NimCap.Screenshot.Services;assembly=NimCap.Screenshot");
         app.Resources = (ResourceDictionary)System.Windows.Markup.XamlReader.Parse(resources.ToString(),
             new System.Windows.Markup.ParserContext { BaseUri = new Uri("pack://application:,,,/NimCap.Screenshot;component/") });
         using var theme = new ThemeService(); theme.Start();

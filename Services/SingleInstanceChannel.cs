@@ -1,11 +1,11 @@
 using System.IO.Pipes;
 using System.Text.Json;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed class SingleInstanceChannel : IDisposable
 {
-    private const string PipeName = "SnapSharp.SingleInstance.Commands";
+    private const string PipeName = "NimCap.Screenshot.SingleInstance.Commands";
     private readonly CancellationTokenSource _cancellation = new();
     private Task? _listener;
 

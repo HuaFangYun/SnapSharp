@@ -1,11 +1,11 @@
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 internal sealed record RecordingEnvironment(bool Supported, bool VisualCpp, bool MediaFoundation, bool IsNEdition, string Description)
 {

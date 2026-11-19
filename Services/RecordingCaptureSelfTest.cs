@@ -1,14 +1,14 @@
-using SnapSharp.Models;
+using NimCap.Screenshot.Models;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Windows.Media.Editing;
 using Windows.Storage;
-using SnapSharp.Views;
+using NimCap.Screenshot.Views;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 // Explicit opt-in only: exercise the actual display source and service state machine.
 internal static class RecordingCaptureSelfTest

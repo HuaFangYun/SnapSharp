@@ -3,13 +3,13 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
-using SnapSharp.Localization;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Localization;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using TextBlock = System.Windows.Controls.TextBlock;
 using Point = System.Windows.Point;
 
-namespace SnapSharp.WindowChecks;
+namespace NimCap.Screenshot.WindowChecks;
 
 internal static partial class Program
 {

@@ -1,11 +1,11 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
-using SnapSharp.Native;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Native;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Windows.Threading;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed class GlobalHotkeyHost : IDisposable
 {

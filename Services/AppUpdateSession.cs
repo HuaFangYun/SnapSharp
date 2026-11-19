@@ -1,7 +1,7 @@
 using System.Net.Http;
-using L = SnapSharp.Localization.UiText;
+using L = NimCap.Screenshot.Localization.UiText;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 /// <summary>One automatic check per process; settings reuse its result without another request.</summary>
 public sealed class AppUpdateSession

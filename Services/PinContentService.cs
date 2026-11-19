@@ -1,5 +1,5 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using FontFamily = System.Windows.Media.FontFamily;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed record PinContent(BitmapSource Image, string? Text = null, Color? Color = null);
 

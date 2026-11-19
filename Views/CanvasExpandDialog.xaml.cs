@@ -1,10 +1,10 @@
-using SnapSharp.Services;
-using L = SnapSharp.Localization.UiText;
+using NimCap.Screenshot.Services;
+using L = NimCap.Screenshot.Localization.UiText;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public partial class CanvasExpandDialog : Window
 {

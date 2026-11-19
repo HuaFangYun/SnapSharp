@@ -26,7 +26,7 @@ function Safe-File([string]$Root, [string]$Relative) {
 
 function Replace-File([string]$Source, [string]$Destination) {
     [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($Destination)) | Out-Null
-    $temporary = $Destination + '.snapsharp-new-' + [Guid]::NewGuid().ToString('N')
+    $temporary = $Destination + '.nimcap-screenshot-new-' + [Guid]::NewGuid().ToString('N')
     $temporaryFiles.Add($temporary)
     [IO.File]::Copy($Source, $temporary, $false)
     if ([IO.File]::Exists($Destination)) { [IO.File]::Replace($temporary, $Destination, [System.Management.Automation.Language.NullString]::Value) }

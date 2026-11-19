@@ -1,13 +1,13 @@
-using L = SnapSharp.Localization.UiText;
-using SnapSharp.Models;
-using SnapSharp.Views;
-using SnapSharp.Native;
-using SnapSharp.Plugins;
+using L = NimCap.Screenshot.Localization.UiText;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Views;
+using NimCap.Screenshot.Native;
+using NimCap.Screenshot.Plugins;
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace SnapSharp.Services;
+namespace NimCap.Screenshot.Services;
 
 public sealed class AppController : IDisposable
 {
@@ -333,7 +333,7 @@ public sealed class AppController : IDisposable
     private async void OpenScrollProject()
     {
         if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("ScrollingCapture"), L.Get("StopTheCurrentCaptureFirst")); return; }
-        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("SnapSharpScrollingCaptureProjectSsscroll") };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = L.Get("NimCapScrollingCaptureProjectSsscroll") };
         if (WindowDialogService.ShowDialog(dialog) != true) return;
         var placeholder = BitmapSource.Create(32, 32, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, new byte[32 * 32 * 4], 32 * 4); placeholder.Freeze();
         var window = CreateScrollWindow(System.Drawing.Rectangle.Empty, placeholder);

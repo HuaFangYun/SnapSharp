@@ -9,15 +9,15 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using MahApps.Metro.IconPacks;
-using SnapSharp.Services;
-using L = SnapSharp.Localization.UiText;
+using NimCap.Screenshot.Services;
+using L = NimCap.Screenshot.Localization.UiText;
 using Button = System.Windows.Controls.Button;
 using Image = System.Windows.Controls.Image;
 using TextBlock = System.Windows.Controls.TextBlock;
 using FontFamily = System.Windows.Media.FontFamily;
 using Size = System.Windows.Size;
 
-namespace SnapSharp.Views;
+namespace NimCap.Screenshot.Views;
 
 public sealed partial class ScreenRulerWindow
 {

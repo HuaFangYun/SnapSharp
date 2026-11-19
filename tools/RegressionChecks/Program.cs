@@ -8,15 +8,15 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using SnapSharp.Models;
-using SnapSharp.Services;
-using SnapSharp.Views;
+using NimCap.Screenshot.Models;
+using NimCap.Screenshot.Services;
+using NimCap.Screenshot.Views;
 using CheckBox = System.Windows.Controls.CheckBox;
 using ComboBox = System.Windows.Controls.ComboBox;
 using ProgressBar = System.Windows.Controls.ProgressBar;
 using Point = System.Windows.Point;
 
-namespace SnapSharp.RegressionChecks;
+namespace NimCap.Screenshot.RegressionChecks;
 
 internal static partial class Program
 {
@@ -94,7 +94,7 @@ internal static partial class Program
     private static void WindowChecks(bool downloadOnly = false)
     {
         // Load the production resources without starting the tray/controller or touching user data.
-        var app = new SnapSharp.App { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+        var app = new NimCap.Screenshot.App { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         app.InitializeComponent();
         using var theme = new ThemeService(); theme.Start();
         if (downloadOnly)
@@ -234,7 +234,7 @@ internal static partial class Program
         typeof(SelectionWindow).GetField("_selection", PrivateInstance)!.SetValue(overlay, Suggest(pointer));
         Invoke(overlay, "BeginInlineEditing");
         var inlineSurface = (AnnotationSurface)overlay.FindName("AnnotationView");
-        var inlineModel = (SnapSharp.ViewModels.EditorViewModel)inlineSurface.DataContext;
+        var inlineModel = (NimCap.Screenshot.ViewModels.EditorViewModel)inlineSurface.DataContext;
         inlineModel.ActivateTool(AnnotationTool.Text);
         Invoke(inlineSurface, "BeginInlineTextEdit", null, new Point(20, 20));
         var inlineText = (System.Windows.Controls.TextBox)typeof(AnnotationSurface).GetField("_inlineEditor", PrivateInstance)!.GetValue(inlineSurface)!;
@@ -247,7 +247,7 @@ internal static partial class Program
         Require(!inlineModel.ResumeDrawing(), "Select toolbar action retained the previous creation tool.");
         overlay.Close();
 
-        var model = new SnapSharp.ViewModels.EditorViewModel(image);
+        var model = new NimCap.Screenshot.ViewModels.EditorViewModel(image);
         var surface = new AnnotationSurface { Width = 800, Height = 600, DataContext = model };
         model.ActivateTool(AnnotationTool.Arrow);
         for (var i = 0; i < 3; i++)
