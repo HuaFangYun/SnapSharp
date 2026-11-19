@@ -237,7 +237,7 @@ public partial class App : Application
         if (!ownsMutex)
         {
             if (!SingleInstanceChannel.TrySend(e.Args))
-                MessageBox.Show(L.Get("SnapSharpIsAlreadyRunningButTheExisting"), "SnapSharp",
+                MessageBox.Show(L.Get("SnapSharpIsAlreadyRunningButTheExisting"), "NimCap Screenshot",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             Shutdown();
             return;
@@ -413,7 +413,7 @@ public partial class App : Application
     {
         var resources = new ResourceDictionary
         {
-            Source = new Uri("/SnapSharp;component/Views/ToolbarStyles.xaml", UriKind.Relative)
+            Source = new Uri("/NimCap.Screenshot;component/Views/ToolbarStyles.xaml", UriKind.Relative)
         };
         foreach (var kind in new[] { MahApps.Metro.IconPacks.PackIconLucideKind.ArrowUpRight,
             MahApps.Metro.IconPacks.PackIconLucideKind.Square, MahApps.Metro.IconPacks.PackIconLucideKind.Circle,
@@ -440,7 +440,7 @@ public partial class App : Application
     {
         var resources = new ResourceDictionary
         {
-            Source = new Uri("/SnapSharp;component/Views/ToolbarStyles.xaml", UriKind.Relative)
+            Source = new Uri("/NimCap.Screenshot;component/Views/ToolbarStyles.xaml", UriKind.Relative)
         };
         var panel = new System.Windows.Controls.StackPanel { Resources = resources };
         var button = new System.Windows.Controls.Button { Style = (Style)resources["ToolbarButton"], Content = "test" };
@@ -680,7 +680,7 @@ public partial class App : Application
         var framesPerSecond = AnnotationSurface.BenchmarkCachedPreview();
         Directory.CreateDirectory(AppPaths.DiagnosticsRoot);
         File.WriteAllText(AppPaths.RenderBenchmark,
-            $"SnapSharp 4K cached preview command benchmark{Environment.NewLine}" +
+            $"NimCap Screenshot 4K cached preview command benchmark{Environment.NewLine}" +
             $"UTC: {DateTime.UtcNow:O}{Environment.NewLine}" +
             $"Frames: 600{Environment.NewLine}" +
             $"FPS: {framesPerSecond:F1}{Environment.NewLine}" +
@@ -716,7 +716,7 @@ public partial class App : Application
     private sealed class SelfTestPlugin : ISnapSharpPlugin, IImageProcessorPlugin
     {
         public PluginMetadata Metadata { get; } = new("self-test.identity", "Self-test identity",
-            new Version(1, 0), "SnapSharp", [PluginCapability.ImageProcessor]);
+            new Version(1, 0), "NimCap Screenshot", [PluginCapability.ImageProcessor]);
         public string Id => Metadata.Id;
         public void Register(IPluginRegistry registry) => registry.RegisterImageProcessor(this);
         public ValueTask<BitmapSource> ProcessAsync(BitmapSource image, PluginExecutionContext context,

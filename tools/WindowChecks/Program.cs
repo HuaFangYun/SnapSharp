@@ -24,7 +24,7 @@ internal static partial class Program
             resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "x", "http://schemas.microsoft.com/winfx/2006/xaml");
             resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "services", "clr-namespace:SnapSharp.Services;assembly=SnapSharp");
             app.Resources = (ResourceDictionary)System.Windows.Markup.XamlReader.Parse(resources.ToString(),
-                new System.Windows.Markup.ParserContext { BaseUri = new Uri("pack://application:,,,/SnapSharp;component/") });
+                new System.Windows.Markup.ParserContext { BaseUri = new Uri("pack://application:,,,/NimCap.Screenshot;component/") });
             using var theme = new ThemeService(); theme.Start();
             if (args.Contains("--capture-hardware-only"))
             {

@@ -1,16 +1,20 @@
-# SnapSharp：Windows 截图、OCR、翻译、抠图与录屏工具
+# NimCap Screenshot
+
+**NimCap 截图工具**：Windows 截图、OCR、翻译、抠图与录屏工具。
 
 **简体中文** | [English](README.en.md)
 
-[GitHub](https://github.com/leelongjiang/SnapSharp) · [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [官方网站](https://www.snapsharp.cn/) · [下载发布版](https://github.com/leelongjiang/SnapSharp/releases)
+[GitHub](https://github.com/nimcap/nimcap-screenshot) · [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [官方网站](https://jietu.nimcap.com/) · [下载发布版](https://github.com/nimcap/nimcap-screenshot/releases)
 
-SnapSharp 已实现区域／全屏／当前窗口截图、元素选取、截图标注与一键脱敏、桌面贴图、滚动长截图、图片文字 OCR、证件字段提取、表格转 CSV／XLSX、公式转 LaTeX、二维码／条码识别、本地翻译、透明背景抠图、屏幕取色与测量，以及 MP4／GIF 录屏。**本地 AI、离线可用、数据留在本机**：OCR、表格、公式、抠图和翻译均可通过本地模型处理，图片与文字无需上传云端。提前准备好程序、所需模型及运行依赖后，可在断网或无互联网连接的内网环境中使用这些本地功能，减少敏感资料外传风险，适合重视隐私与数据安全的个人及内网办公场景。在线翻译与以图搜图为可选功能，默认关闭，启用后每次发送仍需确认。
+NimCap Screenshot 已实现区域／全屏／当前窗口截图、元素选取、截图标注与一键脱敏、桌面贴图、滚动长截图、图片文字 OCR、证件字段提取、表格转 CSV／XLSX、公式转 LaTeX、二维码／条码识别、本地翻译、透明背景抠图、屏幕取色与测量，以及 MP4／GIF 录屏。**本地 AI、离线可用、数据留在本机**：OCR、表格、公式、抠图和翻译均可通过本地模型处理，图片与文字无需上传云端。提前准备好程序、所需模型及运行依赖后，可在断网或无互联网连接的内网环境中使用这些本地功能，减少敏感资料外传风险，适合重视隐私与数据安全的个人及内网办公场景。在线翻译与以图搜图为可选功能，默认关闭，启用后每次发送仍需确认。
+
+品牌为 **NimCap**，软件名为 **NimCap Screenshot**，仓库名为 `nimcap-screenshot`。项目原名 SnapSharp；内部命名空间、插件接口和已有用户数据目录保留兼容。
 
 ## 软件介绍
 
 识别窗口新增“去水印”：提供 MI-GAN（快速）、LaMa（默认）、Moebius（精细候选）和区域／智能识别所需的 SLBR，均支持软件内自动下载、校验和配置，可选择官方源或中国源，无需手动转换模型。支持原图对比、撤销及复制／保存／贴图。详见[去水印与图像修复](docs/去水印与图像修复.md)。
 
-SnapSharp 是用 C#、WPF 和 .NET 10 开发的 Windows x64 桌面工具。启动后驻留系统托盘，通过全局快捷键或托盘菜单工作，适合制作教程、反馈界面问题、整理图片资料、提取表格和公式，以及录制操作演示。
+NimCap Screenshot 是用 C#、WPF 和 .NET 10 开发的 Windows x64 桌面工具。启动后驻留系统托盘，通过全局快捷键或托盘菜单工作，适合制作教程、反馈界面问题、整理图片资料、提取表格和公式，以及录制操作演示。
 
 截图后可以直接标注、脱敏、复制、保存或贴到桌面；外部复制的图片也能从“识别粘贴板图片…”进入统一识别窗口。普通截图、编辑、贴图和测量不需要下载 AI 模型。
 
@@ -45,7 +49,7 @@ SnapSharp 是用 C#、WPF 和 .NET 10 开发的 Windows x64 桌面工具。启�
 
 按 `Ctrl+Shift+A` 进入截图，默认元素模式可悬停吸附控件，也可直接拖动框选。使用 `Tab` 或顶部选择器切换模式，选定后添加箭头、文字、序号或模糊效果。完成后复制、保存，或继续识别。
 
-![SnapSharp 截图选区与标注工具栏](Screenshot/1.png)
+![NimCap Screenshot 截图选区与标注工具栏](Screenshot/1.png)
 
 <a id="recognition"></a>
 <a id="cutout"></a>
@@ -54,11 +58,11 @@ SnapSharp 是用 C#、WPF 和 .NET 10 开发的 Windows x64 桌面工具。启�
 
 复制图片后，从托盘打开“识别粘贴板图片…”，选择文字、证件、条码、表格、公式或抠图，再开始处理。翻译先使用 OCR 结果或输入文字；透明背景请保存为 PNG 或支持透明度的 WebP。
 
-![SnapSharp 统一图片识别窗口](Screenshot/2.png)
+![NimCap Screenshot 统一图片识别窗口](Screenshot/2.png)
 
 | 原图 | 抠图结果 |
 |---|---|
-| ![抠图前的原始人像](Screenshot/3.png) | ![SnapSharp 本地抠图结果](Screenshot/4.png) |
+| ![抠图前的原始人像](Screenshot/3.png) | ![NimCap Screenshot 本地抠图结果](Screenshot/4.png) |
 
 <a id="pins"></a>
 
@@ -84,13 +88,13 @@ SnapSharp 是用 C#、WPF 和 .NET 10 开发的 Windows x64 桌面工具。启�
 
 托盘“屏幕尺子”可测长度、宽高、两点距离和角度；截图放大镜可复制颜色值。图片保存窗口可调整尺寸和编码选项并预览结果，长图可输出为 A4 分页 PDF。
 
-![SnapSharp 屏幕尺子与测量工具](Screenshot/屏幕尺子.png)
+![NimCap Screenshot 屏幕尺子与测量工具](Screenshot/屏幕尺子.png)
 
 <a id="start"></a>
 
 ## 下载与快速上手
 
-1. 从 [GitHub Releases](https://github.com/leelongjiang/SnapSharp/releases) 下载 Windows x64 发布包，解压并保留整个目录，运行 `SnapSharp.exe`。
+1. 从 [GitHub Releases](https://github.com/nimcap/nimcap-screenshot/releases) 下载 Windows x64 发布包，解压并保留整个目录，运行 `NimCap.Screenshot.exe`。
 2. 在任务栏右下角找到托盘图标，按 `Ctrl+Shift+A` 框选截图。
 3. 添加标注后复制、保存或贴图；按 `Esc` 取消当前截图。
 4. 需要 OCR、表格、公式、抠图或本地翻译时，再打开设置下载对应模型并保存配置。
@@ -133,8 +137,8 @@ SnapSharp 是用 C#、WPF 和 .NET 10 开发的 Windows x64 桌面工具。启�
 - [中文使用指南](docs/使用指南.md) · [English user guide](docs/UserGuide.en.md)
 - [配置与依赖](docs/配置与依赖.md) · [构建与测试](docs/构建与测试.md)
 - [架构](docs/ARCHITECTURE.md) · [多语言](docs/本地化.md) · [异常与推理隔离](docs/异常与推理隔离.md)
-- [功能规格与路线图](<docs/SnapSharp 功能规格与路线图.md>) · [配图来源说明](Screenshot/Blog/README.md)
+- [功能规格与路线图](<docs/NimCap Screenshot 功能规格与路线图.md>) · [配图来源说明](Screenshot/Blog/README.md)
 
 功能清单依据当前仓库代码整理；识别准确率、复杂页面拼接、真实大模型与不同硬件兼容性仍需按具体输入核对。规划与候选方案单独记录在路线图，不计入已实现功能。
 
-Copyright 2026 leelongjiang 与 SnapSharp contributors。项目采用 [Apache License 2.0](LICENSE)，第三方组件和模型许可见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+Copyright 2026 leelongjiang 与 NimCap Screenshot contributors。项目采用 [Apache License 2.0](LICENSE)，第三方组件和模型许可见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。

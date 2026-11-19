@@ -318,12 +318,14 @@
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:About}" Tag="Info"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:About}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ApplicationInformationOpenSourceLicenseAndThird}" Style="{StaticResource Hint}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
-          <TextBlock Text="SnapSharp" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="NimCap Screenshot" Style="{StaticResource SectionTitle}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:AnOpenSourceWindowsToolForScreenshots}" Margin="0,0,0,18" />
           <TextBlock x:Name="AboutVersion" Margin="0,0,0,6" />
-          <TextBlock Text="Copyright 2026 leelongjiang and SnapSharp contributors" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,18" />
+          <TextBlock Text="Copyright 2026 leelongjiang and NimCap Screenshot contributors" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,18" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OfficialWebsite}" FontWeight="SemiBold" Margin="0,0,0,8" />
+          <TextBlock Margin="0,0,0,18"><Hyperlink NavigateUri="https://jietu.nimcap.com" Click="AboutLink_Click" Foreground="{DynamicResource AccentForegroundBrush}">https://jietu.nimcap.com</Hyperlink></TextBlock>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ProjectWebsite}" FontWeight="SemiBold" Margin="0,0,0,8" />
-          <TextBlock Margin="0,0,0,18"><Hyperlink NavigateUri="https://github.com/leelongjiang/SnapSharp" Click="AboutLink_Click" Foreground="{DynamicResource AccentForegroundBrush}">https://github.com/leelongjiang/SnapSharp</Hyperlink></TextBlock>
+          <TextBlock Margin="0,0,0,18"><Hyperlink NavigateUri="https://github.com/nimcap/nimcap-screenshot" Click="AboutLink_Click" Foreground="{DynamicResource AccentForegroundBrush}">https://github.com/nimcap/nimcap-screenshot</Hyperlink></TextBlock>
         </StackPanel></Border>
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:AppUpdateTitle}" Style="{StaticResource SectionTitle}" />

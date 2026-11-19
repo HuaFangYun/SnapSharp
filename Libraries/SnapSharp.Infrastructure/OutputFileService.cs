@@ -8,7 +8,7 @@ namespace SnapSharp.Services;
 /// <summary>Image names and safe writes shared by manual export and automatic capture output.</summary>
 public static class OutputFileService
 {
-    public const string DefaultTemplate = "SnapSharp-{date}-{time}-{seq}";
+    public const string DefaultTemplate = "NimCap-Screenshot-{date}-{time}-{seq}";
     private static long _sequence;
 
     public static string ExpandTemplate(string template, DateTime time, int width, int height, long sequence)

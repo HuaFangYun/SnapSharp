@@ -59,7 +59,7 @@ public sealed class ElementDetectionService : IElementDetectionService
                     request.Completion.TrySetResult([]);
                 }
             }
-        }) { IsBackground = true, Name = "SnapSharp element detection" };
+        }) { IsBackground = true, Name = "NimCap Screenshot element detection" };
         worker.SetApartmentState(ApartmentState.MTA);
         worker.Start();
         return queue;

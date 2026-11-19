@@ -44,7 +44,7 @@ def social_card(language, logo):
             draw.ellipse((x, y, x + 2, y + 2), fill="#30443e")
     logo = logo.resize((42, 42), Image.Resampling.LANCZOS)
     image.paste(logo, (55, 54), logo)
-    draw.text((109, 53), "SnapSharp", font=font(30, True), fill="#f4f7ff")
+    draw.text((109, 53), "NimCap Screenshot", font=font(30, True), fill="#f4f7ff")
     chinese = language == "zh"
     draw.text((56, 155), "截图之后，" if chinese else "Capture it.", font=font(49, True, chinese), fill="#f4f7ff")
     draw.text((56, 227), "交给本地 AI。" if chinese else "Keep it local.", font=font(49, True, chinese), fill="#d8f58a")

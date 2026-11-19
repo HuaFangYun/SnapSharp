@@ -65,7 +65,7 @@ internal static class AppUpdateInstaller
             }
             cancellation.ThrowIfCancellationRequested();
             var prepared = ExtractPackage(archive, directory, cancellation);
-            var productVersion = FileVersionInfo.GetVersionInfo(Path.Combine(prepared.Stage, "SnapSharp.exe")).FileVersion;
+            var productVersion = FileVersionInfo.GetVersionInfo(Path.Combine(prepared.Stage, "NimCap.Screenshot.exe")).FileVersion;
             if (!Version.TryParse(productVersion, out var version) || AppUpdateService.Normalize(version) != release.Version)
                 throw new InvalidDataException("The update executable version does not match the release.");
             return prepared;
@@ -103,10 +103,10 @@ internal static class AppUpdateInstaller
             if (total > MaximumExpanded || !paths.Add(name)) throw new InvalidDataException("Oversized or duplicate update files.");
             entries.Add((entry, name));
         }
-        var executables = entries.Where(x => x.Name.Equals("SnapSharp.exe", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.EndsWith("/SnapSharp.exe", StringComparison.OrdinalIgnoreCase)).ToArray();
-        if (executables.Length != 1) throw new InvalidDataException("The package must contain one SnapSharp.exe.");
-        var prefix = executables[0].Name[..^"SnapSharp.exe".Length];
+        var executables = entries.Where(x => x.Name.Equals("NimCap.Screenshot.exe", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.EndsWith("/NimCap.Screenshot.exe", StringComparison.OrdinalIgnoreCase)).ToArray();
+        if (executables.Length != 1) throw new InvalidDataException("The package must contain one NimCap.Screenshot.exe.");
+        var prefix = executables[0].Name[..^"NimCap.Screenshot.exe".Length];
         var files = new List<string>();
         foreach (var (entry, name) in entries)
         {
@@ -135,7 +135,7 @@ internal static class AppUpdateInstaller
             if (written != entry.Length) throw new InvalidDataException("Truncated update file.");
             files.Add(relative);
         }
-        foreach (var required in new[] { "SnapSharp.exe", "SnapSharp.dll", "SnapSharp.deps.json", "SnapSharp.runtimeconfig.json", "coreclr.dll", "hostfxr.dll" })
+        foreach (var required in new[] { "NimCap.Screenshot.exe", "NimCap.Screenshot.dll", "NimCap.Screenshot.deps.json", "NimCap.Screenshot.runtimeconfig.json", "coreclr.dll", "hostfxr.dll" })
             if (!files.Contains(required, StringComparer.OrdinalIgnoreCase)) throw new InvalidDataException("Incomplete self-contained update package: " + required);
         return new PreparedAppUpdate(directory, stage, files.ToArray());
     }
@@ -157,7 +157,7 @@ internal static class AppUpdateInstaller
                 uri.Host is not ("github.com" or "release-assets.githubusercontent.com" or "objects.githubusercontent.com"))
                 throw new InvalidDataException("Untrusted update download host.");
             using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.UserAgent.ParseAdd("SnapSharp-Updater/1.0");
+            request.Headers.UserAgent.ParseAdd("NimCap-Screenshot-Updater/1.0");
             var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellation).ConfigureAwait(false);
             if ((int)response.StatusCode is >= 300 and <= 399 && response.Headers.Location is { } location)
             {

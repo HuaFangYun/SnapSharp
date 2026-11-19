@@ -11,6 +11,6 @@
     <Compile Include="../RegressionChecks/ScrollingChecks.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="VerticalSamples.cs" />
-    <ProjectReference Include="../../SnapSharp.csproj" />
+    <ProjectReference Include="../../NimCap.Screenshot.csproj" />
   </ItemGroup>
 </Project>

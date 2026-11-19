@@ -95,7 +95,7 @@ internal static class ResumableModelDownload
                 percentage?.Report(null);
                 progress.Report(L.Format("LocalDownloadConnecting", name, uri.Host));
                 using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-                request.Headers.UserAgent.ParseAdd("SnapSharp/1.0");
+                request.Headers.UserAgent.ParseAdd("NimCap-Screenshot/1.0");
                 if (offset > 0) request.Headers.Range = new RangeHeaderValue(offset, null);
                 using var connection = CancellationTokenSource.CreateLinkedTokenSource(token);
                 connection.CancelAfter(StallTimeout);

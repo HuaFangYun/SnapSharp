@@ -47,7 +47,7 @@ public sealed class TrayService : IDisposable
         menu.Items.Add(_settingsItem);
         _exitItem = LocalizedMenu("Exit"); _exitItem.Click += (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty);
         menu.Items.Add(_exitItem);
-        _notifyIcon = new TaskbarIcon { IconSource = CreateTrayIconSource(), ToolTipText = "SnapSharp", ContextMenu = menu };
+        _notifyIcon = new TaskbarIcon { IconSource = CreateTrayIconSource(), ToolTipText = "NimCap Screenshot", ContextMenu = menu };
         _notifyIcon.TrayMouseDoubleClick += (_, _) => ActionRequested?.Invoke(GlobalAction.Region);
         UpdateHotkeyLabels(new AppSettings());
     }
@@ -151,7 +151,7 @@ public sealed class TrayService : IDisposable
     private static BitmapSource CreateTrayIconSource()
     {
         var source = new BitmapImage(); source.BeginInit(); source.CacheOption = BitmapCacheOption.OnLoad;
-        source.UriSource = new Uri("pack://application:,,,/SnapSharp;component/logo.ico", UriKind.Absolute); source.EndInit(); source.Freeze(); return source;
+        source.UriSource = new Uri("pack://application:,,,/NimCap.Screenshot;component/logo.ico", UriKind.Absolute); source.EndInit(); source.Freeze(); return source;
     }
 }
 

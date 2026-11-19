@@ -306,7 +306,7 @@ public partial class RecognitionWindow : Window
     private void ExportDocument_Click(object sender, RoutedEventArgs e)
     {
         if (_busy || _identityDocument is null) return;
-        if (SaveBytes(Encoding.UTF8.GetBytes(DocumentEditor.Text), L.Get("TextTxt"), "SnapSharp-document")) _identityBaseline = IdentitySnapshot;
+        if (SaveBytes(Encoding.UTF8.GetBytes(DocumentEditor.Text), L.Get("TextTxt"), "NimCap-Screenshot-document")) _identityBaseline = IdentitySnapshot;
     }
     private void Settings_Click(object sender, RoutedEventArgs e)
     {
@@ -381,7 +381,7 @@ public partial class RecognitionWindow : Window
     private void CopyText_Click(object sender, RoutedEventArgs e) { try { OutputActions.CopyText(TextEditor.Text); if (CurrentTextView == "Source") _baseline = _sourceText; Status.Text = L.Get("CurrentTextCopied"); } catch (Exception ex) { Status.Text = ex.Message; } }
     private void ExportText_Click(object sender, RoutedEventArgs e)
     {
-        if (SaveBytes(Encoding.UTF8.GetBytes(TextEditor.Text), Mode == "Formula" ? L.Get("LaTeXTexTextTxt") : L.Get("TextTxt"), "SnapSharp-text") && CurrentTextView == "Source") _baseline = _sourceText;
+        if (SaveBytes(Encoding.UTF8.GetBytes(TextEditor.Text), Mode == "Formula" ? L.Get("LaTeXTexTextTxt") : L.Get("TextTxt"), "NimCap-Screenshot-text") && CurrentTextView == "Source") _baseline = _sourceText;
     }
     private void ExportTable_Click(object sender, RoutedEventArgs e)
     {
@@ -389,7 +389,7 @@ public partial class RecognitionWindow : Window
         {
             if (!CellsGrid.CommitEdit(DataGridEditingUnit.Cell, true) || !CellsGrid.CommitEdit(DataGridEditingUnit.Row, true)) throw new ArgumentException(L.Get("CorrectInvalidTableValuesFirst"));
             var csv = ((FrameworkElement)sender).Tag.ToString() == "csv";
-            if (SaveBytes(csv ? RecognitionExport.Csv(_cells) : RecognitionExport.Xlsx(_cells), csv ? "CSV|*.csv" : "Excel|*.xlsx", "SnapSharp-table")) _tableBaseline = TableSnapshot;
+            if (SaveBytes(csv ? RecognitionExport.Csv(_cells) : RecognitionExport.Xlsx(_cells), csv ? "CSV|*.csv" : "Excel|*.xlsx", "NimCap-Screenshot-table")) _tableBaseline = TableSnapshot;
         }
         catch (Exception ex) { Status.Text = ex.Message; }
     }

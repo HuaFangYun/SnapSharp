@@ -214,7 +214,7 @@ internal static partial class Program
         if (framework == "winforms")
         {
             using var form = new System.Windows.Forms.Form
-            { Text = "SnapSharp element fixture", ShowInTaskbar = false, StartPosition = System.Windows.Forms.FormStartPosition.Manual,
+            { Text = "NimCap Screenshot element fixture", ShowInTaskbar = false, StartPosition = System.Windows.Forms.FormStartPosition.Manual,
                 Bounds = new Rectangle(60, 150, 500, 350) };
             var panel = new System.Windows.Forms.Panel { Bounds = new Rectangle(20, 20, 400, 200) };
             var button = new System.Windows.Forms.Button { Text = "Fixture button", AccessibleName = "Fixture button", Bounds = new Rectangle(20, 20, 200, 40), Enabled = false };
@@ -236,7 +236,7 @@ internal static partial class Program
             var input = new TextBox { Width = 240, Height = 30, Text = "Fixture input" };
             AutomationProperties.SetName(button, "Fixture button"); AutomationProperties.SetName(input, "Fixture input");
             panel.Children.Add(button); panel.Children.Add(input);
-            var window = new Window { Title = "SnapSharp element fixture", ShowInTaskbar = false, ShowActivated = false,
+            var window = new Window { Title = "NimCap Screenshot element fixture", ShowInTaskbar = false, ShowActivated = false,
                 Left = 60, Top = 150, Width = 500, Height = 350, Content = panel };
             window.ContentRendered += (_, _) =>
             {

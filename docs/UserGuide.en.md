@@ -1,16 +1,16 @@
-# SnapSharp User Guide: Screenshots, Scrolling Capture, OCR, Translation, Background Removal, and Screen Recording
+# NimCap Screenshot User Guide: Screenshots, Scrolling Capture, OCR, Translation, Background Removal, and Screen Recording
 
 [简体中文](使用指南.md) | **English**
 
-Repository mirrors: [GitHub](https://github.com/leelongjiang/SnapSharp) | [Gitee](https://gitee.com/lilongjiang/SnapSharp)
+Repository mirrors: [GitHub](https://github.com/nimcap/nimcap-screenshot) | [Gitee](https://gitee.com/lilongjiang/SnapSharp)
 
-SnapSharp is a Windows screenshot and image-processing tool. In addition to capturing screenshots, drawing arrows, and applying pixelation, it can pin images above other windows, stitch scrolling screenshots, recognize text in images, translate text, remove image backgrounds, and record MP4 or GIF files.
+NimCap Screenshot is a Windows screenshot and image-processing tool. In addition to capturing screenshots, drawing arrows, and applying pixelation, it can pin images above other windows, stitch scrolling screenshots, recognize text in images, translate text, remove image backgrounds, and record MP4 or GIF files.
 
-After launch, SnapSharp stays in the system tray and does not open a main window by default. Start common tasks with a keyboard shortcut or right-click the tray icon to choose a feature.
+After launch, NimCap Screenshot stays in the system tray and does not open a main window by default. Start common tasks with a keyboard shortcut or right-click the tray icon to choose a feature.
 
 ## Take Your First Screenshot in One Minute
 
-1. Launch `SnapSharp.exe` and find its icon in the notification area. Expand the hidden icons if necessary.
+1. Launch `NimCap.Screenshot.exe` and find its icon in the notification area. Expand the hidden icons if necessary.
 2. Press `Ctrl+Shift+A`, then drag to select an area.
 3. Choose an arrow, text, or pixelation tool from the toolbar beside the selection and annotate the screenshot directly.
 4. Double-click the selected area or click Copy, then paste the result into a chat or editor. You can also save it or pin it above other windows.
@@ -25,7 +25,7 @@ Capturing, annotating, and saving screenshots do not require an AI model. OCR, b
 
 ### System requirements
 
-SnapSharp runs on Windows 10 version 2004 or later and Windows 11. It is currently available for x64 systems.
+NimCap Screenshot runs on Windows 10 version 2004 or later and Windows 11. It is currently available for x64 systems.
 
 - The self-contained release does not require a separate .NET Desktop Runtime. Keep the entire application directory instead of copying only the EXE.
 - The framework-dependent release requires the .NET 10 Desktop Runtime.
@@ -46,13 +46,13 @@ Tray menus, window menus, and pinned-image context menus include icons for their
 | `Ctrl+Shift+V` | Create a pinned image from the clipboard |
 | `Ctrl+Shift+H` | Hide/show all pinned images |
 
-You can change these shortcuts under **Settings → Shortcuts**. If a shortcut conflicts with another application, SnapSharp displays a warning. Choose an unused combination and save again. Optional shortcuts, such as restoring the most recently closed pin or restoring mouse interaction, may be left blank.
+You can change these shortcuts under **Settings → Shortcuts**. If a shortcut conflicts with another application, NimCap Screenshot displays a warning. Choose an unused combination and save again. Optional shortcuts, such as restoring the most recently closed pin or restoring mouse interaction, may be left blank.
 
 Every tray action can have a shortcut. Use each row's **In tray** checkbox to show or hide its menu entry; hidden actions keep their shortcuts. Empty submenus hide automatically. **Settings** and **Exit** are always visible and are not shortcut rows.
 
 The tray menu also provides 3-, 5-, and 10-second delayed captures for menus, tooltips, and other interfaces that must be opened first. You can cancel during the countdown.
 
-To close SnapSharp, right-click the tray icon and choose **Exit**. If a recording is in progress, stop it and wait for the file to finish saving instead of terminating the process. You can enable launch at Windows sign-in from Settings.
+To close NimCap Screenshot, right-click the tray icon and choose **Exit**. If a recording is in progress, stop it and wait for the file to finish saving instead of terminating the process. You can enable launch at Windows sign-in from Settings.
 
 <a id="selection"></a>
 
@@ -65,12 +65,12 @@ The toolbar has two levels. The main toolbar selects tools and output actions, w
 Available tools include rectangles, ellipses, arrows, pens, highlighters, text, speech bubbles, numbered markers, watermarks, pixelation, blur, spotlights, and magnifiers. Existing annotations can be selected, moved, resized, rotated, reordered, undone, and redone.
 
 <p align="center">
-  <img src="../Screenshot/1.png" alt="SnapSharp capture selection and annotation toolbars" width="900">
+  <img src="../Screenshot/1.png" alt="NimCap Screenshot capture selection and annotation toolbars" width="900">
 </p>
 <p align="center"><em>The selection, size indicator, annotation tools, and output actions share one overlay.</em></p>
 
 <p align="center">
-  <img src="../Screenshot/7.png" alt="Screenshot annotations created with SnapSharp" width="900">
+  <img src="../Screenshot/7.png" alt="Screenshot annotations created with NimCap Screenshot" width="900">
 </p>
 <p align="center"><em>Rectangles, ellipses, arrows, text, pens, highlights, and other annotations can be combined.</em></p>
 
@@ -153,7 +153,7 @@ After saving, you can copy the file, copy its path, reveal it in File Explorer, 
 Automatic saving and screenshot history are separate settings. Automatic saving is disabled by default. You can choose a destination, organize files by date, and define a filename template such as:
 
 ```text
-SnapSharp-{date}-{time}-{seq}
+NimCap Screenshot-{date}-{time}-{seq}
 ```
 
 Templates support `{date}`, `{time}`, `{width}`, `{height}`, and `{seq}`. A suffix is added when an automatically generated name conflicts with an existing file. Date-based folders apply only to automatic saving, not Save As.
@@ -188,7 +188,7 @@ When click-through is enabled, mouse input goes directly to the window behind a 
 1. Right-click the tray icon and choose **Scrolling Capture → Select Area and Start Scrolling Capture…**. You can also click **Scrolling Capture** on the normal area-capture toolbar.
 2. Select the content, adjust the edges, then click **Start Scrolling Capture** or press Enter.
 3. Place the pointer inside the area and scroll down slowly. Scrolling capture supports vertical scrolling only.
-4. During capture, SnapSharp displays a blue area border and eight circular anchors at the corners and edge midpoints. The border is click-through and does not block clicks or scrolling inside the area. Keep the window and selection in place; you can scroll up to revisit captured content.
+4. During capture, NimCap Screenshot displays a blue area border and eight circular anchors at the corners and edge midpoints. The border is click-through and does not block clicks or scrolling inside the area. Keep the window and selection in place; you can scroll up to revisit captured content.
 5. When finished, click `√` at the upper-right of the area to open the preview. Click `×` or press `Esc` to discard the capture.
 6. Inspect the seams in the preview, trim edges if needed, then copy, save, pin, or annotate the result.
 
@@ -217,12 +217,12 @@ Each scrolling-capture frame is limited to 16 million pixels, with a maximum of 
 **Recognize Clipboard Image…** in the tray menu is the central entry point for processing a copied image.
 
 <p align="center">
-  <img src="../Screenshot/2.png" alt="SnapSharp OCR, barcode, table, formula, and background-removal modes" width="900">
+  <img src="../Screenshot/2.png" alt="NimCap Screenshot OCR, barcode, table, formula, and background-removal modes" width="900">
 </p>
 <p align="center"><em>Use one window for text OCR, barcodes, tables, formulas, and one-click background removal.</em></p>
 
 1. Copy image content from a browser, chat application, or another program. Copy the image itself, not only its URL or file path.
-2. Right-click the SnapSharp tray icon and choose **Recognize Clipboard Image…**.
+2. Right-click the NimCap Screenshot tray icon and choose **Recognize Clipboard Image…**.
 3. The window displays the image without running recognition automatically. Select text OCR, barcode, table, formula, or background-removal mode at the top.
 4. Click **Start/Rerun**, or **Remove Background/Rerun** in background-removal mode.
 
@@ -247,7 +247,7 @@ The window opens without starting recognition. Choose **Remove watermark** and s
 5. Confirm that the model and dictionary paths were filled in, then click **Save Settings**.
 
 <p align="center">
-  <img src="../Screenshot/8.png" alt="SnapSharp OCR and recognition settings" width="900">
+  <img src="../Screenshot/8.png" alt="NimCap Screenshot OCR and recognition settings" width="900">
 </p>
 <p align="center"><em>Configure the OCR engine, ONNX compute device, and resource limits on the OCR and Recognition page.</em></p>
 
@@ -258,7 +258,7 @@ Python and CUDA are not required. You can instead use Windows OCR with installed
 Open an image containing text, select **Text OCR**, and start recognition. Review the result on the **Text/Barcode** page, where you can correct, copy, or export the text. Click a recognition box in the source image or a recognized line to locate its counterpart.
 
 <p align="center">
-  <img src="../Screenshot/5.png" alt="Local OCR results in SnapSharp" width="900">
+  <img src="../Screenshot/5.png" alt="Local OCR results in NimCap Screenshot" width="900">
 </p>
 <p align="center"><em>Recognition boxes, extracted text, confidence values, and source positions are linked.</em></p>
 
@@ -270,12 +270,12 @@ For first-time translation, choose an engine under **Settings → Translation, A
 - Online translation supports MyMemory, the Google web adapter, or LibreTranslate. You must explicitly authorize online processing and confirm the destination and text before sending. Quotas, pricing, and availability are determined by the provider.
 
 <p align="center">
-  <img src="../Screenshot/9.png" alt="SnapSharp local translation, online API, and privacy settings" width="900">
+  <img src="../Screenshot/9.png" alt="NimCap Screenshot local translation, online API, and privacy settings" width="900">
 </p>
 <p align="center"><em>Local translation and online APIs are configured separately; online sending is disabled by default.</em></p>
 
 <p align="center">
-  <img src="../Screenshot/6.png" alt="Local translation results in SnapSharp" width="900">
+  <img src="../Screenshot/6.png" alt="Local translation results in NimCap Screenshot" width="900">
 </p>
 <p align="center"><em>OCR output can be translated by a local model without uploading it to an external service.</em></p>
 
@@ -311,7 +311,7 @@ The path, input size, and preprocessing parameters are stored separately for eac
 
 | Original | Background removed |
 |---|---|
-| <img src="../Screenshot/3.png" alt="Original portrait before background removal" width="360"> | <img src="../Screenshot/4.png" alt="One-click background-removal result in SnapSharp" width="620"> |
+| <img src="../Screenshot/3.png" alt="Original portrait before background removal" width="360"> | <img src="../Screenshot/4.png" alt="One-click background-removal result in NimCap Screenshot" width="620"> |
 
 | Model | Recommended use | Approximate download |
 |---|---|---|
@@ -372,21 +372,21 @@ Closing the configuration window before recording keeps the floating toolbar vis
 |---|---|
 | MP4 | H.264 video with optional AAC audio; target rates of 15, 30, or 60 fps, subject to capture and encoding performance |
 | GIF | No audio, up to 15 fps, longest side from 160 to 800 pixels; maximum 60 seconds and 100 MB |
-| Default capture engine | WGC; try DXGI manually for compatibility problems. SnapSharp does not switch silently |
+| Default capture engine | WGC; try DXGI manually for compatibility problems. NimCap Screenshot does not switch silently |
 | MP4 bit rate | 0 selects a rate based on quality; 500–100000 kbps requests a fixed rate, in which case the quality preset no longer controls the encoding target. Simple content may still produce a lower actual file bit rate |
 | Timed stop | 0 means manual stop; maximum 86,400 seconds. Paused time is excluded |
 
-The recording window displays **actual/target fps**. If it reports an insufficient frame rate, reduce the target rate, select a smaller area, or try another capture engine or encoding method. SnapSharp uses timestamps to preserve the actual recording duration instead of forcing a small number of frames to play at the full rate. After a timed stop, it reports the achieved effective duration and continues saving the file.
+The recording window displays **actual/target fps**. If it reports an insufficient frame rate, reduce the target rate, select a smaller area, or try another capture engine or encoding method. NimCap Screenshot uses timestamps to preserve the actual recording duration instead of forcing a small number of frames to play at the full rate. After a timed stop, it reports the achieved effective duration and continues saving the file.
 
 Recording supports only a rectangular area on one display. Screenshot annotations and nonrectangular masks are not recorded. The area must be at least 16×16 and at most 7680×4320, with approximately 16.6 million pixels or fewer. MP4 requires even dimensions, so one pixel may be removed from the right or bottom of an odd-sized selection.
 
-SnapSharp attempts to exclude its own recording border and controls, but other windows, pins, and notifications inside the area may still be recorded. Moving the toolbar does not move the recording area. Do not change the resolution or display scaling, disconnect a display, or run a scrolling capture while recording.
+NimCap Screenshot attempts to exclude its own recording border and controls, but other windows, pins, and notifications inside the area may still be recorded. Moving the toolbar does not move the recording area. Do not change the resolution or display scaling, disconnect a display, or run a scrolling capture while recording.
 
 Record a short sample first to verify the picture, microphone, and system audio. Mixed audio can produce echo or excessive volume; use headphones and check the selected devices.
 
 ### Files after a recording failure
 
-SnapSharp creates a separate temporary directory on the same drive as the output directory. On success, it assembles the final file. On failure, it retains temporary content and provides a **Failed Temporary Files** entry for diagnostics or recovery attempts.
+NimCap Screenshot creates a separate temporary directory on the same drive as the output directory. On success, it assembles the final file. On failure, it retains temporary content and provides a **Failed Temporary Files** entry for diagnostics or recovery attempts.
 
 Terminating the process or losing power can leave an MP4 without its final index, and recovery is not guaranteed. Temporary video and GIF frames may also contain private information. Remove them only after confirming they are no longer needed, and do not delete a directory whose origin you have not verified.
 
@@ -399,12 +399,12 @@ The Settings window is organized by category. Scroll down on the right when a pa
 Application settings and local data default to:
 
 ```text
-The folder containing SnapSharp.exe
+The folder containing NimCap.Screenshot.exe
 ```
 
-In **Settings → General → Local Data**, browse or enter a new folder, or click **Use executable folder**. Saving prompts you to migrate downloaded models, settings, and history. After confirmation, exit SnapSharp from the tray and launch it again to perform the migration and update model and history paths. Original data is deleted only after success; existing application data in the destination is never overwritten. If migration fails, the original folder remains in use.
+In **Settings → General → Local Data**, browse or enter a new folder, or click **Use executable folder**. Saving prompts you to migrate downloaded models, settings, and history. After confirmation, exit NimCap Screenshot from the tray and launch it again to perform the migration and update model and history paths. Original data is deleted only after success; existing application data in the destination is never overwritten. If migration fails, the original folder remains in use.
 
-Existing installations continue using `%LocalAppData%\SnapSharp` until you choose another folder. The selection is stored in `data-location.json` beside the executable. Both the executable folder and chosen data folder must be writable.
+Existing installations continue using `%LocalAppData%\NimCap Screenshot` until you choose another folder. The selection is stored in `data-location.json` beside the executable. Both the executable folder and chosen data folder must be writable.
 
 | Directory or file | Contents |
 |---|---|
@@ -418,7 +418,7 @@ When updating, preserve the data folder and `data-location.json`; do not delete 
 
 Local screenshots, OCR, background removal, and local translation do not upload images or text. Model downloads require internet access. Online translation, reverse image search, and similar features send relevant content to external services and require explicit authorization and review of the outgoing preview.
 
-Screenshot history is not encrypted. History images, scrolling-capture projects, and temporary recording files may contain sensitive information. Do not treat local storage as an encrypted vault. External plugins run inside the SnapSharp process rather than a security sandbox; verify their source before enabling them.
+Screenshot history is not encrypted. History images, scrolling-capture projects, and temporary recording files may contain sensitive information. Do not treat local storage as an encrypted vault. External plugins run inside the NimCap Screenshot process rather than a security sandbox; verify their source before enabling them.
 
 <a id="faq"></a>
 
@@ -426,7 +426,7 @@ Screenshot history is not encrypted. History images, scrolling-capture projects,
 
 | Symptom | Check first |
 |---|---|
-| No window appears after launch | Find SnapSharp in the notification area or hidden icons; this is the normal startup behavior |
+| No window appears after launch | Find NimCap Screenshot in the notification area or hidden icons; this is the normal startup behavior |
 | A shortcut does not respond | Check whether another application uses it, then assign and save another shortcut |
 | Clipboard image recognition cannot read an image | Confirm that you copied image content, not a URL, text path, or only a file object |
 | The image appears, but OCR is empty | The image may contain no text; switch to background-removal mode when that is the intended task |
@@ -444,10 +444,10 @@ For everyday use, start with **keyboard shortcut → annotate directly → copy 
 
 ## Startup Update Checks
 
-SnapSharp checks GitHub Releases once on each launch and reports whether a new stable version is available. It does not poll during use. **Settings → About** reuses that result; click **Check for updates** to request another check explicitly. Release notes are no longer embedded below the status. A new release can be downloaded and verified before you confirm restarting to install it.
+NimCap Screenshot checks GitHub Releases once on each launch and reports whether a new stable version is available. It does not poll during use. **Settings → About** reuses that result; click **Check for updates** to request another check explicitly. Release notes are no longer embedded below the status. A new release can be downloaded and verified before you confirm restarting to install it.
 
 ## 11. License
 
-Copyright 2026 leelongjiang and SnapSharp contributors
+Copyright 2026 leelongjiang and NimCap Screenshot contributors
 
-SnapSharp is licensed under the [Apache License 2.0](../LICENSE). Third-party components, models, and services retain their respective licenses and terms; see [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) for details.
+NimCap Screenshot is licensed under the [Apache License 2.0](../LICENSE). Third-party components, models, and services retain their respective licenses and terms; see [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) for details.

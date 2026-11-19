@@ -154,7 +154,7 @@ internal static class RecognitionSelfTest
             using (var draw = sample.RenderOpen())
             {
                 draw.DrawRectangle(Brushes.White, null, new Rect(0, 0, 840, 240));
-                string[] lines = ["订单编号 123456", "Hello SnapSharp 2026", "金额 99.50 CNY"];
+                string[] lines = ["订单编号 123456", "Hello NimCap Screenshot 2026", "金额 99.50 CNY"];
                 for (var i = 0; i < lines.Length; i++) draw.DrawText(new FormattedText(lines[i], System.Globalization.CultureInfo.GetCultureInfo("zh-CN"), FlowDirection.LeftToRight,
                     new Typeface("Microsoft YaHei"), 30, Brushes.Black, 1), new Point(24, 18 + i * 70));
             }

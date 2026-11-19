@@ -50,7 +50,7 @@ internal static class ModelDownloadSource
             if (!Allowed(uri, sourceKind))
                 throw new InvalidDataException(L.Get("ModelSourceRedirectedToAnUntrustedAddress"));
             using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.UserAgent.ParseAdd("SnapSharp/1.0");
+            request.Headers.UserAgent.ParseAdd("NimCap-Screenshot/1.0");
             if (uri.Host == "api.github.com")
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
             var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);

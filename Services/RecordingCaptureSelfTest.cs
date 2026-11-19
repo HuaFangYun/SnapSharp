@@ -20,14 +20,14 @@ internal static class RecordingCaptureSelfTest
         var screen = System.Windows.Forms.Screen.PrimaryScreen!;
         var window = new Window
         {
-            Title = "SnapSharp 录屏测试", Width = 320, Height = 192,
+            Title = "NimCap Screenshot 录屏测试", Width = 320, Height = 192,
             WindowStyle = WindowStyle.None, ResizeMode = ResizeMode.NoResize,
             ShowInTaskbar = false, Topmost = true, ShowActivated = false,
             Left = 0, Top = 0,
             Content = new Border
             {
                 Background = Brushes.MidnightBlue,
-                Child = new TextBlock { Text = "SnapSharp 录屏测试\n仅生成画面 · 无音频／摄像头", Foreground = Brushes.White,
+                Child = new TextBlock { Text = "NimCap Screenshot 录屏测试\n仅生成画面 · 无音频／摄像头", Foreground = Brushes.White,
                     FontSize = 18, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center }
             }
         };
@@ -37,7 +37,7 @@ internal static class RecordingCaptureSelfTest
         var animation = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
         var scene = (TextBlock)((Border)window.Content).Child;
         var frame = 0;
-        animation.Tick += (_, _) => scene.Text = $"SnapSharp 录屏测试 · {++frame}\n仅生成画面 · 无音频／摄像头";
+        animation.Tick += (_, _) => scene.Text = $"NimCap Screenshot 录屏测试 · {++frame}\n仅生成画面 · 无音频／摄像头";
         try
         {
             window.Show(); window.UpdateLayout();

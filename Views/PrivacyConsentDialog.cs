@@ -20,7 +20,7 @@ internal static class PrivacyConsentDialog
         var window = new Window { Title = L.Get("ConfirmSendingSnapSharp"), Owner = owner, Width = 640, Height = 540,
             WindowStartupLocation = WindowStartupLocation.CenterOwner };
         window.SetResourceReference(FrameworkElement.StyleProperty, "AppWindow");
-        window.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/SnapSharp;component/Views/ToolbarStyles.xaml", UriKind.Relative) });
+        window.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/NimCap.Screenshot;component/Views/ToolbarStyles.xaml", UriKind.Relative) });
         var grid = new Grid { Margin = new Thickness(20) };
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); grid.RowDefinitions.Add(new RowDefinition()); grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         grid.Children.Add(new TextBlock { Text = L.Format("TheFollowingContentWillBeSentTo", endpoint.AbsoluteUri), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 12) });

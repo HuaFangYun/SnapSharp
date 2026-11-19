@@ -9,7 +9,7 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SnapSharp.csproj" />
+    <ProjectReference Include="..\..\NimCap.Screenshot.csproj" />
     <Compile Include="..\RegressionChecks\ModelStorageChecks.cs" Link="ModelStorageChecks.cs" />
   </ItemGroup>
 </Project>

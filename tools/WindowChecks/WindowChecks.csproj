@@ -9,6 +9,6 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SnapSharp.csproj" />
+    <ProjectReference Include="..\..\NimCap.Screenshot.csproj" />
   </ItemGroup>
 </Project>

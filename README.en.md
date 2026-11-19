@@ -1,16 +1,18 @@
-# SnapSharp: Windows Screenshots, OCR, Translation, Background Removal, and Recording
+# NimCap Screenshot: Windows Screenshots, OCR, Translation, Background Removal, and Recording
 
 [简体中文](README.md) | **English**
 
-[GitHub](https://github.com/leelongjiang/SnapSharp) · [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [Website](https://www.snapsharp.cn/) · [Releases](https://github.com/leelongjiang/SnapSharp/releases)
+[GitHub](https://github.com/nimcap/nimcap-screenshot) · [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [Website](https://jietu.nimcap.com/) · [Releases](https://github.com/nimcap/nimcap-screenshot/releases)
 
-SnapSharp implements region, full-screen, and active-window screenshots; element selection; annotations and sensitive-text blurring; desktop pins; scrolling capture; image OCR; identity-document field extraction; tables to CSV/XLSX; formulas to LaTeX; QR/barcode recognition; local translation; background removal; screen color picking and measurement; and MP4/GIF recording. **Local AI, offline operation, and data kept on your computer**: OCR, tables, formulas, background removal, and translation can run with local models without uploading images or text to the cloud. Once the application, required models, and runtime dependencies are prepared, these local features work without internet access, including on internal networks. This reduces the risk of sensitive material leaving your device and supports privacy-conscious personal and internal office use. Online translation and image search are optional, disabled by default, and require confirmation for each request.
+NimCap Screenshot implements region, full-screen, and active-window screenshots; element selection; annotations and sensitive-text blurring; desktop pins; scrolling capture; image OCR; identity-document field extraction; tables to CSV/XLSX; formulas to LaTeX; QR/barcode recognition; local translation; background removal; screen color picking and measurement; and MP4/GIF recording. **Local AI, offline operation, and data kept on your computer**: OCR, tables, formulas, background removal, and translation can run with local models without uploading images or text to the cloud. Once the application, required models, and runtime dependencies are prepared, these local features work without internet access, including on internal networks. This reduces the risk of sensitive material leaving your device and supports privacy-conscious personal and internal office use. Online translation and image search are optional, disabled by default, and require confirmation for each request.
 
-## About SnapSharp
+Brand: **NimCap**. Software: **NimCap Screenshot**. Repository: `nimcap-screenshot`. Formerly SnapSharp; internal namespaces, plugin contracts and existing user-data directories retain compatibility.
+
+## About NimCap Screenshot
 
 The recognition window includes **Remove watermark** with MI-GAN (fast), LaMa (default), Moebius (detail candidate), and SLBR for region/full-image detection. All offer automatic download, verification and configuration from official or China sources, without manual model conversion. Compare the original, undo, copy, save, or pin the result. See [watermark repair and model contracts](docs/去水印与图像修复.md).
 
-SnapSharp is a Windows x64 desktop application built with C#, WPF, and .NET 10. It runs in the notification area and is operated through global shortcuts and tray menus. Use it to illustrate tutorials, report interface issues, extract reference material, work with tables and formulas, or record demonstrations.
+NimCap Screenshot is a Windows x64 desktop application built with C#, WPF, and .NET 10. It runs in the notification area and is operated through global shortcuts and tray menus. Use it to illustrate tutorials, report interface issues, extract reference material, work with tables and formulas, or record demonstrations.
 
 After capture, annotate, blur sensitive text, copy, save, or pin the image. Images copied from other applications can enter the unified recognition window through **Recognize Clipboard Image…**. Basic capture, editing, pins, and measurement need no AI downloads.
 
@@ -45,7 +47,7 @@ See the [feature-to-code reference](docs/功能与代码对照.md) and [configur
 
 Press `Ctrl+Shift+A`. The default element mode snaps to controls on hover; you can also drag a selection. Use `Tab` or the top selector to switch modes, then add arrows, text, numbers, or blur before copying, saving, or recognizing.
 
-![SnapSharp selection and annotation toolbar](Screenshot/1.png)
+![NimCap Screenshot selection and annotation toolbar](Screenshot/1.png)
 
 <a id="recognition"></a>
 <a id="cutout"></a>
@@ -54,7 +56,7 @@ Press `Ctrl+Shift+A`. The default element mode snaps to controls on hover; you c
 
 Copy an image and open **Recognize Clipboard Image…** from the tray. Choose text, documents, barcodes, tables, formulas, or background removal, then run. Translation consumes OCR results or entered text. Save transparent results as PNG or transparency-capable WebP.
 
-![SnapSharp unified image-recognition window](Screenshot/2.png)
+![NimCap Screenshot unified image-recognition window](Screenshot/2.png)
 
 | Original | Background removed |
 |---|---|
@@ -84,13 +86,13 @@ Click the video icon in a rectangular selection or open the recording toolbar fr
 
 The tray ruler measures lengths, boxes, distances, and angles; the capture magnifier copies colors. The save window previews dimensions and encoding settings, and can paginate long images onto A4 PDF pages.
 
-![SnapSharp screen ruler and measurement tools](Screenshot/屏幕尺子.png)
+![NimCap Screenshot screen ruler and measurement tools](Screenshot/屏幕尺子.png)
 
 <a id="start"></a>
 
 ## Download and get started
 
-1. Download the Windows x64 package from [GitHub Releases](https://github.com/leelongjiang/SnapSharp/releases), extract the entire directory, and run `SnapSharp.exe`.
+1. Download the Windows x64 package from [GitHub Releases](https://github.com/nimcap/nimcap-screenshot/releases), extract the entire directory, and run `NimCap.Screenshot.exe`.
 2. Find its tray icon and press `Ctrl+Shift+A` to select an area.
 3. Annotate, copy, save, or pin it. Press `Esc` to cancel.
 4. Download and configure models in Settings when you need OCR, tables, formulas, background removal, or local translation.
@@ -133,8 +135,8 @@ If no window appears, check the tray. Check shortcut conflicts in Settings. For 
 - [English user guide](docs/UserGuide.en.md) · [中文使用指南](docs/使用指南.md)
 - [Configuration](docs/配置与依赖.md) · [Build and tests](docs/构建与测试.md) (Chinese)
 - [Architecture](docs/ARCHITECTURE.md) · [Localization](docs/本地化.md) · [Inference isolation](docs/异常与推理隔离.md) (Chinese)
-- [Feature specifications and roadmap](<docs/SnapSharp 功能规格与路线图.md>) · [Image provenance](Screenshot/Blog/README.md)
+- [Feature specifications and roadmap](<docs/NimCap Screenshot 功能规格与路线图.md>) · [Image provenance](Screenshot/Blog/README.md)
 
 The feature list describes current repository code. Recognition quality, complex scrolling content, large models, and hardware compatibility still require input-specific review. Planned features and candidate components are documented separately in the roadmap.
 
-Copyright 2026 leelongjiang and SnapSharp contributors. Licensed under [Apache License 2.0](LICENSE). Component and model licenses are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+Copyright 2026 leelongjiang and NimCap Screenshot contributors. Licensed under [Apache License 2.0](LICENSE). Component and model licenses are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

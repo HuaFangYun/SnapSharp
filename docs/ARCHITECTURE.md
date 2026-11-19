@@ -4,13 +4,13 @@
 
 > 最后按代码校准：2026-11-19。本文描述实际模块、运行边界与依赖采用规则；功能验收状态集中在路线图。
 
-[文档中心](README.md) · [构建与测试](构建与测试.md) · [功能规格与路线图](<SnapSharp 功能规格与路线图.md>)
+[文档中心](README.md) · [构建与测试](构建与测试.md) · [功能规格与路线图](<NimCap Screenshot 功能规格与路线图.md>)
 
 [模块与链路](#2-解决方案结构) · [插件边界](#4-插件边界) · [依赖清单](#dependencies) · [候选组件](#candidates) · [分发规则](#distribution)
 
 ## 1. 架构目标
 
-SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟、可离线运行，并在捕获后端失败时可降级。项目按稳定职责拆分程序集，而不是为每个功能建立项目：
+NimCap Screenshot 是 Windows 桌面截图工具。主截图链路必须保持低延迟、可离线运行，并在捕获后端失败时可降级。项目按稳定职责拆分程序集，而不是为每个功能建立项目：
 
 - 捕获、选区、编辑、剪贴板和本地保存属于核心主流程。
 - OCR、条码、SLANet 表格及 LaTeX-OCR 公式已有内置实现，专用识别器仍可通过受控插件契约扩展；通用上传、后处理和动作链仍属于后续能力。
@@ -21,16 +21,16 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 
 | 项目 | 当前职责 | 直接依赖 |
 |---|---|---|
-| `SnapSharp.Core` | 捕获结果、像素矩形、配置、历史条目和启动参数 | 无其他 SnapSharp 项目 |
+| `SnapSharp.Core` | 捕获结果、像素矩形、配置、历史条目和启动参数 | 无其他 NimCap Screenshot 项目 |
 | `SnapSharp.Imaging` | 标注对象、WPF/Skia 绘制、图像变换、编码、缩略图和标注模板 | `Core` |
 | `SnapSharp.Editor` | 编辑状态、对象集合、选择状态、撤销/重做和样式属性 | `Core`、`Imaging` |
 | `SnapSharp.Capture` | GDI、WGC、DXGI/Direct3D 互操作、窗口枚举、滚动采集和坐标映射 | `Core`、`Imaging` |
 | `SnapSharp.Recording` | 录制引擎、设备枚举、录制时钟、编码探测、流式 GIF 编码和输出路径 | `Core`、`Imaging` |
 | `SnapSharp.Recognition` | 独立进程 ONNX CPU / DirectML GPU 推理、PaddleOCR、Windows OCR、条码、抠图与表格导出 | `Core`、`Imaging`、`Infrastructure`、`Plugin.Abstractions` |
 | `SnapSharp.Infrastructure` | JSON 设置、PNG 历史、剪贴板适配器和应用数据路径 | `Core`、`Imaging` |
-| `SnapSharp.Plugin.Abstractions` | 图像处理、识别、输出和工作流动作的稳定契约 | 无其他 SnapSharp 项目 |
+| `SnapSharp.Plugin.Abstractions` | 图像处理、识别、输出和工作流动作的稳定契约 | 无其他 NimCap Screenshot 项目 |
 | `SnapSharp.PluginHost` | 插件发现、强名称策略、独立加载上下文和能力注册表 | `Plugin.Abstractions` |
-| `SnapSharp` | WPF 视图、托盘、热键、单实例、录屏编排、在线服务授权和应用生命周期 | 上述运行时项目；窗口捕获排除仍直接使用 ScreenRecorderLib |
+| `NimCap Screenshot` | WPF 视图、托盘、热键、单实例、录屏编排、在线服务授权和应用生命周期 | 上述运行时项目；窗口捕获排除仍直接使用 ScreenRecorderLib |
 
 依赖方向保持为 Shell 指向功能类库。功能类库不得反向引用主程序、`Views` 或具体窗口。
 
@@ -41,7 +41,7 @@ SnapSharp 是 Windows 桌面截图工具。主截图链路必须保持低延迟�
 1. `App` 建立单实例互斥体和命名管道。
 2. `AppController` 加载设置、插件目录、托盘和全局热键。
 3. 热键、托盘或命令行被归一化为 `CaptureMode`。
-4. 捕获前临时隐藏 SnapSharp 自身窗口，避免应用界面进入截图。
+4. 捕获前临时隐藏 NimCap Screenshot 自身窗口，避免应用界面进入截图。
 
 `LaunchCommand` 已解析 `-region`、`-full`、`-window`、`-delay` 和 `-clip`。当前 `CopyToClipboard` 尚未传入输出决策，因此 `-clip` 只完成了解析和转发，不是完整无交互剪贴板流程。
 

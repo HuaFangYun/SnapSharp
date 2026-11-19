@@ -12,8 +12,8 @@ internal sealed record AppRelease(Version Version, string Tag, string Notes, Uri
 
 internal static class AppUpdateService
 {
-    internal const string ReleasesUrl = "https://github.com/leelongjiang/SnapSharp/releases";
-    private const string ApiUrl = "https://api.github.com/repos/leelongjiang/SnapSharp/releases/latest";
+    internal const string ReleasesUrl = "https://github.com/nimcap/nimcap-screenshot/releases";
+    private const string ApiUrl = "https://api.github.com/repos/nimcap/nimcap-screenshot/releases/latest";
 
     internal static Version Normalize(Version version) =>
         new(version.Major, version.Minor, Math.Max(0, version.Build), Math.Max(0, version.Revision));
@@ -26,7 +26,7 @@ internal static class AppUpdateService
             : null;
         client ??= ownedClient!;
         using var request = new HttpRequestMessage(HttpMethod.Get, ApiUrl);
-        request.Headers.UserAgent.ParseAdd("SnapSharp/" + typeof(AppUpdateService).Assembly.GetName().Version);
+        request.Headers.UserAgent.ParseAdd("NimCap-Screenshot/" + typeof(AppUpdateService).Assembly.GetName().Version);
         request.Headers.Accept.ParseAdd("application/vnd.github+json");
         request.Headers.Add("X-GitHub-Api-Version", "2022-11-28");
         using var response = await client.SendAsync(request, cancellation).ConfigureAwait(false);
@@ -38,7 +38,7 @@ internal static class AppUpdateService
         var tag = release.GetProperty("tag_name").GetString() ?? "";
         if (!Version.TryParse(tag.TrimStart('v', 'V'), out var version))
             throw new InvalidDataException("Invalid release version.");
-        var page = TrustedUrl(release.GetProperty("html_url").GetString(), "/leelongjiang/SnapSharp/releases/tag/")
+        var page = TrustedUrl(release.GetProperty("html_url").GetString(), "/nimcap/nimcap-screenshot/releases/tag/")
             ?? throw new InvalidDataException("Invalid release URL.");
         Uri? download = null;
         Uri? checksums = null;
@@ -46,13 +46,13 @@ internal static class AppUpdateService
         if (release.TryGetProperty("assets", out var assets))
         {
             // Only use the full Windows x64 distribution, never GitHub's source archive.
-            var expectedName = $"SnapSharp-{tag}-win-x64.zip";
+            var expectedName = $"nimcap-screenshot-{tag}-win-x64.zip";
             foreach (var asset in assets.EnumerateArray())
             {
                 if (asset.GetProperty("name").GetString() == "SHA256SUMS.txt")
-                    checksums = TrustedUrl(asset.GetProperty("browser_download_url").GetString(), "/leelongjiang/SnapSharp/releases/download/");
+                    checksums = TrustedUrl(asset.GetProperty("browser_download_url").GetString(), "/nimcap/nimcap-screenshot/releases/download/");
                 if (!string.Equals(asset.GetProperty("name").GetString(), expectedName, StringComparison.OrdinalIgnoreCase)) continue;
-                download = TrustedUrl(asset.GetProperty("browser_download_url").GetString(), "/leelongjiang/SnapSharp/releases/download/");
+                download = TrustedUrl(asset.GetProperty("browser_download_url").GetString(), "/nimcap/nimcap-screenshot/releases/download/");
                 if (asset.TryGetProperty("digest", out var digest) && digest.GetString() is { } value &&
                     value.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase) &&
                     value.Length == 71 && value[7..].All(Uri.IsHexDigit)) sha256 = value[7..];

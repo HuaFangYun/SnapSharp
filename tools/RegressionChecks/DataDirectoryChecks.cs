@@ -21,7 +21,7 @@ internal static partial class Program
         var bytes = Enumerable.Range(0, 8192).Select(i => (byte)(i % 251)).ToArray();
         File.WriteAllBytes(model, bytes);
         File.WriteAllText(model + ".part", "partial download");
-        File.WriteAllText(Path.Combine(executable, "SnapSharp.exe"), "application, never migrate");
+        File.WriteAllText(Path.Combine(executable, "NimCap.Screenshot.exe"), "application, never migrate");
         File.WriteAllText(Path.Combine(executable, "notes.txt"), "unrelated file");
         var external = Path.Combine(root, "external", "model.onnx");
         var neighbor = executable + "-other\\model.onnx";
@@ -69,7 +69,7 @@ internal static partial class Program
         var movedModel = Path.Combine(target, "models", "ocr", "model.onnx");
         Require(File.ReadAllBytes(movedModel).SequenceEqual(bytes) && File.Exists(movedModel + ".part"), "Model bytes or resumable downloads were lost.");
         Require(!File.Exists(model) && !File.Exists(Path.Combine(executable, "settings.json")), "Successful migration did not remove old managed data.");
-        Require(File.Exists(Path.Combine(executable, "SnapSharp.exe")) && File.Exists(Path.Combine(executable, "notes.txt")),
+        Require(File.Exists(Path.Combine(executable, "NimCap.Screenshot.exe")) && File.Exists(Path.Combine(executable, "notes.txt")),
             "Migration moved unrelated files from the executable folder.");
         var settings = JsonNode.Parse(File.ReadAllText(Path.Combine(target, "settings.json")))!;
         Require(settings["OcrDetectionModel"]!.GetValue<string>() == movedModel &&

@@ -13,14 +13,14 @@ public sealed class AppSettings
         {
             var videos = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos, Environment.SpecialFolderOption.DoNotVerify);
             if (string.IsNullOrWhiteSpace(videos)) videos = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
-            return Path.Combine(videos, "SnapSharp");
+            return Path.Combine(videos, "NimCap Screenshot");
         }
     }
     public string SaveDirectory { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
     public int ImageQuality { get; set; } = 92;
     public bool AutoSaveImages { get; set; }
     public bool ArchiveByDate { get; set; }
-    public string FileNameTemplate { get; set; } = "SnapSharp-{date}-{time}-{seq}";
+    public string FileNameTemplate { get; set; } = "NimCap-Screenshot-{date}-{time}-{seq}";
     public string OutputFormat { get; set; } = ".png";
     public bool WebpLossless { get; set; } = true;
     public string OcrBackend { get; set; } = "PaddleOCR";

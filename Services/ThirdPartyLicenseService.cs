@@ -45,7 +45,7 @@ internal static class ThirdPartyLicenseService
         if (!File.Exists(Path.Combine(root, "LICENSE")) ||
             !File.Exists(Path.Combine(root, "THIRD-PARTY-NOTICES.md")) ||
             !File.Exists(Path.Combine(root, "README.md"))) return false;
-        var runtimeConfigPath = Path.Combine(root, "SnapSharp.runtimeconfig.json");
+        var runtimeConfigPath = Path.Combine(root, "NimCap.Screenshot.runtimeconfig.json");
         if (!File.Exists(runtimeConfigPath)) return false;
         using (var document = JsonDocument.Parse(File.ReadAllText(runtimeConfigPath)))
         {

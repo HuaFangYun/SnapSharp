@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "website"
 CONTENT = runpy.run_path(str(SOURCE / "content.py"))
 HOMEPAGE = runpy.run_path(str(SOURCE / "homepage.py"))
-REPO = "https://github.com/leelongjiang/SnapSharp"
+REPO = "https://github.com/nimcap/nimcap-screenshot"
 RELEASES = REPO + "/releases/latest"
 GITEE = "https://gitee.com/lilongjiang/SnapSharp"
 
@@ -113,7 +113,7 @@ class Site:
         self.home_icon = icon
         self.home_content = CONTENT
         body = HOMEPAGE["render"](self)
-        app = {"@type": "SoftwareApplication", "@id": self.base + "/#software", "name": "SnapSharp", "url": self.base + "/", "description": self.t(h['description']), "operatingSystem": "Windows 10 (2004+), Windows 11; x64", "applicationCategory": "MultimediaApplication", "license": REPO + "/blob/main/LICENSE", "downloadUrl": RELEASES, "image": self.base + '/assets/images/social-' + ('en' if self.lang else 'zh') + '.png', "softwareHelp": self.base + '/' + self.route('start/'), "isAccessibleForFree": True, "featureList": [self.t(x[1]) for x in CONTENT['FEATURES']]}
+        app = {"@type": "SoftwareApplication", "@id": self.base + "/#software", "name": "NimCap Screenshot", "url": self.base + "/", "description": self.t(h['description']), "operatingSystem": "Windows 10 (2004+), Windows 11; x64", "applicationCategory": "MultimediaApplication", "license": REPO + "/blob/main/LICENSE", "downloadUrl": RELEASES, "image": self.base + '/assets/images/social-' + ('en' if self.lang else 'zh') + '.png', "softwareHelp": self.base + '/' + self.route('start/'), "isAccessibleForFree": True, "featureList": [self.t(x[1]) for x in CONTENT['FEATURES']]}
         faq = {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": self.t(q), "acceptedAnswer": {"@type": "Answer", "text": self.t(a)}} for q, a in CONTENT['FAQ']]}
         self.write('', self.t(h['title']), self.t(h['description']), body, [app, faq])
 
@@ -132,18 +132,18 @@ class Site:
             body += '</section>'
         body += '<div class="article-end"><p>' + self.t(("更多操作、模型选择与故障处理，请查看", "For detailed operation, model choices, and troubleshooting, see the")) + ' ' + self.link(self.guide_url(), self.t(("完整使用指南", "full user guide"))) + self.t(('。', '.')) + '</p><div class="actions">' + self.button() + self.button(self.href('start/'), False, self.t(("首次配置指南", "Setup guide")), 'capture') + '</div></div></article>'
         body += self.toc([(section['id'], section['title']) for section in article['sections']]) + '</div>'
-        body += '<section class="section workflow-section"><div class="container">' + self.heading(('继续探索', 'KEEP EXPLORING'), ('还有这些使用场景', 'More ways to use SnapSharp')) + self.guides(article['slug']) + '</div></section>'
-        data = [{"@type": "TechArticle", "headline": title, "description": self.t(article['description']), "inLanguage": 'en' if self.lang else 'zh-CN', "image": self.base + '/assets/images/' + article['image'] + '-full.webp', "author": {"@type": "Organization", "name": "SnapSharp contributors", "url": REPO}, "mainEntityOfPage": self.base + '/' + self.route(page)}, self.breadcrumb_data(page, title)]
-        self.write(page, title + ' | SnapSharp', self.t(article['description']), body, data, 'article')
+        body += '<section class="section workflow-section"><div class="container">' + self.heading(('继续探索', 'KEEP EXPLORING'), ('还有这些使用场景', 'More ways to use NimCap Screenshot')) + self.guides(article['slug']) + '</div></section>'
+        data = [{"@type": "TechArticle", "headline": title, "description": self.t(article['description']), "inLanguage": 'en' if self.lang else 'zh-CN', "image": self.base + '/assets/images/' + article['image'] + '-full.webp', "author": {"@type": "Organization", "name": "NimCap Screenshot contributors", "url": REPO}, "mainEntityOfPage": self.base + '/' + self.route(page)}, self.breadcrumb_data(page, title)]
+        self.write(page, title + ' | NimCap Screenshot', self.t(article['description']), body, data, 'article')
 
     def guide_url(self):
         return REPO + '/blob/main/docs/' + ('UserGuide.en.md' if self.lang else '%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md')
 
     def article_header(self, title, description, tag):
-        return '<div class="container"><nav class="breadcrumb" aria-label="' + self.t(('面包屑导航', 'Breadcrumb')) + '">' + self.link(self.href(), self.t(('首页', 'Home'))) + '<span aria-hidden="true">/</span><span>' + esc(tag) + '</span></nav><header class="article-header"><div class="eyebrow">' + esc(tag) + '</div><h1>' + esc(title) + '</h1><p>' + esc(description) + '</p><div class="article-meta"><span>Windows 10 / 11 · x64</span><span>' + self.t(('SnapSharp 官方指南', 'SnapSharp official guide')) + '</span></div></header></div>'
+        return '<div class="container"><nav class="breadcrumb" aria-label="' + self.t(('面包屑导航', 'Breadcrumb')) + '">' + self.link(self.href(), self.t(('首页', 'Home'))) + '<span aria-hidden="true">/</span><span>' + esc(tag) + '</span></nav><header class="article-header"><div class="eyebrow">' + esc(tag) + '</div><h1>' + esc(title) + '</h1><p>' + esc(description) + '</p><div class="article-meta"><span>Windows 10 / 11 · x64</span><span>' + self.t(('NimCap Screenshot 官方指南', 'NimCap Screenshot official guide')) + '</span></div></header></div>'
 
     def toc(self, sections):
-        return '<aside class="article-aside"><h2>' + self.t(('本文内容', 'On this page')) + '</h2><nav aria-label="' + self.t(('文章目录', 'Table of contents')) + '">' + ''.join(self.link('#' + id_, esc(self.t(title))) for id_, title in sections) + '</nav>' + self.button(label=self.t(('下载 SnapSharp', 'Get SnapSharp'))) + '<p>' + self.t(('模型需按需下载。识别结果请核对原图。', 'Download the models you need. Check recognition results against the original.')) + '</p></aside>'
+        return '<aside class="article-aside"><h2>' + self.t(('本文内容', 'On this page')) + '</h2><nav aria-label="' + self.t(('文章目录', 'Table of contents')) + '">' + ''.join(self.link('#' + id_, esc(self.t(title))) for id_, title in sections) + '</nav>' + self.button(label=self.t(('下载 NimCap Screenshot', 'Get NimCap Screenshot'))) + '<p>' + self.t(('模型需按需下载。识别结果请核对原图。', 'Download the models you need. Check recognition results against the original.')) + '</p></aside>'
 
     def breadcrumb_data(self, page, title):
         return {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": self.t(('首页', 'Home')), "item": self.base + '/' + self.route()}, {"@type": "ListItem", "position": 2, "name": title, "item": self.base + '/' + self.route(page)}]}
@@ -173,7 +173,7 @@ class Site:
         home = self.href()
         canonical = self.base + '/' + route
         nav = self.link(home + '#features', self.t(('功能', 'Features'))) + self.link(home + '#guides', self.t(('教程', 'Guides'))) + self.link(self.href('start/'), self.t(('快速上手', 'Get started'))) + self.link(REPO, 'GitHub') + self.link(self.url(self.route(page, 1 - self.lang)), '简体中文' if self.lang else 'English', 'language', 'lang="zh-CN" hreflang="zh-CN"' if self.lang else 'lang="en" hreflang="en"') + self.button(label=self.t(('下载', 'Download')))
-        alternates = '\n  '.join(f'<link rel="alternate" hreflang="{language}" href="{self.base}/{self.route(page, language_index)}">' for language_index, language in [(0, 'zh-CN'), (1, 'en'), (0, 'x-default')])
+        alternates = '\n  '.join(f'<link rel="alternate" hreflang="{language}" href="{self.base + "/" + self.route(page, language_index)}">' for language_index, language in [(0, 'zh-CN'), (1, 'en'), (0, 'x-default')])
         footer_links = self.link(REPO, 'GitHub') + self.link(GITEE, 'Gitee') + self.link(self.guide_url(), self.t(('使用指南', 'User guide'))) + self.link(REPO + '/blob/main/LICENSE', 'Apache-2.0') + self.link(REPO + '/blob/main/THIRD-PARTY-NOTICES.md', self.t(('第三方声明', 'Third-party notices')))
         data = {"@context": "https://schema.org", "@graph": structured}
         rendered = self.template.substitute(
@@ -183,7 +183,7 @@ class Site:
             alternates=alternates, og_type=og_type,
             og_locale='en_US' if self.lang else 'zh_CN',
             social_image=self.base + '/assets/images/social-' + ('en' if self.lang else 'zh') + '.png',
-            social_alt=self.t(('SnapSharp Windows 截图与本地图像工具，含实际编辑器界面', 'SnapSharp Windows screenshots and local image tools, with the actual editor interface')),
+            social_alt=self.t(('NimCap Screenshot Windows 截图与本地图像工具，含实际编辑器界面', 'NimCap Screenshot Windows screenshots and local image tools, with the actual editor interface')),
             asset_root=self.url('assets'),
             site_css_version=hashlib.sha256((SOURCE / 'assets/site.css').read_bytes()).hexdigest()[:10],
             site_js_version=hashlib.sha256((SOURCE / 'assets/site.js').read_bytes()).hexdigest()[:10],
@@ -208,6 +208,9 @@ class Site:
 
     def build(self):
         self.output.mkdir(parents=True, exist_ok=True)
+        # Remove generated pages from earlier language layouts when reusing an output folder.
+        for old_page in self.output.rglob("*.html"):
+            old_page.unlink()
         shutil.copytree(SOURCE / 'assets', self.output / 'assets', dirs_exist_ok=True)
         # IndexNow uses a deliberately public text file to verify this site's
         # URL prefix. This is not an account credential or an OAuth token.
@@ -221,8 +224,8 @@ class Site:
             for article in CONTENT['ARTICLES']:
                 self.article(article)
         self.lang = 0
-        body = '<section class="not-found container"><div class="eyebrow">SNAPSHARP</div><h1>404</h1><h2>这个页面还没被截到。</h2><p>页面可能已移动。回到首页，继续了解 SnapSharp。<br>This page could not be found. Head back to the homepage.</p><div class="actions" style="justify-content:center">' + self.button(self.url(), True, '返回首页', 'capture') + self.button(self.url('en/'), False, 'English homepage', 'capture') + '</div></section>'
-        self.write('', '页面未找到 / Page not found | SnapSharp', '返回 SnapSharp 首页 / Return to SnapSharp.', body, [], not_found=True)
+        body = '<section class="not-found container"><div class="eyebrow">NIMCAP SCREENSHOT</div><h1>404</h1><h2>这个页面还没被截到。</h2><p>页面可能已移动。回到首页，继续了解 NimCap Screenshot。<br>This page could not be found. Head back to the homepage.</p><div class="actions" style="justify-content:center">' + self.button(self.url(), True, '返回首页', 'capture') + self.button(self.url('en/'), False, 'English homepage', 'capture') + '</div></section>'
+        self.write('', '页面未找到 / Page not found | NimCap Screenshot', '返回 NimCap Screenshot 首页 / Return to NimCap Screenshot.', body, [], not_found=True)
         # This is the actual crawler policy on a custom domain at its root.
         # A preview under a repository subpath cannot control host-root policy.
         (self.output / 'robots.txt').write_text(f'User-agent: *\nAllow: /\n\nSitemap: {self.base}/sitemap.xml\n', encoding='utf-8')
@@ -236,7 +239,7 @@ class Site:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--base-url', default='https://www.snapsharp.cn', help='Canonical Pages URL, including any deployment subpath')
+    parser.add_argument('--base-url', default='https://jietu.nimcap.com', help='Canonical Pages URL, including any deployment subpath')
     parser.add_argument('--output', type=Path, default=ROOT / '.artifacts/pages')
     args = parser.parse_args()
     parts = urlsplit(args.base_url)

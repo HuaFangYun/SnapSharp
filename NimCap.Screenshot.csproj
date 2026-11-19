@@ -6,7 +6,13 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>logo.ico</ApplicationIcon>
-    <AssemblyName>SnapSharp</AssemblyName>
+    <AssemblyName>NimCap.Screenshot</AssemblyName>
+    <Title>NimCap Screenshot</Title>
+    <Product>NimCap Screenshot</Product>
+    <Company>NimCap</Company>
+    <RepositoryUrl>https://github.com/nimcap/nimcap-screenshot</RepositoryUrl>
+    <PackageProjectUrl>https://jietu.nimcap.com</PackageProjectUrl>
+    <Description>NimCap 截图工具</Description>
     <RootNamespace>SnapSharp</RootNamespace>
     <Version>1.1.3</Version>
     <Platforms>x64</Platforms>

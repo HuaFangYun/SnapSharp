@@ -61,7 +61,7 @@
     <value>确定</value>
   </data>
   <data name="SnapSharpAnnotations" xml:space="preserve">
-    <value>SnapSharp 标注</value>
+    <value>NimCap Screenshot 标注</value>
   </data>
   <data name="Select" xml:space="preserve">
     <value>选择</value>
@@ -238,7 +238,7 @@
     <value>更多</value>
   </data>
   <data name="OCRRecognitionBackgroundRemovalSnapSharp" xml:space="preserve">
-    <value>OCR、识别与抠图 · SnapSharp</value>
+    <value>OCR、识别与抠图 · NimCap Screenshot</value>
   </data>
   <data name="TextOCR" xml:space="preserve">
     <value>文字 OCR</value>
@@ -367,7 +367,7 @@
     <value>准备就绪</value>
   </data>
   <data name="RecordingSetupSnapSharp" xml:space="preserve">
-    <value>一键配置录屏环境 · SnapSharp</value>
+    <value>一键配置录屏环境 · NimCap Screenshot</value>
   </data>
   <data name="RecordingRequirements" xml:space="preserve">
     <value>录屏环境</value>
@@ -433,7 +433,7 @@
     <value>关闭录屏</value>
   </data>
   <data name="RecordingOptionsSnapSharp" xml:space="preserve">
-    <value>录制配置 · SnapSharp</value>
+    <value>录制配置 · NimCap Screenshot</value>
   </data>
   <data name="RegionRecording" xml:space="preserve">
     <value>区域录屏</value>
@@ -517,7 +517,7 @@
     <value>失败临时文件</value>
   </data>
   <data name="SaveImageSnapSharp" xml:space="preserve">
-    <value>输出图片 · SnapSharp</value>
+    <value>输出图片 · NimCap Screenshot</value>
   </data>
   <data name="ImagePreview" xml:space="preserve">
     <value>图片预览</value>
@@ -586,7 +586,7 @@
     <value>保存前可调整格式和尺寸；关闭窗口不会创建文件。</value>
   </data>
   <data name="ScrollingCaptureSnapSharp" xml:space="preserve">
-    <value>长截图 · SnapSharp</value>
+    <value>长截图 · NimCap Screenshot</value>
   </data>
   <data name="ScrollingCapturePreview" xml:space="preserve">
     <value>长截图预览</value>
@@ -670,7 +670,7 @@
     <value>选择区域并自动采集…</value>
   </data>
   <data name="SnapSharpWindowsAreHiddenDuringCaptureDo" xml:space="preserve">
-    <value>开始后会隐藏 SnapSharp 窗口，请勿移动目标窗口或操作页面。Esc 停止并保留已采集帧。选区内不要包含无关浮窗。</value>
+    <value>开始后会隐藏 NimCap Screenshot 窗口，请勿移动目标窗口或操作页面。Esc 停止并保留已采集帧。选区内不要包含无关浮窗。</value>
   </data>
   <data name="ManualCaptureSupportsDownwardOrRightwardScrolling" xml:space="preserve">
     <value>手动支持向下或向右滚动（横向需目标应用支持横向滚轮）；自动会发送滚轮操作。新采集完成后替换预览并清空编辑撤销记录，取消则保留当前结果。</value>
@@ -985,7 +985,7 @@
     <value>强度</value>
   </data>
   <data name="SnapSharpSettings" xml:space="preserve">
-    <value>SnapSharp 设置</value>
+    <value>NimCap Screenshot 设置</value>
   </data>
   <data name="Preferences" xml:space="preserve">
     <value>偏好设置</value>
@@ -1478,7 +1478,7 @@
     <value>配置 VC++ x64 运行库…</value>
   </data>
   <data name="APIProvidersAreNeverSwitchedAutomaticallyMyMemory" xml:space="preserve">
-    <value>API 不自动切换服务商。MyMemory 单次 500 UTF-8 字节；Google 网页适配单次 5000 字符，可能限流、不可达或变更。LibreTranslate 公共实例可能收费或需要密钥，当前兼容无密钥端点；选择本机地址也属于自定义 API，SnapSharp 不会替它安装服务器。</value>
+    <value>API 不自动切换服务商。MyMemory 单次 500 UTF-8 字节；Google 网页适配单次 5000 字符，可能限流、不可达或变更。LibreTranslate 公共实例可能收费或需要密钥，当前兼容无密钥端点；选择本机地址也属于自定义 API，NimCap Screenshot 不会替它安装服务器。</value>
   </data>
   <data name="CustomServicePOSTURLLibreTranslateOnlyProvide" xml:space="preserve">
     <value>自定义服务 POST 地址（仅 LibreTranslate 使用；需自行提供可用服务）</value>
@@ -1559,7 +1559,7 @@
     <value>插件与安全</value>
   </data>
   <data name="PluginSettingsTakeEffectAfterRestartingSnapSharp" xml:space="preserve">
-    <value>插件设置在重启 SnapSharp 后生效。</value>
+    <value>插件设置在重启 NimCap Screenshot 后生效。</value>
   </data>
   <data name="ExternalPluginPolicy" xml:space="preserve">
     <value>外部插件策略</value>
@@ -1577,19 +1577,19 @@
     <value>关于</value>
   </data>
   <data name="ApplicationInformationOpenSourceLicenseAndThird" xml:space="preserve">
-    <value>SnapSharp 应用信息、开源许可与第三方声明。</value>
+    <value>NimCap Screenshot 应用信息、开源许可与第三方声明。</value>
   </data>
   <data name="AnOpenSourceWindowsToolForScreenshots" xml:space="preserve">
-    <value>一款面向 Windows 的开源截图、标注、贴图与屏幕识别工具。</value>
+    <value>NimCap 截图工具：一款面向 Windows 的开源截图、标注、贴图与屏幕识别工具。</value>
   </data>
   <data name="ProjectWebsite" xml:space="preserve">
     <value>项目主页</value>
   </data>
   <data name="SnapSharpSourceLicense" xml:space="preserve">
-    <value>SnapSharp 自身代码许可</value>
+    <value>NimCap Screenshot 自身代码许可</value>
   </data>
   <data name="SnapSharpSourceCodeIsLicensedUnderApache" xml:space="preserve">
-    <value>SnapSharp 自身代码采用 Apache License 2.0，允许在遵守许可证条款的前提下使用、修改、分发和商业使用。本软件按“原样”提供，不附带任何明示或默示担保。</value>
+    <value>NimCap Screenshot 自身代码采用 Apache License 2.0，允许在遵守许可证条款的前提下使用、修改、分发和商业使用。本软件按“原样”提供，不附带任何明示或默示担保。</value>
   </data>
   <data name="ViewApplicationLicense" xml:space="preserve">
     <value>查看本软件许可证</value>
@@ -1598,7 +1598,7 @@
     <value>第三方组件与模型</value>
   </data>
   <data name="ThirdPartyComponentsModelsRuntimesAndOnline" xml:space="preserve">
-    <value>第三方组件、模型、运行库和在线服务保留各自的版权、许可证及服务条款，不受 SnapSharp 的 Apache License 2.0 统一覆盖。</value>
+    <value>第三方组件、模型、运行库和在线服务保留各自的版权、许可证及服务条款，不受 NimCap Screenshot 的 Apache License 2.0 统一覆盖。</value>
   </data>
   <data name="ComponentsIncludeNETWPFSkiaSharpONNXRuntime" xml:space="preserve">
     <value>主要组件包括 .NET / WPF、SkiaSharp、ONNX Runtime / DirectML、ScreenRecorderLib、ZXing.Net、Tesseract、Vortice.Windows、H.NotifyIcon.Wpf、Lucide 和 GTranslate 等；完整许可材料随程序保存在 ThirdPartyLicenses 目录。</value>
@@ -1634,7 +1634,7 @@
     <value>添加</value>
   </data>
   <data name="SnapSharpIsAlreadyRunningButTheExisting" xml:space="preserve">
-    <value>SnapSharp 已经在运行，但无法唤醒现有实例。</value>
+    <value>NimCap Screenshot 已经在运行，但无法唤醒现有实例。</value>
   </data>
   <data name="ScreenTextCaptureStopped" xml:space="preserve">
     <value>屏幕取词已停止</value>
@@ -1703,7 +1703,7 @@
     <value>请先停止当前采集。</value>
   </data>
   <data name="SnapSharpScrollingCaptureProjectSsscroll" xml:space="preserve">
-    <value>SnapSharp 长截图工程|*.ssscroll</value>
+    <value>NimCap Screenshot 长截图工程|*.ssscroll</value>
   </data>
   <data name="StopCaptureBeforeUsingPins" xml:space="preserve">
     <value>请先停止采集后再操作贴图。</value>
@@ -1961,7 +1961,7 @@
     <value>打印机未提供有效的可打印区域。</value>
   </data>
   <data name="SnapSharpScreenshot" xml:space="preserve">
-    <value>SnapSharp 截图</value>
+    <value>NimCap Screenshot 截图</value>
   </data>
   <data name="TextCannotBeEmpty" xml:space="preserve">
     <value>文本不能为空。</value>
@@ -2193,7 +2193,7 @@ Media Foundation：{2}
     <value>无法打开 Windows 启动项注册表项。</value>
   </data>
   <data name="CouldNotDetermineTheSnapSharpExecutablePath" xml:space="preserve">
-    <value>无法确定 SnapSharp 可执行文件路径。</value>
+    <value>无法确定 NimCap Screenshot 可执行文件路径。</value>
   </data>
   <data name="GIFDimensionsExceedTheLimit" xml:space="preserve">
     <value>GIF 尺寸超出限制。</value>
@@ -2283,10 +2283,10 @@ Media Foundation：{2}
     <value>退出</value>
   </data>
   <data name="SnapSharpCtrlShiftARegionCapture" xml:space="preserve">
-    <value>SnapSharp - Ctrl+Shift+A 区域截图</value>
+    <value>NimCap Screenshot - Ctrl+Shift+A 区域截图</value>
   </data>
   <data name="SnapSharp0RegionCapture" xml:space="preserve">
-    <value>SnapSharp - {0} 区域截图</value>
+    <value>NimCap Screenshot - {0} 区域截图</value>
   </data>
   <data name="ShowGroup" xml:space="preserve">
     <value>显示本组</value>
@@ -2319,7 +2319,7 @@ Media Foundation：{2}
     <value>不分组</value>
   </data>
   <data name="ConfirmSendingSnapSharp" xml:space="preserve">
-    <value>确认发送 · SnapSharp</value>
+    <value>确认发送 · NimCap Screenshot</value>
   </data>
   <data name="TheFollowingContentWillBeSentTo" xml:space="preserve">
     <value>以下内容将发送至：
@@ -2843,7 +2843,7 @@ Media Foundation：{2}
     <value>倍数</value>
   </data>
   <data name="SnapSharpAnnotationTemplateSstemplate" xml:space="preserve">
-    <value>SnapSharp 标注模板|*.sstemplate</value>
+    <value>NimCap Screenshot 标注模板|*.sstemplate</value>
   </data>
   <data name="ImportAnnotationTemplate2" xml:space="preserve">
     <value>导入标注模板</value>
@@ -3674,7 +3674,7 @@ Media Foundation：{2}
     <value>窗口 · 悬停识别控件</value>
   </data>
   <data name="UseExecutableDirectory" xml:space="preserve"><value>使用 exe 所在目录</value></data>
-  <data name="DataDirectoryHint" xml:space="preserve"><value>默认保存在 SnapSharp.exe 所在目录。修改后下次启动生效，已下载模型、设置和历史记录将一起迁移。旧版本已有数据会继续使用原目录，可在此修改。</value></data>
+  <data name="DataDirectoryHint" xml:space="preserve"><value>默认保存在 NimCap.Screenshot.exe 所在目录。修改后下次启动生效，已下载模型、设置和历史记录将一起迁移。旧版本已有数据会继续使用原目录，可在此修改。</value></data>
   <data name="ActiveDataDirectory" xml:space="preserve"><value>当前使用：{0}</value></data>
   <data name="ConfirmDataMigration" xml:space="preserve"><value>是否在下次启动时，将已下载模型、设置和历史记录移动到新目录？
 
@@ -3682,7 +3682,7 @@ Media Foundation：{2}
 新目录：{1}
 
 大模型复制可能需要一些时间。不会覆盖新目录中已有的应用数据；迁移成功后才会删除原目录中的数据。</value></data>
-  <data name="DataDirectoryRestartRequired" xml:space="preserve"><value>目录修改已保存。请从托盘退出 SnapSharp 后重新启动，届时会迁移数据。本次运行仍使用原目录。</value></data>
+  <data name="DataDirectoryRestartRequired" xml:space="preserve"><value>目录修改已保存。请从托盘退出 NimCap Screenshot 后重新启动，届时会迁移数据。本次运行仍使用原目录。</value></data>
   <data name="DataMigrationFailed" xml:space="preserve"><value>数据目录迁移未完成，原数据已保留并继续使用。请检查目标目录后，在设置中重新选择目录。</value></data>
   <data name="InvalidDataLocation" xml:space="preserve"><value>数据目录配置无效。</value></data>
   <data name="DataFoldersMustNotOverlap" xml:space="preserve"><value>新目录与原目录不能互相包含，请选择独立的目录。</value></data>
@@ -3715,7 +3715,7 @@ Media Foundation：{2}
   <data name="AppUpdateDownloading" xml:space="preserve"><value>正在下载并校验更新…</value></data>
   <data name="AppUpdateDownloadProgress" xml:space="preserve"><value>正在下载更新：{0}%</value></data>
   <data name="AppUpdateReady" xml:space="preserve"><value>更新包已校验，可以安装。</value></data>
-  <data name="AppUpdateRestartConfirm" xml:space="preserve"><value>更新已准备就绪。继续前请保存尚未完成的编辑和设置。现在退出并自动替换当前版本，然后重启 SnapSharp 吗？已保存的配置、模型和历史记录会保留。</value></data>
+  <data name="AppUpdateRestartConfirm" xml:space="preserve"><value>更新已准备就绪。继续前请保存尚未完成的编辑和设置。现在退出并自动替换当前版本，然后重启 NimCap Screenshot 吗？已保存的配置、模型和历史记录会保留。</value></data>
   <data name="AppUpdateInstalling" xml:space="preserve"><value>正在退出并安装更新…</value></data>
   <data name="AppUpdateCancelled" xml:space="preserve"><value>更新已取消，当前版本未改动。</value></data>
   <data name="AppUpdateInstallFailed" xml:space="preserve"><value>无法安装更新，当前程序会保持运行。请检查网络、磁盘空间和程序目录写入权限后重试。</value></data>
@@ -3904,4 +3904,5 @@ Media Foundation：{2}
   <data name="TrayDelayAction" xml:space="preserve"><value>延时截图（{0} 秒）</value></data>
   <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>发现新版本 {0}。是否打开更新页面？</value></data>
   <data name="ShortcutAction" xml:space="preserve"><value>功能</value></data>
+  <data name="OfficialWebsite" xml:space="preserve"><value>官方主页</value></data>
 </root>

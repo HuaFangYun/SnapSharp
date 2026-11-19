@@ -61,7 +61,7 @@
     <value>OK</value>
   </data>
   <data name="SnapSharpAnnotations" xml:space="preserve">
-    <value>SnapSharp Annotations</value>
+    <value>NimCap Screenshot Annotations</value>
   </data>
   <data name="Select" xml:space="preserve">
     <value>Select</value>
@@ -238,7 +238,7 @@
     <value>More</value>
   </data>
   <data name="OCRRecognitionBackgroundRemovalSnapSharp" xml:space="preserve">
-    <value>OCR, Recognition &amp; Background Removal · SnapSharp</value>
+    <value>OCR, Recognition &amp; Background Removal · NimCap Screenshot</value>
   </data>
   <data name="TextOCR" xml:space="preserve">
     <value>Text OCR</value>
@@ -367,7 +367,7 @@
     <value>Ready</value>
   </data>
   <data name="RecordingSetupSnapSharp" xml:space="preserve">
-    <value>Recording Setup · SnapSharp</value>
+    <value>Recording Setup · NimCap Screenshot</value>
   </data>
   <data name="RecordingRequirements" xml:space="preserve">
     <value>Recording requirements</value>
@@ -376,7 +376,7 @@
     <value>Check and install missing components. Installed components will not be downloaded again.</value>
   </data>
   <data name="SetupDownloadsMissingVisualCX64Components" xml:space="preserve">
-    <value>Setup downloads missing Visual C++ x64 components from Microsoft, verifies Windows trust and the Microsoft publisher, then installs them. For Windows N/KN, Windows installs the matching Media Feature Pack. Administrator approval (UAC) may be required. A restart may be needed; SnapSharp will not restart your computer automatically.</value>
+    <value>Setup downloads missing Visual C++ x64 components from Microsoft, verifies Windows trust and the Microsoft publisher, then installs them. For Windows N/KN, Windows installs the matching Media Feature Pack. Administrator approval (UAC) may be required. A restart may be needed; NimCap Screenshot will not restart your computer automatically.</value>
   </data>
   <data name="CheckAndInstallMissingComponents" xml:space="preserve">
     <value>Check and install missing components</value>
@@ -433,7 +433,7 @@
     <value>Close recording</value>
   </data>
   <data name="RecordingOptionsSnapSharp" xml:space="preserve">
-    <value>Recording Options · SnapSharp</value>
+    <value>Recording Options · NimCap Screenshot</value>
   </data>
   <data name="RegionRecording" xml:space="preserve">
     <value>Region recording</value>
@@ -517,7 +517,7 @@
     <value>Temporary files from failed recording</value>
   </data>
   <data name="SaveImageSnapSharp" xml:space="preserve">
-    <value>Save Image · SnapSharp</value>
+    <value>Save Image · NimCap Screenshot</value>
   </data>
   <data name="ImagePreview" xml:space="preserve">
     <value>Image preview</value>
@@ -586,7 +586,7 @@
     <value>Adjust the format and size before saving. Closing this window does not create a file.</value>
   </data>
   <data name="ScrollingCaptureSnapSharp" xml:space="preserve">
-    <value>Scrolling Capture · SnapSharp</value>
+    <value>Scrolling Capture · NimCap Screenshot</value>
   </data>
   <data name="ScrollingCapturePreview" xml:space="preserve">
     <value>Scrolling capture preview</value>
@@ -670,7 +670,7 @@
     <value>Select region and capture automatically…</value>
   </data>
   <data name="SnapSharpWindowsAreHiddenDuringCaptureDo" xml:space="preserve">
-    <value>SnapSharp windows are hidden during capture. Do not move the target window or interact with the page. Esc stops and keeps captured frames. Keep unrelated floating windows outside the region.</value>
+    <value>NimCap Screenshot windows are hidden during capture. Do not move the target window or interact with the page. Esc stops and keeps captured frames. Keep unrelated floating windows outside the region.</value>
   </data>
   <data name="ManualCaptureSupportsDownwardOrRightwardScrolling" xml:space="preserve">
     <value>Manual capture supports downward or rightward scrolling (horizontal scrolling requires application support). Automatic capture sends wheel input. A new capture replaces the preview and clears undo history; canceling preserves the current result.</value>
@@ -985,7 +985,7 @@
     <value>Intensity</value>
   </data>
   <data name="SnapSharpSettings" xml:space="preserve">
-    <value>SnapSharp Settings</value>
+    <value>NimCap Screenshot Settings</value>
   </data>
   <data name="Preferences" xml:space="preserve">
     <value>Preferences</value>
@@ -1478,7 +1478,7 @@
     <value>Set up VC++ x64 runtime…</value>
   </data>
   <data name="APIProvidersAreNeverSwitchedAutomaticallyMyMemory" xml:space="preserve">
-    <value>API providers are never switched automatically. MyMemory: 500 UTF-8 bytes per request. Google web adapter: 5000 characters, subject to throttling, outages or changes. LibreTranslate instances may charge or require keys; currently only keyless endpoints are supported. A localhost endpoint is also a custom API; SnapSharp does not install its server.</value>
+    <value>API providers are never switched automatically. MyMemory: 500 UTF-8 bytes per request. Google web adapter: 5000 characters, subject to throttling, outages or changes. LibreTranslate instances may charge or require keys; currently only keyless endpoints are supported. A localhost endpoint is also a custom API; NimCap Screenshot does not install its server.</value>
   </data>
   <data name="CustomServicePOSTURLLibreTranslateOnlyProvide" xml:space="preserve">
     <value>Custom service POST URL (LibreTranslate only; provide an available service)</value>
@@ -1559,7 +1559,7 @@
     <value>Plugins and security</value>
   </data>
   <data name="PluginSettingsTakeEffectAfterRestartingSnapSharp" xml:space="preserve">
-    <value>Plugin settings take effect after restarting SnapSharp.</value>
+    <value>Plugin settings take effect after restarting NimCap Screenshot.</value>
   </data>
   <data name="ExternalPluginPolicy" xml:space="preserve">
     <value>External plugin policy</value>
@@ -1586,10 +1586,10 @@
     <value>Project website</value>
   </data>
   <data name="SnapSharpSourceLicense" xml:space="preserve">
-    <value>SnapSharp source license</value>
+    <value>NimCap Screenshot source license</value>
   </data>
   <data name="SnapSharpSourceCodeIsLicensedUnderApache" xml:space="preserve">
-    <value>SnapSharp source code is licensed under Apache License 2.0, permitting use, modification, distribution and commercial use subject to its terms. This software is provided AS IS, without express or implied warranties.</value>
+    <value>NimCap Screenshot source code is licensed under Apache License 2.0, permitting use, modification, distribution and commercial use subject to its terms. This software is provided AS IS, without express or implied warranties.</value>
   </data>
   <data name="ViewApplicationLicense" xml:space="preserve">
     <value>View application license</value>
@@ -1598,7 +1598,7 @@
     <value>Third-party components and models</value>
   </data>
   <data name="ThirdPartyComponentsModelsRuntimesAndOnline" xml:space="preserve">
-    <value>Third-party components, models, runtimes and online services retain their own copyrights, licenses and terms. They are not all covered by SnapSharp's Apache License 2.0.</value>
+    <value>Third-party components, models, runtimes and online services retain their own copyrights, licenses and terms. They are not all covered by NimCap Screenshot's Apache License 2.0.</value>
   </data>
   <data name="ComponentsIncludeNETWPFSkiaSharpONNXRuntime" xml:space="preserve">
     <value>Components include .NET / WPF, SkiaSharp, ONNX Runtime / DirectML, ScreenRecorderLib, ZXing.Net, Tesseract, Vortice.Windows, H.NotifyIcon.Wpf, Lucide and GTranslate. Complete license materials are distributed in ThirdPartyLicenses.</value>
@@ -1634,7 +1634,7 @@
     <value>Add</value>
   </data>
   <data name="SnapSharpIsAlreadyRunningButTheExisting" xml:space="preserve">
-    <value>SnapSharp is already running, but the existing instance could not be activated.</value>
+    <value>NimCap Screenshot is already running, but the existing instance could not be activated.</value>
   </data>
   <data name="ScreenTextCaptureStopped" xml:space="preserve">
     <value>Screen text capture stopped</value>
@@ -1703,7 +1703,7 @@
     <value>Stop the current capture first.</value>
   </data>
   <data name="SnapSharpScrollingCaptureProjectSsscroll" xml:space="preserve">
-    <value>SnapSharp scrolling capture project|*.ssscroll</value>
+    <value>NimCap Screenshot scrolling capture project|*.ssscroll</value>
   </data>
   <data name="StopCaptureBeforeUsingPins" xml:space="preserve">
     <value>Stop capture before using pins.</value>
@@ -1961,7 +1961,7 @@
     <value>The printer did not provide a valid printable area.</value>
   </data>
   <data name="SnapSharpScreenshot" xml:space="preserve">
-    <value>SnapSharp Screenshot</value>
+    <value>NimCap Screenshot</value>
   </data>
   <data name="TextCannotBeEmpty" xml:space="preserve">
     <value>Text cannot be empty.</value>
@@ -2118,7 +2118,7 @@ ScreenRecorderLib is included. No separate NuGet or FFmpeg installation is requi
     <value>Installing Media Feature Pack through Windows. Approve the administrator prompt; Windows downloads components matching your system version.</value>
   </data>
   <data name="DependenciesInstalledRestartWindowsBeforeRecordingSave" xml:space="preserve">
-    <value>Dependencies installed. Restart Windows before recording. Save other work first; SnapSharp will not restart automatically.</value>
+    <value>Dependencies installed. Restart Windows before recording. Save other work first; NimCap Screenshot will not restart automatically.</value>
   </data>
   <data name="ComponentsAreNotReadyRestartWindowsAnd" xml:space="preserve">
     <value>Components are not ready. Restart Windows and check again, or inspect the installation in Windows optional features.</value>
@@ -2193,7 +2193,7 @@ ScreenRecorderLib is included. No separate NuGet or FFmpeg installation is requi
     <value>Could not open the Windows startup registry key.</value>
   </data>
   <data name="CouldNotDetermineTheSnapSharpExecutablePath" xml:space="preserve">
-    <value>Could not determine the SnapSharp executable path.</value>
+    <value>Could not determine the NimCap Screenshot executable path.</value>
   </data>
   <data name="GIFDimensionsExceedTheLimit" xml:space="preserve">
     <value>GIF dimensions exceed the limit.</value>
@@ -2283,10 +2283,10 @@ ScreenRecorderLib is included. No separate NuGet or FFmpeg installation is requi
     <value>Exit</value>
   </data>
   <data name="SnapSharpCtrlShiftARegionCapture" xml:space="preserve">
-    <value>SnapSharp - Ctrl+Shift+A region capture</value>
+    <value>NimCap Screenshot - Ctrl+Shift+A region capture</value>
   </data>
   <data name="SnapSharp0RegionCapture" xml:space="preserve">
-    <value>SnapSharp - {0} region capture</value>
+    <value>NimCap Screenshot - {0} region capture</value>
   </data>
   <data name="ShowGroup" xml:space="preserve">
     <value>Show group</value>
@@ -2319,7 +2319,7 @@ ScreenRecorderLib is included. No separate NuGet or FFmpeg installation is requi
     <value>Ungrouped</value>
   </data>
   <data name="ConfirmSendingSnapSharp" xml:space="preserve">
-    <value>Confirm Sending · SnapSharp</value>
+    <value>Confirm Sending · NimCap Screenshot</value>
   </data>
   <data name="TheFollowingContentWillBeSentTo" xml:space="preserve">
     <value>The following content will be sent to:
@@ -2528,7 +2528,7 @@ Confirm that you trust this provider and the content contains no sensitive infor
     <value>Recording components failed to load: </value>
   </data>
   <data name="RestartingSnapSharpOrWindowsMayBeRequired" xml:space="preserve">
-    <value>. Restarting SnapSharp or Windows may be required after installation.</value>
+    <value>. Restarting NimCap Screenshot or Windows may be required after installation.</value>
   </data>
   <data name="TheSelectedAudioCameraDeviceIsUnavailable" xml:space="preserve">
     <value>The selected audio/camera device is unavailable. Refresh devices or disable it.</value>
@@ -2843,7 +2843,7 @@ Adjust this offset in 1-pixel steps. Blue guides are not written to output.</val
     <value>Magnification</value>
   </data>
   <data name="SnapSharpAnnotationTemplateSstemplate" xml:space="preserve">
-    <value>SnapSharp annotation template|*.sstemplate</value>
+    <value>NimCap Screenshot annotation template|*.sstemplate</value>
   </data>
   <data name="ImportAnnotationTemplate2" xml:space="preserve">
     <value>Import annotation template</value>
@@ -3674,7 +3674,7 @@ Diagnostic log: {1}</value></data>
     <value>Window · hover to detect controls</value>
   </data>
   <data name="UseExecutableDirectory" xml:space="preserve"><value>Use executable folder</value></data>
-  <data name="DataDirectoryHint" xml:space="preserve"><value>Defaults to the folder containing SnapSharp.exe. Changes take effect at the next launch; downloaded models, settings and history will be moved together. Existing installations keep their original folder until changed here.</value></data>
+  <data name="DataDirectoryHint" xml:space="preserve"><value>Defaults to the folder containing NimCap.Screenshot.exe. Changes take effect at the next launch; downloaded models, settings and history will be moved together. Existing installations keep their original folder until changed here.</value></data>
   <data name="ActiveDataDirectory" xml:space="preserve"><value>Currently in use: {0}</value></data>
   <data name="ConfirmDataMigration" xml:space="preserve"><value>Move downloaded models, settings and history to the new folder at the next launch?
 
@@ -3682,7 +3682,7 @@ From: {0}
 To: {1}
 
 Large models may take some time to copy. Existing data in the destination will not be overwritten. The original data is removed only after migration succeeds.</value></data>
-  <data name="DataDirectoryRestartRequired" xml:space="preserve"><value>Folder change saved. Exit SnapSharp from the tray and start it again to migrate your data. The current session continues using the original folder.</value></data>
+  <data name="DataDirectoryRestartRequired" xml:space="preserve"><value>Folder change saved. Exit NimCap Screenshot from the tray and start it again to migrate your data. The current session continues using the original folder.</value></data>
   <data name="DataMigrationFailed" xml:space="preserve"><value>Data migration could not be completed. The original data has been preserved and will continue to be used. Check the destination and choose the folder again in Settings.</value></data>
   <data name="InvalidDataLocation" xml:space="preserve"><value>The data folder configuration is invalid.</value></data>
   <data name="DataFoldersMustNotOverlap" xml:space="preserve"><value>The new and current data folders must not contain one another. Choose a separate folder.</value></data>
@@ -3715,7 +3715,7 @@ Large models may take some time to copy. Existing data in the destination will n
   <data name="AppUpdateDownloading" xml:space="preserve"><value>Downloading and verifying update…</value></data>
   <data name="AppUpdateDownloadProgress" xml:space="preserve"><value>Downloading update: {0}%</value></data>
   <data name="AppUpdateReady" xml:space="preserve"><value>Update verified and ready to install.</value></data>
-  <data name="AppUpdateRestartConfirm" xml:space="preserve"><value>The update is ready. Save any unfinished edits and settings before continuing. Restart SnapSharp now to automatically replace this version? Saved settings, models and history will be preserved.</value></data>
+  <data name="AppUpdateRestartConfirm" xml:space="preserve"><value>The update is ready. Save any unfinished edits and settings before continuing. Restart NimCap Screenshot now to automatically replace this version? Saved settings, models and history will be preserved.</value></data>
   <data name="AppUpdateInstalling" xml:space="preserve"><value>Restarting to install update…</value></data>
   <data name="AppUpdateCancelled" xml:space="preserve"><value>Update cancelled. The installed version has not changed.</value></data>
   <data name="AppUpdateInstallFailed" xml:space="preserve"><value>Could not install the update. The current version will stay open. Check the connection, disk space and write permissions, then retry.</value></data>
@@ -3904,4 +3904,5 @@ Barcode</value></data>
   <data name="TrayDelayAction" xml:space="preserve"><value>Delayed capture ({0} seconds)</value></data>
   <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>Version {0} is available. Open the update page?</value></data>
   <data name="ShortcutAction" xml:space="preserve"><value>Action</value></data>
+  <data name="OfficialWebsite" xml:space="preserve"><value>Official website</value></data>
 </root>

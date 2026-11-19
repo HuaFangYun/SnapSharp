@@ -16,7 +16,7 @@ from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
 ENDPOINT = 'https://api.indexnow.org/indexnow'
-USER_AGENT = 'SnapSharp-IndexNow/1.0 (+https://github.com/leelongjiang/SnapSharp)'
+USER_AGENT = 'NimCap-Screenshot-IndexNow/1.0 (+https://github.com/nimcap/nimcap-screenshot)'
 
 
 def fetch(url):
@@ -27,7 +27,7 @@ def fetch(url):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--base-url', default='https://www.snapsharp.cn')
+    parser.add_argument('--base-url', default='https://jietu.nimcap.com')
     parser.add_argument('--dry-run', action='store_true', help='Read sitemap and verify the public key without submitting')
     parser.add_argument('--report', type=Path, help='Optional JSON receipt file')
     args = parser.parse_args()

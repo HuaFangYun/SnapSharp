@@ -29,7 +29,7 @@ PROTECTED = re.compile(
     r"\{[^{}]+\}|https?://[^\s)]+|\*\.[\w]+|"
     r"\b[\w.-]+\.(?:exe|dll|onnx|json|gguf|traineddata|zip|csv|xlsx|png|jpg|webp)\b|"
     r"\b(?:Ctrl|Alt|Shift|Win)\+[A-Za-z0-9+]+|yyyy-MM-dd|"
-    r"\b(?:SnapSharp|DirectML|ONNX|WGC|DXGI|GDI|WASAPI|FFmpeg|NuGet|"
+    r"\b(?:NimCap Screenshot|NimCap|SnapSharp|DirectML|ONNX|WGC|DXGI|GDI|WASAPI|FFmpeg|NuGet|"
     r"PaddleOCR|Tesseract|SLANet|LaTeX|BiRefNet|ModelScope|Hugging Face|"
     r"chi_sim\+eng|chi_sim|eng|float32|NCHW|CTC)\b"
 )
@@ -102,7 +102,7 @@ def request_translation(value, target):
     query = urllib.parse.urlencode({"client": "gtx", "sl": "en", "tl": target, "dt": "t", "q": value})
     request = urllib.request.Request(
         "https://translate.googleapis.com/translate_a/single?" + query,
-        headers={"User-Agent": "SnapSharp localization maintainer"},
+        headers={"User-Agent": "NimCap-Screenshot localization maintainer"},
     )
     for attempt in range(5):
         try:

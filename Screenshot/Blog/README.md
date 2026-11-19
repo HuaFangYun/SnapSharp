@@ -1,4 +1,4 @@
-# SnapSharp 博文配图
+# NimCap Screenshot 博文配图
 
 共 21 张 PNG 配图，原有素材保留在上一级目录。本轮补充了 7 张 AI 相关配图，先看 [AI 配图总览](AI配图总览.jpg)、[完整配图总览](配图总览.jpg)，或打开[图片画廊](index.html)逐张浏览。21 张配图已全部嵌入中英文 README，并结合 7 张原有截图，分别展示 28 张图片。
 
@@ -12,7 +12,7 @@ OCR 使用本次生成的中文或英文识别结果，表格与公式各有单�
 
 | 文件 | 适合位置 | 建议图注 |
 |---|---|---|
-| [00-cover.png](00-cover.png) | 文章封面 | SnapSharp：从截图标注，到 OCR、抠图与录屏。 |
+| [00-cover.png](00-cover.png) | 文章封面 | NimCap Screenshot：从截图标注，到 OCR、抠图与录屏。 |
 | [01-annotation-editor.png](01-annotation-editor.png) | 截图与标注 | 用矩形框出重点，配合箭头、文字和序号，把操作说明直接写在截图上。 |
 | [02-scrolling-preview.png](02-scrolling-preview.png) | 长截图 | 长截图预览集中提供裁边、接缝检查、继续标注和输出入口。 |
 | [03-long-image-result.png](03-long-image-result.png) | 长图效果补充 | 将连续内容拼成一张完整长图，适合整理教程、清单与阅读材料。 |
@@ -39,7 +39,7 @@ OCR 使用本次生成的中文或英文识别结果，表格与公式各有单�
 在当前目录使用：
 
 ```markdown
-![SnapSharp 标注编辑器](01-annotation-editor.png)
+![NimCap Screenshot 标注编辑器](01-annotation-editor.png)
 
 *用矩形框出重点，配合箭头、文字和序号，把操作说明直接写在截图上。*
 ```

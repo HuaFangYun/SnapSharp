@@ -49,14 +49,14 @@ try {
         $null = Safe-File $backup $file.Relative
         if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -ne $file.Sha256) { throw 'Staged update checksum mismatch.' }
     }
-    if (-not $seen.Contains('SnapSharp.exe')) { throw 'Missing application executable.' }
+    if (-not $seen.Contains('NimCap.Screenshot.exe')) { throw 'Missing application executable.' }
     [IO.File]::WriteAllText($state.Ready, 'ready')
     if (-not $TestMode) {
         try { $parent = [Diagnostics.Process]::GetProcessById([int]$state.ParentId) }
         catch [ArgumentException] { $parent = $null }
         if ($null -ne $parent) {
             if ($parent.StartTime.ToUniversalTime().Ticks -ne [long]$state.ParentStartTicks) { throw 'Application process identity changed.' }
-            if (-not $parent.WaitForExit(120000)) { throw 'SnapSharp did not exit. Update cancelled without changing files.' }
+            if (-not $parent.WaitForExit(120000)) { throw 'NimCap Screenshot did not exit. Update cancelled without changing files.' }
         }
     }
     if ($state.Abort -and [IO.File]::Exists($state.Abort)) { throw 'Update was cancelled.' }
@@ -80,7 +80,7 @@ try {
     }
     @{ Status = 'installed'; Backup = $backup } | ConvertTo-Json | Set-Content -LiteralPath $state.Result -Encoding UTF8
     if (-not $TestMode) {
-        Start-Process -FilePath ([IO.Path]::Combine($target, 'SnapSharp.exe')) -WorkingDirectory $target -WindowStyle Hidden -ErrorAction Stop | Out-Null
+        Start-Process -FilePath ([IO.Path]::Combine($target, 'NimCap.Screenshot.exe')) -WorkingDirectory $target -WindowStyle Hidden -ErrorAction Stop | Out-Null
     }
     exit 0
 }
@@ -102,13 +102,13 @@ catch {
     }
     if (-not $TestMode -and -not $waiting) {
         Add-Type -AssemblyName PresentationFramework
-        $message = "SnapSharp update failed: $failure`n"
+        $message = "NimCap Screenshot update failed: $failure`n"
         if ($rollbackFailures.Count -eq 0) { $message += "The previous program files have been preserved/restored.`n" }
         else { $message += "Some files could not be restored. Recover them from: $($state.Backup)`n" }
         $message += "Details: $($state.Result)"
-        [System.Windows.MessageBox]::Show($message, 'SnapSharp update', 'OK', 'Error') | Out-Null
+        [System.Windows.MessageBox]::Show($message, 'NimCap Screenshot update', 'OK', 'Error') | Out-Null
         if (-not $waiting -and $rollbackFailures.Count -eq 0) {
-            Start-Process -FilePath ([IO.Path]::Combine($target, 'SnapSharp.exe')) -WorkingDirectory $target -WindowStyle Hidden
+            Start-Process -FilePath ([IO.Path]::Combine($target, 'NimCap.Screenshot.exe')) -WorkingDirectory $target -WindowStyle Hidden
         }
     }
     exit 1

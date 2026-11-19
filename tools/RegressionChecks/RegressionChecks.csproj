@@ -9,6 +9,6 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SnapSharp.csproj" />
+    <ProjectReference Include="..\..\NimCap.Screenshot.csproj" />
   </ItemGroup>
 </Project>

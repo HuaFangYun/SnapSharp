@@ -139,7 +139,7 @@ internal static partial class Program
         }
         // Kill only a worker started from this test's isolated output directory.
         var request = OnnxImageRuntime.Shared.RemoveBackground(image, settings);
-        var workerPath = Path.Combine(AppContext.BaseDirectory, "SnapSharp.exe");
+        var workerPath = Path.Combine(AppContext.BaseDirectory, "NimCap.Screenshot.exe");
         var killed = false;
         var deadline = Stopwatch.StartNew();
         while (!request.IsCompleted && deadline.Elapsed < TimeSpan.FromSeconds(10))

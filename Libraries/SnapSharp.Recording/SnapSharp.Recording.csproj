@@ -14,7 +14,7 @@
     <PackageReference Include="ScreenRecorderLib" Version="7.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="SnapSharp" />
+    <InternalsVisibleTo Include="NimCap.Screenshot" />
     <InternalsVisibleTo Include="SnapSharp.RegressionChecks" />
     <InternalsVisibleTo Include="SnapSharp.RecordingChecks" />
   </ItemGroup>

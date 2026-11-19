@@ -25,7 +25,7 @@ internal static class ShellSelfTest
         using (var dc = visual.RenderOpen())
         {
             dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, 640, 130));
-            dc.DrawText(new FormattedText("SnapSharp Screen Text 12345", System.Globalization.CultureInfo.GetCultureInfo("en-US"), FlowDirection.LeftToRight,
+            dc.DrawText(new FormattedText("NimCap Screenshot Screen Text 12345", System.Globalization.CultureInfo.GetCultureInfo("en-US"), FlowDirection.LeftToRight,
                 new Typeface("Arial"), 30, Brushes.Black, 1), new Point(12, 35));
         }
         var sample = new RenderTargetBitmap(640, 130, 96, 96, PixelFormats.Pbgra32); sample.Render(visual); sample.Freeze();
@@ -105,8 +105,8 @@ internal static class ShellSelfTest
             return Task.FromResult(new HttpResponseMessage(status) { Content = new StringContent(JsonSerializer.Serialize(new
             {
                 tag_name = "v99.0.0", draft = false, prerelease = false, body = "One-line notes should not create a panel.",
-                html_url = "https://github.com/leelongjiang/SnapSharp/releases/tag/v99.0.0",
-                assets = new[] { new { name = "SnapSharp-v99.0.0-win-x64.zip", browser_download_url = "https://github.com/leelongjiang/SnapSharp/releases/download/v99.0.0/SnapSharp-v99.0.0-win-x64.zip" } }
+                html_url = "https://github.com/nimcap/nimcap-screenshot/releases/tag/v99.0.0",
+                assets = new[] { new { name = "nimcap-screenshot-v99.0.0-win-x64.zip", browser_download_url = "https://github.com/nimcap/nimcap-screenshot/releases/download/v99.0.0/nimcap-screenshot-v99.0.0-win-x64.zip" } }
             })) });
         }
     }

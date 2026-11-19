@@ -30,7 +30,7 @@
     <SolidColorBrush x:Key="PanelBrush" Color="#F7222222" />
     <Style x:Key="AppWindow" TargetType="Window">
       <Setter Property="services:ThemeService.UseThemedTitleBar" Value="True" />
-      <Setter Property="Icon" Value="/SnapSharp;component/logo.ico" />
+      <Setter Property="Icon" Value="/NimCap.Screenshot;component/logo.ico" />
       <Setter Property="FontFamily" Value="Microsoft YaHei UI, Segoe UI" />
       <Setter Property="FontSize" Value="13" />
       <Setter Property="UseLayoutRounding" Value="True" />

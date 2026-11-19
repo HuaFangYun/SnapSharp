@@ -12,10 +12,10 @@ SLBR weights are not bundled. Provenance and upstream research-weight conditions
 are recorded in `ThirdPartyLicenses/SLBR-MODEL-CARD.md`.
 
 Complete license and upstream notice texts for binaries distributed with
-SnapSharp are included in `ThirdPartyLicenses/`. The project file copies that
+NimCap Screenshot are included in `ThirdPartyLicenses/`. The project file copies that
 directory into normal build and publish output. `PACKAGE-NOTICES.md` maps each
 distributed direct or transitive package to its accompanying material. The
-root Apache-2.0 `LICENSE` covers SnapSharp itself; it does not replace a third
+root Apache-2.0 `LICENSE` covers NimCap Screenshot itself; it does not replace a third
 party's copyright notice or separate terms.
 
 ## WPFLocalizeExtension 3.10.0

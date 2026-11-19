@@ -143,7 +143,7 @@ public sealed class AppController : IDisposable
             if (MessageBox.Show(L.Format("AppUpdateStartupPrompt", release.Tag), L.Get("AppUpdateTitle"),
                 MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes) ShowSettings("Info");
         }
-        else _tray.ShowMessage("SnapSharp", _updates.StatusText);
+        else _tray.ShowMessage("NimCap Screenshot", _updates.StatusText);
     }
 
     private void RequestCapture(object? sender, CaptureModeEventArgs e) => RequestCapture(e.Mode);

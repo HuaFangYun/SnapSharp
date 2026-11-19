@@ -8,7 +8,7 @@ public static class RecordingOutputPath
     {
         if (!Path.IsPathFullyQualified(directory)) throw new ArgumentException(L.Get("RecordingFolderMustBeAbsolute"));
         Directory.CreateDirectory(directory);
-        var name = "SnapSharp-record-" + now.ToString("yyyyMMdd-HHmmss-fff");
+        var name = "NimCap-Screenshot-record-" + now.ToString("yyyyMMdd-HHmmss-fff");
         var extension = format == "GIF" ? ".gif" : ".mp4";
         var path = Path.Combine(directory, name + extension);
         for (var sequence = 1; File.Exists(path) || Directory.Exists(path); sequence++)

@@ -15,7 +15,7 @@
     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" MinWidth="80" /><ColumnDefinition /><ColumnDefinition Width="50" /></Grid.ColumnDefinitions>
     <Grid.RowDefinitions><RowDefinition Height="44" /><RowDefinition Height="44" /><RowDefinition Height="44" /><RowDefinition Height="44" /><RowDefinition Height="48" /><RowDefinition Height="52" /></Grid.RowDefinitions>
     <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkText}" VerticalAlignment="Center" Margin="0,0,12,0" />
-    <TextBox x:Name="WatermarkText" Grid.Column="1" Grid.ColumnSpan="2" Text="SnapSharp" VerticalAlignment="Center" />
+    <TextBox x:Name="WatermarkText" Grid.Column="1" Grid.ColumnSpan="2" Text="NimCap Screenshot" VerticalAlignment="Center" />
     <TextBlock Grid.Row="1" Text="{loc:Loc SnapSharp.Core:Resources.Strings:FontSize}" VerticalAlignment="Center" Margin="0,0,12,0" />
     <Slider x:Name="FontSizeSlider" Grid.Row="1" Grid.Column="1" Minimum="12" Maximum="96" Value="28" TickFrequency="1" IsSnapToTickEnabled="True" />
     <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Value, ElementName=FontSizeSlider, StringFormat={}{0:0}}" VerticalAlignment="Center" HorizontalAlignment="Right" />

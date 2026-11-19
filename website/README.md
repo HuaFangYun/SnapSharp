@@ -1,6 +1,6 @@
-# SnapSharp website
+# NimCap Screenshot website
 
-The public site targets **https://www.snapsharp.cn/**. It contains
+The public site targets **https://jietu.nimcap.com/**. Chinese pages use the root path; English pages use `/en/`. It contains
 Chinese and English product pages, a setup guide, and three workflow guides.
 Content is rendered into HTML at build time; navigation, articles, screenshots,
 FAQ answers, and download links do not depend on JavaScript. There are no remote
@@ -41,29 +41,15 @@ settings and keep DNS / HTTPS settings consistent. The repository's Pages
 configuration is authoritative for this Actions deployment; a source CNAME
 file is not required.
 
-### Custom domain: www.snapsharp.cn
+### Custom domain: jietu.nimcap.com
 
-The domain is registered at Alibaba Cloud; the site is hosted by GitHub Pages.
-These DNS records point both names at Pages:
-
-| Host record | Type | Value |
-| --- | --- | --- |
-| `www` | CNAME | `leelongjiang.github.io` |
-| `@` | A | `185.199.108.153` |
-| `@` | A | `185.199.109.153` |
-| `@` | A | `185.199.110.153` |
-| `@` | A | `185.199.111.153` |
-
-Keep `_github-pages-challenge-leelongjiang` TXT verification in place.
-Account-level **Settings → Pages → Verified domains** verifies ownership; it
-does not bind a repository. In **SnapSharp → Settings → Pages**, the custom
-domain must also be set to `www.snapsharp.cn`. GitHub then provisions its
-certificate; enable **Enforce HTTPS** when the certificate is ready. With both
-DNS names configured, the apex domain redirects to the chosen `www` domain.
-
-Rebuild after changing the Pages domain so stylesheet paths, canonical links,
-language alternates, social cards, sitemap, and submission URLs use the new
-domain at its root. The original GitHub Pages URL redirects to the custom site.
+Configure `jietu.nimcap.com` in this repository's **Settings → Pages** and add
+a `jietu` CNAME pointing to `nimcap.github.io` at your DNS provider. Enable
+HTTPS when GitHub provisions the certificate. This single site serves Chinese
+at `/` and English at `/en/`; language switches link to the matching page.
+The workflow builds, checks and deploys both languages together. No second
+hosting site or domain is needed. DNS and Pages settings must be configured
+separately from these source files.
 
 ## Edit content and appearance
 
@@ -119,12 +105,12 @@ changing source screenshots, inspect them, then rebuild the website.
 
 The build provides canonical URLs, language alternates, Open Graph / Twitter
 cards, SoftwareApplication / FAQPage / TechArticle JSON-LD, and `sitemap.xml`.
-Submit **https://www.snapsharp.cn/sitemap.xml** in the relevant
+Submit **https://jietu.nimcap.com/sitemap.xml** in the relevant
 search webmaster consoles after verifying ownership. Structured data and sitemap
 submission do not guarantee indexing or recommendations.
 
 On the custom domain, `/robots.txt` serves the actual host-root crawler policy.
-For a project-path preview, `/SnapSharp/robots.txt` would not control the host
+For a project-path preview, `/nimcap-screenshot/robots.txt` would not control the host
 root's policy. Keep public content crawlable and maintain accurate, useful
 guides rather than adding hidden text.
 
@@ -151,8 +137,8 @@ resubmitting every page on every build. Protocol: https://www.indexnow.org/docum
 
 Google does not participate in IndexNow. To submit there, sign in to Google
 Search Console, add the URL-prefix property
-`https://www.snapsharp.cn/`, verify ownership, then submit
-`https://www.snapsharp.cn/sitemap.xml` in **Sitemaps**. Account
+`https://jietu.nimcap.com/`, verify ownership, then submit
+`https://jietu.nimcap.com/sitemap.xml` in **Sitemaps**. Account
 verification requires the property owner's session and cannot be inferred from
 GitHub repository access. The former unauthenticated Google sitemap ping
 endpoint is deprecated and is not used here.

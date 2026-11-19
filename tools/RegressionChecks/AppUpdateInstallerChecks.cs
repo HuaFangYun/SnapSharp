@@ -12,13 +12,13 @@ namespace SnapSharp.RegressionChecks;
 internal static partial class Program
 {
     private static readonly string[] UpdateRequiredFiles =
-        ["SnapSharp.exe", "SnapSharp.dll", "SnapSharp.deps.json", "SnapSharp.runtimeconfig.json", "coreclr.dll", "hostfxr.dll"];
+        ["NimCap.Screenshot.exe", "NimCap.Screenshot.dll", "NimCap.Screenshot.deps.json", "NimCap.Screenshot.runtimeconfig.json", "coreclr.dll", "hostfxr.dll"];
 
     private static async Task AppUpdateInstallerChecks()
     {
         var root = Path.GetFullPath(Path.Combine(".artifacts", "update-installer-checks", Guid.NewGuid().ToString("N")));
         Directory.CreateDirectory(root);
-        string Archive(string id, string prefix = "SnapSharp-v1.0.9-win-x64/", string? extra = null, bool missingRuntime = false)
+        string Archive(string id, string prefix = "nimcap-screenshot-v1.0.9-win-x64/", string? extra = null, bool missingRuntime = false)
         {
             var path = Path.Combine(root, id + ".zip");
             using var zip = ZipFile.Open(path, ZipArchiveMode.Create);
@@ -32,12 +32,12 @@ internal static partial class Program
         }
         var archive = Archive("valid");
         var update = AppUpdateInstaller.ExtractPackage(archive, Path.Combine(root, "valid"), default);
-        Require(update.Files.Length == 6 && File.Exists(Path.Combine(update.Stage, "SnapSharp.exe")), "Wrapped update package not extracted.");
+        Require(update.Files.Length == 6 && File.Exists(Path.Combine(update.Stage, "NimCap.Screenshot.exe")), "Wrapped update package not extracted.");
         var flat = Archive("flat", "");
         Require(AppUpdateInstaller.ExtractPackage(flat, Path.Combine(root, "flat"), default).Files.Length == 6, "Flat update package not extracted.");
         foreach (var (name, extra) in new[] { ("traversal", "../outside.dll"), ("absolute", "/evil.dll"),
             ("settings", "settings.json"), ("model", "models/model.onnx"), ("data", "data-location.json"),
-            ("alternate", "file.dll:extra"), ("reserved", "CON.dll"), ("duplicate", "snapsharp.exe") })
+            ("alternate", "file.dll:extra"), ("reserved", "CON.dll"), ("duplicate", "nimcap.screenshot.exe") })
         {
             var bad = Archive(name, extra: extra);
             var rejected = false;
@@ -51,11 +51,11 @@ internal static partial class Program
         catch (InvalidDataException) { missingRejected = true; }
         Require(missingRejected, "Incomplete runtime accepted.");
         var checksum = new string('A', 64);
-        Require(AppUpdateInstaller.ReadChecksum(checksum + "  SnapSharp-v1.0.9-win-x64.zip\n", "SnapSharp-v1.0.9-win-x64.zip") == checksum,
+        Require(AppUpdateInstaller.ReadChecksum(checksum + "  nimcap-screenshot-v1.0.9-win-x64.zip\n", "nimcap-screenshot-v1.0.9-win-x64.zip") == checksum,
             "SHA256SUMS not parsed.");
-        Require(AppUpdateInstaller.ReadChecksum(checksum + "  Other.zip", "SnapSharp-v1.0.9-win-x64.zip") is null, "Checksum for another file used.");
+        Require(AppUpdateInstaller.ReadChecksum(checksum + "  Other.zip", "nimcap-screenshot-v1.0.9-win-x64.zip") is null, "Checksum for another file used.");
         var release = new AppRelease(new Version(1, 0, 9, 0), "v1.0.9", "", new Uri(AppUpdateService.ReleasesUrl),
-            new Uri(AppUpdateService.ReleasesUrl + "/download/v1.0.9/SnapSharp-v1.0.9-win-x64.zip"));
+            new Uri(AppUpdateService.ReleasesUrl + "/download/v1.0.9/nimcap-screenshot-v1.0.9-win-x64.zip"));
         using (var client = new HttpClient(new UpdatePackageHandler(File.ReadAllBytes(archive))))
         {
             var rejected = false;
@@ -83,20 +83,20 @@ internal static partial class Program
         var verifiedArchive = Archive("verified");
         using (var zip = ZipFile.Open(verifiedArchive, ZipArchiveMode.Update))
         {
-            zip.GetEntry("SnapSharp-v1.0.9-win-x64/SnapSharp.exe")!.Delete();
-            zip.CreateEntryFromFile(Environment.ProcessPath!, "SnapSharp-v1.0.9-win-x64/SnapSharp.exe");
+            zip.GetEntry("nimcap-screenshot-v1.0.9-win-x64/NimCap.Screenshot.exe")!.Delete();
+            zip.CreateEntryFromFile(Environment.ProcessPath!, "nimcap-screenshot-v1.0.9-win-x64/NimCap.Screenshot.exe");
         }
         var verifiedBytes = File.ReadAllBytes(verifiedArchive);
         var verifiedHash = Convert.ToHexString(SHA256.HashData(verifiedBytes));
         var verifiedVersion = AppUpdateService.Normalize(Version.Parse(FileVersionInfo.GetVersionInfo(Environment.ProcessPath!).FileVersion!));
-        using (var client = new HttpClient(new UpdatePackageHandler(verifiedBytes, verifiedHash + "  SnapSharp-v1.0.9-win-x64.zip")))
+        using (var client = new HttpClient(new UpdatePackageHandler(verifiedBytes, verifiedHash + "  nimcap-screenshot-v1.0.9-win-x64.zip")))
         {
             var prepared = await AppUpdateInstaller.PrepareAsync(release with
             {
                 Version = verifiedVersion,
                 Checksums = new Uri(AppUpdateService.ReleasesUrl + "/download/v1.0.9/SHA256SUMS.txt")
             }, new UpdateProgress(), default, client, Path.Combine(root, "verified-download"));
-            Require(File.Exists(Path.Combine(prepared.Stage, "SnapSharp.exe")), "Verified package was not prepared.");
+            Require(File.Exists(Path.Combine(prepared.Stage, "NimCap.Screenshot.exe")), "Verified package was not prepared.");
         }
         using (var client = new HttpClient(new UpdatePackageHandler(verifiedBytes)))
         using (var cancellation = new CancellationTokenSource())
@@ -124,7 +124,7 @@ internal static partial class Program
         var backup = Path.Combine(work, "backup");
         Directory.CreateDirectory(target);
         Directory.CreateDirectory(stage);
-        File.WriteAllText(Path.Combine(target, "SnapSharp.exe"), "old executable");
+        File.WriteAllText(Path.Combine(target, "NimCap.Screenshot.exe"), "old executable");
         File.WriteAllText(Path.Combine(target, "b.dll"), "old library");
         File.WriteAllText(Path.Combine(target, "settings.json"), "user settings");
         Directory.CreateDirectory(Path.Combine(target, "models"));
@@ -132,9 +132,9 @@ internal static partial class Program
         if (restart)
             foreach (var path in Directory.GetFiles(AppContext.BaseDirectory).Where(path => Path.GetExtension(path) is ".dll" or ".json"))
                 File.Copy(path, Path.Combine(target, Path.GetFileName(path)));
-        var files = new[] { "SnapSharp.exe", "new.dll", "b.dll" }.Select(relative =>
+        var files = new[] { "NimCap.Screenshot.exe", "new.dll", "b.dll" }.Select(relative =>
         {
-            if (restart && relative == "SnapSharp.exe") File.Copy(Environment.ProcessPath!, Path.Combine(stage, relative));
+            if (restart && relative == "NimCap.Screenshot.exe") File.Copy(Environment.ProcessPath!, Path.Combine(stage, relative));
             else File.WriteAllText(Path.Combine(stage, relative), "new " + relative);
             return new { Relative = relative, Sha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(Path.Combine(stage, relative)))) };
         }).ToArray();
@@ -162,7 +162,7 @@ internal static partial class Program
         if (restart)
         {
             for (var i = 0; i < 50 && !File.Exists(Path.Combine(work, "ready")) && !process.HasExited; i++) await Task.Delay(100, timeout.Token);
-            Require(parent is not null && !parent.HasExited && File.ReadAllText(Path.Combine(target, "SnapSharp.exe")) == "old executable",
+            Require(parent is not null && !parent.HasExited && File.ReadAllText(Path.Combine(target, "NimCap.Screenshot.exe")) == "old executable",
                 "Update touched a running application's files before it exited.");
         }
         await process.WaitForExitAsync(timeout.Token);
@@ -173,16 +173,16 @@ internal static partial class Program
         if (locked || tamper)
         {
             Require(process.ExitCode == 1, "Failed update did not report failure: " + result);
-            Require(File.ReadAllText(Path.Combine(target, "SnapSharp.exe")) == "old executable" &&
+            Require(File.ReadAllText(Path.Combine(target, "NimCap.Screenshot.exe")) == "old executable" &&
                 File.ReadAllText(Path.Combine(target, "b.dll")) == "old library" && !File.Exists(Path.Combine(target, "new.dll")),
                 "Update rollback left modified files: " + result);
-            if (locked) Require(File.Exists(Path.Combine(backup, "SnapSharp.exe")), "No rollback backup.");
+            if (locked) Require(File.Exists(Path.Combine(backup, "NimCap.Screenshot.exe")), "No rollback backup.");
         }
         else
         {
-            Require(process.ExitCode == 0 && (restart || File.ReadAllText(Path.Combine(target, "SnapSharp.exe")) == "new SnapSharp.exe") &&
+            Require(process.ExitCode == 0 && (restart || File.ReadAllText(Path.Combine(target, "NimCap.Screenshot.exe")) == "new NimCap.Screenshot.exe") &&
                 File.ReadAllText(Path.Combine(target, "new.dll")) == "new new.dll", "Update did not replace program files: " + result);
-            Require(File.ReadAllText(Path.Combine(backup, "SnapSharp.exe")) == "old executable", "Old version backup missing.");
+            Require(File.ReadAllText(Path.Combine(backup, "NimCap.Screenshot.exe")) == "old executable", "Old version backup missing.");
             if (restart)
             {
                 for (var i = 0; i < 100 && !File.Exists(Path.Combine(work, "restart-marker")); i++) await Task.Delay(100, timeout.Token);

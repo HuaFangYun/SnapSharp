@@ -46,7 +46,7 @@ internal static class SpecialistModelDownloadService
         using var handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
         using var ownedClient = httpClient is null ? new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(20) } : null;
         var client = httpClient ?? ownedClient!;
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("SnapSharp/1.0");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("NimCap-Screenshot/1.0");
         var created = new List<string>();
         try
         {

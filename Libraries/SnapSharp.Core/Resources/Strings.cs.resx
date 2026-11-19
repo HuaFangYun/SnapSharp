@@ -61,7 +61,7 @@
     <value>OK</value>
   </data>
   <data name="SnapSharpAnnotations" xml:space="preserve">
-    <value>SnapSharp Anotace</value>
+    <value>NimCap Screenshot Anotace</value>
   </data>
   <data name="Select" xml:space="preserve">
     <value>Vyberte</value>
@@ -238,7 +238,7 @@
     <value>více</value>
   </data>
   <data name="OCRRecognitionBackgroundRemovalSnapSharp" xml:space="preserve">
-    <value>OCR, rozpoznávání a odstranění pozadí · SnapSharp</value>
+    <value>OCR, rozpoznávání a odstranění pozadí · NimCap Screenshot</value>
   </data>
   <data name="TextOCR" xml:space="preserve">
     <value>Text OCR</value>
@@ -367,7 +367,7 @@
     <value>Připraveno</value>
   </data>
   <data name="RecordingSetupSnapSharp" xml:space="preserve">
-    <value>Nastavení nahrávání · SnapSharp</value>
+    <value>Nastavení nahrávání · NimCap Screenshot</value>
   </data>
   <data name="RecordingRequirements" xml:space="preserve">
     <value>Požadavky na nahrávání</value>
@@ -376,7 +376,7 @@
     <value>Zkontrolujte a nainstalujte chybějící součásti. Nainstalované komponenty nebudou znovu staženy.</value>
   </data>
   <data name="SetupDownloadsMissingVisualCX64Components" xml:space="preserve">
-    <value>Instalační program stáhne chybějící součásti Visual C++ x64 od společnosti Microsoft, ověří důvěryhodnost systému Windows a vydavatele společnosti Microsoft a poté je nainstaluje. Pro Windows N/KN nainstaluje Windows odpovídající Media Feature Pack. Může být vyžadováno schválení správce (UAC). Může být zapotřebí restart; SnapSharp nerestartuje počítač automaticky.</value>
+    <value>Instalační program stáhne chybějící součásti Visual C++ x64 od společnosti Microsoft, ověří důvěryhodnost systému Windows a vydavatele společnosti Microsoft a poté je nainstaluje. Pro Windows N/KN nainstaluje Windows odpovídající Media Feature Pack. Může být vyžadováno schválení správce (UAC). Může být zapotřebí restart; NimCap Screenshot nerestartuje počítač automaticky.</value>
   </data>
   <data name="CheckAndInstallMissingComponents" xml:space="preserve">
     <value>Zkontrolujte a nainstalujte chybějící součásti</value>
@@ -433,7 +433,7 @@
     <value>Zavřete nahrávání</value>
   </data>
   <data name="RecordingOptionsSnapSharp" xml:space="preserve">
-    <value>Možnosti nahrávání · SnapSharp</value>
+    <value>Možnosti nahrávání · NimCap Screenshot</value>
   </data>
   <data name="RegionRecording" xml:space="preserve">
     <value>Záznam regionu</value>
@@ -517,7 +517,7 @@
     <value>Dočasné soubory z neúspěšného nahrávání</value>
   </data>
   <data name="SaveImageSnapSharp" xml:space="preserve">
-    <value>Uložit obrázek · SnapSharp</value>
+    <value>Uložit obrázek · NimCap Screenshot</value>
   </data>
   <data name="ImagePreview" xml:space="preserve">
     <value>Náhled obrázku</value>
@@ -586,7 +586,7 @@
     <value>Před uložením upravte formát a velikost. Zavřením tohoto okna se soubor nevytvoří.</value>
   </data>
   <data name="ScrollingCaptureSnapSharp" xml:space="preserve">
-    <value>Snímání posouvání · SnapSharp</value>
+    <value>Snímání posouvání · NimCap Screenshot</value>
   </data>
   <data name="ScrollingCapturePreview" xml:space="preserve">
     <value>Posouvání náhledu zachycení</value>
@@ -670,7 +670,7 @@
     <value>Vyberte oblast a zachyťte automaticky…</value>
   </data>
   <data name="SnapSharpWindowsAreHiddenDuringCaptureDo" xml:space="preserve">
-    <value>Okna SnapSharp jsou během snímání skrytá. Nepřesouvejte cílové okno ani neinteragujte se stránkou. Esc zastaví a uchová zachycené snímky. Nesouvisející plovoucí okna udržujte mimo oblast.</value>
+    <value>Okna NimCap Screenshot jsou během snímání skrytá. Nepřesouvejte cílové okno ani neinteragujte se stránkou. Esc zastaví a uchová zachycené snímky. Nesouvisející plovoucí okna udržujte mimo oblast.</value>
   </data>
   <data name="ManualCaptureSupportsDownwardOrRightwardScrolling" xml:space="preserve">
     <value>Ruční snímání podporuje posouvání dolů nebo doprava (horizontální posouvání vyžaduje podporu aplikací). Automatické zachycení odešle vstup kola. Nové zachycení nahradí náhled a vymaže historii vrácení zpět; zrušením se zachová aktuální výsledek.</value>
@@ -985,7 +985,7 @@
     <value>Intenzita</value>
   </data>
   <data name="SnapSharpSettings" xml:space="preserve">
-    <value>Nastavení SnapSharp</value>
+    <value>Nastavení NimCap Screenshot</value>
   </data>
   <data name="Preferences" xml:space="preserve">
     <value>Předvolby</value>
@@ -1516,7 +1516,7 @@
     <value>Nastavit běhové prostředí VC++ x64…</value>
   </data>
   <data name="APIProvidersAreNeverSwitchedAutomaticallyMyMemory" xml:space="preserve">
-    <value>Poskytovatelé API se nikdy nepřepínají automaticky. MyMemory: 500 UTF-8 bajtů na požadavek. Webový adaptér Google: 5000 znaků, podléhá omezení, výpadkům nebo změnám. Instance LibreTranslate mohou účtovat nebo vyžadovat klíče; v současnosti jsou podporovány pouze bezklíčové koncové body. Koncový bod localhost je také vlastní API; SnapSharp nenainstaluje svůj server.</value>
+    <value>Poskytovatelé API se nikdy nepřepínají automaticky. MyMemory: 500 UTF-8 bajtů na požadavek. Webový adaptér Google: 5000 znaků, podléhá omezení, výpadkům nebo změnám. Instance LibreTranslate mohou účtovat nebo vyžadovat klíče; v současnosti jsou podporovány pouze bezklíčové koncové body. Koncový bod localhost je také vlastní API; NimCap Screenshot nenainstaluje svůj server.</value>
   </data>
   <data name="CustomServicePOSTURLLibreTranslateOnlyProvide" xml:space="preserve">
     <value>Vlastní služba POST URL (pouze LibreTranslate; poskytovat dostupnou službu)</value>
@@ -1597,7 +1597,7 @@
     <value>Pluginy a zabezpečení</value>
   </data>
   <data name="PluginSettingsTakeEffectAfterRestartingSnapSharp" xml:space="preserve">
-    <value>Nastavení pluginu se projeví po restartování SnapSharp.</value>
+    <value>Nastavení pluginu se projeví po restartování NimCap Screenshot.</value>
   </data>
   <data name="ExternalPluginPolicy" xml:space="preserve">
     <value>Zásady externích pluginů</value>
@@ -1624,10 +1624,10 @@
     <value>Web projektu</value>
   </data>
   <data name="SnapSharpSourceLicense" xml:space="preserve">
-    <value>Licence zdroje SnapSharp</value>
+    <value>Licence zdroje NimCap Screenshot</value>
   </data>
   <data name="SnapSharpSourceCodeIsLicensedUnderApache" xml:space="preserve">
-    <value>Zdrojový kód SnapSharp je licencován pod licencí Apache License 2.0, která umožňuje použití, úpravy, distribuci a komerční použití v souladu s jejími podmínkami. Tento software je poskytován JAK JE, bez výslovných nebo předpokládaných záruk.</value>
+    <value>Zdrojový kód NimCap Screenshot je licencován pod licencí Apache License 2.0, která umožňuje použití, úpravy, distribuci a komerční použití v souladu s jejími podmínkami. Tento software je poskytován JAK JE, bez výslovných nebo předpokládaných záruk.</value>
   </data>
   <data name="ViewApplicationLicense" xml:space="preserve">
     <value>Zobrazit licenci aplikace</value>
@@ -1636,7 +1636,7 @@
     <value>Komponenty a modely třetích stran</value>
   </data>
   <data name="ThirdPartyComponentsModelsRuntimesAndOnline" xml:space="preserve">
-    <value>Komponenty, modely, runtime a online služby třetích stran si ponechávají svá vlastní autorská práva, licence a podmínky. Ne na všechny se vztahuje licence Apache 2.0 SnapSharp.</value>
+    <value>Komponenty, modely, runtime a online služby třetích stran si ponechávají svá vlastní autorská práva, licence a podmínky. Ne na všechny se vztahuje licence Apache 2.0 NimCap Screenshot.</value>
   </data>
   <data name="ComponentsIncludeNETWPFSkiaSharpONNXRuntime" xml:space="preserve">
     <value>Mezi komponenty patří .NET / WPF, SkiaSharp, ONNX Runtime / DirectML, ScreenRecorderLib, ZXing.Net, Tesseract, Vortice.Windows, H.NotifyIcon.Wpf, Lucide a GTranslate. Kompletní licenční materiály jsou distribuovány v licencích třetích stran.</value>
@@ -1672,7 +1672,7 @@
     <value>Přidat</value>
   </data>
   <data name="SnapSharpIsAlreadyRunningButTheExisting" xml:space="preserve">
-    <value>SnapSharp již běží, ale existující instanci nelze aktivovat.</value>
+    <value>NimCap Screenshot již běží, ale existující instanci nelze aktivovat.</value>
   </data>
   <data name="ScreenTextCaptureStopped" xml:space="preserve">
     <value>Snímání textu na obrazovce bylo zastaveno</value>
@@ -1741,7 +1741,7 @@
     <value>Nejprve zastavte aktuální snímání.</value>
   </data>
   <data name="SnapSharpScrollingCaptureProjectSsscroll" xml:space="preserve">
-    <value>Projekt rolování SnapSharp|*.ssscroll</value>
+    <value>Projekt rolování NimCap Screenshot|*.ssscroll</value>
   </data>
   <data name="StopCaptureBeforeUsingPins" xml:space="preserve">
     <value>Před použitím pinů zastavte snímání.</value>
@@ -1999,7 +1999,7 @@
     <value>Tiskárna neposkytla platnou tisknutelnou oblast.</value>
   </data>
   <data name="SnapSharpScreenshot" xml:space="preserve">
-    <value>Snímek obrazovky SnapSharp</value>
+    <value>Snímek obrazovky NimCap Screenshot</value>
   </data>
   <data name="TextCannotBeEmpty" xml:space="preserve">
     <value>Text nesmí být prázdný.</value>
@@ -2156,7 +2156,7 @@ ScreenRecorderLib je součástí dodávky. Není nutná žádná samostatná ins
     <value>Instalace sady Media Feature Pack prostřednictvím systému Windows. Schvalte výzvu správce; Windows stáhne součásti odpovídající verzi vašeho systému.</value>
   </data>
   <data name="DependenciesInstalledRestartWindowsBeforeRecordingSave" xml:space="preserve">
-    <value>Závislosti nainstalovány. Před nahráváním restartujte Windows. Nejprve uložte jinou práci; SnapSharp se automaticky nerestartuje.</value>
+    <value>Závislosti nainstalovány. Před nahráváním restartujte Windows. Nejprve uložte jinou práci; NimCap Screenshot se automaticky nerestartuje.</value>
   </data>
   <data name="ComponentsAreNotReadyRestartWindowsAnd" xml:space="preserve">
     <value>Komponenty nejsou připraveny. Restartujte systém Windows a znovu zkontrolujte nebo zkontrolujte instalaci ve volitelných funkcích systému Windows.</value>
@@ -2231,7 +2231,7 @@ ScreenRecorderLib je součástí dodávky. Není nutná žádná samostatná ins
     <value>Nelze otevřít klíč registru spouštění systému Windows.</value>
   </data>
   <data name="CouldNotDetermineTheSnapSharpExecutablePath" xml:space="preserve">
-    <value>Nelze určit cestu ke spustitelnému souboru SnapSharp.</value>
+    <value>Nelze určit cestu ke spustitelnému souboru NimCap Screenshot.</value>
   </data>
   <data name="GIFDimensionsExceedTheLimit" xml:space="preserve">
     <value>Rozměry GIF přesahují limit.</value>
@@ -2321,10 +2321,10 @@ ScreenRecorderLib je součástí dodávky. Není nutná žádná samostatná ins
     <value>Konec</value>
   </data>
   <data name="SnapSharpCtrlShiftARegionCapture" xml:space="preserve">
-    <value>SnapSharp – zachycení oblasti Ctrl+Shift+A</value>
+    <value>NimCap Screenshot – zachycení oblasti Ctrl+Shift+A</value>
   </data>
   <data name="SnapSharp0RegionCapture" xml:space="preserve">
-    <value>SnapSharp – zachycení oblasti {0}</value>
+    <value>NimCap Screenshot – zachycení oblasti {0}</value>
   </data>
   <data name="ShowGroup" xml:space="preserve">
     <value>Zobrazit skupinu</value>
@@ -2357,7 +2357,7 @@ ScreenRecorderLib je součástí dodávky. Není nutná žádná samostatná ins
     <value>Neseskupeno</value>
   </data>
   <data name="ConfirmSendingSnapSharp" xml:space="preserve">
-    <value>Potvrdit odeslání · SnapSharp</value>
+    <value>Potvrdit odeslání · NimCap Screenshot</value>
   </data>
   <data name="TheFollowingContentWillBeSentTo" xml:space="preserve">
     <value>Následující obsah bude odeslán na adresu:
@@ -2566,7 +2566,7 @@ Potvrďte, že tomuto poskytovateli důvěřujete a že obsah neobsahuje žádn�
     <value>Součásti záznamu se nepodařilo načíst: </value>
   </data>
   <data name="RestartingSnapSharpOrWindowsMayBeRequired" xml:space="preserve">
-    <value>. Po instalaci může být nutné restartovat SnapSharp nebo Windows.</value>
+    <value>. Po instalaci může být nutné restartovat NimCap Screenshot nebo Windows.</value>
   </data>
   <data name="TheSelectedAudioCameraDeviceIsUnavailable" xml:space="preserve">
     <value>Vybrané audio/kamerové zařízení není dostupné. Obnovte zařízení nebo je deaktivujte.</value>
@@ -2881,7 +2881,7 @@ Upravte toto posunutí v krocích po 1 pixelu. Modrá vodítka se nezapisují na
     <value>Zvětšení</value>
   </data>
   <data name="SnapSharpAnnotationTemplateSstemplate" xml:space="preserve">
-    <value>Šablona poznámky SnapSharp|*.sstemplate</value>
+    <value>Šablona poznámky NimCap Screenshot|*.sstemplate</value>
   </data>
   <data name="ImportAnnotationTemplate2" xml:space="preserve">
     <value>Importujte šablonu anotace</value>
@@ -3753,7 +3753,7 @@ Diagnostický protokol: {1}</value>
     <value>Použijte spustitelnou složku</value>
   </data>
   <data name="DataDirectoryHint" xml:space="preserve">
-    <value>Výchozí je složka obsahující SnapSharp.exe. Změny se projeví při příštím spuštění; stažené modely, nastavení a historie budou přesunuty společně. Stávající instalace si ponechají svou původní složku, dokud se zde nezmění.</value>
+    <value>Výchozí je složka obsahující NimCap.Screenshot.exe. Změny se projeví při příštím spuštění; stažené modely, nastavení a historie budou přesunuty společně. Stávající instalace si ponechají svou původní složku, dokud se zde nezmění.</value>
   </data>
   <data name="ActiveDataDirectory" xml:space="preserve">
     <value>V současné době se používá: {0}</value>
@@ -3767,7 +3767,7 @@ Komu: {1}
 Kopírování velkých modelů může nějakou dobu trvat. Stávající data v cíli nebudou přepsána. Původní data jsou odstraněna až po úspěšné migraci.</value>
   </data>
   <data name="DataDirectoryRestartRequired" xml:space="preserve">
-    <value>Změna složky uložena. Ukončete SnapSharp ze zásobníku a spusťte jej znovu, abyste migrovali svá data. Aktuální relace pokračuje pomocí původní složky.</value>
+    <value>Změna složky uložena. Ukončete NimCap Screenshot ze zásobníku a spusťte jej znovu, abyste migrovali svá data. Aktuální relace pokračuje pomocí původní složky.</value>
   </data>
   <data name="DataMigrationFailed" xml:space="preserve">
     <value>Migraci dat nebylo možné dokončit. Původní data byla zachována a budou nadále používána. Zkontrolujte cíl a znovu vyberte složku v Nastavení.</value>
@@ -3833,7 +3833,7 @@ Kopírování velkých modelů může nějakou dobu trvat. Stávající data v c
   <data name="AppUpdateDownloading" xml:space="preserve"><value>Downloading and verifying update…</value></data>
   <data name="AppUpdateDownloadProgress" xml:space="preserve"><value>Downloading update: {0}%</value></data>
   <data name="AppUpdateReady" xml:space="preserve"><value>Update verified and ready to install.</value></data>
-  <data name="AppUpdateRestartConfirm" xml:space="preserve"><value>The update is ready. Save any unfinished edits and settings before continuing. Restart SnapSharp now to automatically replace this version? Saved settings, models and history will be preserved.</value></data>
+  <data name="AppUpdateRestartConfirm" xml:space="preserve"><value>The update is ready. Save any unfinished edits and settings before continuing. Restart NimCap Screenshot now to automatically replace this version? Saved settings, models and history will be preserved.</value></data>
   <data name="AppUpdateInstalling" xml:space="preserve"><value>Restarting to install update…</value></data>
   <data name="AppUpdateCancelled" xml:space="preserve"><value>Update cancelled. The installed version has not changed.</value></data>
   <data name="AppUpdateInstallFailed" xml:space="preserve"><value>Could not install the update. The current version will stay open. Check the connection, disk space and write permissions, then retry.</value></data>
@@ -4022,4 +4022,5 @@ Barcode</value></data>
   <data name="TrayDelayAction" xml:space="preserve"><value>Delayed capture ({0} seconds)</value></data>
   <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>Version {0} is available. Open the update page?</value></data>
   <data name="ShortcutAction" xml:space="preserve"><value>Action</value></data>
+  <data name="OfficialWebsite" xml:space="preserve"><value>Oficiální web</value></data>
 </root>

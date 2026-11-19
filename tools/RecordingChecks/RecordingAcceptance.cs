@@ -68,12 +68,12 @@ internal static class RecordingAcceptance
         RecordingDevice[] Devices() => args[1] switch { "microphone" => RecordingService.Microphones(),
             "speaker" => RecordingService.Speakers(), _ => RecordingService.Cameras() };
         if (hotplug && !Devices().Any(d => d.Id == args[2])) throw new InvalidOperationException("Selected device is absent.");
-        var scene = new TextBlock { Foreground = Brushes.White, FontSize = 32, Text = "SnapSharp recording acceptance" };
-        var window = new Window { Title = "SnapSharp recording acceptance", Width = 960, Height = 540,
+        var scene = new TextBlock { Foreground = Brushes.White, FontSize = 32, Text = "NimCap Screenshot recording acceptance" };
+        var window = new Window { Title = "NimCap Screenshot recording acceptance", Width = 960, Height = 540,
             Topmost = true, Content = new Border { Background = Brushes.MidnightBlue, Child = scene } };
         var animation = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
         var rendered = 0;
-        animation.Tick += (_, _) => scene.Text = $"SnapSharp acceptance\n{++rendered}\n{DateTime.UtcNow:O}";
+        animation.Tick += (_, _) => scene.Text = $"NimCap Screenshot acceptance\n{++rendered}\n{DateTime.UtcNow:O}";
         RecordingService? service = null;
         using var process = Process.GetCurrentProcess();
         var samples = new List<Sample>();

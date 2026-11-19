@@ -82,7 +82,7 @@ public static class OnnxWorker
         var pipeName = "SnapSharp.Onnx." + Guid.NewGuid().ToString("N");
         using var pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte,
             PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
-        var executable = Path.Combine(AppContext.BaseDirectory, "SnapSharp.exe");
+        var executable = Path.Combine(AppContext.BaseDirectory, "NimCap.Screenshot.exe");
         var start = new ProcessStartInfo(executable) { UseShellExecute = false, CreateNoWindow = true,
             WindowStyle = ProcessWindowStyle.Hidden, WorkingDirectory = AppContext.BaseDirectory };
         start.ArgumentList.Add("--onnx-worker"); start.ArgumentList.Add(pipeName);
