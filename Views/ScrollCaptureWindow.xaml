@@ -36,6 +36,12 @@
       <StackPanel x:Name="ControlsPanel" Margin="0,0,10,0">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:EditScrollingCapture}" FontSize="18" FontWeight="SemiBold" />
         <TextBlock x:Name="RegionInfo" Style="{StaticResource Hint}" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CaptureEngine}" />
+        <ComboBox x:Name="CaptureBackendBox" SelectionChanged="CaptureBackend_Changed">
+          <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:AutomaticCaptureBackend}" Tag="Auto" />
+          <ComboBoxItem Content="WGC" Tag="WGC" /><ComboBoxItem Content="DXGI" Tag="DXGI" /><ComboBoxItem Content="GDI" Tag="GDI" />
+        </ComboBox>
+        <TextBlock x:Name="ActiveBackendInfo" Style="{StaticResource Hint}" />
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CropImageEdges}" FontSize="16" FontWeight="SemiBold" Margin="0,8,0,8" />
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ChooseAnEdgeThenClickOrDrag}" Style="{StaticResource Hint}" />
         <UniformGrid Columns="2" Margin="0,4,0,8"><RadioButton x:Name="RemoveTop" GroupName="CropEdge" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveTop}" IsChecked="True" Margin="0,4,12,8" Checked="CropSide_Changed" /><RadioButton x:Name="RemoveBottom" GroupName="CropEdge" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveBottom}" Margin="0,4,0,8" Checked="CropSide_Changed" /><RadioButton x:Name="RemoveLeft" GroupName="CropEdge" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveLeft}" Margin="0,4,12,8" Checked="CropSide_Changed" /><RadioButton x:Name="RemoveRight" GroupName="CropEdge" Content="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveRight}" Margin="0,4,0,8" Checked="CropSide_Changed" /></UniformGrid>

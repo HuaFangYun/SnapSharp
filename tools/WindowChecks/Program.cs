@@ -26,6 +26,16 @@ internal static partial class Program
             app.Resources = (ResourceDictionary)System.Windows.Markup.XamlReader.Parse(resources.ToString(),
                 new System.Windows.Markup.ParserContext { BaseUri = new Uri("pack://application:,,,/SnapSharp;component/") });
             using var theme = new ThemeService(); theme.Start();
+            if (args.Contains("--capture-hardware-only"))
+            {
+                CaptureHardwareChecks(args);
+                return 0;
+            }
+            if (args.Contains("--capture-reliability-only"))
+            {
+                CaptureReliabilityChecks();
+                return 0;
+            }
             if (args.Contains("--redaction-only"))
             {
                 RedactionChecks();

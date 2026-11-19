@@ -21,6 +21,7 @@ public partial class ScrollCaptureWindow : Window
     private System.Drawing.Rectangle _region;
     private readonly ScrollingStitcher _stitcher = new();
     private readonly SkiaImageService _images = new();
+    private readonly SettingsService? _settings;
     private ScrollCaptureSession _session;
     private ScrollStitchResult? _stitch;
     private ScrollTrim _frameTrim = new(), _crop = new();
@@ -36,18 +37,47 @@ public partial class ScrollCaptureWindow : Window
     public event Action<BitmapSource, CaptureAction>? OutputRequested;
     public event Action<BitmapSource>? EditRequested;
 
-    public ScrollCaptureWindow(System.Drawing.Rectangle region, BitmapSource initial)
+    public ScrollCaptureWindow(System.Drawing.Rectangle region, BitmapSource initial, SettingsService? settings = null)
     {
         _region = region;
+        _settings = settings;
         _output = initial;
         _session = new ScrollCaptureSession([initial], [], [], ScrollDirection.Vertical, L.Get("ScrollingCapturePreviewCropTopBottomLeft"));
         InitializeComponent();
+        CaptureBackendBox.SelectedItem = CaptureBackendBox.Items.OfType<ComboBoxItem>()
+            .FirstOrDefault(x => x.Tag?.ToString() == (settings?.Current.ScrollingCaptureBackend ?? "Auto")) ?? CaptureBackendBox.Items[0];
         DialogLayoutService.Attach(this);
         RegionInfo.Text = region.IsEmpty ? L.Get("StitchingProjectOpenedYouCanCorrectCrop") : L.Format("FixedPhysicalRegion0123", region.X, region.Y, region.Width, region.Height);
         _ready = true;
         SetPreview(new ScrollStitchResult(initial, [], [0]), new(), true);
         Closed += (_, _) => { _closed = true; _stop?.Cancel(); };
     }
+    private void CaptureBackend_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_ready || _settings is null) return;
+        var previous = _settings.Current.ScrollingCaptureBackend;
+        _settings.Current.ScrollingCaptureBackend = (CaptureBackendBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Auto";
+        try { _settings.Save(); }
+        catch (Exception error)
+        {
+            _settings.Current.ScrollingCaptureBackend = previous;
+            _ready = false;
+            CaptureBackendBox.SelectedItem = CaptureBackendBox.Items.OfType<ComboBoxItem>().First(x => x.Tag?.ToString() == previous);
+            _ready = true;
+            Status.Text = error.Message;
+        }
+    }
+
+    private ScrollingCaptureService CreateCaptureService()
+    {
+        var backend = (CaptureBackendBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Auto";
+        IProgress<string> updates = new Progress<string>(current =>
+        {
+            if (!_closed) ActiveBackendInfo.Text = L.Format("CurrentCaptureBackend", current);
+        });
+        return new ScrollingCaptureService(backend, updates.Report);
+    }
+
     private static int Number(TextBox field, int min, int max, string label)
     {
         if (int.TryParse(field.Text, out var value) && value >= min && value <= max) return value;
@@ -326,7 +356,7 @@ public partial class ScrollCaptureWindow : Window
             progressWindow = ShowProgressOutsideRegion();
             await Task.Delay(350, _stop.Token);
             var progress = new Progress<string>(message => { if (!_closed) Status.Text = message; });
-            var session = await new ScrollingCaptureService().CaptureSessionAsync(_region, options, progress, _stop.Token);
+            var session = await CreateCaptureService().CaptureSessionAsync(_region, options, progress, _stop.Token);
             SetBusy(false);
             if (!_discard && !_closed)
             {
@@ -376,9 +406,8 @@ public partial class ScrollCaptureWindow : Window
             await Task.Delay(350, _stop.Token);
             var progress = new Progress<string>(message => { if (!_closed) { Status.Text = message; if (controls.Content is Border { Child: DockPanel panel } && panel.Children[0] is TextBlock label) label.Text = message; } });
             var captureTrace = new List<string>();
-            // Capture only the selected region. One-shot WGC reconstructs a full
-            // desktop session for every sample, losing intermediate scroll positions.
-            var session = await new ScrollingCaptureService(new ScreenCaptureService(false)).CaptureSessionAsync(_region,
+            // The selected backend keeps its frame pool/duplication alive for this session.
+            var session = await CreateCaptureService().CaptureSessionAsync(_region,
                 options, progress, _stop.Token, _manualInput.Wait,
                 () => ScrollDirection.Vertical,
                 message => { if (captureTrace.Count < 1000) captureTrace.Add(message); },

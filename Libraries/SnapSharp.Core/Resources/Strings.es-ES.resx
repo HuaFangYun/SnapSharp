@@ -3937,4 +3937,7 @@ Images are processed locally.</value></data>
   <data name="RedactionNoMatches" xml:space="preserve"><value>No matching sensitive text was found. The image was left unchanged.</value></data>
   <data name="RedactionImageChanged" xml:space="preserve"><value>The image was edited during recognition. Run redaction again on the current image.</value></data>
   <data name="RedactionFailed" xml:space="preserve"><value>Redaction could not be completed: {0}</value></data>
+  <data name="AutomaticCaptureBackend" xml:space="preserve"><value>Autom?tico (WGC ? DXGI ? GDI)</value></data>
+  <data name="CurrentCaptureBackend" xml:space="preserve"><value>M?todo de captura actual: {0}</value></data>
+  <data name="CaptureCleanupFailed" xml:space="preserve"><value>No se pudieron liberar los recursos de captura; se conservaron las im?genes capturadas.</value></data>
 </root>

@@ -10,10 +10,14 @@ public sealed class CaptureCoordinator
     private readonly SettingsService? _settings;
     private readonly List<SelectionWindow> _windows = [];
     private static bool _selectingScrollingRegion;
+    private static CaptureCoordinator? _preparingCoordinator;
+    private CancellationTokenSource? _pendingCapture;
+    private bool _disposed;
+    private sealed record PreparedCapture(CapturedScreen Screen, IReadOnlyList<WindowCandidate> Candidates);
 
     public event EventHandler<CaptureResult>? CaptureCompleted;
     public event EventHandler? CaptureCanceled;
-    public bool IsActive => _windows.Count > 0 || _selectingScrollingRegion;
+    public bool IsActive => _windows.Count > 0 || _selectingScrollingRegion || _preparingCoordinator is not null;
 
     public CaptureCoordinator(ICaptureService? captureService = null, SettingsService? settings = null)
     {
@@ -28,25 +32,82 @@ public sealed class CaptureCoordinator
         _captureService = captureService;
     }
 
+    // Retained for synchronous callers/tests. Production entry points use BeginAsync.
     public void Begin(CaptureMode mode, nint targetWindow = default, bool scrollingSelection = false)
     {
-        if (_windows.Count > 0) return;
-        if (mode == CaptureMode.FullScreen)
-        {
-            CompleteDirectCapture(_captureService.CaptureVirtualScreen());
-            return;
-        }
-        if (mode == CaptureMode.ActiveWindow)
-        {
-            var capture = _captureService.CaptureWindow(targetWindow);
-            if (capture is null) throw new InvalidOperationException(L.Get("CouldNotGetTheActiveWindow"));
-            CompleteDirectCapture(capture);
-            return;
-        }
+        if (_windows.Count > 0 || _pendingCapture is not null || _disposed) return;
+        Present(Prepare(_captureService, mode, targetWindow, CancellationToken.None), mode, scrollingSelection);
+    }
 
-        // One physical-pixel desktop and one HWND keep mouse capture continuous across DPI/GPU boundaries.
-        var screens = new[] { _captureService.CaptureVirtualScreen() };
-        var candidates = _captureService.EnumerateTopLevelWindows();
+    public async Task BeginAsync(CaptureMode mode, nint targetWindow = default, bool scrollingSelection = false,
+        CancellationToken cancellationToken = default, Func<CancellationToken, Task>? beforeCapture = null)
+    {
+        var dispatcher = System.Windows.Application.Current.Dispatcher;
+        dispatcher.VerifyAccess();
+        if (_windows.Count > 0 || _preparingCoordinator is not null || _disposed ||
+            System.Windows.Application.Current.Windows.OfType<SelectionWindow>().Any()) return;
+        using var pending = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _pendingCapture = pending;
+        _preparingCoordinator = this; // Occupy before hiding windows or the first await.
+        var backend = _captureService;
+        var escape = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Input)
+            { Interval = TimeSpan.FromMilliseconds(30) };
+        escape.Tick += (_, _) =>
+        {
+            if ((SnapSharp.Native.NativeMethods.GetAsyncKeyState(0x1B) & 0x8000) != 0) pending.Cancel();
+        };
+        try
+        {
+            escape.Start();
+            if (beforeCapture is not null) await beforeCapture(pending.Token);
+            pending.Token.ThrowIfCancellationRequested();
+            var prepared = await Task.Run(() => Prepare(backend, mode, targetWindow, pending.Token), pending.Token);
+            await dispatcher.InvokeAsync(() =>
+            {
+                pending.Token.ThrowIfCancellationRequested();
+                if (!_disposed) Present(prepared, mode, scrollingSelection);
+            });
+        }
+        finally
+        {
+            void ReleaseReservation()
+            {
+                escape.Stop();
+                _pendingCapture = null;
+                if (ReferenceEquals(_preparingCoordinator, this)) _preparingCoordinator = null;
+            }
+            if (dispatcher.CheckAccess()) ReleaseReservation();
+            else await dispatcher.InvokeAsync(ReleaseReservation);
+        }
+    }
+
+    public void CancelPendingCapture() => _pendingCapture?.Cancel();
+
+    public void Shutdown()
+    {
+        _disposed = true;
+        CancelPendingCapture();
+        CloseAll();
+    }
+
+    private static PreparedCapture Prepare(ICaptureService backend, CaptureMode mode, nint target, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        var screen = mode == CaptureMode.ActiveWindow ? backend.CaptureWindow(target, token)
+            : backend.CaptureVirtualScreen(token);
+        if (screen is null) throw new InvalidOperationException(L.Get("CouldNotGetTheActiveWindow"));
+        if (!screen.Image.IsFrozen) { var image = screen.Image.Clone(); image.Freeze(); screen = screen with { Image = image }; }
+        token.ThrowIfCancellationRequested();
+        var candidates = mode == CaptureMode.Region ? backend.EnumerateTopLevelWindows() : [];
+        token.ThrowIfCancellationRequested();
+        return new PreparedCapture(screen, candidates);
+    }
+
+    private void Present(PreparedCapture capture, CaptureMode mode, bool scrollingSelection)
+    {
+        if (mode != CaptureMode.Region) { CompleteDirectCapture(capture.Screen); return; }
+        var screens = new[] { capture.Screen };
+        var candidates = capture.Candidates;
         foreach (var screen in screens)
         {
             var window = new SelectionWindow(screen, candidates, _captureService, scrollingSelection, settings: _settings);
@@ -91,7 +152,7 @@ public sealed class CaptureCoordinator
     public static async Task<CaptureResult?> SelectScrollingRegionAsync()
     {
         var app = System.Windows.Application.Current;
-        if (_selectingScrollingRegion || app.Windows.OfType<SelectionWindow>().Any()) return null;
+        if (_selectingScrollingRegion || _preparingCoordinator is not null || app.Windows.OfType<SelectionWindow>().Any()) return null;
         if (app.Windows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing) ||
             app.Windows.OfType<RecordingWindow>().Any(x => x.IsRecording))
             throw new InvalidOperationException(L.Get("StopTheCurrentScrollingCaptureOrRecording"));
@@ -108,8 +169,8 @@ public sealed class CaptureCoordinator
             coordinator.CaptureCanceled += (_, _) => completion.TrySetResult(null);
             foreach (var window in hidden) window.Hide();
             await Task.Delay(200);
-            coordinator.Begin(CaptureMode.Region, scrollingSelection: true);
-            if (coordinator._windows.Count == 0) return null;
+            await coordinator.BeginAsync(CaptureMode.Region, scrollingSelection: true);
+            if (coordinator._windows.Count == 0 && !completion.Task.IsCompleted) return null;
             return await completion.Task;
         }
         finally

@@ -66,6 +66,7 @@ public sealed class SettingsService
             Current.RecordingSaveDirectory = AppSettings.DefaultRecordingSaveDirectory;
         try { Current.Recording.Validate(); } catch (ArgumentException) { Current.Recording = new(); }
         Current.ImageQuality = Math.Clamp(Current.ImageQuality, 1, 100);
+        if (Current.ScrollingCaptureBackend is not ("Auto" or "WGC" or "DXGI" or "GDI")) Current.ScrollingCaptureBackend = "Auto";
         if (Current.OcrBackend is not ("PaddleOCR" or "Windows" or "Tesseract")) Current.OcrBackend = "PaddleOCR";
         if (Current.OcrModelPackage is not ("tiny" or "small" or "medium")) Current.OcrModelPackage = "small";
         Current.TesseractDataDirectory ??= "";

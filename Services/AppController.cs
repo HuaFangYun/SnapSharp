@@ -28,6 +28,7 @@ public sealed class AppController : IDisposable
     private SettingsWindow? _settingsWindow;
     private ScreenWordService? _screenWords;
     private RecordingWindow? _recordingWindow;
+    private bool _disposed;
 
     public AppController()
     {
@@ -133,6 +134,13 @@ public sealed class AppController : IDisposable
 
     private async void RequestCapture(CaptureMode mode, bool scrolling = false)
     {
+        if (_disposed) return;
+        if (!Application.Current.Dispatcher.CheckAccess() ||
+            SynchronizationContext.Current is not System.Windows.Threading.DispatcherSynchronizationContext)
+        {
+            _ = Application.Current.Dispatcher.BeginInvoke(() => RequestCapture(mode, scrolling));
+            return;
+        }
         if (_recordingWindow?.IsRecording == true) { _tray.ShowMessage(L.Get("Recording"), L.Get("RecordingOrSavingIsInProgressStop")); return; }
         if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("ScrollingCapture"), L.Get("ScrollingCaptureIsInProgressPressEsc")); return; }
         if (_settingsWindow is not null) { _tray.ShowMessage(L.Get("Settings"), L.Get("CloseSettingsBeforeStartingACapture")); return; }
@@ -140,12 +148,6 @@ public sealed class AppController : IDisposable
         if (_capture.IsActive) return;
         try
         {
-            if (!Application.Current.Dispatcher.CheckAccess())
-            {
-                Application.Current.Dispatcher.Invoke(() => RequestCapture(mode, scrolling));
-                return;
-            }
-
             if (scrolling)
             {
                 var selection = await CaptureCoordinator.SelectScrollingRegionAsync();
@@ -157,18 +159,21 @@ public sealed class AppController : IDisposable
             var hiddenWindows = Application.Current.Windows.Cast<Window>()
                 .Where(window => window.IsVisible && window is not SelectionWindow)
                 .ToArray();
-            foreach (var window in hiddenWindows) window.Hide();
-            if (hiddenWindows.Length > 0) await Task.Delay(200);
 
             try
             {
-                _capture.Begin(mode, targetWindow);
+                await _capture.BeginAsync(mode, targetWindow, beforeCapture: async token =>
+                {
+                    foreach (var window in hiddenWindows) window.Hide();
+                    if (hiddenWindows.Length > 0) await Task.Delay(200, token);
+                });
             }
             finally
             {
-                foreach (var window in hiddenWindows.Where(window => window.IsLoaded)) window.Show();
+                if (!_disposed) foreach (var window in hiddenWindows.Where(window => window.IsLoaded)) window.Show();
             }
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             try
@@ -285,7 +290,7 @@ public sealed class AppController : IDisposable
 
     private ScrollCaptureWindow CreateScrollWindow(System.Drawing.Rectangle region, BitmapSource initial)
     {
-        var window = new ScrollCaptureWindow(region, initial);
+        var window = new ScrollCaptureWindow(region, initial, _settings);
         _openWindows.Add(window);
         window.Closed += (_, _) => _openWindows.Remove(window);
         window.OutputRequested += (image, action) => OnCaptureCompleted(window, new CaptureResult(image, region,
@@ -402,6 +407,7 @@ public sealed class AppController : IDisposable
 
     private void OpenRecording(System.Drawing.Rectangle region)
     {
+        if (_capture.IsActive) { _tray.ShowMessage(L.Get("Recording"), L.Get("StopTheCurrentCaptureFirst")); return; }
         if (_recordingWindow is not null) { _recordingWindow.ShowRecordingTools(); return; }
         if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("Recording"), L.Get("StopTheScrollingCaptureFirst")); return; }
         var window = new RecordingWindow(region, _settings); _recordingWindow = window;
@@ -411,6 +417,7 @@ public sealed class AppController : IDisposable
 
     private void ShowSettings(string? category = null, Window? owner = null)
     {
+        if (_capture.IsActive) { _tray.ShowMessage(L.Get("Settings"), L.Get("StopCaptureBeforeOpeningSettings")); return; }
         if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("ScrollingCapture"), L.Get("StopCaptureBeforeOpeningSettings")); return; }
         if (_settingsWindow is not null)
         {
@@ -455,6 +462,8 @@ public sealed class AppController : IDisposable
 
     public void Dispose()
     {
+        _disposed = true;
+        _capture.Shutdown();
         RecognitionUi.OpenRequested = null;
         _screenWords?.Dispose();
         CancelDelayedScreenshot(showMessage: false);

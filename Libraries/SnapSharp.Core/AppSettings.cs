@@ -72,6 +72,7 @@ public sealed class AppSettings
     public bool StartWithWindows { get; set; }
     public bool IncludeCursor { get; set; }
     public bool PreferWgcCapture { get; set; } = true;
+    public string ScrollingCaptureBackend { get; set; } = "Auto";
     public bool EnableExternalPlugins { get; set; }
     public bool RequireSignedPlugins { get; set; } = true;
     public bool ShowCaptureRulers { get; set; }

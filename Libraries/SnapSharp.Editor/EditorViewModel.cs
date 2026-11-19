@@ -11,8 +11,9 @@ public partial class EditorViewModel : ObservableObject
 {
     private sealed record EditorSnapshot(BitmapSource Image, Annotation[] Annotations);
     private static Annotation? _annotationClipboard;
-    private readonly Stack<EditorSnapshot> _undo = new();
-    private readonly Stack<EditorSnapshot> _redo = new();
+    public const int MaximumHistorySteps = 100;
+    private readonly BoundedHistory<EditorSnapshot> _undo = new(MaximumHistorySteps);
+    private readonly BoundedHistory<EditorSnapshot> _redo = new(MaximumHistorySteps);
 
     public EditorViewModel(BitmapSource image) => _image = image;
 

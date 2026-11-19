@@ -3937,4 +3937,7 @@ Media Foundation：{2}
   <data name="RedactionNoMatches" xml:space="preserve"><value>未找到符合脫敏規則的文字，圖片未更改。</value></data>
   <data name="RedactionImageChanged" xml:space="preserve"><value>辨識期間圖片已被編輯，請對目前圖片重新執行一鍵脫敏。</value></data>
   <data name="RedactionFailed" xml:space="preserve"><value>脫敏未完成：{0}</value></data>
+  <data name="AutomaticCaptureBackend" xml:space="preserve"><value>???WGC ? DXGI ? GDI?</value></data>
+  <data name="CurrentCaptureBackend" xml:space="preserve"><value>???????{0}</value></data>
+  <data name="CaptureCleanupFailed" xml:space="preserve"><value>??????????????????</value></data>
 </root>

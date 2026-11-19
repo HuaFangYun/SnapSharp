@@ -13,7 +13,10 @@ public interface IScrollCaptureDriver
     void Begin();
     void End();
     bool StopRequested { get; }
+    string? CaptureBackend => null;
     BitmapSource Capture(Rectangle region);
+    BitmapSource Capture(Rectangle region, CancellationToken token)
+    { token.ThrowIfCancellationRequested(); return Capture(region); }
     void Scroll(Rectangle region, ScrollDirection direction, int notches);
     Task Delay(int milliseconds, CancellationToken cancellationToken);
 }
@@ -24,6 +27,8 @@ public sealed class ScrollingCaptureService
     private readonly ScrollingStitcher _stitcher = new();
 
     public ScrollingCaptureService(ICaptureService? capture = null) : this(new DesktopDriver(capture ?? new ScreenCaptureService())) { }
+    public ScrollingCaptureService(string backend, Action<string>? backendChanged = null)
+        : this(new DesktopDriver(null, backend, backendChanged)) { }
     public ScrollingCaptureService(IScrollCaptureDriver driver) => _driver = driver;
 
     public async Task<BitmapSource> CaptureAsync(Rectangle region, IProgress<string>? progress = null,
@@ -60,7 +65,7 @@ public sealed class ScrollingCaptureService
         BitmapSource Content(BitmapSource source) => images.Crop(source, new System.Windows.Int32Rect(trim.Left, trim.Top, contentWidth, contentHeight));
         BitmapSource Capture()
         {
-            var image = _driver.Capture(region);
+            var image = _driver.Capture(region, cancellationToken);
             if (image.PixelWidth != region.Width || image.PixelHeight != region.Height) throw new InvalidOperationException(L.Get("CapturedFrameDimensionsDifferFromTheFixed"));
             if (!image.IsFrozen) { image = image.Clone(); image.Freeze(); }
             return image;
@@ -120,7 +125,8 @@ public sealed class ScrollingCaptureService
                 if ((long)(frames.Count + 1) * region.Width * region.Height > ScrollingStitcher.MaximumFramePixels)
                 { reason = L.Get("RawFrameMemoryLimitReachedCaptureIn"); break; }
                 var manualDirection = direction == ScrollDirection.Auto ? L.Get("DownOrRight") : direction == ScrollDirection.Horizontal ? L.Get("Right4") : L.Get("Down2");
-                progress?.Report(waitForManualScroll is null ? L.Format("Captured0FramesScroll1EscTo", frames.Count, (inputAxis == ScrollDirection.Vertical ? L.Get("Down2") : L.Get("Right4"))) : L.Format("Captured0FramesScrollSlowly1Preview", frames.Count, manualDirection));
+                var message = waitForManualScroll is null ? L.Format("Captured0FramesScroll1EscTo", frames.Count, (inputAxis == ScrollDirection.Vertical ? L.Get("Down2") : L.Get("Right4"))) : L.Format("Captured0FramesScrollSlowly1Preview", frames.Count, manualDirection);
+                progress?.Report(_driver.CaptureBackend is { } backend ? L.Format("CurrentCaptureBackend", backend) + " · " + message : message);
                 BitmapSource next;
                 if (samples is null)
                 {
@@ -190,22 +196,49 @@ public sealed class ScrollingCaptureService
                 try { await samplingTask; }
                 catch (OperationCanceledException) { }
             }
-            _driver.End();
+            try { _driver.End(); }
+            catch (Exception error) when (frames.Count > 0 && CaptureFailure.IsBackendFailure(error))
+            { reason += " " + L.Get("CaptureCleanupFailed"); diagnostic?.Invoke("Capture cleanup: " + error.GetType().Name); }
         }
         diagnostic?.Invoke($"Finished: frames={frames.Count}, direction={direction}, reason={reason}");
         return new ScrollCaptureSession(frames.ToArray(), offsets.ToArray(), matches.ToArray(),
             direction == ScrollDirection.Auto ? inputAxis : direction, reason);
     }, cancellationToken);
 
-    private sealed class DesktopDriver(ICaptureService capture) : IScrollCaptureDriver
+    private sealed class DesktopDriver(ICaptureService? capture, string? backend = null, Action<string>? backendChanged = null) : IScrollCaptureDriver
     {
+        private RegionCaptureSession? _session;
+        private string? _reportedBackend;
         private NativeMethods.PointL _cursor;
         private bool _started;
         private bool _moved;
         public void Begin() { _started = NativeMethods.GetCursorPos(out _cursor); _ = NativeMethods.GetAsyncKeyState(0x1B); }
-        public void End() { if (_started && _moved) NativeMethods.SetCursorPos(_cursor.X, _cursor.Y); _started = _moved = false; }
+        public void End()
+        {
+            try { _session?.Dispose(); }
+            finally
+            {
+                _session = null;
+                if (_started && _moved) NativeMethods.SetCursorPos(_cursor.X, _cursor.Y);
+                _started = _moved = false;
+            }
+        }
         public bool StopRequested => (NativeMethods.GetAsyncKeyState(0x1B) & 0x8001) != 0;
-        public BitmapSource Capture(Rectangle region) => capture.CaptureRegion(region);
+        public string? CaptureBackend => _session?.Backend ?? (capture is ScreenCaptureService ? "GDI" : null);
+        public BitmapSource Capture(Rectangle region) => Capture(region, CancellationToken.None);
+        public BitmapSource Capture(Rectangle region, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            if (capture is not null) return capture.CaptureRegion(region);
+            _session ??= new RegionCaptureSession(region, backend ?? "Auto");
+            var image = _session.Capture(token);
+            if (_reportedBackend != _session.Backend)
+            {
+                _reportedBackend = _session.Backend;
+                backendChanged?.Invoke(_reportedBackend);
+            }
+            return image;
+        }
         public async Task Delay(int milliseconds, CancellationToken cancellationToken)
         {
             for (var elapsed = 0; elapsed < milliseconds; elapsed += 40)

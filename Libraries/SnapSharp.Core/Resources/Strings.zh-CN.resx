@@ -3819,4 +3819,7 @@ Media Foundation：{2}
   <data name="RedactionNoMatches" xml:space="preserve"><value>未找到符合脱敏规则的文字，图片未更改。</value></data>
   <data name="RedactionImageChanged" xml:space="preserve"><value>识别期间图片已被编辑，请对当前图片重新执行一键脱敏。</value></data>
   <data name="RedactionFailed" xml:space="preserve"><value>脱敏未完成：{0}</value></data>
+  <data name="AutomaticCaptureBackend" xml:space="preserve"><value>???WGC ? DXGI ? GDI?</value></data>
+  <data name="CurrentCaptureBackend" xml:space="preserve"><value>???????{0}</value></data>
+  <data name="CaptureCleanupFailed" xml:space="preserve"><value>?????????????????</value></data>
 </root>

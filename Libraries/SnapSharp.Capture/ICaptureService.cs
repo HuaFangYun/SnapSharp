@@ -14,4 +14,16 @@ public interface ICaptureService
     CapturedScreen? CaptureWindow(nint windowHandle);
     IReadOnlyList<WindowCandidate> EnumerateTopLevelWindows();
     WindowCandidate? FindWindowAt(System.Drawing.Point screenPoint);
+
+    CapturedScreen CaptureVirtualScreen(CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        return CaptureVirtualScreen();
+    }
+
+    CapturedScreen? CaptureWindow(nint windowHandle, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        return CaptureWindow(windowHandle);
+    }
 }

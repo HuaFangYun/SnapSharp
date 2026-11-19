@@ -11,7 +11,7 @@ using static Vortice.DXGI.DXGI;
 
 namespace SnapSharp.Services;
 
-public sealed class DxgiCaptureService : ICaptureService
+public sealed partial class DxgiCaptureService : ICaptureService
 {
     private readonly ScreenCaptureService _windowCapture;
 
@@ -76,9 +76,23 @@ public sealed class DxgiCaptureService : ICaptureService
         var result = D3D11CreateDeviceForAdapter(adapter.NativePointer, DriverType.Unknown, nint.Zero,
             DeviceCreationFlags.BgraSupport, levels, (uint)levels.Length, SdkVersion,
             out var devicePointer, out _, out var contextPointer);
-        Marshal.ThrowExceptionForHR(result);
-        device = new ID3D11Device(devicePointer);
-        context = new ID3D11DeviceContext(contextPointer);
+        try
+        {
+            Marshal.ThrowExceptionForHR(result);
+            device = new ID3D11Device(devicePointer);
+            devicePointer = 0;
+            try
+            {
+                context = new ID3D11DeviceContext(contextPointer);
+                contextPointer = 0;
+            }
+            catch { device.Dispose(); throw; }
+        }
+        finally
+        {
+            if (contextPointer != 0) Marshal.Release(contextPointer);
+            if (devicePointer != 0) Marshal.Release(devicePointer);
+        }
     }
 
     [DllImport("d3d11.dll", EntryPoint = "D3D11CreateDevice")]
@@ -87,12 +101,14 @@ public sealed class DxgiCaptureService : ICaptureService
         out nint device, out FeatureLevel selectedFeatureLevel, out nint immediateContext);
 
     private static CapturedScreen CaptureOutput(IDXGIOutputDuplication duplication, ID3D11Device device,
-        ID3D11DeviceContext context, Rectangle bounds)
+        ID3D11DeviceContext context, Rectangle bounds, uint timeout = 500)
     {
         var acquired = false;
         try
         {
-            var result = duplication.AcquireNextFrame(500, out _, out var resource);
+            var result = duplication.AcquireNextFrame(timeout, out _, out var resource);
+            if (result.Code == unchecked((int)0x887A0027)) // DXGI_ERROR_WAIT_TIMEOUT
+                throw new TimeoutException("DXGI did not produce a new frame.");
             result.CheckError();
             acquired = true;
             using (resource)
@@ -175,31 +191,68 @@ public sealed class ResilientCaptureService : ICaptureService
 {
     private readonly ICaptureService _preferred;
     private readonly ICaptureService _fallback;
-    private int _preferredFailed;
+    private readonly TimeProvider _time;
+    private readonly object _health = new();
+    private DateTimeOffset _retryAt;
+    private int _failures;
+    private bool _probing;
 
     public ResilientCaptureService(bool preferWgc, bool includeCursor)
     {
         _fallback = new ScreenCaptureService(includeCursor);
         _preferred = preferWgc ? new WgcCaptureService(includeCursor) : _fallback;
+        _time = TimeProvider.System;
     }
+
+    internal ResilientCaptureService(ICaptureService preferred, ICaptureService fallback, TimeProvider time)
+    { _preferred = preferred; _fallback = fallback; _time = time; }
 
     public IReadOnlyList<CapturedScreen> CaptureAllScreens() => Try(x => x.CaptureAllScreens());
     public BitmapSource CaptureRegion(Rectangle bounds) => Try(x => x.CaptureRegion(bounds));
-    public CapturedScreen CaptureVirtualScreen() => Try(x => x.CaptureVirtualScreen());
-    public CapturedScreen? CaptureWindow(nint windowHandle) => Try(x => x.CaptureWindow(windowHandle));
+    public CapturedScreen CaptureVirtualScreen() => CaptureVirtualScreen(CancellationToken.None);
+    public CapturedScreen CaptureVirtualScreen(CancellationToken token) => Try(x => x.CaptureVirtualScreen(token), token);
+    public CapturedScreen? CaptureWindow(nint windowHandle) => CaptureWindow(windowHandle, CancellationToken.None);
+    public CapturedScreen? CaptureWindow(nint windowHandle, CancellationToken token) => Try(x => x.CaptureWindow(windowHandle, token), token);
     public IReadOnlyList<WindowCandidate> EnumerateTopLevelWindows() => _fallback.EnumerateTopLevelWindows();
     public WindowCandidate? FindWindowAt(System.Drawing.Point screenPoint) => _fallback.FindWindowAt(screenPoint);
 
-    private T Try<T>(Func<ICaptureService, T> capture)
+    private T Try<T>(Func<ICaptureService, T> capture, CancellationToken token = default)
     {
-        if (ReferenceEquals(_preferred, _fallback) || Volatile.Read(ref _preferredFailed) != 0)
-            return capture(_fallback);
-        try { return capture(_preferred); }
-        catch (Exception first)
+        token.ThrowIfCancellationRequested();
+        bool attempt;
+        lock (_health)
         {
-            Interlocked.Exchange(ref _preferredFailed, 1);
-            try { return capture(_fallback); }
-            catch (Exception second) { throw new AggregateException("WGC and GDI capture both failed.", first, second); }
+            attempt = !ReferenceEquals(_preferred, _fallback) && !_probing && _time.GetUtcNow() >= _retryAt;
+            if (attempt) _probing = true;
         }
+        if (!attempt) return capture(_fallback);
+        try
+        {
+            var result = capture(_preferred);
+            token.ThrowIfCancellationRequested();
+            // A vanished target returns null; it neither proves recovery nor indicates a device failure.
+            if (result is not null) lock (_health) { _failures = 0; _retryAt = default; }
+            return result;
+        }
+        catch (Exception first) when (CaptureFailure.IsBackendFailure(first))
+        {
+            token.ThrowIfCancellationRequested();
+            lock (_health)
+            {
+                _failures = Math.Min(_failures + 1, 3);
+                _retryAt = _time.GetUtcNow().AddSeconds(_failures == 1 ? 5 : _failures == 2 ? 15 : 60);
+            }
+            try { return capture(_fallback); }
+            catch (Exception second) when (CaptureFailure.IsBackendFailure(second))
+            { throw new AggregateException("Preferred and GDI capture both failed.", first, second); }
+        }
+        finally { lock (_health) _probing = false; }
     }
+}
+
+internal static class CaptureFailure
+{
+    internal static bool IsBackendFailure(Exception error) => error is
+        COMException or TimeoutException or InvalidOperationException or PlatformNotSupportedException or
+        System.ComponentModel.Win32Exception or SharpGen.Runtime.SharpGenException;
 }
