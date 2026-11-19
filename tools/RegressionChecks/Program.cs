@@ -35,13 +35,16 @@ internal static partial class Program
             if (args.Contains("--scrolling-only")) { ScrollingChecks(); return 0; }
             if (args.Contains("--model-storage-only")) { ModelStorageChecks(); return 0; }
             if (args.Contains("--recording-only")) { RecordingChecks(); return 0; }
-            AppUpdateChecks().GetAwaiter().GetResult();
+            if (args.Contains("--download-ui-only")) { WindowChecks(downloadOnly: true); return 0; }
+            if (!args.Contains("--downloads-only") && !args.Contains("--data-directory-only"))
+                AppUpdateChecks().GetAwaiter().GetResult();
             if (args.Contains("--updates-only")) return 0;
             DataDirectoryChecks();
             PortableModelPathChecks();
             ModelStorageChecks();
             if (args.Contains("--data-directory-only")) return 0;
             DownloadChecks().GetAwaiter().GetResult();
+            ModelTransferChecks().GetAwaiter().GetResult();
             DownloadSourceChecks().GetAwaiter().GetResult();
             var fixtureArgument = Array.IndexOf(args, "--model-cache-fixtures");
             ModelCacheChecks(fixtureArgument >= 0 ? Path.GetFullPath(args[fixtureArgument + 1]) : null).GetAwaiter().GetResult();
@@ -88,18 +91,23 @@ internal static partial class Program
         Console.WriteLine("PASS: old settings migration, audio/device/path persistence, unique filenames.");
     }
 
-    private static void WindowChecks()
+    private static void WindowChecks(bool downloadOnly = false)
     {
         // Load the production resources without starting the tray/controller or touching user data.
-        var app = new System.Windows.Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
-        System.Xml.Linq.XNamespace wpf = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
-        var document = System.Xml.Linq.XDocument.Load("App.xaml");
-        var resources = document.Root!.Element(wpf + "Application.Resources")!.Elements().Single();
-        resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "x", "http://schemas.microsoft.com/winfx/2006/xaml");
-        resources.SetAttributeValue(System.Xml.Linq.XNamespace.Xmlns + "services", "clr-namespace:SnapSharp.Services;assembly=SnapSharp");
-        app.Resources = (ResourceDictionary)System.Windows.Markup.XamlReader.Parse(resources.ToString(),
-            new System.Windows.Markup.ParserContext { BaseUri = new Uri("pack://application:,,,/NimCap.Screenshot;component/") });
+        var app = new SnapSharp.App { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+        app.InitializeComponent();
         using var theme = new ThemeService(); theme.Start();
+        if (downloadOnly)
+        {
+            using var hotkey = new GlobalHotkeyHost();
+            var downloadSettings = new SettingsService(Path.Combine(Root, "download-settings.json"));
+            var downloadWindow = new SettingsWindow(downloadSettings, new StartupRegistrationService(), hotkey);
+            downloadWindow.SelectCategory("ScanText");
+            downloadWindow.Show();
+            try { SettingsDownloadChecks(downloadWindow); }
+            finally { downloadWindow.Close(); app.Shutdown(); }
+            return;
+        }
         var settings = new SettingsService(Path.Combine(Root, "window-settings.json"));
         settings.Current.SaveDirectory = Root;
         settings.Current.Recording.RecordSystemAudio = true;
@@ -173,6 +181,7 @@ internal static partial class Program
             "Global settings lost audio preferences or the recording directory.");
         Require(((ProgressBar)global.FindName("LocalTranslationProgress")) is not null &&
             global.FindName("LocalTranslationDownloadStatus") is TextBlock, "Download feedback controls are missing.");
+        SettingsDownloadChecks(global);
         global.Close();
         PortableModelPathWindowChecks(hotkeys);
         ScreenshotInteractionChecks();

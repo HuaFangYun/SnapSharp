@@ -51,18 +51,10 @@ internal sealed class TesseractModelDownloadService
                 continue;
             }
             progress.Report(L.Format("ModelDownloadConnectingSource", new Uri(ModelDownloadSource.Resolve(model.Url, sourceKind)).Host));
-            using var response = await ModelDownloadSource.Get(client, model.Url, sourceKind, token);
-            response.EnsureSuccessStatusCode();
-            if (response.Content.Headers.ContentLength is long size && size != model.Size) throw new InvalidDataException(L.Get("LanguageDataDownloadSizeMismatch"));
             using var data = new MemoryStream(model.Size);
-            await using var stream = await response.Content.ReadAsStreamAsync(token);
-            var buffer = new byte[81920]; int read;
-            while ((read = await stream.ReadAsync(buffer, token)) != 0)
-            {
-                if (data.Length + read > model.Size) throw new InvalidDataException(L.Get("LanguageDataExceedsItsExpectedSize"));
-                await data.WriteAsync(buffer.AsMemory(0, read), token);
-                progress.Report(L.Format("0Download12F13F1", model.Language, data.Length * 100 / model.Size, data.Length / 1048576d, model.Size / 1048576d));
-            }
+            await ModelDownloadTransfer.CopyTo(client, model.Url, sourceKind, data, model.Size,
+                total => progress.Report(L.Format("0Download12F13F1", model.Language, total * 100 / model.Size, total / 1048576d, model.Size / 1048576d)),
+                token, expectedBytes: model.Size);
             var bytes = data.ToArray(); Validate(model, bytes); payload.Add(model.Language, bytes);
         }
         progress.Report(L.Get("SHA256VerifiedCheckingThatTesseractCanLoad"));

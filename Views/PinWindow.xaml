@@ -34,7 +34,7 @@
       <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:FinishEditing}" Click="ApplyEdit_Click" />
       <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:CopyImage}" Click="Copy_Click" />
       <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:SaveAs}" Click="Save_Click" />
-      <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:RecognizeTextBarcodes}" Tag="OCR" Click="Recognition_Click" />
+      <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:ImageTools}" Tag="OCR" Click="Recognition_Click" />
       <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:RemoveBackground2}" Tag="Cutout" Click="Recognition_Click" />
       <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:ToggleAlwaysOnTop}" Click="ToggleTopmost_Click" />
       <MenuItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:Opacity}">

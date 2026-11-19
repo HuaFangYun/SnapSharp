@@ -183,11 +183,8 @@
   <data name="CopyImage" xml:space="preserve">
     <value>復制圖片</value>
   </data>
-  <data name="RecognizeTextBarcodes" xml:space="preserve">
-    <value>文字／條碼識別…</value>
-  </data>
   <data name="RemoveBackground2" xml:space="preserve">
-    <value>一鍵摳圖…</value>
+    <value>去背</value>
   </data>
   <data name="ToggleAlwaysOnTop" xml:space="preserve">
     <value>切換置頂</value>
@@ -237,11 +234,11 @@
   <data name="More" xml:space="preserve">
     <value>更多</value>
   </data>
-  <data name="OCRRecognitionBackgroundRemovalSnapSharp" xml:space="preserve">
-    <value>OCR、識別與摳圖 · NimCap Screenshot</value>
+  <data name="ImageToolsWindowTitle" xml:space="preserve">
+    <value>影像工具 · NimCap 螢幕截圖工具</value>
   </data>
   <data name="TextOCR" xml:space="preserve">
-    <value>文字 OCR</value>
+    <value>文字辨識</value>
   </data>
   <data name="QRBarcodes" xml:space="preserve">
     <value>二維碼／一維碼</value>
@@ -328,7 +325,7 @@
     <value>導出 XLSX…</value>
   </data>
   <data name="BackgroundRemovalOutput" xml:space="preserve">
-    <value>摳圖輸出</value>
+    <value>去背結果</value>
   </data>
   <data name="TheCheckerboardIndicatesTransparencyCheckHairTranslucent" xml:space="preserve">
     <value>左側棋盤格表示透明背景。請確認發絲、半透明物體及邊緣效果；模型與預處理契約必須對應。</value>
@@ -867,9 +864,6 @@
   <data name="ScrollingCapture2" xml:space="preserve">
     <value>捲動長截圖</value>
   </data>
-  <data name="RecognizeTextBarcodesAndTables" xml:space="preserve">
-    <value>文字、條碼與表格識別</value>
-  </data>
   <data name="RemoveBackgroundRequiresONNXModel" xml:space="preserve">
     <value>一鍵摳圖（需配置 ONNX 模型）</value>
   </data>
@@ -984,8 +978,11 @@
   <data name="Intensity" xml:space="preserve">
     <value>強度</value>
   </data>
+  <data name="NimCapAppTitle" xml:space="preserve"><value>NimCap 螢幕截圖工具</value></data>
+  <data name="ImageTools" xml:space="preserve"><value>影像工具</value></data>
+  <data name="ImageToolsTooltip" xml:space="preserve"><value>影像工具：辨識文字、QR Code 與條碼、表格和公式。</value></data>
   <data name="SnapSharpSettings" xml:space="preserve">
-    <value>NimCap Screenshot 設定</value>
+    <value>NimCap 螢幕截圖工具 · 設定</value>
   </data>
   <data name="Preferences" xml:space="preserve">
     <value>偏好設定</value>
@@ -1672,7 +1669,7 @@
     <value>添加</value>
   </data>
   <data name="SnapSharpIsAlreadyRunningButTheExisting" xml:space="preserve">
-    <value>NimCap Screenshot 已經在運行，但無法喚醒現有實例。</value>
+    <value>NimCap 螢幕截圖工具 已經在運行，但無法喚醒現有實例。</value>
   </data>
   <data name="ScreenTextCaptureStopped" xml:space="preserve">
     <value>螢幕取詞已停止</value>
@@ -2324,7 +2321,7 @@ Media Foundation：{2}
     <value>NimCap Screenshot - Ctrl+Shift+A 區域截圖</value>
   </data>
   <data name="SnapSharp0RegionCapture" xml:space="preserve">
-    <value>NimCap Screenshot - {0} 區域截圖</value>
+    <value>NimCap 螢幕截圖工具 - {0} 區域截圖</value>
   </data>
   <data name="ShowGroup" xml:space="preserve">
     <value>顯示本組</value>
@@ -3923,7 +3920,7 @@ Media Foundation：{2}
   <data name="DocumentNoResult" xml:space="preserve"><value>請先辨識證件。</value></data>
   <data name="RecognitionTableTool" xml:space="preserve"><value>表格識別</value></data>
   <data name="RecognitionFormulaTool" xml:space="preserve"><value>公式</value></data>
-  <data name="RecognitionCutoutTool" xml:space="preserve"><value>一鍵摳圖</value></data>
+  <data name="RecognitionCutoutTool" xml:space="preserve"><value>去背</value></data>
   <data name="DocumentIdCardBoth" xml:space="preserve"><value>居民身分證 · 正反面合圖</value></data>
   <data name="RecognitionRotateLeft" xml:space="preserve"><value>左轉 90°</value></data>
   <data name="RecognitionRotateRight" xml:space="preserve"><value>右轉 90°</value></data>
@@ -3973,7 +3970,7 @@ Media Foundation：{2}
   <data name="WatermarkEmptyMask" xml:space="preserve"><value>請先塗抹修復區域，或辨識並檢查浮水印遮罩。</value></data>
   <data name="WatermarkSelectRegion" xml:space="preserve"><value>請先框選浮水印所在範圍，再點選辨識浮水印。</value></data>
   <data name="WatermarkReviewDetection" xml:space="preserve"><value>可切換到塗抹模式調整遮罩，再點擊「去水印」。</value></data>
-  <data name="WatermarkNoDetection" xml:space="preserve"><value>未辨識到浮水印。可調整閾值重新辨識，或手動塗抹遮罩。</value></data>
+  <data name="WatermarkNoDetection" xml:space="preserve"><value>未偵測到浮水印。請切換到「塗抹去浮水印」，在原圖上塗過浮水印，再按一下「去浮水印」。</value></data>
   <data name="WatermarkRepairDone" xml:space="preserve"><value>修復完成。比較原圖後，可複製、儲存或貼圖。</value></data>
   <data name="WatermarkSettingsHint" xml:space="preserve"><value>模型需單獨下載。請選擇下載來源，下載或匯入後儲存設定。</value></data>
   <data name="WatermarkDefaultRepairModel" xml:space="preserve"><value>預設修復模型</value></data>

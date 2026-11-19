@@ -15,7 +15,12 @@ public partial class SettingsWindow : Window
     private CancellationTokenSource? ModelDownload
     {
         get => _downloadCancellation;
-        set { _downloadCancellation = value; SetValue(DownloadSourceEnabledProperty, value is null); }
+        set
+        {
+            _downloadCancellation = value;
+            SetValue(DownloadSourceEnabledProperty, value is null);
+            UpdateOcrDownloadAvailability();
+        }
     }
     public static readonly DependencyProperty DownloadSourceEnabledProperty = DependencyProperty.Register(nameof(DownloadSourceEnabled), typeof(bool), typeof(SettingsWindow), new PropertyMetadata(true));
     public bool DownloadSourceEnabled => (bool)GetValue(DownloadSourceEnabledProperty);
@@ -328,40 +333,11 @@ public partial class SettingsWindow : Window
         var dialog = new Microsoft.Win32.OpenFileDialog { Filter = name == "OcrDictPath" ? L.Get("UTF8DictionaryTxtAllFiles") : L.Get("ONNXModelOnnx") };
         if (WindowDialogService.ShowDialog(dialog, this) == true) field.Text = _settings.StoreModelPath(dialog.FileName);
     }
-    private void CancelOcrDownload_Click(object sender, RoutedEventArgs e) => ModelDownload?.Cancel();
+    private void CancelModelDownload_Click(object sender, RoutedEventArgs e) => ModelDownload?.Cancel();
     private void BrowseFormulaDirectory_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { Title = L.Get("ChooseLaTeXOCRModelFolder") };
         if (WindowDialogService.ShowDialog(dialog, this) == true) FormulaDirectory.Text = _settings.StoreModelPath(dialog.FolderName);
-    }
-    private async void DownloadSpecialist_Click(object sender, RoutedEventArgs e)
-    {
-        if (ModelDownload is not null) { SpecialistStatus.Text = L.Get("ADownloadIsInProgressWaitOr"); return; }
-        var table = (sender as FrameworkElement)?.Tag as string == "Table";
-        using var cancellation = new CancellationTokenSource(); ModelDownload = cancellation;
-        DownloadTableButton.IsEnabled = DownloadFormulaButton.IsEnabled = false; CancelSpecialistButton.IsEnabled = true;
-        SpecialistStatus.Text = L.Get("DownloadingAndVerifyingMatchingLocalModels");
-        try
-        {
-            var root = System.IO.Path.Combine(AppPaths.Root, "models");
-            var progress = new Progress<string>(value => SpecialistStatus.Text = value);
-            var path = await SpecialistModelDownloadService.Install(root, table, progress, cancellation.Token, sourceKind: SelectedModelDownloadSource);
-            OcrModelDownloadService.ModelPaths? ocr = null;
-            if (table && ((System.Windows.Controls.ComboBoxItem)OcrBackendBox.SelectedItem).Tag.ToString() == "PaddleOCR" &&
-                new[] { OcrDetPath.Text, OcrRecPath.Text, OcrDictPath.Text }.Any(p => !System.IO.File.Exists(_settings.ResolveModelPath(p))))
-                ocr = await new OcrModelDownloadService().Download(root, progress, cancellation.Token, SelectedModelDownloadSource);
-            if (!IsLoaded) return;
-            if (table)
-            {
-                TableModelPath.Text = _settings.StoreModelPath(path); TablePluginId.Text = "";
-                if (ocr is not null) { OcrDetPath.Text = _settings.StoreModelPath(ocr.Detection); OcrRecPath.Text = _settings.StoreModelPath(ocr.Recognition); OcrDictPath.Text = _settings.StoreModelPath(ocr.Dictionary); }
-            }
-            else { FormulaDirectory.Text = _settings.StoreModelPath(path); FormulaPluginId.Text = ""; }
-            SpecialistStatus.Text = L.Get("ModelSetupReady");
-        }
-        catch (OperationCanceledException) { SpecialistStatus.Text = L.Get("CanceledExistingConfigurationPreserved"); }
-        catch (Exception ex) { SpecialistStatus.Text = L.Get("SetupIncompleteExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
-        finally { ModelDownload = null; DownloadTableButton.IsEnabled = DownloadFormulaButton.IsEnabled = true; CancelSpecialistButton.IsEnabled = false; }
     }
     private void RecordingSetup_Click(object sender, RoutedEventArgs e) => RecordingSetupWindow.Open(this);
     private void ConfigureWindowsOcr_Click(object sender, RoutedEventArgs e)
@@ -389,9 +365,13 @@ public partial class SettingsWindow : Window
     {
         if (!_ready) return;
         var onnx = SelectedTag(OcrBackendBox) == "PaddleOCR";
-        OnnxDeviceBox.IsEnabled = OnnxGpuId.IsEnabled = OcrModelPackage.IsEnabled = DownloadOcrButton.IsEnabled = onnx;
+        OnnxDeviceBox.IsEnabled = OnnxGpuId.IsEnabled = OcrModelPackage.IsEnabled = onnx;
+        UpdateOcrDownloadAvailability();
         RefreshOcrModelPackages();
     }
+
+    private void UpdateOcrDownloadAvailability() =>
+        DownloadOcrButton.IsEnabled = ModelDownload is null && SelectedTag(OcrBackendBox) == "PaddleOCR";
 
     private void OnnxDevice_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
@@ -683,30 +663,6 @@ public partial class SettingsWindow : Window
         var dialog = new Microsoft.Win32.OpenFolderDialog { Title = L.Get("ChooseATesseractLanguageDataFolderContaining") };
         if (WindowDialogService.ShowDialog(dialog, this) == true) TesseractDirectory.Text = _settings.StoreModelPath(dialog.FolderName);
     }
-    private async void DownloadTesseract_Click(object sender, RoutedEventArgs e)
-    {
-        if (ModelDownload is not null) return;
-        using var cancellation = new CancellationTokenSource(); ModelDownload = cancellation;
-        var languages = ((System.Windows.Controls.ComboBoxItem)TesseractPackageBox.SelectedItem).Tag.ToString()!;
-        DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = TesseractPackageBox.IsEnabled = false;
-        CancelTesseractButton.IsEnabled = true;
-        try
-        {
-            var root = System.IO.Path.Combine(AppPaths.Root, "models");
-            var directory = await new TesseractModelDownloadService().Download(root, languages, new Progress<string>(text => TesseractDownloadStatus.Text = text), cancellation.Token, SelectedModelDownloadSource);
-            if (!IsLoaded) return;
-            TesseractDirectory.Text = _settings.StoreModelPath(directory); TesseractLanguages.Text = languages; OcrBackendBox.SelectedIndex = 2;
-            TesseractDownloadStatus.Text = L.Get("ModelSetupReady");
-        }
-        catch (OperationCanceledException) { TesseractDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
-        catch (Exception ex) { TesseractDownloadStatus.Text = L.Get("DownloadFailedExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
-        finally
-        {
-            ModelDownload = null;
-            DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = TesseractPackageBox.IsEnabled = true;
-            CancelTesseractButton.IsEnabled = false;
-        }
-    }
     private async void TestTranslation_Click(object sender, RoutedEventArgs e)
     {
         if (_translationTest is not null) return;
@@ -732,27 +688,6 @@ public partial class SettingsWindow : Window
         }
         catch (Exception ex) { if (IsLoaded) TranslationStatus.Text = L.Format("TestTranslationFailed", ex.GetBaseException().Message); }
         finally { _translationTest = null; button.IsEnabled = true; }
-    }
-    private async void DownloadCutout_Click(object sender, RoutedEventArgs e)
-    {
-        if (ModelDownload is not null) return;
-        var model = (CutoutModelDefinition)CutoutPackageBox.SelectedItem;
-        CutoutPackageBox.IsEnabled = false;
-        using var cancellation = new CancellationTokenSource(); ModelDownload = cancellation;
-        DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = false; CancelCutoutButton.IsEnabled = true;
-        CutoutDownloadStatus.Text = L.Get("ConnectingToTheOfficialModelSource");
-        try
-        {
-            var root = System.IO.Path.Combine(AppPaths.Root, "models");
-            var path = await new CutoutModelDownloadService().Download(model, root, new Progress<string>(text => CutoutDownloadStatus.Text = text), cancellation.Token, SelectedModelDownloadSource);
-            if (!IsLoaded) return;
-            CutoutPath.Text = _settings.StoreModelPath(path); CutoutProfileBox.SelectedIndex = model.Profile switch { "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 }; CutoutSize.Text = model.InputSize.ToString();
-            StoreCutoutConfiguration();
-            CutoutDownloadStatus.Text = L.Get("ModelSetupReady");
-        }
-        catch (OperationCanceledException) { CutoutDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
-        catch (Exception ex) { CutoutDownloadStatus.Text = L.Get("DownloadFailedExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
-        finally { ModelDownload = null; CutoutPackageBox.IsEnabled = true; DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = true; CancelCutoutButton.IsEnabled = false; }
     }
     private void StoreCutoutConfiguration()
     {
@@ -781,26 +716,6 @@ public partial class SettingsWindow : Window
         CutoutPath.Text = _settings.StoreModelPath(config?.Path);
         CutoutProfileBox.SelectedIndex = (config?.Profile ?? model.Profile) switch { "ISNet" => 1, "BiRefNet" => 2, "BiRefNetMatting" => 3, "BiRefNetAlpha" => 4, _ => 0 };
         CutoutSize.Text = (config?.InputSize ?? model.InputSize).ToString();
-    }
-    private async void DownloadOcr_Click(object sender, RoutedEventArgs e)
-    {
-        if (ModelDownload is not null) return;
-        using var cancellation = new CancellationTokenSource(); ModelDownload = cancellation;
-        DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = OcrModelPackage.IsEnabled = false; CancelOcrDownloadButton.IsEnabled = true;
-        OcrDownloadStatus.Text = L.Get("ConnectingToThePyPIModelSource");
-        try
-        {
-            var root = System.IO.Path.Combine(AppPaths.Root, "models");
-            var packageId = OcrModelPackage.SelectedValue as string ?? OcrModelDownloadService.DefaultPackageId;
-            var paths = await new OcrModelDownloadService().Download(root, new Progress<string>(text => OcrDownloadStatus.Text = text), cancellation.Token, SelectedModelDownloadSource, packageId: packageId);
-            if (!IsLoaded) return;
-            OcrDetPath.Text = _settings.StoreModelPath(paths.Detection); OcrRecPath.Text = _settings.StoreModelPath(paths.Recognition); OcrDictPath.Text = _settings.StoreModelPath(paths.Dictionary);
-            OcrBackendBox.SelectedIndex = 0;
-            OcrDownloadStatus.Text = L.Get("ModelSetupReady");
-        }
-        catch (OperationCanceledException) { OcrDownloadStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
-        catch (Exception ex) { OcrDownloadStatus.Text = L.Get("DownloadIncompleteExistingConfigurationPreserved") + ex.GetBaseException().Message; }
-        finally { ModelDownload = null; DownloadTesseractButton.IsEnabled = DownloadCutoutButton.IsEnabled = DownloadOcrButton.IsEnabled = OcrModelPackage.IsEnabled = true; CancelOcrDownloadButton.IsEnabled = false; }
     }
     private async void CheckModels_Click(object sender, RoutedEventArgs e)
     {

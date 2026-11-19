@@ -25,7 +25,7 @@ public sealed class TrayService : IDisposable
     public TrayService()
     {
         var menu = new System.Windows.Controls.ContextMenu();
-        foreach (var definition in AppActionCatalog.All)
+        foreach (var definition in AppActionCatalog.All.Where(x => x.ShowInTray))
         {
             ItemsControl parent = menu;
             if (definition.Group.Length > 0)
@@ -47,14 +47,14 @@ public sealed class TrayService : IDisposable
         menu.Items.Add(_settingsItem);
         _exitItem = LocalizedMenu("Exit"); _exitItem.Click += (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty);
         menu.Items.Add(_exitItem);
-        _notifyIcon = new TaskbarIcon { IconSource = CreateTrayIconSource(), ToolTipText = "NimCap Screenshot", ContextMenu = menu };
+        _notifyIcon = new TaskbarIcon { IconSource = CreateTrayIconSource(), ToolTipText = L.Get("NimCapAppTitle"), ContextMenu = menu };
         _notifyIcon.TrayMouseDoubleClick += (_, _) => ActionRequested?.Invoke(GlobalAction.Region);
         UpdateHotkeyLabels(new AppSettings());
     }
 
     public void UpdateHotkeyLabels(AppSettings settings)
     {
-        foreach (var definition in AppActionCatalog.All)
+        foreach (var definition in AppActionCatalog.All.Where(x => x.ShowInTray))
         {
             var item = _actions[definition.Action];
             item.InputGestureText = AppActionCatalog.Hotkey(settings, definition.Action);
@@ -117,7 +117,7 @@ public sealed class TrayService : IDisposable
         foreach (var definition in AppActionCatalog.All) settings.TrayActions[definition.Action.ToString()] = true;
         tray.UpdateHotkeyLabels(settings); actions.Clear();
         foreach (var item in tray._actions.Values) RaiseClick(item);
-        return actions.SequenceEqual(AppActionCatalog.All.Select(x => x.Action));
+        return actions.SequenceEqual(AppActionCatalog.All.Where(x => x.ShowInTray).Select(x => x.Action));
     }
 
     internal static bool RunLocalizationSelfTest()
@@ -127,7 +127,7 @@ public sealed class TrayService : IDisposable
         {
             LocalizationService.Apply(language);
             Application.Current.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-            if (AppActionCatalog.All.Any(x => !Equals(tray._actions[x.Action].Header, x.Label))
+            if (AppActionCatalog.All.Where(x => x.ShowInTray).Any(x => !Equals(tray._actions[x.Action].Header, x.Label))
                 || !Equals(tray._settingsItem.Header, L.Get("Settings")) || !Equals(tray._exitItem.Header, L.Get("Exit"))) return false;
         }
         return true;

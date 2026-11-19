@@ -62,21 +62,10 @@ internal static class SpecialistModelDownloadService
                 else
                 {
                     progress.Report(L.Format("ModelDownloadConnectingSource", new Uri(ModelDownloadSource.Resolve(asset.Url, sourceKind)).Host));
-                    using var response = await ModelDownloadSource.Get(client, asset.Url, sourceKind, token);
-                    response.EnsureSuccessStatusCode();
-                    if (response.Content.Headers.ContentLength is long length && length != asset.Size) throw new InvalidDataException(asset.Name + L.Get("DownloadLengthMismatch"));
-                    await using var input = await response.Content.ReadAsStreamAsync(token);
                     await using (var output = new FileStream(target, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true))
-                    {
-                        var buffer = new byte[81920]; long total = 0; int read;
-                        while ((read = await input.ReadAsync(buffer, token)) > 0)
-                        {
-                            total += read;
-                            if (total > asset.Size) throw new InvalidDataException(L.Get("DownloadExceedsThePinnedSize"));
-                            await output.WriteAsync(buffer.AsMemory(0, read), token);
-                            progress.Report($"{asset.Name} · {total * 100 / asset.Size}% · {total / 1048576d:F1} / {asset.Size / 1048576d:F1} MB");
-                        }
-                    }
+                        await ModelDownloadTransfer.CopyTo(client, asset.Url, sourceKind, output, asset.Size,
+                            total => progress.Report($"{asset.Name} · {total * 100 / asset.Size}% · {total / 1048576d:F1} / {asset.Size / 1048576d:F1} MB"),
+                            token, expectedBytes: asset.Size);
                 }
                 await Validate(target, asset, token);
                 if (asset.Name.EndsWith(".onnx", StringComparison.Ordinal))

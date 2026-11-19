@@ -212,9 +212,9 @@ Each scrolling-capture frame is limited to 16 million pixels, with a maximum of 
 
 <a id="recognition"></a>
 
-## 6. Using OCR, Background Removal, or Translation on a Copied Image
+## 6. Image Tools for Recognition, Background Removal, and Translation
 
-**Recognize Clipboard Image…** in the tray menu is the central entry point for processing a copied image.
+Open **Image Tools** from the capture toolbar or a pin's context menu.
 
 <p align="center">
   <img src="../Screenshot/2.png" alt="NimCap Screenshot OCR, barcode, table, formula, and background-removal modes" width="900">
@@ -222,9 +222,9 @@ Each scrolling-capture frame is limited to 16 million pixels, with a maximum of 
 <p align="center"><em>Use one window for text OCR, barcodes, tables, formulas, and one-click background removal.</em></p>
 
 1. Copy image content from a browser, chat application, or another program. Copy the image itself, not only its URL or file path.
-2. Right-click the NimCap Screenshot tray icon and choose **Recognize Clipboard Image…**.
-3. The window displays the image without running recognition automatically. Select text OCR, barcode, table, formula, or background-removal mode at the top.
-4. Click **Start/Rerun**, or **Remove Background/Rerun** in background-removal mode.
+2. Choose **Pins** from the tray, or press the default shortcut `Ctrl+Shift+V`.
+3. Right-click the pin, choose **Image Tools**, and select a mode on the left.
+4. Select a model if needed, then click **Start**, **Remove Background**, or **Remove Watermark**.
 
 Alternatively, take a screenshot and click the scan-text or scissors icon on the selection toolbar. Recognition and background removal are also available from a pin's context menu, the editor, and the scrolling-capture result window.
 
@@ -255,7 +255,7 @@ Python and CUDA are not required. You can instead use Windows OCR with installed
 
 ### Recognize, review, and translate
 
-Open an image containing text, select **Text OCR**, and start recognition. Review the result on the **Text/Barcode** page, where you can correct, copy, or export the text. Click a recognition box in the source image or a recognized line to locate its counterpart.
+Open an image containing text, select **Text Recognition**, and start recognition. Review the result on the **Text/Barcode** page, where you can correct, copy, or export the text. Click a recognition box in the source image or a recognized line to locate its counterpart.
 
 <p align="center">
   <img src="../Screenshot/5.png" alt="Local OCR results in NimCap Screenshot" width="900">
@@ -326,10 +326,10 @@ Start with General Lite, or U²-Net on resource-constrained systems. Add a portr
 
 ### Remove the background from a copied image
 
-1. Copy an image and choose **Recognize Clipboard Image…** from the tray.
-2. Switch to **One-Click Background Removal (ONNX)** at the top.
-3. Select a configured model and click **Remove Background/Rerun**.
-4. Review the result on the left. The checkerboard represents transparency; select **View Original** to compare the subject and edges.
+1. Copy an image and choose **Pins** from the tray.
+2. Right-click the pin and choose **Remove Background**.
+3. Select a configured model and click **Remove Background**.
+4. Compare the original on the left with the result on the right. The checkerboard represents transparency.
 5. To try another model, select it and rerun. This does not change the default in Settings.
 6. Copy, save, or pin the result. Use PNG or a transparency-capable WebP mode to preserve transparency, not JPEG.
 
@@ -440,7 +440,7 @@ Screenshot history is not encrypted. History images, scrolling-capture projects,
 | A recording has no sound | Select MP4, explicitly enable an audio device, and grant system permission |
 | Recording failed or the file cannot be opened | Wait for finalization and inspect the failed temporary files; do not terminate the process |
 
-For everyday use, start with **keyboard shortcut → annotate directly → copy or save**. To process an existing image, choose **Recognize Clipboard Image…**, then use OCR and translation or switch to a background-removal model.
+For everyday use, start with **keyboard shortcut → annotate directly → copy or save**. To process an existing image, pin it to the desktop and open **Image Tools** from the pin's context menu.
 
 ## Startup Update Checks
 

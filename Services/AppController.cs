@@ -39,11 +39,18 @@ public sealed class AppController : IDisposable
         LocalizationService.Apply(_settings.Current.InterfaceLanguage);
         _tray = new TrayService();
         _hotkey = new GlobalHotkeyHost();
-        var licenseFailures = ThirdPartyLicenseService.BackfillManagedModelLicenses();
-        if (licenseFailures.Count > 0)
+        try
         {
-            Directory.CreateDirectory(AppPaths.DiagnosticsRoot);
-            File.WriteAllLines(Path.Combine(AppPaths.DiagnosticsRoot, "license-backfill.txt"), licenseFailures);
+            var licenseFailures = ThirdPartyLicenseService.BackfillManagedModelLicenses();
+            if (licenseFailures.Count > 0)
+            {
+                Directory.CreateDirectory(AppPaths.DiagnosticsRoot);
+                File.WriteAllLines(Path.Combine(AppPaths.DiagnosticsRoot, "license-backfill.txt"), licenseFailures);
+            }
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            System.Diagnostics.Trace.TraceWarning("Could not backfill model licenses or record failures ({0}).", error.GetType().Name);
         }
         _plugins = new PluginCatalog(new PluginLoadOptions(AppPaths.PluginsRoot,
             _settings.Current.EnableExternalPlugins, _settings.Current.RequireSignedPlugins));
@@ -143,7 +150,7 @@ public sealed class AppController : IDisposable
             if (MessageBox.Show(L.Format("AppUpdateStartupPrompt", release.Tag), L.Get("AppUpdateTitle"),
                 MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes) ShowSettings("Info");
         }
-        else _tray.ShowMessage("NimCap Screenshot", _updates.StatusText);
+        else _tray.ShowMessage(L.Get("NimCapAppTitle"), _updates.StatusText);
     }
 
     private void RequestCapture(object? sender, CaptureModeEventArgs e) => RequestCapture(e.Mode);

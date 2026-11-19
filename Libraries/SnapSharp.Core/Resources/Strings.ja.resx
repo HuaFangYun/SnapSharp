@@ -183,11 +183,8 @@
   <data name="CopyImage" xml:space="preserve">
     <value>画像をコピーする</value>
   </data>
-  <data name="RecognizeTextBarcodes" xml:space="preserve">
-    <value>テキスト/バーコードを認識…</value>
-  </data>
   <data name="RemoveBackground2" xml:space="preserve">
-    <value>背景を削除…</value>
+    <value>背景を削除</value>
   </data>
   <data name="ToggleAlwaysOnTop" xml:space="preserve">
     <value>常に上部に切り替え</value>
@@ -237,11 +234,11 @@
   <data name="More" xml:space="preserve">
     <value>もっと見る</value>
   </data>
-  <data name="OCRRecognitionBackgroundRemovalSnapSharp" xml:space="preserve">
-    <value>OCR、認識、背景除去 · NimCap Screenshot</value>
+  <data name="ImageToolsWindowTitle" xml:space="preserve">
+    <value>画像ツール · NimCap スクリーンショットツール</value>
   </data>
   <data name="TextOCR" xml:space="preserve">
-    <value>テキストOCR</value>
+    <value>文字認識（OCR）</value>
   </data>
   <data name="QRBarcodes" xml:space="preserve">
     <value>QR/バーコード</value>
@@ -328,7 +325,7 @@
     <value>XLSXをエクスポート…</value>
   </data>
   <data name="BackgroundRemovalOutput" xml:space="preserve">
-    <value>背景除去出力</value>
+    <value>透明背景の結果</value>
   </data>
   <data name="TheCheckerboardIndicatesTransparencyCheckHairTranslucent" xml:space="preserve">
     <value>チェッカーボードは透明度を示します。髪、半透明のオブジェクト、エッジを確認します。モデルは前処理設定と一致する必要があります。</value>
@@ -867,9 +864,6 @@
   <data name="ScrollingCapture2" xml:space="preserve">
     <value>スクロールキャプチャ</value>
   </data>
-  <data name="RecognizeTextBarcodesAndTables" xml:space="preserve">
-    <value>テキスト、バーコード、表を認識します</value>
-  </data>
   <data name="RemoveBackgroundRequiresONNXModel" xml:space="preserve">
     <value>背景を削除 (ONNX モデルが必要)</value>
   </data>
@@ -984,8 +978,11 @@
   <data name="Intensity" xml:space="preserve">
     <value>強度</value>
   </data>
+  <data name="NimCapAppTitle" xml:space="preserve"><value>NimCap スクリーンショットツール</value></data>
+  <data name="ImageTools" xml:space="preserve"><value>画像ツール</value></data>
+  <data name="ImageToolsTooltip" xml:space="preserve"><value>画像ツール：文字、QRコード・バーコード、表、数式を認識します。</value></data>
   <data name="SnapSharpSettings" xml:space="preserve">
-    <value>NimCap Screenshotの設定</value>
+    <value>NimCap スクリーンショットツール 設定</value>
   </data>
   <data name="Preferences" xml:space="preserve">
     <value>設定</value>
@@ -1672,7 +1669,7 @@
     <value>追加</value>
   </data>
   <data name="SnapSharpIsAlreadyRunningButTheExisting" xml:space="preserve">
-    <value>NimCap Screenshot はすでに実行されていますが、既存のインスタンスをアクティブ化できませんでした。</value>
+    <value>NimCap スクリーンショットツール はすでに実行されていますが、既存のインスタンスをアクティブ化できませんでした。</value>
   </data>
   <data name="ScreenTextCaptureStopped" xml:space="preserve">
     <value>画面テキストキャプチャが停止しました</value>
@@ -2324,7 +2321,7 @@ ScreenRecorderLib が含まれています。 NuGet または FFmpeg を個別�
     <value>NimCap Screenshot - Ctrl+Shift+A 領域のキャプチャ</value>
   </data>
   <data name="SnapSharp0RegionCapture" xml:space="preserve">
-    <value>NimCap Screenshot - {0} 領域のキャプチャ</value>
+    <value>NimCap スクリーンショットツール - {0} 領域のキャプチャ</value>
   </data>
   <data name="ShowGroup" xml:space="preserve">
     <value>グループを表示</value>
@@ -3973,7 +3970,7 @@ Images are processed locally.</value></data>
   <data name="WatermarkEmptyMask" xml:space="preserve"><value>Paint a repair mask, or detect and review the watermark first.</value></data>
   <data name="WatermarkSelectRegion" xml:space="preserve"><value>Draw a rectangle around the watermark before detection.</value></data>
   <data name="WatermarkReviewDetection" xml:space="preserve"><value>Switch to brush mode to adjust the mask, then click Remove watermark.</value></data>
-  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark was detected. Adjust the threshold or paint a mask manually.</value></data>
+  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark detected. Switch to Brush, paint over the watermark on the original image, then click Remove watermark.</value></data>
   <data name="WatermarkRepairDone" xml:space="preserve"><value>Repair complete. Compare with the original, then copy, save or pin the result.</value></data>
   <data name="WatermarkSettingsHint" xml:space="preserve"><value>Models are downloaded separately. Choose a source, download or import, then save settings.</value></data>
   <data name="WatermarkDefaultRepairModel" xml:space="preserve"><value>Default repair model</value></data>
@@ -3983,7 +3980,7 @@ Images are processed locally.</value></data>
   <data name="RecognitionPluginDevice" xml:space="preserve"><value>Plugin managed</value></data>
   <data name="RecognitionModelUnavailable" xml:space="preserve"><value>The selected model is not configured. Select it to download, or import it through the settings gear.</value></data>
   <data name="RecognitionRunCompact" xml:space="preserve"><value>Run</value></data>
-  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Remove background</value></data>
+  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>背景を削除</value></data>
   <data name="RecognitionOriginalImage" xml:space="preserve"><value>Original</value></data>
   <data name="RecognitionProcessedImage" xml:space="preserve"><value>Result</value></data>
   <data name="RecognitionResultPlaceholder" xml:space="preserve"><value>Run processing to compare the result here</value></data>

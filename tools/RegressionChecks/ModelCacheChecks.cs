@@ -64,7 +64,8 @@ internal static partial class Program
             Directory.CreateDirectory(target);
             foreach (var name in files) File.Copy(Path.Combine(source, name), Path.Combine(target, name));
         }
-        CopyFixture("ppocr-v4-zh-en-", OcrModelDownloadService.InstalledAssets.Select(x => x.Name));
+        var ocrPackage = OcrModelDownloadService.DefaultPackage;
+        CopyFixture(ocrPackage.DirectoryPrefix, ocrPackage.Assets.Select(x => x.Name));
         CopyFixture("tesseract-fast-", TesseractModelDownloadService.Models.Select(x => x.Language + ".traineddata"));
         CopyFixture("slanet-zh-", [SpecialistModelDownloadService.Table.Name]);
         CopyFixture("latex-ocr-", SpecialistModelDownloadService.Formula.Select(x => x.Name));
@@ -138,22 +139,21 @@ internal static partial class Program
             "Local language extension created a duplicate directory.");
         Console.WriteLine("PASS: real OCR/table/formula/language cache, mirror switching, language subsets and adding a language without duplicate directories or downloads.");
 
-        var wheel = Path.GetFullPath(".artifacts/verified-rapidocr.whl");
-        if (!File.Exists(wheel)) return;
-        var package = File.ReadAllBytes(wheel);
-        OcrModelDownloadService.ValidatePackage(package);
+        var packageDirectory = Directory.GetDirectories(realRoot, ocrPackage.DirectoryPrefix + "*").Single();
+        var assets = ocrPackage.Assets.ToDictionary(x => ModelDownloadSource.Resolve(x.Source, ModelDownloadSource.Official),
+            x => File.ReadAllBytes(Path.Combine(packageDirectory, x.Name)));
         var freshRoot = Path.Combine(root, "fresh-ocr");
-        var downloads = new Handler((_, _) => Reply(package));
+        var downloads = new Handler((request, _) => Reply(assets[request.RequestUri!.AbsoluteUri]));
         using var downloadClient = new HttpClient(downloads);
         var installed = await Task.WhenAll(Enumerable.Range(0, 3).Select(_ => new OcrModelDownloadService()
             .Download(freshRoot, progress, default, httpClient: downloadClient)));
-        Require(downloads.Calls == 1 && installed.Distinct().Count() == 1 && Directory.GetDirectories(freshRoot).Length == 1,
+        Require(downloads.Calls == assets.Count && installed.Distinct().Count() == 1 && Directory.GetDirectories(freshRoot).Length == 1,
             "Concurrent first-time OCR downloads were not serialized through installation.");
         File.WriteAllText(installed[0].Dictionary, "corrupt dictionary");
         var repaired = await new OcrModelDownloadService().Download(freshRoot, progress, default, httpClient: downloadClient);
-        Require(downloads.Calls == 2 && repaired.Dictionary != installed[0].Dictionary, "A corrupt dictionary was reused.");
+        Require(downloads.Calls == 2 * assets.Count && repaired.Dictionary != installed[0].Dictionary, "A corrupt dictionary was reused.");
         await new OcrModelDownloadService().Download(freshRoot, progress, default, ModelDownloadSource.Domestic, downloadClient);
-        Require(downloads.Calls == 2 && Directory.GetDirectories(freshRoot).Length == 2,
+        Require(downloads.Calls == 2 * assets.Count && Directory.GetDirectories(freshRoot).Length == 2,
             "A repaired OCR package was downloaded again.");
         Console.WriteLine("PASS: concurrent initial OCR downloads install once; corrupted dictionary is replaced and subsequent downloads reuse the repaired package.");
     }

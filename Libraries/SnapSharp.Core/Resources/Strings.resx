@@ -183,11 +183,8 @@
   <data name="CopyImage" xml:space="preserve">
     <value>Copy image</value>
   </data>
-  <data name="RecognizeTextBarcodes" xml:space="preserve">
-    <value>Recognize text / barcodes…</value>
-  </data>
   <data name="RemoveBackground2" xml:space="preserve">
-    <value>Remove background…</value>
+    <value>Remove Background</value>
   </data>
   <data name="ToggleAlwaysOnTop" xml:space="preserve">
     <value>Toggle always on top</value>
@@ -237,11 +234,11 @@
   <data name="More" xml:space="preserve">
     <value>More</value>
   </data>
-  <data name="OCRRecognitionBackgroundRemovalSnapSharp" xml:space="preserve">
-    <value>OCR, Recognition &amp; Background Removal · NimCap Screenshot</value>
+  <data name="ImageToolsWindowTitle" xml:space="preserve">
+    <value>Image Tools · NimCap Screenshot</value>
   </data>
   <data name="TextOCR" xml:space="preserve">
-    <value>Text OCR</value>
+    <value>Text Recognition</value>
   </data>
   <data name="QRBarcodes" xml:space="preserve">
     <value>QR / barcodes</value>
@@ -328,7 +325,7 @@
     <value>Export XLSX…</value>
   </data>
   <data name="BackgroundRemovalOutput" xml:space="preserve">
-    <value>Background removal output</value>
+    <value>Transparent Background</value>
   </data>
   <data name="TheCheckerboardIndicatesTransparencyCheckHairTranslucent" xml:space="preserve">
     <value>The checkerboard indicates transparency. Check hair, translucent objects and edges. The model must match its preprocessing settings.</value>
@@ -867,9 +864,6 @@
   <data name="ScrollingCapture2" xml:space="preserve">
     <value>Scrolling capture</value>
   </data>
-  <data name="RecognizeTextBarcodesAndTables" xml:space="preserve">
-    <value>Recognize text, barcodes and tables</value>
-  </data>
   <data name="RemoveBackgroundRequiresONNXModel" xml:space="preserve">
     <value>Remove background (requires ONNX model)</value>
   </data>
@@ -984,6 +978,9 @@
   <data name="Intensity" xml:space="preserve">
     <value>Intensity</value>
   </data>
+  <data name="NimCapAppTitle" xml:space="preserve"><value>NimCap Screenshot</value></data>
+  <data name="ImageTools" xml:space="preserve"><value>Image Tools</value></data>
+  <data name="ImageToolsTooltip" xml:space="preserve"><value>Image Tools: recognize text, QR codes and barcodes, tables, and formulas.</value></data>
   <data name="SnapSharpSettings" xml:space="preserve">
     <value>NimCap Screenshot Settings</value>
   </data>
@@ -3805,7 +3802,7 @@ Images are processed locally.</value></data>
   <data name="DocumentNoResult" xml:space="preserve"><value>Run document recognition first.</value></data>
   <data name="RecognitionTableTool" xml:space="preserve"><value>Tables</value></data>
   <data name="RecognitionFormulaTool" xml:space="preserve"><value>Formulas</value></data>
-  <data name="RecognitionCutoutTool" xml:space="preserve"><value>Remove background</value></data>
+  <data name="RecognitionCutoutTool" xml:space="preserve"><value>Remove Background</value></data>
   <data name="DocumentIdCardBoth" xml:space="preserve"><value>Resident ID · both sides</value></data>
   <data name="RecognitionRotateLeft" xml:space="preserve"><value>Left 90°</value></data>
   <data name="RecognitionRotateRight" xml:space="preserve"><value>Right 90°</value></data>
@@ -3855,7 +3852,7 @@ Images are processed locally.</value></data>
   <data name="WatermarkEmptyMask" xml:space="preserve"><value>Paint a repair mask, or detect and review the watermark first.</value></data>
   <data name="WatermarkSelectRegion" xml:space="preserve"><value>Draw a rectangle around the watermark before detection.</value></data>
   <data name="WatermarkReviewDetection" xml:space="preserve"><value>Switch to brush mode to adjust the mask, then click Remove watermark.</value></data>
-  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark was detected. Adjust the threshold or paint a mask manually.</value></data>
+  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark detected. Switch to Brush, paint over the watermark on the original image, then click Remove watermark.</value></data>
   <data name="WatermarkRepairDone" xml:space="preserve"><value>Repair complete. Compare with the original, then copy, save or pin the result.</value></data>
   <data name="WatermarkSettingsHint" xml:space="preserve"><value>Models are downloaded separately. Choose a source, download or import, then save settings.</value></data>
   <data name="WatermarkDefaultRepairModel" xml:space="preserve"><value>Default repair model</value></data>
@@ -3865,7 +3862,7 @@ Images are processed locally.</value></data>
   <data name="RecognitionPluginDevice" xml:space="preserve"><value>Plugin managed</value></data>
   <data name="RecognitionModelUnavailable" xml:space="preserve"><value>The selected model is not configured. Select it to download, or import it through the settings gear.</value></data>
   <data name="RecognitionRunCompact" xml:space="preserve"><value>Run</value></data>
-  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Remove background</value></data>
+  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Remove Background</value></data>
   <data name="RecognitionOriginalImage" xml:space="preserve"><value>Original</value></data>
   <data name="RecognitionProcessedImage" xml:space="preserve"><value>Result</value></data>
   <data name="RecognitionResultPlaceholder" xml:space="preserve"><value>Run processing to compare the result here</value></data>

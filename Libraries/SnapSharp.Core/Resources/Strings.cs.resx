@@ -183,11 +183,8 @@
   <data name="CopyImage" xml:space="preserve">
     <value>Kopírovat obrázek</value>
   </data>
-  <data name="RecognizeTextBarcodes" xml:space="preserve">
-    <value>Rozpoznat text / čárové kódy…</value>
-  </data>
   <data name="RemoveBackground2" xml:space="preserve">
-    <value>Odebrat pozadí…</value>
+    <value>Odebrat pozadí</value>
   </data>
   <data name="ToggleAlwaysOnTop" xml:space="preserve">
     <value>Přepnout vždy nahoře</value>
@@ -237,11 +234,11 @@
   <data name="More" xml:space="preserve">
     <value>více</value>
   </data>
-  <data name="OCRRecognitionBackgroundRemovalSnapSharp" xml:space="preserve">
-    <value>OCR, rozpoznávání a odstranění pozadí · NimCap Screenshot</value>
+  <data name="ImageToolsWindowTitle" xml:space="preserve">
+    <value>Nástroje pro obrázky · NimCap Snímky obrazovky</value>
   </data>
   <data name="TextOCR" xml:space="preserve">
-    <value>Text OCR</value>
+    <value>Rozpoznávání textu</value>
   </data>
   <data name="QRBarcodes" xml:space="preserve">
     <value>QR/čárové kódy</value>
@@ -328,7 +325,7 @@
     <value>Exportovat XLSX…</value>
   </data>
   <data name="BackgroundRemovalOutput" xml:space="preserve">
-    <value>Výstup pro odstranění pozadí</value>
+    <value>Výstup s průhledným pozadím</value>
   </data>
   <data name="TheCheckerboardIndicatesTransparencyCheckHairTranslucent" xml:space="preserve">
     <value>Šachovnice označuje průhlednost. Zkontrolujte vlasy, průsvitné předměty a okraje. Model musí odpovídat jeho nastavení předběžného zpracování.</value>
@@ -867,9 +864,6 @@
   <data name="ScrollingCapture2" xml:space="preserve">
     <value>Snímání posouvání</value>
   </data>
-  <data name="RecognizeTextBarcodesAndTables" xml:space="preserve">
-    <value>Rozpozná text, čárové kódy a tabulky</value>
-  </data>
   <data name="RemoveBackgroundRequiresONNXModel" xml:space="preserve">
     <value>Odebrat pozadí (vyžaduje model ONNX)</value>
   </data>
@@ -984,8 +978,11 @@
   <data name="Intensity" xml:space="preserve">
     <value>Intenzita</value>
   </data>
+  <data name="NimCapAppTitle" xml:space="preserve"><value>NimCap Snímky obrazovky</value></data>
+  <data name="ImageTools" xml:space="preserve"><value>Nástroje pro obrázky</value></data>
+  <data name="ImageToolsTooltip" xml:space="preserve"><value>Nástroje pro obrázky – rozpoznávání textu, čárových kódů, tabulek a vzorců.</value></data>
   <data name="SnapSharpSettings" xml:space="preserve">
-    <value>Nastavení NimCap Screenshot</value>
+    <value>Nastavení – NimCap Snímky obrazovky</value>
   </data>
   <data name="Preferences" xml:space="preserve">
     <value>Předvolby</value>
@@ -1672,7 +1669,7 @@
     <value>Přidat</value>
   </data>
   <data name="SnapSharpIsAlreadyRunningButTheExisting" xml:space="preserve">
-    <value>NimCap Screenshot již běží, ale existující instanci nelze aktivovat.</value>
+    <value>NimCap Snímky obrazovky již běží, ale existující instanci nelze aktivovat.</value>
   </data>
   <data name="ScreenTextCaptureStopped" xml:space="preserve">
     <value>Snímání textu na obrazovce bylo zastaveno</value>
@@ -2324,7 +2321,7 @@ ScreenRecorderLib je součástí dodávky. Není nutná žádná samostatná ins
     <value>NimCap Screenshot – zachycení oblasti Ctrl+Shift+A</value>
   </data>
   <data name="SnapSharp0RegionCapture" xml:space="preserve">
-    <value>NimCap Screenshot – zachycení oblasti {0}</value>
+    <value>NimCap Snímky obrazovky – zachycení oblasti {0}</value>
   </data>
   <data name="ShowGroup" xml:space="preserve">
     <value>Zobrazit skupinu</value>
@@ -3973,7 +3970,7 @@ Images are processed locally.</value></data>
   <data name="WatermarkEmptyMask" xml:space="preserve"><value>Paint a repair mask, or detect and review the watermark first.</value></data>
   <data name="WatermarkSelectRegion" xml:space="preserve"><value>Draw a rectangle around the watermark before detection.</value></data>
   <data name="WatermarkReviewDetection" xml:space="preserve"><value>Switch to brush mode to adjust the mask, then click Remove watermark.</value></data>
-  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark was detected. Adjust the threshold or paint a mask manually.</value></data>
+  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark detected. Switch to Brush, paint over the watermark on the original image, then click Remove watermark.</value></data>
   <data name="WatermarkRepairDone" xml:space="preserve"><value>Repair complete. Compare with the original, then copy, save or pin the result.</value></data>
   <data name="WatermarkSettingsHint" xml:space="preserve"><value>Models are downloaded separately. Choose a source, download or import, then save settings.</value></data>
   <data name="WatermarkDefaultRepairModel" xml:space="preserve"><value>Default repair model</value></data>
@@ -3983,7 +3980,7 @@ Images are processed locally.</value></data>
   <data name="RecognitionPluginDevice" xml:space="preserve"><value>Plugin managed</value></data>
   <data name="RecognitionModelUnavailable" xml:space="preserve"><value>The selected model is not configured. Select it to download, or import it through the settings gear.</value></data>
   <data name="RecognitionRunCompact" xml:space="preserve"><value>Run</value></data>
-  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Remove background</value></data>
+  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Odebrat pozadí</value></data>
   <data name="RecognitionOriginalImage" xml:space="preserve"><value>Original</value></data>
   <data name="RecognitionProcessedImage" xml:space="preserve"><value>Result</value></data>
   <data name="RecognitionResultPlaceholder" xml:space="preserve"><value>Run processing to compare the result here</value></data>

@@ -3,7 +3,7 @@ using L = SnapSharp.Localization.UiText;
 
 namespace SnapSharp.Services;
 
-internal sealed record AppActionDefinition(GlobalAction Action, string LabelKey, string Group = "", bool DefaultVisible = true, int Delay = 0)
+internal sealed record AppActionDefinition(GlobalAction Action, string LabelKey, string Group = "", bool DefaultVisible = true, int Delay = 0, bool ShowInTray = true)
 {
     public string Label => Delay > 0 ? L.Format(LabelKey, Delay) : L.Get(LabelKey);
 }
@@ -13,7 +13,7 @@ internal static class AppActionCatalog
     internal static IReadOnlyList<AppActionDefinition> All { get; } = new AppActionDefinition[]
     {
         new(GlobalAction.Region, "RegionCapture"), new(GlobalAction.FullScreen, "FullScreenCapture"),
-        new(GlobalAction.ActiveWindow, "ActiveWindowCapture"), new(GlobalAction.RecognizeClipboard, "RecognizeClipboardImage2"),
+        new(GlobalAction.ActiveWindow, "ActiveWindowCapture"), new(GlobalAction.RecognizeClipboard, "RecognizeClipboardImage2", ShowInTray: false),
         new(GlobalAction.ScreenRuler, "ScreenRuler"), new(GlobalAction.ScreenWords, "ScreenTextCaptureThisSession"),
         new(GlobalAction.Delay3, "0Seconds", "DelayedCapture", Delay: 3), new(GlobalAction.Delay5, "0Seconds", "DelayedCapture", Delay: 5),
         new(GlobalAction.Delay10, "0Seconds", "DelayedCapture", Delay: 10), new(GlobalAction.CancelDelay, "CancelDelayedCapture", "DelayedCapture"),
@@ -54,5 +54,5 @@ internal static class AppActionCatalog
     }
 
     internal static bool Visible(AppSettings settings, AppActionDefinition definition)
-        => settings.TrayActions.GetValueOrDefault(definition.Action.ToString(), definition.DefaultVisible);
+        => definition.ShowInTray && settings.TrayActions.GetValueOrDefault(definition.Action.ToString(), definition.DefaultVisible);
 }

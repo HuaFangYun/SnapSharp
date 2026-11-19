@@ -6,7 +6,7 @@
 
 NimCap Screenshot implements region, full-screen, and active-window screenshots; element selection; annotations and sensitive-text blurring; desktop pins; scrolling capture; image OCR; identity-document field extraction; tables to CSV/XLSX; formulas to LaTeX; QR/barcode recognition; local translation; background removal; screen color picking and measurement; and MP4/GIF recording. **Local AI, offline operation, and data kept on your computer**: OCR, tables, formulas, background removal, and translation can run with local models without uploading images or text to the cloud. Once the application, required models, and runtime dependencies are prepared, these local features work without internet access, including on internal networks. This reduces the risk of sensitive material leaving your device and supports privacy-conscious personal and internal office use. Online translation and image search are optional, disabled by default, and require confirmation for each request.
 
-Brand: **NimCap**. Software: **NimCap Screenshot**. Repository: `nimcap-screenshot`. Formerly SnapSharp; internal namespaces, plugin contracts and existing user-data directories retain compatibility.
+**NimCap Screenshot** is a screenshot tool from `nimcap`. Its repository is `nimcap/nimcap-screenshot`. The project was formerly called SnapSharp. Internal namespaces, plugin contracts and existing user data directories remain compatible. [nimcap projects on GitHub](https://github.com/nimcap)
 
 ## About NimCap Screenshot
 
@@ -14,7 +14,7 @@ The recognition window includes **Remove watermark** with MI-GAN (fast), LaMa (d
 
 NimCap Screenshot is a Windows x64 desktop application built with C#, WPF, and .NET 10. It runs in the notification area and is operated through global shortcuts and tray menus. Use it to illustrate tutorials, report interface issues, extract reference material, work with tables and formulas, or record demonstrations.
 
-After capture, annotate, blur sensitive text, copy, save, or pin the image. Images copied from other applications can enter the unified recognition window through **Recognize Clipboard Image…**. Basic capture, editing, pins, and measurement need no AI downloads.
+After capture, annotate, blur sensitive text, copy, save, or pin the image. To work with an existing image, copy it, choose **Pins** in the tray, then right-click the pin and choose **Image Tools**. Basic capture, editing, pins, and measurement need no AI downloads.
 
 The interface includes English and language/region packs for Chinese, Japanese, Korean, German, French, and others. Select a language under **Settings → General → Interface Language**, then save. Some additional translations are machine-generated drafts. UI, OCR, and translation languages are configured independently.
 
@@ -54,7 +54,7 @@ Press `Ctrl+Shift+A`. The default element mode snaps to controls on hover; you c
 
 ### Local recognition, translation, and background removal
 
-Copy an image and open **Recognize Clipboard Image…** from the tray. Choose text, documents, barcodes, tables, formulas, or background removal, then run. Translation consumes OCR results or entered text. Save transparent results as PNG or transparency-capable WebP.
+Open **Image Tools** from the capture toolbar or a pin's context menu. Choose text recognition, documents, QR codes and barcodes, tables, formulas, background removal, or watermark removal. Translate recognized or entered text. Save transparent results as PNG or transparency-capable WebP.
 
 ![NimCap Screenshot unified image-recognition window](Screenshot/2.png)
 

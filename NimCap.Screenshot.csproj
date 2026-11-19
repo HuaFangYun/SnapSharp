@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://jietu.nimcap.com</PackageProjectUrl>
     <Description>NimCap 截图工具</Description>
     <RootNamespace>SnapSharp</RootNamespace>
-    <Version>1.1.3</Version>
+    <Version>1.1.4</Version>
     <Platforms>x64</Platforms>
     <Platform>x64</Platform>
     <PlatformTarget>x64</PlatformTarget>
@@ -49,7 +49,6 @@
     <ProjectReference Include="Libraries\SnapSharp.PluginHost\SnapSharp.PluginHost.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Views\SelectionWindow.xaml.cs" />
     <Compile Remove="Libraries\**\*.cs" />
     <Compile Remove="tools\RegressionChecks\**\*.cs" />
     <Compile Remove="tools\ScrollingChecks\**\*.cs" />

@@ -80,7 +80,7 @@ internal static class ShellSelfTest
                     using var service = new ScreenWordService(() => config, () => false);
                     using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                     var result = await service.RecognizeImage(sample, timeout.Token);
-                    Require(result.Text.Contains("12345") && result.Text.Contains("SnapSharp", StringComparison.OrdinalIgnoreCase), "Real screen-word OCR failed: " + result.Text);
+                    Require(result.Text.Contains("12345") && result.Text.Contains("NimCap", StringComparison.OrdinalIgnoreCase), "Real screen-word OCR failed: " + result.Text);
                     Require(config.OcrBackend == "PaddleOCR", "Screen-word fallback persisted a backend change.");
                     File.WriteAllText(Path.Combine(output, "screen-word-result.txt"), result.Text);
                     log.AppendLine("PASS: real screen-word OCR with missing Paddle model uses installed Windows OCR without changing preferences: " + result.Text.Replace('\n', ' '));

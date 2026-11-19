@@ -26,25 +26,11 @@ internal sealed class CutoutModelDownloadService
             using var ownedClient = httpClient is null ? new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) } : null;
             var client = httpClient ?? ownedClient!;
             progress.Report(L.Format("ModelDownloadConnectingSource", new Uri(ModelDownloadSource.Resolve(model.Source, sourceKind)).Host));
-            using (var response = await ModelDownloadSource.Get(client, model.Source, sourceKind, token))
-            {
-                response.EnsureSuccessStatusCode();
-                if (response.Content.Headers.ContentLength > model.MaximumBytes) throw new InvalidDataException(L.Get("ModelExceedsItsExpectedSize"));
-                await using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true))
-                await using (var stream = await response.Content.ReadAsStreamAsync(token))
-                {
-                    var buffer = new byte[81920]; int read; long total = 0;
-                    while ((read = await stream.ReadAsync(buffer, token)) != 0)
-                    {
-                        total += read;
-                        if (total > model.MaximumBytes) throw new InvalidDataException(L.Get("ModelExceedsItsExpectedSize"));
-                        await output.WriteAsync(buffer.AsMemory(0, read), token);
-                        progress.Report(L.Format("Downloading01F1MB", model.Id, total / 1048576d));
-                    }
-                }
-                progress.Report(L.Get("VerifyingFilesAndONNXContractLargeModels"));
-                return await Task.Run(() => InstallFile(model, temporary, root, token), token);
-            }
+            await using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true))
+                await ModelDownloadTransfer.CopyTo(client, model.Source, sourceKind, output, model.MaximumBytes,
+                    total => progress.Report(L.Format("Downloading01F1MB", model.Id, total / 1048576d)), token);
+            progress.Report(L.Get("VerifyingFilesAndONNXContractLargeModels"));
+            return await Task.Run(() => InstallFile(model, temporary, root, token), token);
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }

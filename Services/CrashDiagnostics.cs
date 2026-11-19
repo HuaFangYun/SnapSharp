@@ -69,6 +69,12 @@ internal sealed class CrashDiagnostics : IDisposable
         (error is AggregateException aggregate ? aggregate.InnerExceptions.Any(IsFatal) :
             error.InnerException is { } inner && IsFatal(inner));
 
+    internal static void ReportStartupFailure(Exception error)
+    {
+        var path = WriteReport(error, "Startup", true, out var report);
+        if (!IsFatal(error)) ShowReport(path, report, canContinue: false);
+    }
+
     private void OnDispatcher(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         var fatal = IsFatal(e.Exception);
@@ -76,7 +82,11 @@ internal sealed class CrashDiagnostics : IDisposable
         e.Handled = true;
         if (fatal) { Environment.Exit(1); return; }
         if (Interlocked.Exchange(ref _showing, 1) != 0) return;
-        try { (ReportDialog ?? ShowReport)(path, report); }
+        try
+        {
+            if (ReportDialog is { } dialog) dialog(path, report);
+            else ShowReport(path, report, canContinue: true);
+        }
         catch { /* The report remains available even if the dialog cannot be created. */ }
         finally { Volatile.Write(ref _showing, 0); }
     }
@@ -91,7 +101,7 @@ internal sealed class CrashDiagnostics : IDisposable
         if (IsFatal(e.Exception)) Environment.Exit(1);
     }
 
-    private static void ShowReport(string? path, string report)
+    private static void ShowReport(string? path, string report, bool canContinue)
     {
         var window = new Window { Title = L.Get("Error"), Width = 600, Height = 390,
             WindowStartupLocation = WindowStartupLocation.CenterScreen, ShowInTaskbar = true };
@@ -103,7 +113,8 @@ internal sealed class CrashDiagnostics : IDisposable
         close.Click += (_, _) => window.Close();
         actions.Children.Add(copy); actions.Children.Add(close);
         DockPanel.SetDock(actions, Dock.Bottom); panel.Children.Add(actions);
-        panel.Children.Add(new TextBox { Text = L.Get("UnexpectedErrorRecovered") + Environment.NewLine +
+        var introduction = canContinue ? L.Get("UnexpectedErrorRecovered") + Environment.NewLine : "";
+        panel.Children.Add(new TextBox { Text = introduction +
             (path ?? L.Get("CrashReportWriteFailed")) + Environment.NewLine + report,
             IsReadOnly = true, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
         window.Content = panel;

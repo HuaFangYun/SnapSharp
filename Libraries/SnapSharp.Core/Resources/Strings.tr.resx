@@ -183,11 +183,8 @@
   <data name="CopyImage" xml:space="preserve">
     <value>Resmi kopyala</value>
   </data>
-  <data name="RecognizeTextBarcodes" xml:space="preserve">
-    <value>Metni / barkodları tanıyın…</value>
-  </data>
   <data name="RemoveBackground2" xml:space="preserve">
-    <value>Arka planı kaldır…</value>
+    <value>Arka Planı Kaldır</value>
   </data>
   <data name="ToggleAlwaysOnTop" xml:space="preserve">
     <value>Her zaman en üstte aç/kapat</value>
@@ -237,11 +234,11 @@
   <data name="More" xml:space="preserve">
     <value>Daha Fazla</value>
   </data>
-  <data name="OCRRecognitionBackgroundRemovalSnapSharp" xml:space="preserve">
-    <value>OCR, Tanıma ve Arka Plan Kaldırma · NimCap Screenshot</value>
+  <data name="ImageToolsWindowTitle" xml:space="preserve">
+    <value>Görüntü Araçları · NimCap Ekran Görüntüsü Aracı</value>
   </data>
   <data name="TextOCR" xml:space="preserve">
-    <value>Metin OCR'si</value>
+    <value>Metin Tanıma (OCR)</value>
   </data>
   <data name="QRBarcodes" xml:space="preserve">
     <value>QR / barkodlar</value>
@@ -328,7 +325,7 @@
     <value>XLSX'i dışa aktar…</value>
   </data>
   <data name="BackgroundRemovalOutput" xml:space="preserve">
-    <value>Arka plan kaldırma çıktısı</value>
+    <value>Şeffaf Arka Plan Sonucu</value>
   </data>
   <data name="TheCheckerboardIndicatesTransparencyCheckHairTranslucent" xml:space="preserve">
     <value>Dama tahtası şeffaflığı gösterir. Saçları, yarı saydam nesneleri ve kenarları kontrol edin. Modelin ön işleme ayarlarıyla eşleşmesi gerekir.</value>
@@ -867,9 +864,6 @@
   <data name="ScrollingCapture2" xml:space="preserve">
     <value>Kaydırma yakalama</value>
   </data>
-  <data name="RecognizeTextBarcodesAndTables" xml:space="preserve">
-    <value>Metni, barkodları ve tabloları tanır</value>
-  </data>
   <data name="RemoveBackgroundRequiresONNXModel" xml:space="preserve">
     <value>Arka planı kaldır (ONNX modeli gerektirir)</value>
   </data>
@@ -984,8 +978,11 @@
   <data name="Intensity" xml:space="preserve">
     <value>Yoğunluk</value>
   </data>
+  <data name="NimCapAppTitle" xml:space="preserve"><value>NimCap Ekran Görüntüsü Aracı</value></data>
+  <data name="ImageTools" xml:space="preserve"><value>Görüntü Araçları</value></data>
+  <data name="ImageToolsTooltip" xml:space="preserve"><value>Görüntü araçları: metin, QR ve barkodları, tabloları ve formülleri tanır.</value></data>
   <data name="SnapSharpSettings" xml:space="preserve">
-    <value>NimCap Screenshot Ayarları</value>
+    <value>NimCap Ekran Görüntüsü Aracı Ayarlar</value>
   </data>
   <data name="Preferences" xml:space="preserve">
     <value>Tercihler</value>
@@ -1672,7 +1669,7 @@
     <value>Ekle</value>
   </data>
   <data name="SnapSharpIsAlreadyRunningButTheExisting" xml:space="preserve">
-    <value>NimCap Screenshot zaten çalışıyor ancak mevcut örnek etkinleştirilemedi.</value>
+    <value>NimCap Ekran Görüntüsü Aracı zaten çalışıyor ancak mevcut örnek etkinleştirilemedi.</value>
   </data>
   <data name="ScreenTextCaptureStopped" xml:space="preserve">
     <value>Ekran metni yakalama durduruldu</value>
@@ -2324,7 +2321,7 @@ ScreenRecorderLib dahildir. Ayrı bir NuGet veya FFmpeg kurulumu gerekmez.</valu
     <value>NimCap Screenshot - Ctrl+Shift+A bölge yakalama</value>
   </data>
   <data name="SnapSharp0RegionCapture" xml:space="preserve">
-    <value>NimCap Screenshot - {0} bölge yakalama</value>
+    <value>NimCap Ekran Görüntüsü Aracı - {0} bölge yakalama</value>
   </data>
   <data name="ShowGroup" xml:space="preserve">
     <value>Grubu göster</value>
@@ -3923,7 +3920,7 @@ Images are processed locally.</value></data>
   <data name="DocumentNoResult" xml:space="preserve"><value>Run document recognition first.</value></data>
   <data name="RecognitionTableTool" xml:space="preserve"><value>Tablolar</value></data>
   <data name="RecognitionFormulaTool" xml:space="preserve"><value>Formüller</value></data>
-  <data name="RecognitionCutoutTool" xml:space="preserve"><value>Arka planı kaldır</value></data>
+  <data name="RecognitionCutoutTool" xml:space="preserve"><value>Arka Planı Kaldır</value></data>
   <data name="DocumentIdCardBoth" xml:space="preserve"><value>Resident ID · both sides</value></data>
   <data name="RecognitionRotateLeft" xml:space="preserve"><value>Left 90°</value></data>
   <data name="RecognitionRotateRight" xml:space="preserve"><value>Right 90°</value></data>
@@ -3973,7 +3970,7 @@ Images are processed locally.</value></data>
   <data name="WatermarkEmptyMask" xml:space="preserve"><value>Paint a repair mask, or detect and review the watermark first.</value></data>
   <data name="WatermarkSelectRegion" xml:space="preserve"><value>Draw a rectangle around the watermark before detection.</value></data>
   <data name="WatermarkReviewDetection" xml:space="preserve"><value>Switch to brush mode to adjust the mask, then click Remove watermark.</value></data>
-  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark was detected. Adjust the threshold or paint a mask manually.</value></data>
+  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark detected. Switch to Brush, paint over the watermark on the original image, then click Remove watermark.</value></data>
   <data name="WatermarkRepairDone" xml:space="preserve"><value>Repair complete. Compare with the original, then copy, save or pin the result.</value></data>
   <data name="WatermarkSettingsHint" xml:space="preserve"><value>Models are downloaded separately. Choose a source, download or import, then save settings.</value></data>
   <data name="WatermarkDefaultRepairModel" xml:space="preserve"><value>Default repair model</value></data>
@@ -3983,7 +3980,7 @@ Images are processed locally.</value></data>
   <data name="RecognitionPluginDevice" xml:space="preserve"><value>Plugin managed</value></data>
   <data name="RecognitionModelUnavailable" xml:space="preserve"><value>The selected model is not configured. Select it to download, or import it through the settings gear.</value></data>
   <data name="RecognitionRunCompact" xml:space="preserve"><value>Run</value></data>
-  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Remove background</value></data>
+  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Arka Planı Kaldır</value></data>
   <data name="RecognitionOriginalImage" xml:space="preserve"><value>Original</value></data>
   <data name="RecognitionProcessedImage" xml:space="preserve"><value>Result</value></data>
   <data name="RecognitionResultPlaceholder" xml:space="preserve"><value>Run processing to compare the result here</value></data>

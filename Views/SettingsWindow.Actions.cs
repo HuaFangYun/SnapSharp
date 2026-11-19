@@ -36,7 +36,8 @@ public partial class SettingsWindow
             field.PreviewKeyDown += Hotkey_PreviewKeyDown;
             System.Windows.Automation.AutomationProperties.SetName(field, definition.Label);
             var check = new CheckBox { IsChecked = AppActionCatalog.Visible(settings, definition), HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center, ToolTip = L.Get("ShowInTray") };
+                VerticalAlignment = VerticalAlignment.Center, ToolTip = L.Get("ShowInTray"),
+                Visibility = definition.ShowInTray ? Visibility.Visible : Visibility.Collapsed };
             System.Windows.Automation.AutomationProperties.SetName(check, definition.Label + " " + L.Get("ShowInTray"));
             Grid.SetColumn(field, 1); Grid.SetColumn(check, 2);
             row.Children.Add(label); row.Children.Add(field); row.Children.Add(check); ShortcutRows.Children.Add(row);
@@ -51,7 +52,8 @@ public partial class SettingsWindow
         foreach (var definition in AppActionCatalog.All)
         {
             AppActionCatalog.SetHotkey(candidate, definition.Action, NormalizeHotkey(_actionFields[definition.Action].Text, definition.Label));
-            candidate.TrayActions[definition.Action.ToString()] = _trayChecks[definition.Action].IsChecked == true;
+            if (definition.ShowInTray)
+                candidate.TrayActions[definition.Action.ToString()] = _trayChecks[definition.Action].IsChecked == true;
         }
     }
 

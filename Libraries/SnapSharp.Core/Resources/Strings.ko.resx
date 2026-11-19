@@ -183,11 +183,8 @@
   <data name="CopyImage" xml:space="preserve">
     <value>이미지 복사</value>
   </data>
-  <data name="RecognizeTextBarcodes" xml:space="preserve">
-    <value>텍스트/바코드 인식…</value>
-  </data>
   <data name="RemoveBackground2" xml:space="preserve">
-    <value>배경 제거…</value>
+    <value>배경 제거</value>
   </data>
   <data name="ToggleAlwaysOnTop" xml:space="preserve">
     <value>항상 위에 토글</value>
@@ -237,11 +234,11 @@
   <data name="More" xml:space="preserve">
     <value>더보기</value>
   </data>
-  <data name="OCRRecognitionBackgroundRemovalSnapSharp" xml:space="preserve">
-    <value>OCR, 인식 및 배경 제거 · NimCap Screenshot</value>
+  <data name="ImageToolsWindowTitle" xml:space="preserve">
+    <value>이미지 도구 · NimCap 스크린샷 도구</value>
   </data>
   <data name="TextOCR" xml:space="preserve">
-    <value>텍스트 OCR</value>
+    <value>텍스트 인식(OCR)</value>
   </data>
   <data name="QRBarcodes" xml:space="preserve">
     <value>QR/바코드</value>
@@ -328,7 +325,7 @@
     <value>XLSX 내보내기…</value>
   </data>
   <data name="BackgroundRemovalOutput" xml:space="preserve">
-    <value>배경 제거 출력</value>
+    <value>투명 배경 결과</value>
   </data>
   <data name="TheCheckerboardIndicatesTransparencyCheckHairTranslucent" xml:space="preserve">
     <value>바둑판은 투명성을 나타냅니다. 머리카락, 반투명 물체, 가장자리를 확인하세요. 모델은 전처리 설정과 일치해야 합니다.</value>
@@ -867,9 +864,6 @@
   <data name="ScrollingCapture2" xml:space="preserve">
     <value>스크롤링 캡처</value>
   </data>
-  <data name="RecognizeTextBarcodesAndTables" xml:space="preserve">
-    <value>텍스트, 바코드, 표 인식</value>
-  </data>
   <data name="RemoveBackgroundRequiresONNXModel" xml:space="preserve">
     <value>배경 제거(ONNX 모델 필요)</value>
   </data>
@@ -984,8 +978,11 @@
   <data name="Intensity" xml:space="preserve">
     <value>강도</value>
   </data>
+  <data name="NimCapAppTitle" xml:space="preserve"><value>NimCap 스크린샷 도구</value></data>
+  <data name="ImageTools" xml:space="preserve"><value>이미지 도구</value></data>
+  <data name="ImageToolsTooltip" xml:space="preserve"><value>이미지 도구: 텍스트, QR 코드와 바코드, 표, 수식을 인식합니다.</value></data>
   <data name="SnapSharpSettings" xml:space="preserve">
-    <value>NimCap Screenshot 설정</value>
+    <value>NimCap 스크린샷 도구 설정</value>
   </data>
   <data name="Preferences" xml:space="preserve">
     <value>환경설정</value>
@@ -1672,7 +1669,7 @@
     <value>추가</value>
   </data>
   <data name="SnapSharpIsAlreadyRunningButTheExisting" xml:space="preserve">
-    <value>NimCap Screenshot가 이미 실행 중이지만 기존 인스턴스를 활성화할 수 없습니다.</value>
+    <value>NimCap 스크린샷 도구가 이미 실행 중이지만 기존 인스턴스를 활성화할 수 없습니다.</value>
   </data>
   <data name="ScreenTextCaptureStopped" xml:space="preserve">
     <value>화면 텍스트 캡처가 중지되었습니다.</value>
@@ -2324,7 +2321,7 @@ ScreenRecorderLib가 포함되어 있습니다. 별도의 NuGet 또는 FFmpeg �
     <value>NimCap Screenshot - Ctrl+Shift+A 지역 캡처</value>
   </data>
   <data name="SnapSharp0RegionCapture" xml:space="preserve">
-    <value>NimCap Screenshot - {0} 지역 캡처</value>
+    <value>NimCap 스크린샷 도구 - {0} 지역 캡처</value>
   </data>
   <data name="ShowGroup" xml:space="preserve">
     <value>그룹 표시</value>
@@ -3973,7 +3970,7 @@ Images are processed locally.</value></data>
   <data name="WatermarkEmptyMask" xml:space="preserve"><value>Paint a repair mask, or detect and review the watermark first.</value></data>
   <data name="WatermarkSelectRegion" xml:space="preserve"><value>Draw a rectangle around the watermark before detection.</value></data>
   <data name="WatermarkReviewDetection" xml:space="preserve"><value>Switch to brush mode to adjust the mask, then click Remove watermark.</value></data>
-  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark was detected. Adjust the threshold or paint a mask manually.</value></data>
+  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark detected. Switch to Brush, paint over the watermark on the original image, then click Remove watermark.</value></data>
   <data name="WatermarkRepairDone" xml:space="preserve"><value>Repair complete. Compare with the original, then copy, save or pin the result.</value></data>
   <data name="WatermarkSettingsHint" xml:space="preserve"><value>Models are downloaded separately. Choose a source, download or import, then save settings.</value></data>
   <data name="WatermarkDefaultRepairModel" xml:space="preserve"><value>Default repair model</value></data>
@@ -3983,7 +3980,7 @@ Images are processed locally.</value></data>
   <data name="RecognitionPluginDevice" xml:space="preserve"><value>Plugin managed</value></data>
   <data name="RecognitionModelUnavailable" xml:space="preserve"><value>The selected model is not configured. Select it to download, or import it through the settings gear.</value></data>
   <data name="RecognitionRunCompact" xml:space="preserve"><value>Run</value></data>
-  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Remove background</value></data>
+  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>배경 제거</value></data>
   <data name="RecognitionOriginalImage" xml:space="preserve"><value>Original</value></data>
   <data name="RecognitionProcessedImage" xml:space="preserve"><value>Result</value></data>
   <data name="RecognitionResultPlaceholder" xml:space="preserve"><value>Run processing to compare the result here</value></data>

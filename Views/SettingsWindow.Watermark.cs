@@ -1,4 +1,4 @@
-﻿using SnapSharp.Models;
+using SnapSharp.Models;
 using SnapSharp.Services;
 using System.Text.Json;
 using System.Windows;
@@ -76,26 +76,16 @@ public partial class SettingsWindow
 
     private async void DownloadWatermark_Click(object sender, RoutedEventArgs e)
     {
-        if (ModelDownload is not null) return;
         var model = (sender as FrameworkElement)?.Tag?.ToString() == "Slbr" ? WatermarkModels.Detector
             : WatermarkPackageBox.SelectedItem as WatermarkModelDefinition;
         if (model is null) return;
-        using var cancellation = new CancellationTokenSource();
-        ModelDownload = cancellation;
-        CancelWatermarkButton.IsEnabled = true;
-        try
-        {
-            var path = await WatermarkModelDownloadService.Download(model, Path.Combine(AppPaths.Root, "models"),
-                new Progress<string>(message => { if (IsLoaded) WatermarkSettingsStatus.Text = message; }),
-                cancellation.Token, SelectedModelDownloadSource);
-            if (!IsLoaded) return;
-            _watermarkModels[model.Id] = path;
-            RefreshWatermarkSettings();
-            WatermarkSettingsStatus.Text = L.Get("ModelSetupReady");
-        }
-        catch (OperationCanceledException) { WatermarkSettingsStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
-        catch (Exception ex) { WatermarkSettingsStatus.Text = L.Get("DownloadFailedExistingConfigurationPreservedYouCan") + ex.GetBaseException().Message; }
-        finally { ModelDownload = null; CancelWatermarkButton.IsEnabled = false; }
+        await RunModelDownload(WatermarkSettingsStatus, CancelWatermarkButton, [WatermarkPackageBox],
+            (progress, token) => WatermarkModelDownloadService.Download(model, Path.Combine(AppPaths.Root, "models"),
+                progress, token, SelectedModelDownloadSource), path =>
+            {
+                _watermarkModels[model.Id] = path;
+                RefreshWatermarkSettings();
+            });
     }
 
     private async void ImportWatermark_Click(object sender, RoutedEventArgs e)
@@ -105,25 +95,19 @@ public partial class SettingsWindow
         if (WindowDialogService.ShowDialog(dialog, this) != true) return;
         var id = (sender as FrameworkElement)?.Tag?.ToString() == "Slbr" ? WatermarkModels.DetectorId
             : ((WatermarkModelDefinition)WatermarkPackageBox.SelectedItem).Id;
-        using var cancellation = new CancellationTokenSource();
-        ModelDownload = cancellation;
-        CancelWatermarkButton.IsEnabled = true;
-        try
+        await RunModelDownload(WatermarkSettingsStatus, CancelWatermarkButton, [WatermarkPackageBox], async (_, token) =>
         {
-            WatermarkSettingsStatus.Text = L.Get("VerifyingFilesAndONNXContractLargeModels");
             var candidate = JsonSerializer.Deserialize<AppSettings>(JsonSerializer.Serialize(_settings.Current))!;
             candidate.WatermarkModels = new(_watermarkModels) { [id] = dialog.FileName };
             candidate.WatermarkDefaultModelId = id;
             var dummy = BitmapSource.Create(16, 16, 96, 96, PixelFormats.Gray8, null, new byte[256], 16);
             dummy.Freeze();
-            await OnnxWorker.Execute("watermark-check", dummy, candidate, cancellation.Token);
-            if (!IsLoaded) return;
-            _watermarkModels[id] = dialog.FileName;
+            await OnnxWorker.Execute("watermark-check", dummy, candidate, token);
+            return dialog.FileName;
+        }, path =>
+        {
+            _watermarkModels[id] = path;
             RefreshWatermarkSettings();
-            WatermarkSettingsStatus.Text = L.Get("ModelSetupReady");
-        }
-        catch (OperationCanceledException) { WatermarkSettingsStatus.Text = L.Get("DownloadCanceledExistingConfigurationPreserved"); }
-        catch (Exception ex) { WatermarkSettingsStatus.Text = L.Get("ProcessingFailed") + ex.GetBaseException().Message; }
-        finally { ModelDownload = null; CancelWatermarkButton.IsEnabled = false; }
+        }, "VerifyingFilesAndONNXContractLargeModels", "ProcessingFailed");
     }
 }

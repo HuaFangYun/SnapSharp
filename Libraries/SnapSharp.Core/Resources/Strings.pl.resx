@@ -183,11 +183,8 @@
   <data name="CopyImage" xml:space="preserve">
     <value>Skopiuj obraz</value>
   </data>
-  <data name="RecognizeTextBarcodes" xml:space="preserve">
-    <value>Rozpoznawanie tekstu/kodów kreskowych…</value>
-  </data>
   <data name="RemoveBackground2" xml:space="preserve">
-    <value>Usuń tło…</value>
+    <value>Usuń tło</value>
   </data>
   <data name="ToggleAlwaysOnTop" xml:space="preserve">
     <value>Przełącz zawsze na wierzchu</value>
@@ -237,11 +234,11 @@
   <data name="More" xml:space="preserve">
     <value>Więcej</value>
   </data>
-  <data name="OCRRecognitionBackgroundRemovalSnapSharp" xml:space="preserve">
-    <value>OCR, rozpoznawanie i usuwanie tła · NimCap Screenshot</value>
+  <data name="ImageToolsWindowTitle" xml:space="preserve">
+    <value>Narzędzia obrazu · Narzędzie zrzutów ekranu NimCap</value>
   </data>
   <data name="TextOCR" xml:space="preserve">
-    <value>Tekst OCR</value>
+    <value>Rozpoznawanie tekstu (OCR)</value>
   </data>
   <data name="QRBarcodes" xml:space="preserve">
     <value>QR/kody kreskowe</value>
@@ -328,7 +325,7 @@
     <value>Eksportuj XLSX…</value>
   </data>
   <data name="BackgroundRemovalOutput" xml:space="preserve">
-    <value>Dane wyjściowe usuwania tła</value>
+    <value>Wynik z przezroczystym tłem</value>
   </data>
   <data name="TheCheckerboardIndicatesTransparencyCheckHairTranslucent" xml:space="preserve">
     <value>Szachownica oznacza przezroczystość. Sprawdź włosy, półprzezroczyste przedmioty i krawędzie. Model musi pasować do ustawień przetwarzania wstępnego.</value>
@@ -867,9 +864,6 @@
   <data name="ScrollingCapture2" xml:space="preserve">
     <value>Przewijanie przechwytywania</value>
   </data>
-  <data name="RecognizeTextBarcodesAndTables" xml:space="preserve">
-    <value>Rozpoznawanie tekstu, kodów kreskowych i tabel</value>
-  </data>
   <data name="RemoveBackgroundRequiresONNXModel" xml:space="preserve">
     <value>Usuń tło (wymaga modelu ONNX)</value>
   </data>
@@ -984,8 +978,11 @@
   <data name="Intensity" xml:space="preserve">
     <value>Intensywność</value>
   </data>
+  <data name="NimCapAppTitle" xml:space="preserve"><value>Narzędzie zrzutów ekranu NimCap</value></data>
+  <data name="ImageTools" xml:space="preserve"><value>Narzędzia obrazu</value></data>
+  <data name="ImageToolsTooltip" xml:space="preserve"><value>Narzędzia obrazu: rozpoznawanie tekstu, kodów QR i kreskowych, tabel i wzorów.</value></data>
   <data name="SnapSharpSettings" xml:space="preserve">
-    <value>Ustawienia NimCap Screenshot</value>
+    <value>Narzędzie zrzutów ekranu NimCap Ustawienia</value>
   </data>
   <data name="Preferences" xml:space="preserve">
     <value>Preferencje</value>
@@ -1672,7 +1669,7 @@
     <value>Dodaj</value>
   </data>
   <data name="SnapSharpIsAlreadyRunningButTheExisting" xml:space="preserve">
-    <value>NimCap Screenshot już działa, ale nie można aktywować istniejącej instancji.</value>
+    <value>Narzędzie zrzutów ekranu NimCap już działa, ale nie można aktywować istniejącej instancji.</value>
   </data>
   <data name="ScreenTextCaptureStopped" xml:space="preserve">
     <value>Przechwytywanie tekstu ekranowego zostało zatrzymane</value>
@@ -2324,7 +2321,7 @@ Biblioteka ScreenRecorderLib jest dołączona. Nie jest wymagana osobna instalac
     <value>NimCap Screenshot — przechwytywanie regionu Ctrl+Shift+A</value>
   </data>
   <data name="SnapSharp0RegionCapture" xml:space="preserve">
-    <value>NimCap Screenshot - {0} region capture</value>
+    <value>Narzędzie zrzutów ekranu NimCap - {0} region capture</value>
   </data>
   <data name="ShowGroup" xml:space="preserve">
     <value>Pokaż grupę</value>
@@ -3973,7 +3970,7 @@ Images are processed locally.</value></data>
   <data name="WatermarkEmptyMask" xml:space="preserve"><value>Paint a repair mask, or detect and review the watermark first.</value></data>
   <data name="WatermarkSelectRegion" xml:space="preserve"><value>Draw a rectangle around the watermark before detection.</value></data>
   <data name="WatermarkReviewDetection" xml:space="preserve"><value>Switch to brush mode to adjust the mask, then click Remove watermark.</value></data>
-  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark was detected. Adjust the threshold or paint a mask manually.</value></data>
+  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark detected. Switch to Brush, paint over the watermark on the original image, then click Remove watermark.</value></data>
   <data name="WatermarkRepairDone" xml:space="preserve"><value>Repair complete. Compare with the original, then copy, save or pin the result.</value></data>
   <data name="WatermarkSettingsHint" xml:space="preserve"><value>Models are downloaded separately. Choose a source, download or import, then save settings.</value></data>
   <data name="WatermarkDefaultRepairModel" xml:space="preserve"><value>Default repair model</value></data>
@@ -3983,7 +3980,7 @@ Images are processed locally.</value></data>
   <data name="RecognitionPluginDevice" xml:space="preserve"><value>Plugin managed</value></data>
   <data name="RecognitionModelUnavailable" xml:space="preserve"><value>The selected model is not configured. Select it to download, or import it through the settings gear.</value></data>
   <data name="RecognitionRunCompact" xml:space="preserve"><value>Run</value></data>
-  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Remove background</value></data>
+  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Usuń tło</value></data>
   <data name="RecognitionOriginalImage" xml:space="preserve"><value>Original</value></data>
   <data name="RecognitionProcessedImage" xml:space="preserve"><value>Result</value></data>
   <data name="RecognitionResultPlaceholder" xml:space="preserve"><value>Run processing to compare the result here</value></data>

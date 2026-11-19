@@ -167,7 +167,7 @@
             <ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:PPOCRv6Medium}" Tag="medium" />
           </ComboBox>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SourcePPOCRv6Official}" Style="{StaticResource Hint}" />
-          <WrapPanel><Button x:Name="DownloadOcrButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpRecommendedONNXOCRDownloadModels}" Click="DownloadOcr_Click" /><Button x:Name="CancelOcrDownloadButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
+          <WrapPanel><Button x:Name="DownloadOcrButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpRecommendedONNXOCRDownloadModels}" Click="DownloadOcr_Click" /><Button x:Name="CancelOcrDownloadButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelModelDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
           <TextBlock x:Name="OcrDownloadStatus" Style="{StaticResource Hint}" Text="{loc:Loc SnapSharp.Core:Resources.Strings:NetworkAccessOccursOnlyWhenDownloadingSave}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PaddleOCRDetectionModelDBOnnx}" /><DockPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Browse}" DockPanel.Dock="Right" Tag="OcrDetPath" Click="ModelBrowse_Click" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="OcrDetPath" /></DockPanel>
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PaddleOCRRecognitionModelSingleInputCTCOnnx}" /><DockPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Browse}" DockPanel.Dock="Right" Tag="OcrRecPath" Click="ModelBrowse_Click" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="OcrRecPath" /></DockPanel>
@@ -177,7 +177,7 @@
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TesseractDownloadAndSetup}" Style="{StaticResource SectionTitle}" />
           <ComboBox x:Name="TesseractPackageBox" SelectedIndex="0"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:SimplifiedChineseEnglishAbout63MB}" Tag="chi_sim+eng" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:EnglishAbout39MB}" Tag="eng" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:SimplifiedChineseAbout24MB}" Tag="chi_sim" /></ComboBox>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PinnedOfficialTessdataFastReleaseApache2}" Style="{StaticResource Hint}" />
-          <WrapPanel><Button x:Name="DownloadTesseractButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:DownloadAndConfigureTesseract}" Click="DownloadTesseract_Click" /><Button x:Name="CancelTesseractButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
+          <WrapPanel><Button x:Name="DownloadTesseractButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:DownloadAndConfigureTesseract}" Click="DownloadTesseract_Click" /><Button x:Name="CancelTesseractButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelModelDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
           <TextBlock x:Name="TesseractDownloadStatus" Style="{StaticResource Hint}" Text="{loc:Loc SnapSharp.Core:Resources.Strings:FillsInPathsLanguagesAndEngineAfter}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LanguageDataFolderContainsTraineddata}" /><DockPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:Browse}" Click="TesseractBrowse_Click" DockPanel.Dock="Right" Margin="10,8,0,20" VerticalAlignment="Top" /><TextBox x:Name="TesseractDirectory" /></DockPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RecognitionLanguagesChiSimEngChiSim}" /><TextBox x:Name="TesseractLanguages" />
@@ -196,7 +196,7 @@
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TableStructureONNXModel}" /><TextBox x:Name="TableModelPath" />
           <WrapPanel><Button x:Name="DownloadTableButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpLocalTableRecognitionAbout7}" Click="DownloadSpecialist_Click" Tag="Table" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ChooseModel}" Click="ModelBrowse_Click" Tag="TableModelPath" /></WrapPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FormulaModelFolderEncoderDecoderSizeModel}" /><TextBox x:Name="FormulaDirectory" />
-          <WrapPanel><Button x:Name="DownloadFormulaButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpLocalFormulaRecognition}" Click="DownloadSpecialist_Click" Tag="Formula" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ChooseFolder}" Click="BrowseFormulaDirectory_Click" /><Button x:Name="CancelSpecialistButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelOcrDownload_Click" IsEnabled="False" /></WrapPanel>
+          <WrapPanel><Button x:Name="DownloadFormulaButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:SetUpLocalFormulaRecognition}" Click="DownloadSpecialist_Click" Tag="Formula" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:ChooseFolder}" Click="BrowseFormulaDirectory_Click" /><Button x:Name="CancelSpecialistButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelModelDownload_Click" IsEnabled="False" /></WrapPanel>
           <TextBlock x:Name="SpecialistStatus" Style="{StaticResource Hint}" Text="{loc:Loc SnapSharp.Core:Resources.Strings:PathsAreFilledInAfterDownloadAnd}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OptionalTablePluginIDBlankBuiltIn}" /><TextBox x:Name="TablePluginId" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:OptionalFormulaPluginIDBlankBuiltIn}" /><TextBox x:Name="FormulaPluginId" />
@@ -215,7 +215,7 @@
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ModelToDownloadConfigure}" /><ComboBox x:Name="CutoutPackageBox" SelectionChanged="CutoutPackage_Changed" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SuggestedSetUNetForQuickCPU}" Style="{StaticResource Hint}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:HighQualityOptionsGeneralFull973MB}" Style="{StaticResource Hint}" />
-          <WrapPanel><Button x:Name="DownloadCutoutButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:DownloadAndConfigureBackgroundRemoval}" Click="DownloadCutout_Click" /><Button x:Name="CancelCutoutButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
+          <WrapPanel><Button x:Name="DownloadCutoutButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:DownloadAndConfigureBackgroundRemoval}" Click="DownloadCutout_Click" /><Button x:Name="CancelCutoutButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelModelDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
           <TextBlock x:Name="CutoutDownloadStatus" Style="{StaticResource Hint}" />
         </StackPanel></Border>
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
@@ -249,7 +249,7 @@
             <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkDownloadSlbr}" Click="DownloadWatermark_Click" Tag="Slbr" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkImportSlbr}" Click="ImportWatermark_Click" Tag="Slbr" /></WrapPanel>
           </StackPanel></Border>
         </StackPanel>
-        <Button x:Name="CancelWatermarkButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelOcrDownload_Click" IsEnabled="False" HorizontalAlignment="Left" />
+        <Button x:Name="CancelWatermarkButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelModelDownload_Click" IsEnabled="False" HorizontalAlignment="Left" />
         <TextBlock x:Name="WatermarkSettingsStatus" Style="{StaticResource Hint}" />
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationAPIsAndPrivacy}" Tag="Shield"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
@@ -262,7 +262,7 @@
             <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationDevice}" /><ComboBox x:Name="LocalTranslationDeviceBox" SelectionChanged="LocalTranslationDevice_Changed"><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalCPUNoDedicatedGPUNeeded}" Tag="CPU" /><ComboBoxItem Content="{loc:Loc SnapSharp.Core:Resources.Strings:LocalGPUVulkanNVIDIAAMDIntel}" Tag="Vulkan" /></ComboBox>
             <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SelectQwenLocalModel}" /><ComboBox x:Name="LocalTranslationModelBox" />
             <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:Qwen35ModelSelectionHint}" Style="{StaticResource Hint}" TextWrapping="Wrap" />
-            <WrapPanel><Button x:Name="DownloadLocalTranslationButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:DownloadAndConfigureLocalTranslation}" Click="DownloadLocalTranslation_Click" /><Button x:Name="CancelLocalTranslationButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelOcrDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
+            <WrapPanel><Button x:Name="DownloadLocalTranslationButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:DownloadAndConfigureLocalTranslation}" Click="DownloadLocalTranslation_Click" /><Button x:Name="CancelLocalTranslationButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelModelDownload_Click" IsEnabled="False" Margin="10,0,0,0" /></WrapPanel>
             <ProgressBar x:Name="LocalTranslationProgress" Height="8" Minimum="0" Maximum="100" Margin="0,8" Visibility="Collapsed" Background="{DynamicResource ControlBrush}" Foreground="{DynamicResource ToolbarActiveBrush}" BorderBrush="{DynamicResource BorderBrush}" />
             <TextBlock x:Name="LocalTranslationDownloadStatus" Style="{StaticResource Hint}" TextWrapping="Wrap" />
             <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalModelPathFilledAfterDownload}" /><TextBox x:Name="LocalTranslationModelPath" IsReadOnly="True" />
@@ -318,7 +318,7 @@
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:About}" Tag="Info"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:About}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ApplicationInformationOpenSourceLicenseAndThird}" Style="{StaticResource Hint}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
-          <TextBlock Text="NimCap Screenshot" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:NimCapAppTitle}" Style="{StaticResource SectionTitle}" />
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:AnOpenSourceWindowsToolForScreenshots}" Margin="0,0,0,18" />
           <TextBlock x:Name="AboutVersion" Margin="0,0,0,6" />
           <TextBlock Text="Copyright 2026 leelongjiang and NimCap Screenshot contributors" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,18" />
