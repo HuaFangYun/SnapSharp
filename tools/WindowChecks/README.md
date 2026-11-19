@@ -30,6 +30,70 @@ The checks open and close real WPF windows, inspecting native Z-order and modal
 enablement. They do not register global hotkeys, run OCR, download models or save
 application preferences. Temporary settings live in `.artifacts/window-checks`.
 
+Run only document extraction and recognition navigation/layout checks:
+
+```powershell
+dotnet run --project tools/WindowChecks/WindowChecks.csproj -p:Platform=x64 -- --recognition-only
+```
+
+This checks classification and extraction with synthetic OCR blocks (including
+ambiguous types, split labels/values, multiline addresses and local checksums),
+ID front/back/both modes with either vertical order, all six navigation modes,
+field editing/location and 980/1240-pixel layouts. Image rotation/reflection is
+checked pixel by pixel; busy-state locking and stale-result clearing are checked.
+Business fixtures cover fourteen fields, horizontal columns/vertical layouts,
+branch labels, code below its label, empty fields, multiline scope/address and
+footer issue dates without absorbing text from the other column.
+Five additional layouts are manually transcribed from the supplied business-license
+examples to isolate extraction errors: widely separated label glyphs, actual blank
+fields, short printed codes, pagination versus certificate suffixes, separated date
+digits, wrapped printed authority and field boundaries. These fixtures exercise
+extraction from supplied text and coordinates.
+Rendered previews are saved in the temporary output directory.
+
+Add `--recognition-model-dir <folder>` to run the full local OCR and row/number
+retry path on generated ID and business-license layouts. The folder must already contain
+`detection.onnx`, `recognition.onnx` and a matching `dictionary.txt`; no downloads
+are performed. This checks all six front-side fields and eight combined fields
+with both vertical orders, plus horizontal/vertical business field extraction.
+
+For original local images, run:
+
+```powershell
+dotnet run --project tools/WindowChecks/WindowChecks.csproj -p:Platform=x64 -- --document-images <image-folder> --recognition-model-dir <model-folder>
+```
+
+This processes the input files without changing them. Each image produces text
+files containing extracted fields, original/retry OCR blocks with coordinates and
+confidence, and field evidence/review status in the printed artifact directory.
+Use the saved text and coordinates to reproduce and inspect field extraction.
+
+For the public document sample audit (requires network only for downloading):
+
+```powershell
+python scripts/download-document-samples.py
+dotnet run --project tools/WindowChecks/WindowChecks.csproj -p:Platform=x64 -- --document-images .artifacts/document-web-audit/images --recognition-model-dir <model-folder>
+python scripts/review-document-samples.py <printed-output-folder>
+```
+
+The download manifest records URLs and SHA-256 values for 22 Tencent demonstration
+images across all supported types, plus two supplemental GitHub images (one upside
+down and one a screenshot). `document-sample-reference.json` contains a manually
+inspected **subset** of fields for the 22 standard samples. The comparison script
+checks only those listed entries. The two supplemental images are retained as
+additional extraction inputs.
+
+Diagnostics also include `photo-*-blocks.json` to preserve OCR input and output
+independently of extraction. To verify a parser change without rerunning a model:
+
+```powershell
+dotnet run --project tools/WindowChecks/WindowChecks.csproj -p:Platform=x64 -- --document-replay <previous-output-folder>
+python scripts/review-document-samples.py <new-printed-output-folder>
+```
+
+This replays the actual cached OCR text/coordinates/confidence, not expected field
+values. For new preprocessing or model changes, rerun the original image command.
+
 Coverage:
 
 - Production controller route: topmost pin → OCR → OCR settings → nested confirmation.

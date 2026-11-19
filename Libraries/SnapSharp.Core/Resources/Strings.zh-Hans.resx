@@ -3895,4 +3895,41 @@ Media Foundation：{2}
   <data name="CrashReportWriteFailed" xml:space="preserve"><value>无法保存诊断记录，请复制下方信息。</value></data>
   <data name="IsolatedInferenceFailed" xml:space="preserve"><value>独立进程中的本地推理失败。主程序可继续使用，请检查模型后重试。</value></data>
   <data name="GpuCrashRisk" xml:space="preserve"><value>GPU 驱动异常可能中断识别。推理在独立进程中运行，GPU 失败后本次启动期间自动改用 CPU。大型模型建议使用 CPU 以降低显存压力。</value></data>
+  <data name="IdentityDocuments" xml:space="preserve"><value>证件识别</value></data>
+  <data name="RecognitionLocalHint" xml:space="preserve"><value>选择功能后开始识别
+图片在本地处理</value></data>
+  <data name="RecognitionChooseTool" xml:space="preserve"><value>图片已载入，请从左侧选择功能后开始识别。</value></data>
+  <data name="IdentityFields" xml:space="preserve"><value>证件文本</value></data>
+  <data name="ChangeDocumentType" xml:space="preserve"><value>更改类型</value></data>
+  <data name="DocumentUnknown" xml:space="preserve"><value>证件类型待确认</value></data>
+  <data name="DocumentFieldsHint" xml:space="preserve"><value>自动判断证件类型。身份证支持人像面、国徽面及正反面合图，上下顺序不限。可直接编辑文本、点击字段所在行定位原图，并整段复制或导出 TXT。请对照原图核对内容。</value></data>
+  <data name="IdentityFieldName" xml:space="preserve"><value>字段</value></data>
+  <data name="IdentityFieldValue" xml:space="preserve"><value>识别内容</value></data>
+  <data name="IdentityFieldReview" xml:space="preserve"><value>请核对</value></data>
+  <data name="CopyIdentityFields" xml:space="preserve"><value>复制字段</value></data>
+  <data name="ExportIdentityJson" xml:space="preserve"><value>导出 JSON</value></data>
+  <data name="DocumentIdCardFront" xml:space="preserve"><value>居民身份证 · 人像面</value></data>
+  <data name="DocumentIdCardBack" xml:space="preserve"><value>居民身份证 · 国徽面</value></data>
+  <data name="DocumentDrivingLicense" xml:space="preserve"><value>机动车驾驶证</value></data>
+  <data name="DocumentVehicleLicense" xml:space="preserve"><value>机动车行驶证</value></data>
+  <data name="DocumentHouseholdRegister" xml:space="preserve"><value>户口本 · 当前页</value></data>
+  <data name="DocumentPassport" xml:space="preserve"><value>护照</value></data>
+  <data name="DocumentBankCard" xml:space="preserve"><value>银行卡</value></data>
+  <data name="DocumentBusinessLicense" xml:space="preserve"><value>营业执照</value></data>
+  <data name="DocumentUnknownHint" xml:space="preserve"><value>无法可靠判断证件类型。请在原文页核对内容，或点击“更改类型”手动选择。</value></data>
+  <data name="DocumentResultStatus" xml:space="preserve"><value>已识别为：{0}，提取 {1} 个字段。请对照原图核对。</value></data>
+  <data name="DocumentTypeAuto" xml:space="preserve"><value>自动判断</value></data>
+  <data name="DocumentFieldsCopied" xml:space="preserve"><value>证件文本已复制。</value></data>
+  <data name="DocumentNoResult" xml:space="preserve"><value>请先识别证件。</value></data>
+  <data name="RecognitionTableTool" xml:space="preserve"><value>表格识别</value></data>
+  <data name="RecognitionFormulaTool" xml:space="preserve"><value>公式</value></data>
+  <data name="RecognitionCutoutTool" xml:space="preserve"><value>一键抠图</value></data>
+  <data name="DocumentIdCardBoth" xml:space="preserve"><value>居民身份证 · 正反面合图</value></data>
+  <data name="RecognitionRotateLeft" xml:space="preserve"><value>左转 90°</value></data>
+  <data name="RecognitionRotateRight" xml:space="preserve"><value>右转 90°</value></data>
+  <data name="RecognitionRotateHalf" xml:space="preserve"><value>旋转 180°</value></data>
+  <data name="RecognitionFlipVertical" xml:space="preserve"><value>上下翻转</value></data>
+  <data name="RecognitionTransformConfirm" xml:space="preserve"><value>改变图片方向会清除识别结果及手动修改，是否继续？</value></data>
+  <data name="RecognitionImageTransformed" xml:space="preserve"><value>图片方向已调整，请开始识别以读取当前图片。</value></data>
+  <data name="RecognitionPreviewHint" xml:space="preserve"><value>滚轮缩放 · 拖动平移 · 双击适应窗口</value></data>
 </root>

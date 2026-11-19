@@ -3895,4 +3895,41 @@ This takes effect immediately, even if you cancel Settings. Windows may ask for 
   <data name="CrashReportWriteFailed" xml:space="preserve"><value>Não foi possível salvar o diagnóstico. Copie as informações abaixo.</value></data>
   <data name="IsolatedInferenceFailed" xml:space="preserve"><value>A inferência local no processo separado falhou. O aplicativo continua disponível. Verifique o modelo e tente novamente.</value></data>
   <data name="GpuCrashRisk" xml:space="preserve"><value>Falhas no driver da GPU podem interromper o reconhecimento. A inferência usa um processo separado; após uma falha na GPU, a CPU será usada até reiniciar. Recomenda-se CPU para modelos grandes.</value></data>
+  <data name="IdentityDocuments" xml:space="preserve"><value>Documents</value></data>
+  <data name="RecognitionLocalHint" xml:space="preserve"><value>Choose a tool, then start.
+Images are processed locally.</value></data>
+  <data name="RecognitionChooseTool" xml:space="preserve"><value>Image loaded. Choose a tool on the left, then start.</value></data>
+  <data name="IdentityFields" xml:space="preserve"><value>Document text</value></data>
+  <data name="ChangeDocumentType" xml:space="preserve"><value>Change type</value></data>
+  <data name="DocumentUnknown" xml:space="preserve"><value>Document type unconfirmed</value></data>
+  <data name="DocumentFieldsHint" xml:space="preserve"><value>Type is detected automatically. ID cards support front, back or both sides in either order. Edit the text directly, select a field line to locate it, and copy or export as TXT. Review the result against the image.</value></data>
+  <data name="IdentityFieldName" xml:space="preserve"><value>Field</value></data>
+  <data name="IdentityFieldValue" xml:space="preserve"><value>Value</value></data>
+  <data name="IdentityFieldReview" xml:space="preserve"><value>Review</value></data>
+  <data name="CopyIdentityFields" xml:space="preserve"><value>Copy fields</value></data>
+  <data name="ExportIdentityJson" xml:space="preserve"><value>Export JSON</value></data>
+  <data name="DocumentIdCardFront" xml:space="preserve"><value>Resident ID ? front</value></data>
+  <data name="DocumentIdCardBack" xml:space="preserve"><value>Resident ID ? back</value></data>
+  <data name="DocumentDrivingLicense" xml:space="preserve"><value>Driving license</value></data>
+  <data name="DocumentVehicleLicense" xml:space="preserve"><value>Vehicle license</value></data>
+  <data name="DocumentHouseholdRegister" xml:space="preserve"><value>Household register ? current page</value></data>
+  <data name="DocumentPassport" xml:space="preserve"><value>Passport</value></data>
+  <data name="DocumentBankCard" xml:space="preserve"><value>Bank card</value></data>
+  <data name="DocumentBusinessLicense" xml:space="preserve"><value>Business license</value></data>
+  <data name="DocumentUnknownHint" xml:space="preserve"><value>Document type is uncertain. Check the original text or choose Change type.</value></data>
+  <data name="DocumentResultStatus" xml:space="preserve"><value>Detected: {0}. Extracted {1} fields. Check against the original image.</value></data>
+  <data name="DocumentTypeAuto" xml:space="preserve"><value>Detect automatically</value></data>
+  <data name="DocumentFieldsCopied" xml:space="preserve"><value>Document text copied.</value></data>
+  <data name="DocumentNoResult" xml:space="preserve"><value>Run document recognition first.</value></data>
+  <data name="RecognitionTableTool" xml:space="preserve"><value>Tabelas</value></data>
+  <data name="RecognitionFormulaTool" xml:space="preserve"><value>Fórmulas</value></data>
+  <data name="RecognitionCutoutTool" xml:space="preserve"><value>Remover fundo</value></data>
+  <data name="DocumentIdCardBoth" xml:space="preserve"><value>Resident ID · both sides</value></data>
+  <data name="RecognitionRotateLeft" xml:space="preserve"><value>Left 90°</value></data>
+  <data name="RecognitionRotateRight" xml:space="preserve"><value>Right 90°</value></data>
+  <data name="RecognitionRotateHalf" xml:space="preserve"><value>Rotate 180°</value></data>
+  <data name="RecognitionFlipVertical" xml:space="preserve"><value>Flip vertically</value></data>
+  <data name="RecognitionTransformConfirm" xml:space="preserve"><value>Changing image orientation clears recognition results and your edits. Continue?</value></data>
+  <data name="RecognitionImageTransformed" xml:space="preserve"><value>Image orientation changed. Start recognition to read this image.</value></data>
+  <data name="RecognitionPreviewHint" xml:space="preserve"><value>Wheel to zoom · drag to pan · double-click to fit</value></data>
 </root>

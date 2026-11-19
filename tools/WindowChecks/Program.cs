@@ -33,6 +33,27 @@ internal static partial class Program
                 GuidePreferencesChecks();
                 return 0;
             }
+            var replayArgument = Array.IndexOf(args, "--document-replay");
+            if (replayArgument >= 0)
+            {
+                if (replayArgument + 1 >= args.Length) throw new ArgumentException("--document-replay <diagnostics-folder> is required.");
+                DocumentReplayDiagnostics(args[replayArgument + 1]);
+                return 0;
+            }
+            var imageArgument = Array.IndexOf(args, "--document-images");
+            if (imageArgument >= 0)
+            {
+                var modelArgument = Array.IndexOf(args, "--recognition-model-dir");
+                if (imageArgument + 1 >= args.Length || modelArgument < 0 || modelArgument + 1 >= args.Length)
+                    throw new ArgumentException("--document-images <folder> requires --recognition-model-dir <folder>.");
+                DocumentImageDiagnostics(args[imageArgument + 1], args[modelArgument + 1]);
+                return 0;
+            }
+            if (args.Contains("--recognition-only"))
+            {
+                var modelArgument = Array.IndexOf(args, "--recognition-model-dir");
+                RecognitionChecks(modelArgument >= 0 && modelArgument + 1 < args.Length ? args[modelArgument + 1] : null); return 0;
+            }
             ReticlePixelChecks();
             MixedDpiChecks();
             if (args.Contains("--precision-only"))

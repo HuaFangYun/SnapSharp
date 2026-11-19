@@ -3895,4 +3895,41 @@ Media Foundation：{2}
   <data name="CrashReportWriteFailed" xml:space="preserve"><value>無法儲存診斷記錄，請複製下方資訊。</value></data>
   <data name="IsolatedInferenceFailed" xml:space="preserve"><value>獨立處理程序中的本機推論失敗。主程式可繼續使用，請檢查模型後重試。</value></data>
   <data name="GpuCrashRisk" xml:space="preserve"><value>GPU 驅動程式異常可能中斷辨識。推論在獨立處理程序中執行，GPU 失敗後本次啟動期間自動改用 CPU。大型模型建議使用 CPU 以降低顯示記憶體壓力。</value></data>
+  <data name="IdentityDocuments" xml:space="preserve"><value>證件辨識</value></data>
+  <data name="RecognitionLocalHint" xml:space="preserve"><value>選擇功能後開始辨識
+圖片在本機處理</value></data>
+  <data name="RecognitionChooseTool" xml:space="preserve"><value>圖片已載入，請從左側選擇功能後開始辨識。</value></data>
+  <data name="IdentityFields" xml:space="preserve"><value>證件文字</value></data>
+  <data name="ChangeDocumentType" xml:space="preserve"><value>變更類型</value></data>
+  <data name="DocumentUnknown" xml:space="preserve"><value>證件類型待確認</value></data>
+  <data name="DocumentFieldsHint" xml:space="preserve"><value>自動判斷證件類型。身分證支援人像面、國徽面及正反面合圖，上下順序不限。可直接編輯文字、點選欄位所在行定位原圖，並整段複製或匯出 TXT。請對照原圖核對內容。</value></data>
+  <data name="IdentityFieldName" xml:space="preserve"><value>欄位</value></data>
+  <data name="IdentityFieldValue" xml:space="preserve"><value>辨識內容</value></data>
+  <data name="IdentityFieldReview" xml:space="preserve"><value>請核對</value></data>
+  <data name="CopyIdentityFields" xml:space="preserve"><value>複製欄位</value></data>
+  <data name="ExportIdentityJson" xml:space="preserve"><value>匯出 JSON</value></data>
+  <data name="DocumentIdCardFront" xml:space="preserve"><value>居民身分證 · 人像面</value></data>
+  <data name="DocumentIdCardBack" xml:space="preserve"><value>居民身分證 · 國徽面</value></data>
+  <data name="DocumentDrivingLicense" xml:space="preserve"><value>機動車駕駛證</value></data>
+  <data name="DocumentVehicleLicense" xml:space="preserve"><value>機動車行駛證</value></data>
+  <data name="DocumentHouseholdRegister" xml:space="preserve"><value>戶口簿 · 目前頁面</value></data>
+  <data name="DocumentPassport" xml:space="preserve"><value>護照</value></data>
+  <data name="DocumentBankCard" xml:space="preserve"><value>銀行卡</value></data>
+  <data name="DocumentBusinessLicense" xml:space="preserve"><value>營業執照</value></data>
+  <data name="DocumentUnknownHint" xml:space="preserve"><value>無法可靠判斷證件類型。請在原文頁核對內容，或點選「變更類型」手動選擇。</value></data>
+  <data name="DocumentResultStatus" xml:space="preserve"><value>已辨識為：{0}，擷取 {1} 個欄位。請對照原圖核對。</value></data>
+  <data name="DocumentTypeAuto" xml:space="preserve"><value>自動判斷</value></data>
+  <data name="DocumentFieldsCopied" xml:space="preserve"><value>證件文字已複製。</value></data>
+  <data name="DocumentNoResult" xml:space="preserve"><value>請先辨識證件。</value></data>
+  <data name="RecognitionTableTool" xml:space="preserve"><value>表格識別</value></data>
+  <data name="RecognitionFormulaTool" xml:space="preserve"><value>公式</value></data>
+  <data name="RecognitionCutoutTool" xml:space="preserve"><value>一鍵摳圖</value></data>
+  <data name="DocumentIdCardBoth" xml:space="preserve"><value>居民身分證 · 正反面合圖</value></data>
+  <data name="RecognitionRotateLeft" xml:space="preserve"><value>左轉 90°</value></data>
+  <data name="RecognitionRotateRight" xml:space="preserve"><value>右轉 90°</value></data>
+  <data name="RecognitionRotateHalf" xml:space="preserve"><value>旋轉 180°</value></data>
+  <data name="RecognitionFlipVertical" xml:space="preserve"><value>上下翻轉</value></data>
+  <data name="RecognitionTransformConfirm" xml:space="preserve"><value>變更圖片方向會清除辨識結果及手動修改，是否繼續？</value></data>
+  <data name="RecognitionImageTransformed" xml:space="preserve"><value>圖片方向已調整，請開始辨識以讀取目前圖片。</value></data>
+  <data name="RecognitionPreviewHint" xml:space="preserve"><value>滾輪縮放 · 拖動平移 · 按兩下適應視窗</value></data>
 </root>

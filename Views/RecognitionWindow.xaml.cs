@@ -10,6 +10,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Rectangle = System.Windows.Shapes.Rectangle;
+using ContextMenu = System.Windows.Controls.ContextMenu;
+using MenuItem = System.Windows.Controls.MenuItem;
 
 namespace SnapSharp.Views;
 
@@ -28,7 +31,7 @@ public partial class RecognitionWindow : Window
         new("pt-PT", "Português (Portugal)"), new("ru", "Русский"), new("tr", "Türkçe"), new("zh-CN", "中文（中国大陆）"),
         new("zh-Hans", "简体中文"), new("zh-Hant", "繁體中文")
     ];
-    private readonly BitmapSource _image;
+    private BitmapSource _image;
     private readonly SettingsService _settings;
     private readonly PluginCatalog? _plugins;
     private RecognitionDocument? _document;
@@ -40,12 +43,16 @@ public partial class RecognitionWindow : Window
     private string _translatedText = "";
     private bool _hasTranslation;
     private string _tableBaseline = "[]";
+    private IdentityDocumentResult? _identityDocument;
+    private IdentityDocumentKind? _documentKindOverride;
+    private string _identityBaseline = "";
+    private string IdentitySnapshot => DocumentEditor?.Text ?? "";
     private string TableSnapshot => System.Text.Json.JsonSerializer.Serialize(_cells);
-    private bool HasEdits => _sourceText != _baseline || TableSnapshot != _tableBaseline;
+    private bool HasEdits => _sourceText != _baseline || TableSnapshot != _tableBaseline || IdentitySnapshot != _identityBaseline;
     private bool _busy, _closed, _syncing;
     public event Action<BitmapSource, CaptureAction>? OutputRequested;
     public event Action<string>? SettingsRequested;
-    private string Mode => ((ComboBoxItem)ModeBox.SelectedItem).Tag.ToString()!;
+    private string Mode => (ModeBox.SelectedItem as ListBoxItem)?.Tag.ToString() ?? "OCR";
     private string CurrentTextView => (TextViewBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Source";
     public RecognitionWindow(BitmapSource image, SettingsService settings, PluginCatalog? plugins = null, string mode = "OCR", bool autoRun = true)
     {
@@ -56,7 +63,7 @@ public partial class RecognitionWindow : Window
         TargetLanguageBox.SelectedItem = TranslationLanguages.FirstOrDefault(x => x.Code.Equals(settings.Current.TranslationTarget, StringComparison.OrdinalIgnoreCase))
             ?? TranslationLanguages.First(x => x.Code == "zh-CN");
         TextViewBox.SelectedIndex = 0;
-        ModeBox.SelectedIndex = mode switch { "Barcode" => 1, "Table" => 2, "Formula" => 3, "Cutout" => 4, _ => 0 };
+        ModeBox.SelectedItem = ModeBox.Items.OfType<ListBoxItem>().FirstOrDefault(x => x.Tag?.ToString() == mode) ?? ModeBox.Items[0];
         CutoutModels.Migrate(settings.Current);
         var cutoutModels = CutoutModels.ForDevice(settings.Current.CutoutOnnxDevice);
         CutoutModelBox.ItemsSource = cutoutModels;
@@ -64,8 +71,14 @@ public partial class RecognitionWindow : Window
         void UpdateMode()
         {
             CutoutModelBox.Visibility = Mode == "Cutout" ? Visibility.Visible : Visibility.Collapsed;
+            ShowOriginal.Visibility = Mode == "Cutout" ? Visibility.Visible : Visibility.Collapsed;
+            DocumentResultTab.Visibility = Mode == "Document" ? Visibility.Visible : Visibility.Collapsed;
+            TableResultTab.Visibility = Mode == "Table" ? Visibility.Visible : Visibility.Collapsed;
+            CutoutResultTab.Visibility = Mode == "Cutout" ? Visibility.Visible : Visibility.Collapsed;
+            TextResultTab.Visibility = Mode == "Cutout" ? Visibility.Collapsed : Visibility.Visible;
             RunButton.Content = Mode == "Cutout" ? L.Get("RemoveBackgroundRunAgain") : L.Get("StartRunAgain");
-            if (Mode == "Cutout") ResultTabs.SelectedIndex = 2;
+            ResultTabs.SelectedItem = Mode switch { "Cutout" => CutoutResultTab, "Table" => TableResultTab, "Document" => DocumentResultTab, _ => TextResultTab };
+            SetPicture(Mode == "Cutout" && ShowOriginal.IsChecked != true && _cutout is not null ? _cutout : _image);
         }
         ModeBox.SelectionChanged += (_, _) => UpdateMode();
         UpdateMode();
@@ -77,13 +90,37 @@ public partial class RecognitionWindow : Window
             await Dispatcher.InvokeAsync(FitImage, System.Windows.Threading.DispatcherPriority.Loaded);
             if (_closed) return;
             if (autoRun) await Run();
-            else Status.Text = L.Get("ClipboardImageLoadedChooseAModeAbove");
+            else Status.Text = L.Get("RecognitionChooseTool");
         };
         Closed += (_, _) => { _closed = true; _operation?.Cancel(); };
     }
-    private void SetPicture(BitmapSource image) { Picture.Source = image; PictureCanvas.Width = image.PixelWidth; PictureCanvas.Height = image.PixelHeight; }
-    private void FitImage() => Zoom.Value = Math.Clamp(Math.Min(Math.Max(1, PictureScroll.ViewportWidth - 8) / _image.PixelWidth, Math.Max(1, PictureScroll.ViewportHeight - 8) / _image.PixelHeight), .02, 4);
-    private void Fit_Click(object sender, RoutedEventArgs e) => FitImage();
+    private void SetPicture(BitmapSource image)
+    {
+        foreach (var highlight in PictureCanvas.Children.OfType<Rectangle>().ToArray()) PictureCanvas.Children.Remove(highlight);
+        Picture.Source = image; PictureCanvas.Width = image.PixelWidth; PictureCanvas.Height = image.PixelHeight;
+    }
+    private void TransformImage_Click(object sender, RoutedEventArgs e)
+    {
+        if (_busy) return;
+        CellsGrid.CommitEdit();
+        if (HasEdits && MessageBox.Show(this, L.Get("RecognitionTransformConfirm"), L.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        var action = ((FrameworkElement)sender).Tag?.ToString();
+        // Quarter turns and reflection can preserve source pixels without PNG
+        // encode/decode or repeated alpha conversion through the editor pipeline.
+        Transform transform = action switch
+        {
+            "Left" => new RotateTransform(-90), "Right" => new RotateTransform(90),
+            "Half" => new RotateTransform(180), "Vertical" => new ScaleTransform(1, -1), _ => Transform.Identity
+        };
+        _image = new TransformedBitmap(_image, transform);
+        if (!_image.IsFrozen) _image.Freeze();
+        _document = null; _identityDocument = null; DocumentEditor.Clear(); _identityBaseline = IdentitySnapshot;
+        DocumentTypeText.Text = DocumentTypeName(_documentKindOverride ?? IdentityDocumentKind.Unknown);
+        SetSourceText(""); _baseline = _sourceText; _cells.Clear(); _tableBaseline = TableSnapshot;
+        _cutout = null; CutoutButtons.IsEnabled = false; ShowOriginal.IsChecked = false;
+        SetPicture(_image); PictureScroll.UpdateLayout(); FitImage();
+        Status.Text = L.Get("RecognitionImageTransformed");
+    }
     private async void Run_Click(object sender, RoutedEventArgs e) => await Run();
     private async Task Run()
     {
@@ -105,7 +142,7 @@ public partial class RecognitionWindow : Window
                     return;
                 }
                 var result = await OnnxImageRuntime.Shared.RemoveBackground(_image, settings, _operation.Token);
-                if (_closed) return; _cutout = result; _document = null; ShowOriginal.IsChecked = false; SetPicture(result); CutoutButtons.IsEnabled = true; ResultTabs.SelectedIndex = 2;
+                if (_closed) return; _cutout = result; _document = null; ShowOriginal.IsChecked = false; SetPicture(result); CutoutButtons.IsEnabled = true; ResultTabs.SelectedItem = CutoutResultTab;
                 Status.Text = L.Format("01BackgroundRemovedPreservingOriginalResolution", model.Id,
                     settings.CutoutOnnxDevice is "CPU" or "DirectML" ? settings.CutoutOnnxDevice : settings.OnnxDevice); return;
             }
@@ -126,15 +163,20 @@ public partial class RecognitionWindow : Window
                     Status.Text = L.Get("LocalONNXPaddleOCRIsTheDefaultOpen");
                     return;
                 }
-                document = await (Mode == "Barcode" ? service.Barcodes(_image, settings, _operation.Token) : service.Recognize(_image, settings, _operation.Token));
+                document = await (Mode == "Barcode" ? service.Barcodes(_image, settings, _operation.Token)
+                    : Mode == "Document" ? service.RecognizeIdentityDocument(_image, settings, _operation.Token) : service.Recognize(_image, settings, _operation.Token));
             }
             if (_closed) return;
-            _document = document; SetPicture(_image); SetSourceText(document.Text); _baseline = _sourceText;
+            _document = document; SetPicture(_image);
+            SetSourceText(Mode == "Document" ? string.Join(Environment.NewLine, document.Blocks.Where(b => !b.Kind.StartsWith("document-", StringComparison.Ordinal)).Select(b => b.Text)) : document.Text);
+            _baseline = _sourceText;
             _cells = new ObservableCollection<RecognizedCell>(_pluginCells ?? RecognitionExport.Draft(document)); _pluginCells = null; CellsGrid.ItemsSource = _cells;
             _tableBaseline = TableSnapshot; _cutout = null; CutoutButtons.IsEnabled = false;
-            ResultTabs.SelectedIndex = Mode == "Table" ? 1 : 0;
+            _identityDocument = null; DocumentEditor.Clear(); DocumentTypeText.Text = L.Get("DocumentUnknown"); _identityBaseline = IdentitySnapshot;
+            ResultTabs.SelectedItem = Mode == "Table" ? TableResultTab : TextResultTab;
             Status.Text = document.Blocks.Count == 0 ? L.Get("NoContentRecognizedTryAnotherEngineCheck") : L.Format("01RegionsClickAnImageRegion", document.Backend, document.Blocks.Count);
             if (Mode == "Table") Status.Text += L.Get("RowsColumnsAndMergedCellsRecognizedReview");
+            if (Mode == "Document") ShowDocument();
         }
         catch (OperationCanceledException) { if (!_closed) Status.Text = L.Get("ProcessingStoppedOrTimedOutExistingResults"); }
         catch (Exception ex) { if (!_closed) Status.Text = L.Get("ProcessingFailed") + ex.GetBaseException().Message; }
@@ -166,10 +208,82 @@ public partial class RecognitionWindow : Window
     private void SetBusy(bool busy)
     {
         _busy = busy; if (_closed) return; RunButton.IsEnabled = !busy; ModeBox.IsEnabled = !busy; CancelButton.IsEnabled = busy; CellsGrid.IsReadOnly = busy;
+        DocumentEditor.IsReadOnly = busy; ChangeDocumentTypeButton.IsEnabled = !busy;
+        ImageTransformTools.IsEnabled = !busy;
         CutoutModelBox.IsEnabled = TargetLanguageBox.IsEnabled = TextViewBox.IsEnabled = TranslateButton.IsEnabled = !busy;
         RefreshTextView();
     }
     private void Cancel_Click(object sender, RoutedEventArgs e) => _operation?.Cancel();
+    private static string DocumentTypeName(IdentityDocumentKind kind) => L.Get(kind switch
+    {
+        IdentityDocumentKind.IdCardFront => "DocumentIdCardFront", IdentityDocumentKind.IdCardBack => "DocumentIdCardBack",
+        IdentityDocumentKind.IdCardBoth => "DocumentIdCardBoth",
+        IdentityDocumentKind.DrivingLicense => "DocumentDrivingLicense", IdentityDocumentKind.VehicleLicense => "DocumentVehicleLicense",
+        IdentityDocumentKind.HouseholdRegister => "DocumentHouseholdRegister", IdentityDocumentKind.Passport => "DocumentPassport",
+        IdentityDocumentKind.BankCard => "DocumentBankCard", IdentityDocumentKind.BusinessLicense => "DocumentBusinessLicense", _ => "DocumentUnknown"
+    });
+    private void ShowDocument(IdentityDocumentKind? kind = null)
+    {
+        if (_document is null) return;
+        _identityDocument = IdentityDocumentRecognition.Recognize(_document, kind ?? _documentKindOverride);
+        DocumentTypeText.Text = DocumentTypeName(_identityDocument.Kind);
+        DocumentEditor.Text = string.Join(Environment.NewLine, _identityDocument.Fields.Select(f => f.Name + "：" + f.Value));
+        _identityBaseline = IdentitySnapshot;
+        ResultTabs.SelectedItem = DocumentResultTab;
+        Status.Text = _identityDocument.Kind == IdentityDocumentKind.Unknown ? L.Get("DocumentUnknownHint")
+            : L.Format("DocumentResultStatus", DocumentTypeName(_identityDocument.Kind), _identityDocument.Fields.Count(f => !string.IsNullOrWhiteSpace(f.Value)));
+        var reviewFields = _identityDocument.Fields.Where(f => f.Value.Length > 0 && f.NeedsReview).Select(f => f.Name).ToArray();
+        if (reviewFields.Length > 0) Status.Text += " " + L.Get("IdentityFieldReview") + ": " + string.Join(", ", reviewFields);
+    }
+    private void ChangeDocumentType_Click(object sender, RoutedEventArgs e)
+    {
+        if (_document is null) { Status.Text = L.Get("DocumentNoResult"); return; }
+        var menu = new ContextMenu { PlacementTarget = ChangeDocumentTypeButton };
+        foreach (var kind in Enum.GetValues<IdentityDocumentKind>())
+        {
+            var item = new MenuItem { Header = kind == IdentityDocumentKind.Unknown ? L.Get("DocumentTypeAuto") : DocumentTypeName(kind) };
+            item.Click += (_, _) =>
+            {
+                if (IdentitySnapshot != _identityBaseline && MessageBox.Show(this, L.Get("RunningAgainWillReplaceManuallyEditedText"), L.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+                _documentKindOverride = kind == IdentityDocumentKind.Unknown ? null : kind;
+                ShowDocument();
+            };
+            menu.Items.Add(item);
+        }
+        ChangeDocumentTypeButton.ContextMenu = menu;
+        menu.IsOpen = true;
+    }
+    private void DocumentText_Selected(object sender, RoutedEventArgs e)
+    {
+        if (PictureCanvas is null) return;
+        foreach (var highlight in PictureCanvas.Children.OfType<Rectangle>().ToArray()) PictureCanvas.Children.Remove(highlight);
+        if (DocumentEditor is null || _identityDocument is null) return;
+        var prefix = DocumentEditor.Text[..Math.Min(DocumentEditor.CaretIndex, DocumentEditor.Text.Length)];
+        var lineStart = prefix.LastIndexOf('\n') + 1;
+        var line = DocumentEditor.Text[lineStart..].Split('\r', '\n')[0];
+        var field = _identityDocument.Fields.FirstOrDefault(f => line.StartsWith(f.Name + "：", StringComparison.Ordinal) || line.StartsWith(f.Name + ":", StringComparison.Ordinal));
+        if (field is null || field.Bounds.IsEmpty || field.Bounds.Width <= 0 || field.Bounds.Height <= 0) return;
+        var r = field.Bounds;
+        PictureCanvas.Children.Add(new Rectangle { Width = r.Width, Height = r.Height, HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(r.Left, r.Top, 0, 0), Stroke = Brushes.DodgerBlue, StrokeThickness = 2 / PictureScale.ScaleX, IsHitTestVisible = false });
+        PictureScroll.ScrollToHorizontalOffset(Math.Max(0, r.Left * PictureScale.ScaleX - PictureScroll.ViewportWidth / 3));
+        PictureScroll.ScrollToVerticalOffset(Math.Max(0, r.Top * PictureScale.ScaleX - PictureScroll.ViewportHeight / 3));
+    }
+    private void CopyDocument_Click(object sender, RoutedEventArgs e)
+    {
+        if (_busy || _identityDocument is null) return;
+        try
+        {
+            OutputActions.CopyText(DocumentEditor.Text);
+            _identityBaseline = IdentitySnapshot; Status.Text = L.Get("DocumentFieldsCopied");
+        }
+        catch (Exception ex) { Status.Text = ex.Message; }
+    }
+    private void ExportDocument_Click(object sender, RoutedEventArgs e)
+    {
+        if (_busy || _identityDocument is null) return;
+        if (SaveBytes(Encoding.UTF8.GetBytes(DocumentEditor.Text), L.Get("TextTxt"), "SnapSharp-document")) _identityBaseline = IdentitySnapshot;
+    }
     private void Settings_Click(object sender, RoutedEventArgs e) => SettingsRequested?.Invoke(Mode == "Cutout" ? "Scissors" : "ScanText");
     private void Original_Changed(object sender, RoutedEventArgs e) { if (Picture is not null) SetPicture(Mode != "Cutout" || ShowOriginal.IsChecked == true || _cutout is null ? _image : _cutout); }
     private void SetSourceText(string text)
@@ -348,8 +462,8 @@ public partial class RecognitionWindow : Window
             content.Measure(new System.Windows.Size(1140, 790)); content.Arrange(new Rect(0, 0, 1140, 790)); content.UpdateLayout();
             if (window.Picture.Source is not BitmapSource preview || preview.PixelWidth != source.PixelWidth || preview.PixelHeight != source.PixelHeight || window.Mode != "OCR" || window._busy)
                 throw new InvalidOperationException("Clipboard entry must show the imported image before running a selected tool.");
-            window.ModeBox.SelectedIndex = 4;
-            if (window.CutoutModelBox.Visibility != Visibility.Visible || window.ResultTabs.SelectedIndex != 2)
+            window.ModeBox.SelectedIndex = 5;
+            if (window.CutoutModelBox.Visibility != Visibility.Visible || window.ResultTabs.SelectedItem != window.CutoutResultTab)
                 throw new InvalidOperationException("Clipboard image cutout mode selection failed.");
             window.ModeBox.SelectedIndex = 0;
             window._document = new RecognitionDocument([new("重复", new Rect(0, 0, 20, 10)), new("重复", new Rect(25, 15, 20, 10))], "test");
