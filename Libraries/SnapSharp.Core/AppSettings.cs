@@ -1,4 +1,4 @@
-namespace SnapSharp.Models;
+﻿namespace SnapSharp.Models;
 
 public sealed class AppSettings
 {
@@ -44,6 +44,10 @@ public sealed class AppSettings
     public int CutoutInputSize { get; set; } = 320;
     public string CutoutDefaultModelId { get; set; } = "birefnet-general-lite";
     public Dictionary<string, CutoutModelConfiguration> CutoutModels { get; set; } = new();
+    public string WatermarkDefaultModelId { get; set; } = "lama";
+    public string WatermarkDevice { get; set; } = "CPU";
+    public double WatermarkDetectionThreshold { get; set; } = .5;
+    public Dictionary<string, string> WatermarkModels { get; set; } = new();
     public string FormulaRecognizerId { get; set; } = "";
     public string TableRecognizerId { get; set; } = "";
     public string TableStructureModel { get; set; } = "";
@@ -86,6 +90,8 @@ public sealed class AppSettings
     public string TogglePinsHotkey { get; set; } = "Ctrl+Shift+H";
     public string RestorePinHotkey { get; set; } = "";
     public string RestorePinInteractionHotkey { get; set; } = "";
+    public Dictionary<string, string> ActionHotkeys { get; set; } = new();
+    public Dictionary<string, bool> TrayActions { get; set; } = new();
 }
 
 public sealed class CutoutModelConfiguration

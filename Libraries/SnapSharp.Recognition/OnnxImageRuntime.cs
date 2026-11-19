@@ -1,4 +1,4 @@
-using L = SnapSharp.Localization.UiText;
+﻿using L = SnapSharp.Localization.UiText;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using SnapSharp.Models;
@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 namespace SnapSharp.Services;
 
 /// <summary>Bounded, serial CPU/DirectML inference. Models are always local.</summary>
-public sealed class OnnxImageRuntime : IDisposable
+public sealed partial class OnnxImageRuntime : IDisposable
 {
     public static OnnxImageRuntime Shared { get; } = new();
     private readonly SemaphoreSlim _gate = new(1);
@@ -183,11 +183,11 @@ public sealed class OnnxImageRuntime : IDisposable
     }
 
     private async Task<T> Execute<T>(AppSettings settings, string device, int deviceId,
-        Func<ModelAccess, CancellationToken, T> operation, CancellationToken cancellationToken)
+        Func<ModelAccess, CancellationToken, T> operation, CancellationToken cancellationToken, int? timeoutSeconds = null)
     {
         if (!OnnxWorker.IsWorker) throw new InvalidOperationException("ONNX sessions must run in an isolated worker.");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
+        timeout.CancelAfter(TimeSpan.FromSeconds(timeoutSeconds ?? Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
         await _gate.WaitAsync(timeout.Token).ConfigureAwait(false);
         try
         {

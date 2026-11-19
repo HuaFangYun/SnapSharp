@@ -28,6 +28,8 @@ public sealed class AppController : IDisposable
     private SettingsWindow? _settingsWindow;
     private ScreenWordService? _screenWords;
     private RecordingWindow? _recordingWindow;
+    private readonly AppUpdateSession _updates = new();
+    private readonly CancellationTokenSource _lifetime = new();
     private bool _disposed;
 
     public AppController()
@@ -58,52 +60,12 @@ public sealed class AppController : IDisposable
 
     public void Start()
     {
-        _tray.CaptureRequested += RequestCapture;
-        _tray.ScrollingCaptureRequested += (_, _) => RequestCapture(CaptureMode.Region, true);
         _screenWords = new ScreenWordService(() => _settings.Current, () => _capture.IsActive || _settingsWindow is not null || _openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing) || Application.Current.Windows.OfType<Window>().Any(x => x.IsActive));
-        _tray.ScreenWordsRequested += enabled => _screenWords.SetEnabled(enabled);
+        _tray.ActionRequested += ExecuteAction;
         _screenWords.Failed += error => { _tray.SetScreenWordsChecked(false); _tray.ShowMessage(L.Get("ScreenTextCaptureStopped"), error, System.Windows.Forms.ToolTipIcon.Warning); };
-        _tray.RecognitionClipboardRequested += (_, _) =>
-        {
-            try
-            {
-                var image = _clipboard.GetImage() ?? throw new InvalidOperationException(L.Get("NoReadableImageInTheClipboardCopy"));
-                OnnxImageRuntime.ValidateImage(image);
-                OpenRecognitionCore(image, null, "OCR", false);
-            }
-            catch (Exception ex) { _tray.ShowMessage(L.Get("RecognizeClipboardImage"), ex.GetBaseException().Message); }
-        };
-        _tray.DelayedScreenshotRequested += ScheduleDelayedScreenshot;
-        _tray.CancelDelayedScreenshotRequested += CancelDelayedScreenshot;
-        _tray.HistoryRequested += (_, _) => ShowHistory();
-        _tray.ScreenRulerRequested += (_, _) => ShowScreenRuler();
         _hotkey.ScreenRulerRequested += (_, _) => ShowScreenRuler();
         _tray.SettingsRequested += (_, _) => ShowSettings();
-        _tray.RecordingRequested += (_, _) => OpenRecording(System.Windows.Forms.Screen.FromPoint(System.Windows.Forms.Cursor.Position).Bounds);
-        _tray.PauseRecordingRequested += (_, _) => _recordingWindow?.PauseRecording();
-        _tray.StopRecordingRequested += (_, _) => _recordingWindow?.StopRecording();
-        _tray.OpenScrollProjectRequested += (_, _) => OpenScrollProject();
-        _tray.StopScrollingRequested += (_, _) => { foreach (var window in _openWindows.OfType<ScrollCaptureWindow>()) window.StopCapture(); };
-        _tray.TogglePinsRequested += (_, _) => TogglePins();
-        _tray.RestorePinRequested += (_, _) => RestorePin();
-        _tray.RestorePinInteractionRequested += (_, _) => RestorePinInteraction();
-        _tray.PinRequested += CreatePin;
-        _tray.PinGroupRequested += (group, action) =>
-        {
-            if (action == "close") _pinWorkspace.CloseGroup(group);
-            else _pinWorkspace.SetGroupVisible(group, action == "show");
-        };
-        _pinWorkspace.Changed += (_, _) => _tray.UpdatePinGroups(_pinWorkspace.Groups);
-        _hotkey.PinActionRequested += action =>
-        {
-            switch (action)
-            {
-                case GlobalAction.ClipboardPin: CreatePin(PinCommand.Clipboard); break;
-                case GlobalAction.TogglePins: TogglePins(); break;
-                case GlobalAction.RestorePin: RestorePin(); break;
-                case GlobalAction.RestoreInteraction: RestorePinInteraction(); break;
-            }
-        };
+        _hotkey.PinActionRequested += ExecuteAction;
         _tray.ExitRequested += async (_, _) => { if (_recordingWindow is null || await _recordingWindow.StopAndWait()) Application.Current.Shutdown(); };
         _hotkey.CaptureRequested += RequestCapture;
         _capture.CaptureCompleted += OnCaptureCompleted;
@@ -116,7 +78,6 @@ public sealed class AppController : IDisposable
         try
         {
             _hotkey.Register(_settings.Current);
-            _tray.ShowMessage("SnapSharp", L.Format("StartedPress0ToCaptureARegion", _settings.Current.RegionHotkey));
         }
         catch (Exception ex)
         {
@@ -128,6 +89,61 @@ public sealed class AppController : IDisposable
             catch { }
             _tray.ShowMessage(L.Get("ShortcutRegistrationFailed"), ex.Message, System.Windows.Forms.ToolTipIcon.Warning);
         }
+        _ = CheckStartupUpdate();
+    }
+
+    private void ExecuteAction(GlobalAction action)
+    {
+        if (_disposed) return;
+        switch (action)
+        {
+            case GlobalAction.Region: RequestCapture(CaptureMode.Region); break;
+            case GlobalAction.FullScreen: RequestCapture(CaptureMode.FullScreen); break;
+            case GlobalAction.ActiveWindow: RequestCapture(CaptureMode.ActiveWindow); break;
+            case GlobalAction.ClipboardPin: CreatePin(PinCommand.Clipboard); break;
+            case GlobalAction.TogglePins: TogglePins(); break;
+            case GlobalAction.RestorePin: RestorePin(); break;
+            case GlobalAction.RestoreInteraction: RestorePinInteraction(); break;
+            case GlobalAction.ClosePins: CreatePin(PinCommand.CloseAll); break;
+            case GlobalAction.ScreenRuler: ShowScreenRuler(); break;
+            case GlobalAction.ScreenWords:
+                var enabled = !(_screenWords?.IsEnabled ?? false);
+                _screenWords?.SetEnabled(enabled); _tray.SetScreenWordsChecked(enabled);
+                if (enabled) _tray.ShowMessage(L.Get("ScreenTextCapture"), L.Get("ScreenWordsEnabledHint"));
+                break;
+            case GlobalAction.RecognizeClipboard:
+                try
+                {
+                    var image = _clipboard.GetImage() ?? throw new InvalidOperationException(L.Get("NoReadableImageInTheClipboardCopy"));
+                    OnnxImageRuntime.ValidateImage(image); OpenRecognitionCore(image, null, "OCR", false);
+                }
+                catch (Exception ex) { _tray.ShowMessage(L.Get("RecognizeClipboardImage"), ex.GetBaseException().Message); }
+                break;
+            case GlobalAction.Delay3: ScheduleDelayedCapture(CaptureMode.Region, 3); break;
+            case GlobalAction.Delay5: ScheduleDelayedCapture(CaptureMode.Region, 5); break;
+            case GlobalAction.Delay10: ScheduleDelayedCapture(CaptureMode.Region, 10); break;
+            case GlobalAction.CancelDelay: CancelDelayedScreenshot(showMessage: true); break;
+            case GlobalAction.History: ShowHistory(); break;
+            case GlobalAction.ScrollingStart: RequestCapture(CaptureMode.Region, true); break;
+            case GlobalAction.ScrollingStop: foreach (var window in _openWindows.OfType<ScrollCaptureWindow>()) window.StopCapture(); break;
+            case GlobalAction.OpenScrollProject: OpenScrollProject(); break;
+            case GlobalAction.RecordingRegion: RequestCapture(CaptureMode.Region); break;
+            case GlobalAction.RecordingMonitor: OpenRecording(System.Windows.Forms.Screen.FromPoint(System.Windows.Forms.Cursor.Position).Bounds); break;
+            case GlobalAction.RecordingPause: _recordingWindow?.PauseRecording(); break;
+            case GlobalAction.RecordingStop: _recordingWindow?.StopRecording(); break;
+        }
+    }
+
+    private async Task CheckStartupUpdate()
+    {
+        await _updates.CheckOnStartup(_lifetime.Token);
+        if (_disposed) return;
+        if (_updates.Release is { } release && release.IsNewerThan(typeof(AppController).Assembly.GetName().Version ?? new Version(0, 0)))
+        {
+            if (MessageBox.Show(L.Format("AppUpdateStartupPrompt", release.Tag), L.Get("AppUpdateTitle"),
+                MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes) ShowSettings("Info");
+        }
+        else _tray.ShowMessage("SnapSharp", _updates.StatusText);
     }
 
     private void RequestCapture(object? sender, CaptureModeEventArgs e) => RequestCapture(e.Mode);
@@ -193,9 +209,6 @@ public sealed class AppController : IDisposable
         if (foreground != nint.Zero && processId != (uint)Environment.ProcessId) return foreground;
         return new ScreenCaptureService().EnumerateTopLevelWindows().FirstOrDefault()?.Handle ?? nint.Zero;
     }
-
-    private void ScheduleDelayedScreenshot(object? sender, DelayedScreenshotEventArgs e) =>
-        ScheduleDelayedCapture(CaptureMode.Region, e.Seconds);
 
     private async void ScheduleDelayedCapture(CaptureMode mode, int seconds)
     {
@@ -344,30 +357,9 @@ public sealed class AppController : IDisposable
         try
         {
             if (command == PinCommand.CloseAll) { foreach (var pin in _pins.ToArray()) pin.Close(); return; }
-            if (command == PinCommand.Clipboard && System.Windows.Clipboard.ContainsImage())
-            {
-                var image = System.Windows.Clipboard.GetImage() ?? throw new InvalidOperationException(L.Get("CouldNotReadTheClipboardImage"));
-                image.Freeze(); OpenPin(image); return;
-            }
             var text = System.Windows.Clipboard.ContainsText() ? System.Windows.Clipboard.GetText() : "";
-            if (command == PinCommand.Clipboard)
-            {
-                if (PinContentService.TryParseColor(text, out var color)) OpenPinContent(PinContentService.FromColor(color));
-                else OpenPinContent(PinContentService.FromText(text, _settings.Current));
-                return;
-            }
-            var dialog = new TextInputDialog
-            {
-                Title = command == PinCommand.Text ? L.Get("NewTextPin") : L.Get("NewColorPinHEXOrRgbR"),
-                InitialText = command == PinCommand.Text ? text : PinContentService.TryParseColor(text, out _) ? text : "#3B82F6"
-            };
-            if (WindowDialogService.ShowDialog(dialog) != true) return;
-            if (command == PinCommand.Text) OpenPinContent(PinContentService.FromText(dialog.ResultText, _settings.Current));
-            else
-            {
-                if (!PinContentService.TryParseColor(dialog.ResultText, out var color)) throw new ArgumentException(L.Get("EnterRGBRRGGBBAARRGGBBOrRgb0"));
-                OpenPinContent(PinContentService.FromColor(color));
-            }
+            var image = PinContentService.TryParseColor(text, out _) ? null : _clipboard.GetImage();
+            OpenPinContent(PinContentService.FromClipboard(image, text, _settings.Current));
         }
         catch (Exception ex) { _tray.ShowMessage(L.Get("CouldNotCreatePin"), ex.Message, System.Windows.Forms.ToolTipIcon.Warning); }
     }
@@ -425,7 +417,7 @@ public sealed class AppController : IDisposable
             _settingsWindow.Activate();
             return;
         }
-        var window = new SettingsWindow(_settings, _startup, _hotkey);
+        var window = new SettingsWindow(_settings, _startup, _hotkey, _updates);
         if (category is not null) window.SelectCategory(category);
         _settingsWindow = window;
         try
@@ -463,6 +455,7 @@ public sealed class AppController : IDisposable
     public void Dispose()
     {
         _disposed = true;
+        _lifetime.Cancel(); _lifetime.Dispose();
         _capture.Shutdown();
         RecognitionUi.OpenRequested = null;
         _screenWords?.Dispose();

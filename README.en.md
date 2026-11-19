@@ -8,6 +8,8 @@ SnapSharp implements region, full-screen, and active-window screenshots; element
 
 ## About SnapSharp
 
+The recognition window includes **Remove watermark** with MI-GAN (fast), LaMa (default), Moebius (detail candidate), and SLBR for region/full-image detection. All offer automatic download, verification and configuration from official or China sources, without manual model conversion. Compare the original, undo, copy, save, or pin the result. See [watermark repair and model contracts](docs/去水印与图像修复.md).
+
 SnapSharp is a Windows x64 desktop application built with C#, WPF, and .NET 10. It runs in the notification area and is operated through global shortcuts and tray menus. Use it to illustrate tutorials, report interface issues, extract reference material, work with tables and formulas, or record demonstrations.
 
 After capture, annotate, blur sensitive text, copy, save, or pin the image. Images copied from other applications can enter the unified recognition window through **Recognize Clipboard Image…**. Basic capture, editing, pins, and measurement need no AI downloads.

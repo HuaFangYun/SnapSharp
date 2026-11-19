@@ -69,19 +69,13 @@ public sealed class GlobalHotkeyHost : IDisposable
     internal static Dictionary<int, (GlobalAction Action, HotkeyGesture Gesture)> CreateRegistrations(AppSettings settings)
     {
         var desired = new Dictionary<int, (GlobalAction, HotkeyGesture)>();
-        var shortcuts = new[]
+        foreach (var definition in AppActionCatalog.All)
         {
-            (RegionHotkeyId, GlobalAction.Region, settings.RegionHotkey, L.Get("RegionCapture")),
-            (FullScreenHotkeyId, GlobalAction.FullScreen, settings.FullScreenHotkey, L.Get("FullScreenCapture")),
-            (ActiveWindowHotkeyId, GlobalAction.ActiveWindow, settings.ActiveWindowHotkey, L.Get("ActiveWindowCapture")),
-            (0x5020 + (int)GlobalAction.ClipboardPin, GlobalAction.ClipboardPin, settings.ClipboardPinHotkey, L.Get("PinClipboardContent")),
-            (0x5020 + (int)GlobalAction.TogglePins, GlobalAction.TogglePins, settings.TogglePinsHotkey, L.Get("ShowHidePins")),
-            (0x5020 + (int)GlobalAction.RestorePin, GlobalAction.RestorePin, settings.RestorePinHotkey, L.Get("RestorePin")),
-            (0x5020 + (int)GlobalAction.RestoreInteraction, GlobalAction.RestoreInteraction, settings.RestorePinInteractionHotkey, L.Get("RestorePinInteraction")),
-            (0x5020 + (int)GlobalAction.ScreenRuler, GlobalAction.ScreenRuler, settings.ScreenRulerHotkey, L.Get("ScreenRuler"))
-        };
-        foreach (var (id, action, text, label) in shortcuts)
-            if (!string.IsNullOrWhiteSpace(text)) desired[id] = (action, Parse(text, label));
+            var text = AppActionCatalog.Hotkey(settings, definition.Action);
+            var id = definition.Action switch { GlobalAction.Region => RegionHotkeyId, GlobalAction.FullScreen => FullScreenHotkeyId,
+                GlobalAction.ActiveWindow => ActiveWindowHotkeyId, _ => 0x5020 + (int)definition.Action };
+            if (!string.IsNullOrWhiteSpace(text)) desired[id] = (definition.Action, Parse(text, definition.Label));
+        }
         if (desired.Values.GroupBy(x => (x.Item2.Modifiers, x.Item2.VirtualKey)).Any(x => x.Count() > 1))
             throw new InvalidOperationException(L.Get("GlobalShortcutsMustBeUniqueIncludingCapture"));
         return desired;
@@ -167,11 +161,12 @@ public sealed class GlobalHotkeyHost : IDisposable
         host.ScreenRulerRequested += (_, _) => rulers++;
         foreach (var action in Enum.GetValues<GlobalAction>()) { host.Trigger(action, "self-test"); }
         if (rulers != 1 || !captures.SequenceEqual(new[] { CaptureMode.Region, CaptureMode.FullScreen, CaptureMode.ActiveWindow }) ||
-            !pins.SequenceEqual(new[] { GlobalAction.ClipboardPin, GlobalAction.TogglePins, GlobalAction.RestorePin, GlobalAction.RestoreInteraction })) return false;
+            !pins.SequenceEqual(Enum.GetValues<GlobalAction>().Where(x => x is not (GlobalAction.Region or GlobalAction.FullScreen or GlobalAction.ActiveWindow or GlobalAction.ScreenRuler)))) return false;
+        var actionCount = pins.Count;
         host.Suspend(); host.Trigger(GlobalAction.ClipboardPin, "self-test-suspended");
-        if (pins.Count != 4) return false;
+        if (pins.Count != actionCount) return false;
         host.Resume(); host.Trigger(GlobalAction.ClipboardPin, "self-test-resumed");
-        if (pins.Count != 5) return false;
+        if (pins.Count != actionCount + 1) return false;
         var settings = new AppSettings();
         if (CreateRegistrations(settings).Count != 5) return false;
         settings.ClipboardPinHotkey = "Shift+Ctrl+A";
@@ -219,7 +214,12 @@ public sealed class GlobalHotkeyHost : IDisposable
     }
 }
 
-public enum GlobalAction { Region, FullScreen, ActiveWindow, ClipboardPin, TogglePins, RestorePin, RestoreInteraction, ScreenRuler }
+public enum GlobalAction
+{
+    Region, FullScreen, ActiveWindow, ClipboardPin, TogglePins, RestorePin, RestoreInteraction, ScreenRuler,
+    RecognizeClipboard, ScreenWords, Delay3, Delay5, Delay10, CancelDelay, History,
+    ScrollingStart, ScrollingStop, OpenScrollProject, RecordingRegion, RecordingMonitor, RecordingPause, RecordingStop, ClosePins
+}
 
 public sealed class CaptureModeEventArgs(CaptureMode mode) : EventArgs
 {

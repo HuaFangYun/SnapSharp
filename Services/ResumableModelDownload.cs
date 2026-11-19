@@ -99,7 +99,7 @@ internal static class ResumableModelDownload
                 if (offset > 0) request.Headers.Range = new RangeHeaderValue(offset, null);
                 using var connection = CancellationTokenSource.CreateLinkedTokenSource(token);
                 connection.CancelAfter(StallTimeout);
-                try { response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, connection.Token); }
+                try { response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, connection.Token).ConfigureAwait(false); }
                 catch (OperationCanceledException) when (!token.IsCancellationRequested)
                 { throw new TimeoutException(L.Get("LocalDownloadTimeout")); }
                 if ((int)response.StatusCode is >= 300 and < 400 && response.Headers.Location is Uri next)
@@ -121,7 +121,7 @@ internal static class ResumableModelDownload
             else offset = 0; // A server ignoring Range returns the whole file; replace the partial.
             if (response.Content.Headers.ContentLength is long length && length > size - offset)
                 throw new InvalidDataException(L.Get("DownloadExceedsThePinnedFileSize"));
-            await using (var input = await response.Content.ReadAsStreamAsync(token))
+            await using (var input = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false))
             await using (var output = new FileStream(temporary, offset > 0 ? FileMode.Append : FileMode.Create, FileAccess.Write, FileShare.None, 81920, true))
             {
                 var buffer = new byte[81920];
@@ -134,12 +134,12 @@ internal static class ResumableModelDownload
                     using var readTimeout = CancellationTokenSource.CreateLinkedTokenSource(token);
                     readTimeout.CancelAfter(StallTimeout);
                     int read;
-                    try { read = await input.ReadAsync(buffer, readTimeout.Token); }
+                    try { read = await input.ReadAsync(buffer, readTimeout.Token).ConfigureAwait(false); }
                     catch (OperationCanceledException) when (!token.IsCancellationRequested)
                     { throw new TimeoutException(L.Get("LocalDownloadTimeout")); }
                     if (read == 0) break;
                     if (received + read > size) throw new InvalidDataException(L.Get("DownloadExceedsThePinnedFileSize"));
-                    await output.WriteAsync(buffer.AsMemory(0, read), token);
+                    await output.WriteAsync(buffer.AsMemory(0, read), token).ConfigureAwait(false);
                     received += read;
                     if (clock.Elapsed - last >= TimeSpan.FromMilliseconds(250) || received == size) Report();
                 }

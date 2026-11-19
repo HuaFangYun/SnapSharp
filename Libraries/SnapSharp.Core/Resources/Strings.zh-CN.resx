@@ -3700,7 +3700,7 @@ Media Foundation：{2}
   <data name="ModelCacheReused" xml:space="preserve"><value>已有模型校验通过，直接复用 {0}，无需重复下载。</value></data>
   <data name="ModelSetupReady" xml:space="preserve"><value>模型校验通过，配置已填入；已有有效模型直接复用。请保存设置后使用。</value></data>
   <data name="AppUpdateTitle" xml:space="preserve"><value>在线更新</value></data>
-  <data name="AppUpdateHint" xml:space="preserve"><value>从 GitHub Releases 下载、校验并安装正式版，完成后自动重启，保留已保存的配置、模型和历史记录。</value></data>
+  <data name="AppUpdateHint" xml:space="preserve"><value>每次启动自动检查一次新版并提醒，使用期间不定时检测。也可在这里手动检查。</value></data>
   <data name="AppUpdateCheck" xml:space="preserve"><value>检查更新</value></data>
   <data name="AppUpdateViewRelease" xml:space="preserve"><value>查看发布页面</value></data>
   <data name="AppUpdateDownload" xml:space="preserve"><value>下载并安装更新</value></data>
@@ -3822,4 +3822,86 @@ Media Foundation：{2}
   <data name="AutomaticCaptureBackend" xml:space="preserve"><value>???WGC ? DXGI ? GDI?</value></data>
   <data name="CurrentCaptureBackend" xml:space="preserve"><value>???????{0}</value></data>
   <data name="CaptureCleanupFailed" xml:space="preserve"><value>?????????????????</value></data>
+  <data name="WatermarkRemoval" xml:space="preserve"><value>去水印</value></data>
+  <data name="WatermarkBrushMode" xml:space="preserve"><value>涂抹去水印</value></data>
+  <data name="WatermarkRegionMode" xml:space="preserve"><value>选定区域</value></data>
+  <data name="WatermarkSmartMode" xml:space="preserve"><value>智能去水印</value></data>
+  <data name="WatermarkRepair" xml:space="preserve"><value>去水印</value></data>
+  <data name="WatermarkHelp" xml:space="preserve"><value>涂抹或框选水印，点击“去水印”即可处理；智能模式自动识别全图。每次处理均基于原图。</value></data>
+  <data name="WatermarkRepairModel" xml:space="preserve"><value>图像修复模型</value></data>
+  <data name="WatermarkModelFast" xml:space="preserve"><value>快速 · MI-GAN 512 · 26.8 MiB</value></data>
+  <data name="WatermarkModelDetail" xml:space="preserve"><value>默认 · LaMa FP32</value></data>
+  <data name="WatermarkDownloadModel" xml:space="preserve"><value>下载所选模型</value></data>
+  <data name="WatermarkImportRepair" xml:space="preserve"><value>导入修复模型</value></data>
+  <data name="WatermarkDeviceLabel" xml:space="preserve"><value>处理设备</value></data>
+  <data name="WatermarkBrushSize" xml:space="preserve"><value>笔刷直径（原图像素）</value></data>
+  <data name="WatermarkEraseMask" xml:space="preserve"><value>擦除蒙版</value></data>
+  <data name="WatermarkAdjustMask" xml:space="preserve"><value>涂抹修正蒙版</value></data>
+  <data name="WatermarkUndoMask" xml:space="preserve"><value>撤销蒙版修改</value></data>
+  <data name="WatermarkClearMask" xml:space="preserve"><value>清空选区</value></data>
+  <data name="WatermarkDetectorHelp" xml:space="preserve"><value>区域和智能模式使用 SLBR 自动识别水印，再由所选修复模型补全。缺少模型时可在当前页下载并配置。</value></data>
+  <data name="WatermarkImportSlbr" xml:space="preserve"><value>导入 SLBR 模型</value></data>
+  <data name="WatermarkThreshold" xml:space="preserve"><value>识别阈值（越低选中越多）</value></data>
+  <data name="WatermarkDetect" xml:space="preserve"><value>识别水印</value></data>
+  <data name="WatermarkCompareOriginal" xml:space="preserve"><value>查看原图</value></data>
+  <data name="WatermarkQualityHint" xml:space="preserve"><value>本地处理，仅替换蒙版内像素。被遮挡的文字与细节无法保证准确恢复。</value></data>
+  <data name="WatermarkPreviewHint" xml:space="preserve"><value>左键拖动：涂抹／框选。中键或空格＋左键：平移。滚轮：缩放。</value></data>
+  <data name="WatermarkModelReady" xml:space="preserve"><value>已配置 · 下载大小 {0:F1} MiB</value></data>
+  <data name="WatermarkModelNotReady" xml:space="preserve"><value>未配置 · 下载大小 {0:F1} MiB</value></data>
+  <data name="WatermarkSlbrReady" xml:space="preserve"><value>SLBR 已配置。</value></data>
+  <data name="WatermarkSlbrMissing" xml:space="preserve"><value>缺少 SLBR 水印检测模型，用于区域和智能模式自动识别水印。点击开始后可下载并使用。</value></data>
+  <data name="WatermarkModelMissing" xml:space="preserve"><value>请先下载或导入所选修复模型。</value></data>
+  <data name="WatermarkInvalidModel" xml:space="preserve"><value>模型输入／输出与所选去水印模型契约不匹配。</value></data>
+  <data name="WatermarkEmptyMask" xml:space="preserve"><value>请先涂抹修复区域，或识别并检查水印蒙版。</value></data>
+  <data name="WatermarkSelectRegion" xml:space="preserve"><value>请先框选水印所在范围，再点击识别水印。</value></data>
+  <data name="WatermarkReviewDetection" xml:space="preserve"><value>可切换到涂抹模式调整蒙版，再点击“去水印”。</value></data>
+  <data name="WatermarkNoDetection" xml:space="preserve"><value>未识别到水印。可调整阈值重新识别，或手动涂抹蒙版。</value></data>
+  <data name="WatermarkRepairDone" xml:space="preserve"><value>修复完成。对比原图后，可复制、保存或贴图。</value></data>
+  <data name="WatermarkSettingsHint" xml:space="preserve"><value>模型需单独下载。请选择下载源，下载或导入后保存设置。</value></data>
+  <data name="WatermarkDefaultRepairModel" xml:space="preserve"><value>默认修复模型</value></data>
+  <data name="WatermarkSlbrDownloadHint" xml:space="preserve"><value>支持官方源和中国源自动下载、校验和配置，无需安装 Python 或手动转换模型。</value></data>
+  <data name="WatermarkUndoRepair" xml:space="preserve"><value>撤销修复</value></data>
+  <data name="RecognitionModelLabel" xml:space="preserve"><value>识别模型／引擎</value></data>
+  <data name="RecognitionPluginDevice" xml:space="preserve"><value>由插件管理</value></data>
+  <data name="RecognitionModelUnavailable" xml:space="preserve"><value>所选模型尚未配置。请选择模型并确认下载，或点击设置齿轮导入模型。</value></data>
+  <data name="RecognitionRunCompact" xml:space="preserve"><value>开始</value></data>
+  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>抠图</value></data>
+  <data name="RecognitionOriginalImage" xml:space="preserve"><value>原图</value></data>
+  <data name="RecognitionProcessedImage" xml:space="preserve"><value>处理后</value></data>
+  <data name="RecognitionResultPlaceholder" xml:space="preserve"><value>处理结果将在这里显示</value></data>
+  <data name="RecognitionUndoCutout" xml:space="preserve"><value>撤销抠图</value></data>
+  <data name="RecognitionShowMask" xml:space="preserve"><value>显示蒙版</value></data>
+  <data name="RecognitionBarcodeNavigation" xml:space="preserve"><value>二维码
+一维码</value></data>
+  <data name="RecognitionDownloadTitle" xml:space="preserve"><value>下载模型</value></data>
+  <data name="RecognitionDownloadSize" xml:space="preserve"><value>下载大小：约 {0:F1} MB</value></data>
+  <data name="RecognitionDownloadDefault" xml:space="preserve"><value>下载完成后将自动配置路径，并设为当前功能的默认模型。</value></data>
+  <data name="RecognitionDownloadConfirm" xml:space="preserve"><value>下载并使用</value></data>
+  <data name="RecognitionDownloadReady" xml:space="preserve"><value>模型已就绪，已配置路径并设为默认模型。</value></data>
+  <data name="RecognitionDownloadIncludesOcr" xml:space="preserve"><value>已包含表格文字识别所需的 OCR 模型。</value></data>
+  <data name="RecognitionDownloadUseWatermark" xml:space="preserve"><value>用途：去除选中水印并补全图像内容。</value></data>
+  <data name="RecognitionDownloadUseCutout" xml:space="preserve"><value>用途：识别前景，生成透明背景图片。</value></data>
+  <data name="RecognitionDownloadUseOCR" xml:space="preserve"><value>用途：在本地识别图片中的文字。</value></data>
+  <data name="RecognitionDownloadUseTable" xml:space="preserve"><value>用途：识别表格结构与单元格文字。</value></data>
+  <data name="RecognitionDownloadUseFormula" xml:space="preserve"><value>用途：将图片中的公式识别为 LaTeX。</value></data>
+  <data name="RecognitionCancelDownload" xml:space="preserve"><value>取消</value></data>
+  <data name="RecognitionCopyResult" xml:space="preserve"><value>复制结果</value></data>
+  <data name="RecognitionSaveResult" xml:space="preserve"><value>保存／导出结果</value></data>
+  <data name="RecognitionUndoAction" xml:space="preserve"><value>撤销上一步</value></data>
+  <data name="WatermarkModelMoebius" xml:space="preserve"><value>精细候选 · Moebius 0.22B FP32（1.24 GB）</value></data>
+  <data name="RecognitionMissingModel" xml:space="preserve"><value>缺少模型：</value></data>
+  <data name="WatermarkDetectorModel" xml:space="preserve"><value>SLBR 水印智能检测</value></data>
+  <data name="WatermarkPreparingDetector" xml:space="preserve"><value>正在自动准备 SLBR 检测模型并校验…</value></data>
+  <data name="WatermarkDetectorPurpose" xml:space="preserve"><value>SLBR 用于区域和智能模式识别水印位置；所选修复模型负责补全图像。下载后由软件自动准备并配置，无需手动转换。</value></data>
+  <data name="WatermarkDownloadSlbr" xml:space="preserve"><value>下载并配置 SLBR</value></data>
+  <data name="ScreenWordsEnabledHint" xml:space="preserve"><value>已开启屏幕取词。关闭托盘菜单，将鼠标停在文字上约一秒；优先使用已配置的本地 OCR，缺模型时尝试系统 OCR。</value></data>
+  <data name="ScreenWordsNoText" xml:space="preserve"><value>未识别到文字，请将鼠标移到文字上稍停。</value></data>
+  <data name="TrayShortcutsHint" xml:space="preserve"><value>为各项功能设置快捷键，并勾选是否显示在托盘菜单中。隐藏菜单不影响快捷键；设置和退出始终显示。贴图会自动识别剪贴板中的图片、颜色值和文本。</value></data>
+  <data name="AppUpdateStartupOnlyHint" xml:space="preserve"><value>每次启动时自动检查一次更新，使用期间不会定时检查。</value></data>
+  <data name="ScreenWordsNeedsOcr" xml:space="preserve"><value>屏幕取词需要可用的本地 OCR。当前模型未配置，系统也没有可用的 OCR 语言包；请在“OCR 与识别”中下载模型或安装 Windows OCR 语言包。</value></data>
+  <data name="ShowInTray" xml:space="preserve"><value>托盘显示</value></data>
+  <data name="ScreenWordsTimeout" xml:space="preserve"><value>屏幕取词超时，已暂停。请检查 OCR 配置或增加推理超时后重新开启。</value></data>
+  <data name="TrayDelayAction" xml:space="preserve"><value>延时截图（{0} 秒）</value></data>
+  <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>发现新版本 {0}。是否打开更新页面？</value></data>
+  <data name="ShortcutAction" xml:space="preserve"><value>功能</value></data>
 </root>

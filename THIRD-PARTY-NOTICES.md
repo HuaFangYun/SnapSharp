@@ -1,5 +1,16 @@
 # Third-party notices
 
+Optional watermark repair downloads use the author-provided MI-GAN ONNX
+pipeline (MIT; `ThirdPartyLicenses/MI-GAN-LICENSE.txt`) and the Carve LaMa
+FP32 export (publisher-declared Apache-2.0; provenance and contract recorded
+in `ThirdPartyLicenses/LaMa-ONNX-MODEL-CARD.md`). Weights are not bundled.
+Optional Moebius weights use the pinned ONNX export described in
+`ThirdPartyLicenses/Moebius-ONNX-MODEL-CARD.md`.
+SLBR automatic detection downloads a pinned checkpoint on user confirmation
+and reconstructs a verified ONNX with a bundled installation recipe. Complete
+SLBR weights are not bundled. Provenance and upstream research-weight conditions
+are recorded in `ThirdPartyLicenses/SLBR-MODEL-CARD.md`.
+
 Complete license and upstream notice texts for binaries distributed with
 SnapSharp are included in `ThirdPartyLicenses/`. The project file copies that
 directory into normal build and publish output. `PACKAGE-NOTICES.md` maps each
@@ -174,3 +185,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - Use: user-triggered recording dependency setup. The runtime installer is downloaded directly from Microsoft's HTTPS hosts and checked using Windows Authenticode trust and the Microsoft Corporation publisher before execution. It is not bundled with the application.
 - Media Feature Pack is installed on Windows N/KN via Windows DISM/Windows Update, not redistributed by SnapSharp. Installation requires Windows administrator authorization and can require a restart.
 - These system components have Microsoft's own terms; the ScreenRecorderLib MIT license does not replace them. No installer or system-component source code has been modified.
+# Moebius ONNX FP32 (optional image repair model)
+
+Upstream: https://huggingface.co/hustvl/Moebius ; ONNX conversion:
+https://huggingface.co/simonw/Moebius-ONNX at revision
+5bf1ef5d2861ec01a727183a3f95dc64f352120e. Licensed Apache-2.0.
+Weights are downloaded separately with per-file SHA256 validation.
+See `ThirdPartyLicenses/Moebius-ONNX-MODEL-CARD.md` and `Apache-2.0.txt`.

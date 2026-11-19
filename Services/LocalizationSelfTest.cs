@@ -120,8 +120,8 @@ internal static class LocalizationSelfTest
                         if (category == "Info")
                         {
                             ((TextBlock)window.FindName("AppUpdateStatus")).Text = UiText.Format("AppUpdateAvailable", "v9.9.9");
-                            ((System.Windows.Controls.TextBox)window.FindName("AppReleaseNotes")).Text = UiText.Get("AppUpdateReady");
-                            foreach (var control in new[] { "AppUpdateDownloadButton", "AppReleaseNotesButton", "AppReleaseNotesPanel" })
+                            Require(window.FindName("AppReleaseNotesPanel") is null, "Release notes must not occupy an inline panel.");
+                            foreach (var control in new[] { "AppUpdateDownloadButton", "AppReleaseNotesButton" })
                                 ((FrameworkElement)window.FindName(control)).Visibility = Visibility.Visible;
                             Render(window, 1040, 820, Path.Combine(outputDirectory, $"settings-update-available-{code}.png"));
                         }

@@ -54,11 +54,13 @@ public partial class RecognitionWindow : Window
     public event Action<string>? SettingsRequested;
     private string Mode => (ModeBox.SelectedItem as ListBoxItem)?.Tag.ToString() ?? "OCR";
     private string CurrentTextView => (TextViewBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Source";
-    public RecognitionWindow(BitmapSource image, SettingsService settings, PluginCatalog? plugins = null, string mode = "OCR", bool autoRun = true)
+    public RecognitionWindow(BitmapSource image, SettingsService settings, PluginCatalog? plugins = null, string mode = "OCR", bool autoRun = false)
     {
         _image = image.IsFrozen ? image : image.Clone(); if (!_image.IsFrozen) _image.Freeze();
         _settings = settings; _plugins = plugins;
         InitializeComponent();
+        InitializeWatermark();
+        ResultTabs.SelectionChanged += (_, e) => { if (ReferenceEquals(e.Source, ResultTabs)) RefreshCommonActions(); };
         TargetLanguageBox.ItemsSource = TranslationLanguages;
         TargetLanguageBox.SelectedItem = TranslationLanguages.FirstOrDefault(x => x.Code.Equals(settings.Current.TranslationTarget, StringComparison.OrdinalIgnoreCase))
             ?? TranslationLanguages.First(x => x.Code == "zh-CN");
@@ -67,18 +69,27 @@ public partial class RecognitionWindow : Window
         CutoutModels.Migrate(settings.Current);
         var cutoutModels = CutoutModels.ForDevice(settings.Current.CutoutOnnxDevice);
         CutoutModelBox.ItemsSource = cutoutModels;
-        CutoutModelBox.SelectedItem = cutoutModels.FirstOrDefault(x => x.Id == settings.Current.CutoutDefaultModelId) ?? cutoutModels[0];
+        CutoutModelBox.SelectedItem = cutoutModels.FirstOrDefault(x => x.Id == settings.Current.CutoutDefaultModelId) ?? cutoutModels.FirstOrDefault();
+        CutoutModelBox.SelectionChanged += async (_, _) =>
+        {
+            if (!_modelControlsUpdating && CutoutModelBox.SelectedItem is CutoutModelDefinition selected)
+            {
+                _quickModels["Cutout"] = selected.Id;
+                if (IsLoaded) await EnsureSelectedModel();
+            }
+        };
         void UpdateMode()
         {
+            UpdateWatermarkMode();
             CutoutModelBox.Visibility = Mode == "Cutout" ? Visibility.Visible : Visibility.Collapsed;
-            ShowOriginal.Visibility = Mode == "Cutout" ? Visibility.Visible : Visibility.Collapsed;
             DocumentResultTab.Visibility = Mode == "Document" ? Visibility.Visible : Visibility.Collapsed;
             TableResultTab.Visibility = Mode == "Table" ? Visibility.Visible : Visibility.Collapsed;
             CutoutResultTab.Visibility = Mode == "Cutout" ? Visibility.Visible : Visibility.Collapsed;
-            TextResultTab.Visibility = Mode == "Cutout" ? Visibility.Collapsed : Visibility.Visible;
-            RunButton.Content = Mode == "Cutout" ? L.Get("RemoveBackgroundRunAgain") : L.Get("StartRunAgain");
-            ResultTabs.SelectedItem = Mode switch { "Cutout" => CutoutResultTab, "Table" => TableResultTab, "Document" => DocumentResultTab, _ => TextResultTab };
-            SetPicture(Mode == "Cutout" && ShowOriginal.IsChecked != true && _cutout is not null ? _cutout : _image);
+            TextResultTab.Visibility = Mode is "Cutout" or "Watermark" ? Visibility.Collapsed : Visibility.Visible;
+            RunButton.Content = L.Get(Mode == "Watermark" ? "WatermarkRemoval" : Mode == "Cutout" ? "RecognitionCutoutCompact" : "RecognitionRunCompact");
+            ResultTabs.SelectedItem = Mode switch { "Watermark" => WatermarkResultTab, "Cutout" => CutoutResultTab, "Table" => TableResultTab, "Document" => DocumentResultTab, _ => TextResultTab };
+            RefreshWorkspaceLayout();
+            SetPicture(_image);
         }
         ModeBox.SelectionChanged += (_, _) => UpdateMode();
         UpdateMode();
@@ -89,14 +100,13 @@ public partial class RecognitionWindow : Window
             // can shrink a large clipboard picture to an apparently blank preview.
             await Dispatcher.InvokeAsync(FitImage, System.Windows.Threading.DispatcherPriority.Loaded);
             if (_closed) return;
-            if (autoRun) await Run();
-            else Status.Text = L.Get("RecognitionChooseTool");
+            Status.Text = L.Get("RecognitionChooseTool");
         };
         Closed += (_, _) => { _closed = true; _operation?.Cancel(); };
     }
     private void SetPicture(BitmapSource image)
     {
-        foreach (var highlight in PictureCanvas.Children.OfType<Rectangle>().ToArray()) PictureCanvas.Children.Remove(highlight);
+        foreach (var highlight in PictureCanvas.Children.OfType<Rectangle>().Where(x => !ReferenceEquals(x, WatermarkRegionOutline)).ToArray()) PictureCanvas.Children.Remove(highlight);
         Picture.Source = image; PictureCanvas.Width = image.PixelWidth; PictureCanvas.Height = image.PixelHeight;
     }
     private void TransformImage_Click(object sender, RoutedEventArgs e)
@@ -117,32 +127,41 @@ public partial class RecognitionWindow : Window
         _document = null; _identityDocument = null; DocumentEditor.Clear(); _identityBaseline = IdentitySnapshot;
         DocumentTypeText.Text = DocumentTypeName(_documentKindOverride ?? IdentityDocumentKind.Unknown);
         SetSourceText(""); _baseline = _sourceText; _cells.Clear(); _tableBaseline = TableSnapshot;
-        _cutout = null; CutoutButtons.IsEnabled = false; ShowOriginal.IsChecked = false;
+        _cutout = null; _cutoutUndo.Clear();
+        ResetWatermarkImage();
         SetPicture(_image); PictureScroll.UpdateLayout(); FitImage();
+        RefreshComparison();
         Status.Text = L.Get("RecognitionImageTransformed");
     }
     private async void Run_Click(object sender, RoutedEventArgs e) => await Run();
     private async Task Run()
     {
         if (_busy) return;
+        if (!HasSelectedModel) { Status.Text = L.Get("RecognitionModelUnavailable"); return; }
+        if (Mode == "Watermark") { await RepairWatermark(); return; }
+        if (!await EnsureSelectedModel()) return;
         CellsGrid.CommitEdit();
         if (HasEdits && MessageBox.Show(this, L.Get("RunningAgainWillReplaceManuallyEditedText"), L.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
         SetBusy(true); _operation = new CancellationTokenSource();
         _pluginCells = null;
         try
         {
-            var settings = _settings.Current; var service = new LocalRecognitionService(); Status.Text = L.Get("ProcessingLocallyClickStopToCancel");
+            var settings = QuickSettings(); var service = new LocalRecognitionService(); Status.Text = L.Get("ProcessingLocallyClickStopToCancel");
+            if ((Mode is "OCR" or "Document" || Mode == "Table" && string.IsNullOrWhiteSpace(settings.TableRecognizerId))
+                && !await ResolveQuickOcr(settings, _operation.Token))
+            { Status.Text = L.Get("RecognitionModelUnavailable"); return; }
             if (Mode == "Cutout")
             {
                 var model = (CutoutModelDefinition)CutoutModelBox.SelectedItem;
-                settings = CutoutModels.ForModel(settings, model.Id);
                 if (string.IsNullOrWhiteSpace(settings.CutoutModel) || !File.Exists(settings.CutoutModel))
                 {
-                    Status.Text = L.Format("0IsNotConfiguredOrItsFile", model.Id);
+                    Status.Text = L.Format("0IsNotConfiguredOrItsFile", model.Id) + " " + L.Get("RecognitionModelUnavailable");
                     return;
                 }
                 var result = await OnnxImageRuntime.Shared.RemoveBackground(_image, settings, _operation.Token);
-                if (_closed) return; _cutout = result; _document = null; ShowOriginal.IsChecked = false; SetPicture(result); CutoutButtons.IsEnabled = true; ResultTabs.SelectedItem = CutoutResultTab;
+                if (_closed) return;
+                SaveResultUndo(_cutoutUndo, _cutout); _cutout = result; _document = null;
+                SetPicture(_image); RefreshComparison(); ResultTabs.SelectedItem = CutoutResultTab;
                 Status.Text = L.Format("01BackgroundRemovedPreservingOriginalResolution", model.Id,
                     settings.CutoutOnnxDevice is "CPU" or "DirectML" ? settings.CutoutOnnxDevice : settings.OnnxDevice); return;
             }
@@ -171,7 +190,7 @@ public partial class RecognitionWindow : Window
             SetSourceText(Mode == "Document" ? string.Join(Environment.NewLine, document.Blocks.Where(b => !b.Kind.StartsWith("document-", StringComparison.Ordinal)).Select(b => b.Text)) : document.Text);
             _baseline = _sourceText;
             _cells = new ObservableCollection<RecognizedCell>(_pluginCells ?? RecognitionExport.Draft(document)); _pluginCells = null; CellsGrid.ItemsSource = _cells;
-            _tableBaseline = TableSnapshot; _cutout = null; CutoutButtons.IsEnabled = false;
+            _tableBaseline = TableSnapshot;
             _identityDocument = null; DocumentEditor.Clear(); DocumentTypeText.Text = L.Get("DocumentUnknown"); _identityBaseline = IdentitySnapshot;
             ResultTabs.SelectedItem = Mode == "Table" ? TableResultTab : TextResultTab;
             Status.Text = document.Blocks.Count == 0 ? L.Get("NoContentRecognizedTryAnotherEngineCheck") : L.Format("01RegionsClickAnImageRegion", document.Backend, document.Blocks.Count);
@@ -211,6 +230,11 @@ public partial class RecognitionWindow : Window
         DocumentEditor.IsReadOnly = busy; ChangeDocumentTypeButton.IsEnabled = !busy;
         ImageTransformTools.IsEnabled = !busy;
         CutoutModelBox.IsEnabled = TargetLanguageBox.IsEnabled = TextViewBox.IsEnabled = TranslateButton.IsEnabled = !busy;
+        QuickModelBox.IsEnabled = EngineSettingsButton.IsEnabled = !busy;
+        if (busy) ProcessingDeviceBox.IsEnabled = false;
+        else RefreshModelToolbar();
+        SetWatermarkBusy(busy);
+        RefreshComparison();
         RefreshTextView();
     }
     private void Cancel_Click(object sender, RoutedEventArgs e) => _operation?.Cancel();
@@ -256,7 +280,7 @@ public partial class RecognitionWindow : Window
     private void DocumentText_Selected(object sender, RoutedEventArgs e)
     {
         if (PictureCanvas is null) return;
-        foreach (var highlight in PictureCanvas.Children.OfType<Rectangle>().ToArray()) PictureCanvas.Children.Remove(highlight);
+        foreach (var highlight in PictureCanvas.Children.OfType<Rectangle>().Where(x => !ReferenceEquals(x, WatermarkRegionOutline)).ToArray()) PictureCanvas.Children.Remove(highlight);
         if (DocumentEditor is null || _identityDocument is null) return;
         var prefix = DocumentEditor.Text[..Math.Min(DocumentEditor.CaretIndex, DocumentEditor.Text.Length)];
         var lineStart = prefix.LastIndexOf('\n') + 1;
@@ -284,8 +308,20 @@ public partial class RecognitionWindow : Window
         if (_busy || _identityDocument is null) return;
         if (SaveBytes(Encoding.UTF8.GetBytes(DocumentEditor.Text), L.Get("TextTxt"), "SnapSharp-document")) _identityBaseline = IdentitySnapshot;
     }
-    private void Settings_Click(object sender, RoutedEventArgs e) => SettingsRequested?.Invoke(Mode == "Cutout" ? "Scissors" : "ScanText");
-    private void Original_Changed(object sender, RoutedEventArgs e) { if (Picture is not null) SetPicture(Mode != "Cutout" || ShowOriginal.IsChecked == true || _cutout is null ? _image : _cutout); }
+    private void Settings_Click(object sender, RoutedEventArgs e)
+    {
+        if (_busy) return;
+        var previous = _settings.Current;
+        SettingsRequested?.Invoke(Mode switch { "Watermark" => "Eraser", "Cutout" => "Scissors", _ => "ScanText" });
+        if (ReferenceEquals(previous, _settings.Current)) return;
+        if (Mode == "Watermark")
+        {
+            RefreshWatermarkChoices(_settings.Current.WatermarkDefaultModelId);
+            WatermarkDeviceBox.SelectedValue = _settings.Current.WatermarkDevice;
+            RefreshWatermarkModels();
+        }
+        RefreshModelToolbar(reset: true);
+    }
     private void SetSourceText(string text)
     {
         _sourceText = text;
@@ -336,6 +372,7 @@ public partial class RecognitionWindow : Window
     private static string NormalizeTranslatedLine(string text) => string.Join(" ", text.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
     private void Text_Changed(object sender, TextChangedEventArgs e)
     {
+        RefreshCommonActions();
         if (_syncing || CurrentTextView != "Source") return;
         _sourceText = TextEditor.Text;
         InvalidateTranslation();

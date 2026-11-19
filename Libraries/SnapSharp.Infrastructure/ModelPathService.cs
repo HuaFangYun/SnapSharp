@@ -40,11 +40,14 @@ public static class ModelPathService
             property.SetValue(settings, Resolve((string?)property.GetValue(settings), executableDirectory));
         foreach (var model in settings.CutoutModels.Values)
             if (model is not null) model.Path = Resolve(model.Path, executableDirectory);
+        foreach (var id in settings.WatermarkModels.Keys.ToArray())
+            settings.WatermarkModels[id] = Resolve(settings.WatermarkModels[id], executableDirectory);
     }
 
     public static IEnumerable<string> ConfiguredPaths(AppSettings settings) =>
         Properties.Select(property => (string?)property.GetValue(settings) ?? "")
-            .Concat(settings.CutoutModels.Values.Where(model => model is not null).Select(model => model.Path));
+            .Concat(settings.CutoutModels.Values.Where(model => model is not null).Select(model => model.Path))
+            .Concat(settings.WatermarkModels.Values);
 
     // Work on the serialized snapshot so saving never changes paths used by active inference.
     internal static void Transform(JsonObject settings, Func<string, string> transform)
@@ -53,6 +56,8 @@ public static class ModelPathService
         if (settings[nameof(AppSettings.CutoutModels)] is JsonObject models)
             foreach (var entry in models)
                 if (entry.Value is JsonObject model) Change(model, nameof(CutoutModelConfiguration.Path));
+        if (settings[nameof(AppSettings.WatermarkModels)] is JsonObject watermarkModels)
+            foreach (var entry in watermarkModels.ToArray()) Change(watermarkModels, entry.Key);
 
         void Change(JsonObject obj, string name)
         {

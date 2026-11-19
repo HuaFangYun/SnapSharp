@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
@@ -17,30 +17,33 @@ public static class OnnxWorker
     private static readonly SemaphoreSlim Gate = new(1, 1);
     private static readonly HashSet<int> DisabledAdapters = [];
     public static bool IsWorker { get; private set; }
-    public sealed record Request(string Operation, AppSettings Settings, byte[] Image, string Culture);
+    public sealed record Request(string Operation, AppSettings Settings, byte[] Image, string Culture, byte[]? Mask = null);
     public sealed record TextSpan(int Start, int Length, double X, double Y, double Width, double Height);
     public sealed record Block(string Text, double X, double Y, double Width, double Height, double? Confidence, string Kind, TextSpan[]? TextSpans = null);
     public sealed record Response(Block[]? Blocks = null, string Backend = "", RecognizedCell[]? Cells = null,
         byte[]? Image = null, string? Error = null, bool GpuFailed = false, string? GpuMemory = null,
-        string? ErrorDiagnostic = null);
+        string? ErrorDiagnostic = null, byte[]? Mask = null);
 
-    public static async Task<Response> Execute(string operation, BitmapSource image, AppSettings settings, CancellationToken token)
+    public static async Task<Response> Execute(string operation, BitmapSource image, AppSettings settings, CancellationToken token, byte[]? mask = null)
     {
         OnnxImageRuntime.ValidateImage(image);
         if (!image.IsFrozen) { image = image.CloneCurrentValue(); image.Freeze(); }
+        if (mask is not null && mask.Length != image.PixelWidth * image.PixelHeight) throw new ArgumentException("Invalid mask dimensions.");
+        var maskSnapshot = mask?.ToArray();
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
-        timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
+        timeout.CancelAfter(TimeSpan.FromSeconds(settings.WatermarkDefaultModelId == "moebius" && operation is ("inpaint" or "watermark-check") ? 600 : Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
         await Gate.WaitAsync(timeout.Token).ConfigureAwait(false);
         try
         {
             // Snapshot settings: never mutate the user's preferred device when falling back.
             var copy = JsonSerializer.Deserialize<AppSettings>(JsonSerializer.SerializeToUtf8Bytes(settings))!;
-            var device = operation == "cutout" ?
+            var watermark = operation is "inpaint" or "watermark-detect" or "watermark-check";
+            var device = watermark ? copy.WatermarkDevice : operation == "cutout" ?
                 (copy.CutoutOnnxDevice is "CPU" or "DirectML" ? copy.CutoutOnnxDevice : copy.OnnxDevice) : copy.OnnxDevice;
             var adapter = operation == "cutout" && copy.CutoutOnnxDeviceId >= 0 ? copy.CutoutOnnxDeviceId : copy.OnnxDeviceId;
             var gpu = device == "DirectML" && !DisabledAdapters.Contains(adapter);
             if (device == "DirectML" && !gpu) UseCpu(copy);
-            var request = new Request(operation, copy, Encode(image), L.Culture.Name);
+            var request = new Request(operation, copy, Encode(image), L.Culture.Name, maskSnapshot);
             Response response;
             try { response = await Send(request, timeout.Token).ConfigureAwait(false); }
             catch (IOException) when (gpu && !timeout.IsCancellationRequested)
@@ -72,7 +75,7 @@ public static class OnnxWorker
     }
 
     private static void UseCpu(AppSettings settings)
-    { settings.OnnxDevice = "CPU"; settings.CutoutOnnxDevice = "CPU"; }
+    { settings.OnnxDevice = "CPU"; settings.CutoutOnnxDevice = "CPU"; settings.WatermarkDevice = "CPU"; }
 
     private static async Task<Response> Send(Request request, CancellationToken token)
     {
@@ -125,6 +128,9 @@ public static class OnnxWorker
                     "formula" => FromDocument(await recognition.RecognizeFormula(image, request.Settings).ConfigureAwait(false)),
                     "table" => FromTable(await recognition.RecognizeTable(image, request.Settings).ConfigureAwait(false)),
                     "cutout" => new Response(Image: Encode(await OnnxImageRuntime.Shared.RemoveBackground(image, request.Settings).ConfigureAwait(false))),
+                    "inpaint" => new Response(Image: Encode(await OnnxImageRuntime.Shared.Inpaint(image, request.Mask ?? throw new InvalidDataException("Missing repair mask."), request.Settings).ConfigureAwait(false))),
+                    "watermark-detect" => new Response(Mask: await OnnxImageRuntime.Shared.DetectWatermark(image, request.Mask, request.Settings).ConfigureAwait(false)),
+                    "watermark-check" => new Response(Backend: await OnnxImageRuntime.Shared.CheckWatermarkModel(request.Settings).ConfigureAwait(false)),
                     _ => throw new InvalidDataException("Unknown inference operation.")
                 };
             }

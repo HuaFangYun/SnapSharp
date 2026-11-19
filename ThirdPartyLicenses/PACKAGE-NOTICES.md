@@ -9,6 +9,8 @@ an explicit notice refresh instead of silently distributing mismatched files.
 
 | Distributed component | Version | License material in this directory |
 | --- | --- | --- |
+| MI-GAN optional inpainting weights / pipeline | pinned HF revision 406830d0 | `MI-GAN-LICENSE.txt` (MIT) |
+| LaMa optional community ONNX export | pinned HF revision c3c0c9e4 | `LaMa-ONNX-MODEL-CARD.md`, `Apache-2.0.txt` |
 | .NET Runtime | 10.0.14 | `DotNet-Runtime-LICENSE.txt`, `DotNet-Runtime-THIRD-PARTY-NOTICES.txt` |
 | Windows Desktop Runtime / WPF | 10.0.14 | `WindowsDesktop-Runtime-LICENSE.txt`, `WindowsDesktop-Runtime-THIRD-PARTY-NOTICES.txt` |
 | Microsoft.Windows.SDK.NET.Ref projection assembly | 10.0.19041.57 | `Microsoft-Windows-SDK-LICENSE.rtf` |
@@ -51,3 +53,13 @@ Model and optional runtime licenses retained during user-triggered installs:
 The model license files are copied next to the installed model or runtime.
 Model provenance, fixed revision, file size, and checksum remain recorded in
 the generated `source.txt` or `verified-files.json` files.
+# SLBR automatic setup
+
+SLBR automatic setup provenance and upstream research-weight conditions are
+recorded in `SLBR-MODEL-CARD.md`. The native installation recipe is generated
+from a pinned local export; it is not a bundled complete model checkpoint.
+
+# Moebius ONNX model
+
+Optional Moebius ONNX FP32 weights are downloaded separately from the pinned
+simonw/Moebius-ONNX revision. See `Moebius-ONNX-MODEL-CARD.md` and `Apache-2.0.txt`.

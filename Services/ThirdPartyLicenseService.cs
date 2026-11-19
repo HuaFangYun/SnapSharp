@@ -65,7 +65,8 @@ internal static class ThirdPartyLicenseService
             "ScreenRecorderLib-LICENSE.txt", "Lucide-LICENSE.txt", "Leptonica-LICENSE.txt",
             "BiRefNet-LICENSE.txt", "BiRefNet-Matting-Export-MODEL-CARD.md",
             "BiRefNet-HR-Export-LICENSE.txt", "BiRefNet-HR-Export-MODEL-CARD.md",
-            "rembg-LICENSE.txt", "LaTeX-OCR-LICENSE.txt", "llama.cpp-LICENSE.txt"
+            "rembg-LICENSE.txt", "LaTeX-OCR-LICENSE.txt", "llama.cpp-LICENSE.txt",
+            "MI-GAN-LICENSE.txt", "LaMa-ONNX-MODEL-CARD.md", "Moebius-ONNX-MODEL-CARD.md", "SLBR-MODEL-CARD.md"
         };
         if (!required.All(name => File.Exists(Path.Combine(directory, name)) && new FileInfo(Path.Combine(directory, name)).Length > 0)) return false;
         var mapping = File.ReadAllText(Path.Combine(directory, "PACKAGE-NOTICES.md"));
@@ -106,6 +107,14 @@ internal static class ThirdPartyLicenseService
                      name.StartsWith("birefnet-general-", StringComparison.Ordinal) ||
                      name.StartsWith("birefnet-portrait-", StringComparison.Ordinal))
                 Copy(directory, "BiRefNet-LICENSE.txt", "rembg-LICENSE.txt");
+            else if (name.StartsWith("watermark-migan-", StringComparison.Ordinal))
+                Copy(directory, "MI-GAN-LICENSE.txt");
+            else if (name.StartsWith("watermark-lama-", StringComparison.Ordinal))
+                Copy(directory, "Apache-2.0.txt", "LaMa-ONNX-MODEL-CARD.md");
+            else if (name.StartsWith("watermark-moebius-", StringComparison.Ordinal))
+                Copy(directory, "Apache-2.0.txt", "Moebius-ONNX-MODEL-CARD.md");
+            else if (name.StartsWith("watermark-slbr-", StringComparison.Ordinal))
+                Copy(directory, "SLBR-MODEL-CARD.md");
         }
 
         var translation = Path.Combine(root, "local-translation");

@@ -31,16 +31,20 @@ public partial class SettingsWindow : Window
     private readonly SettingsService _settings;
     private readonly StartupRegistrationService _startup;
     private readonly GlobalHotkeyHost _hotkey;
+    private readonly AppUpdateSession _updates;
     private bool _ready;
     private Dictionary<string, CutoutModelConfiguration> _cutoutModels = new();
     private CutoutModelDefinition? _editingCutout;
     private readonly ulong _dedicatedVideoMemory = LocalTranslationSetupService.DetectDedicatedVideoMemory();
     private readonly ulong _availableMemory = LocalTranslationSetupService.DetectAvailableMemory();
 
-    public SettingsWindow(SettingsService settings, StartupRegistrationService startup, GlobalHotkeyHost hotkey)
+    public SettingsWindow(SettingsService settings, StartupRegistrationService startup, GlobalHotkeyHost hotkey, AppUpdateSession? updates = null)
     {
-        _settings = settings; _startup = startup; _hotkey = hotkey;
+        _settings = settings; _startup = startup; _hotkey = hotkey; _updates = updates ?? new AppUpdateSession();
         InitializeComponent();
+        InitializeActionSettings(settings.Current);
+        _updates.Changed += RefreshAppUpdate;
+        RefreshAppUpdate();
         var informationalVersion = typeof(SettingsWindow).Assembly
             .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion;
@@ -50,6 +54,7 @@ public partial class SettingsWindow : Window
         Categories.SelectionChanged += (_, e) => { if (ReferenceEquals(e.OriginalSource, Categories)) BringSelectedCategoryIntoView(); };
         Loaded += (_, _) => BringSelectedCategoryIntoView();
         var current = settings.Current;
+        InitializeWatermarkSettings(current);
         SelectedModelDownloadSource = current.ModelDownloadSource == ModelDownloadSource.Domestic ? ModelDownloadSource.Domestic : ModelDownloadSource.Official;
         InterfaceLanguageBox.ItemsSource = LocalizationService.Languages;
         InterfaceLanguageBox.SelectedValue = LocalizationService.Languages.Any(x => x.Code == current.InterfaceLanguage)
@@ -78,14 +83,6 @@ public partial class SettingsWindow : Window
         PreferWgcCapture.IsChecked = current.PreferWgcCapture;
         EnableExternalPlugins.IsChecked = current.EnableExternalPlugins;
         RequireSignedPlugins.IsChecked = current.RequireSignedPlugins;
-        RegionHotkey.Text = current.RegionHotkey;
-        FullScreenHotkey.Text = current.FullScreenHotkey;
-        ActiveWindowHotkey.Text = current.ActiveWindowHotkey;
-        ScreenRulerHotkey.Text = current.ScreenRulerHotkey;
-        ClipboardPinHotkey.Text = current.ClipboardPinHotkey;
-        TogglePinsHotkey.Text = current.TogglePinsHotkey;
-        RestorePinHotkey.Text = current.RestorePinHotkey;
-        RestoreInteractionHotkey.Text = current.RestorePinInteractionHotkey;
         DataDirectory.Text = AppPaths.DataLocation.SelectedDirectory;
         ActiveDataDirectory.Text = L.Format("ActiveDataDirectory", AppPaths.Root);
         OcrBackendBox.SelectedIndex = current.OcrBackend switch { "Windows" => 1, "Tesseract" => 2, _ => 0 };
@@ -131,6 +128,7 @@ public partial class SettingsWindow : Window
         Loaded += (_, _) => _hotkey.Suspend();
         Closed += (_, _) =>
         {
+            _updates.Changed -= RefreshAppUpdate;
             ModelDownload?.Cancel();
             _translationTest?.Cancel();
             _appUpdateCheck?.Cancel();
@@ -165,6 +163,7 @@ public partial class SettingsWindow : Window
     private IReadOnlyCollection<string> ModelStorageReferences() =>
         ModelPathService.ConfiguredPaths(_settings.Current)
             .Concat(_cutoutModels.Values.Select(model => model.Path))
+            .Concat(_watermarkModels.Values)
             .Concat(new[] { OcrDetPath.Text, OcrRecPath.Text, OcrDictPath.Text, TesseractDirectory.Text,
                 CutoutPath.Text, TableModelPath.Text, FormulaDirectory.Text,
                 LocalTranslationModelPath.Text, LocalTranslationRuntimePath.Text })
@@ -219,6 +218,7 @@ public partial class SettingsWindow : Window
     {
         var candidate = JsonSerializer.Deserialize<AppSettings>(JsonSerializer.Serialize(_settings.Current))!;
         candidate.ModelDownloadSource = SelectedModelDownloadSource;
+        StoreWatermarkSettings(candidate);
         candidate.InterfaceLanguage = InterfaceLanguageBox.SelectedValue as string ?? "";
         if (!System.IO.Path.IsPathFullyQualified(SaveDirectory.Text)) throw new ArgumentException(L.Get("OutputAndFilesChooseAnAbsoluteSave"));
         _ = OutputFileService.ExpandTemplate(FileNameTemplate.Text, DateTime.Now, 1920, 1080, 1);
@@ -306,14 +306,7 @@ public partial class SettingsWindow : Window
             if (!System.Text.RegularExpressions.Regex.IsMatch(candidate.TranslationTarget, "^[a-zA-Z-]{2,20}$")) throw new ArgumentException(L.Get("InvalidTargetLanguageCode"));
         }
         if (candidate.AllowImageSearchUpload) OnlineRecognitionService.Endpoint(candidate.ImageSearchEndpoint);
-        candidate.RegionHotkey = NormalizeHotkey(RegionHotkey.Text, L.Get("RegionCapture"));
-        candidate.FullScreenHotkey = NormalizeHotkey(FullScreenHotkey.Text, L.Get("FullScreenCapture"));
-        candidate.ActiveWindowHotkey = NormalizeHotkey(ActiveWindowHotkey.Text, L.Get("ActiveWindowCapture"));
-        candidate.ScreenRulerHotkey = NormalizeHotkey(ScreenRulerHotkey.Text, L.Get("ScreenRuler"));
-        candidate.ClipboardPinHotkey = NormalizeHotkey(ClipboardPinHotkey.Text, L.Get("PinClipboardContent"));
-        candidate.TogglePinsHotkey = NormalizeHotkey(TogglePinsHotkey.Text, L.Get("TogglePins"));
-        candidate.RestorePinHotkey = NormalizeHotkey(RestorePinHotkey.Text, L.Get("RestorePin"));
-        candidate.RestorePinInteractionHotkey = NormalizeHotkey(RestoreInteractionHotkey.Text, L.Get("RestoreInteraction"));
+        StoreActionSettings(candidate);
         GlobalHotkeyHost.CreateRegistrations(candidate);
         return candidate;
         
@@ -503,29 +496,16 @@ public partial class SettingsWindow : Window
         using var cancellation = new CancellationTokenSource();
         _appUpdateCheck = cancellation;
         CheckAppUpdateButton.IsEnabled = false;
-        AppReleaseNotesButton.Visibility = AppUpdateDownloadButton.Visibility = AppReleaseNotesPanel.Visibility = Visibility.Collapsed;
+        AppReleaseNotesButton.Visibility = AppUpdateDownloadButton.Visibility = Visibility.Collapsed;
         AppReleaseNotesButton.Tag = AppUpdateDownloadButton.Tag = null;
         _appRelease = null;
         if (_preparedAppUpdate is not null) { AppUpdateInstaller.Cleanup(_preparedAppUpdate.Directory); _preparedAppUpdate = null; }
-        AppReleaseNotes.Text = "";
         AppUpdateStatus.Text = L.Get("AppUpdateChecking");
         try
         {
-            var release = await AppUpdateService.CheckAsync(cancellation.Token);
+            await _updates.Check(cancellation.Token);
             if (cancellation.IsCancellationRequested) return;
-            if (release is null) { AppUpdateStatus.Text = L.Get("AppUpdateNoRelease"); return; }
-            var current = typeof(SettingsWindow).Assembly.GetName().Version ?? new Version(0, 0, 0);
-            var newer = release.IsNewerThan(current);
-            _appRelease = release;
-            AppUpdateStatus.Text = newer ? L.Format("AppUpdateAvailable", release.Tag) : L.Get("AppUpdateLatest");
-            AppReleaseNotes.Text = string.IsNullOrWhiteSpace(release.Notes) ? L.Get("AppUpdateNoNotes") : release.Notes;
-            AppReleaseNotesPanel.Visibility = AppReleaseNotesButton.Visibility = Visibility.Visible;
-            AppReleaseNotesButton.Tag = release.Page.AbsoluteUri;
-            if (newer && release.Download is not null)
-            {
-                AppUpdateDownloadButton.Visibility = Visibility.Visible;
-            }
-            else if (newer) AppUpdateStatus.Text += Environment.NewLine + L.Get("AppUpdateNoPackage");
+            RefreshAppUpdate();
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
         catch (Exception)
@@ -536,6 +516,18 @@ public partial class SettingsWindow : Window
             AppReleaseNotesButton.Visibility = Visibility.Visible;
         }
         finally { _appUpdateCheck = null; CheckAppUpdateButton.IsEnabled = true; }
+    }
+
+    private void RefreshAppUpdate()
+    {
+        if (!Dispatcher.CheckAccess()) { Dispatcher.BeginInvoke(RefreshAppUpdate); return; }
+        _appRelease = _updates.Release;
+        AppUpdateStatus.Text = _updates.Checked ? _updates.StatusText : L.Get("AppUpdateStartupOnlyHint");
+        var newer = _appRelease?.IsNewerThan(typeof(SettingsWindow).Assembly.GetName().Version ?? new Version(0, 0)) == true;
+        AppReleaseNotesButton.Tag = _appRelease?.Page.AbsoluteUri ?? AppUpdateService.ReleasesUrl;
+        AppReleaseNotesButton.Visibility = newer || _updates.Failed ? Visibility.Visible : Visibility.Collapsed;
+        AppUpdateDownloadButton.Visibility = newer && _appRelease?.Download is not null ? Visibility.Visible : Visibility.Collapsed;
+        if (newer && _appRelease?.Download is null) AppUpdateStatus.Text += Environment.NewLine + L.Get("AppUpdateNoPackage");
     }
 
     private bool AppUpdateIsBusy() => ModelDownload is not null ||

@@ -226,6 +226,32 @@
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RequiresOneFloat3213HW}" Style="{StaticResource Hint}" />
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkRemoval}" Tag="Eraser"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkRemoval}" Style="{StaticResource PageTitle}" />
+        <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkSettingsHint}" Style="{StaticResource Hint}" />
+        <ContentControl ContentTemplate="{StaticResource ModelDownloadSourceSelector}" />
+        <StackPanel x:Name="WatermarkSettingsTools" IsEnabled="{Binding DownloadSourceEnabled, RelativeSource={RelativeSource AncestorType=Window}}">
+          <Border Style="{StaticResource SettingsSection}"><StackPanel>
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkRepairModel}" Style="{StaticResource SectionTitle}" />
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ModelToDownloadConfigure}" />
+            <ComboBox x:Name="WatermarkPackageBox" SelectionChanged="WatermarkPackage_Changed" />
+            <TextBox x:Name="WatermarkSettingsPath" IsReadOnly="True" />
+            <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkDownloadModel}" Click="DownloadWatermark_Click" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkImportRepair}" Click="ImportWatermark_Click" /></WrapPanel>
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkDefaultRepairModel}" />
+            <ComboBox x:Name="WatermarkDefaultBox" />
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkDeviceLabel}" />
+            <ComboBox x:Name="WatermarkSettingsDeviceBox" SelectedValuePath="Tag"><ComboBoxItem Tag="CPU" Content="CPU" /><ComboBoxItem Tag="DirectML" Content="DirectML GPU" /></ComboBox>
+          </StackPanel></Border>
+          <Border Style="{StaticResource SettingsSection}"><StackPanel>
+            <TextBlock Text="SLBR" Style="{StaticResource SectionTitle}" />
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkSlbrDownloadHint}" Style="{StaticResource Hint}" />
+            <TextBox x:Name="WatermarkSlbrPath" IsReadOnly="True" />
+            <WrapPanel><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkDownloadSlbr}" Click="DownloadWatermark_Click" Tag="Slbr" /><Button Content="{loc:Loc SnapSharp.Core:Resources.Strings:WatermarkImportSlbr}" Click="ImportWatermark_Click" Tag="Slbr" /></WrapPanel>
+          </StackPanel></Border>
+        </StackPanel>
+        <Button x:Name="CancelWatermarkButton" Content="{loc:Loc SnapSharp.Core:Resources.Strings:CancelDownload}" Click="CancelOcrDownload_Click" IsEnabled="False" HorizontalAlignment="Left" />
+        <TextBlock x:Name="WatermarkSettingsStatus" Style="{StaticResource Hint}" />
+      </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:TranslationAPIsAndPrivacy}" Tag="Shield"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:LocalTranslationOnlineAPIsAndPrivacy}" Style="{StaticResource PageTitle}" />
         <ContentControl ContentTemplate="{StaticResource ModelDownloadSourceSelector}" />
@@ -266,18 +292,13 @@
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:KeyboardShortcuts}" Tag="Keyboard"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
         <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:KeyboardShortcuts}" Style="{StaticResource PageTitle}" /><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FocusAFieldAndPressAShortcut}" Style="{StaticResource Hint}" />
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:CaptureShortcuts}" Style="{StaticResource SectionTitle}" />
-          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RegionCapture}" VerticalAlignment="Center" /><TextBox x:Name="RegionHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
-          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:FullScreenCapture}" VerticalAlignment="Center" /><TextBox x:Name="FullScreenHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
-          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ActiveWindowCapture}" VerticalAlignment="Center" /><TextBox x:Name="ActiveWindowHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
-          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ScreenRuler}" VerticalAlignment="Center" /><TextBox x:Name="ScreenRulerHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
-        </StackPanel></Border>
-        <Border Style="{StaticResource SettingsSection}"><StackPanel>
-          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PinShortcuts}" Style="{StaticResource SectionTitle}" />
-          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:PinFromClipboardImageColorText}" VerticalAlignment="Center" /><TextBox x:Name="ClipboardPinHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
-          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:HideShowAllPins}" VerticalAlignment="Center" /><TextBox x:Name="TogglePinsHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
-          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RestoreLastClosedPin}" VerticalAlignment="Center" /><TextBox x:Name="RestorePinHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
-          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:RestorePinMouseInteractionDisableClickThrough}" VerticalAlignment="Center" /><TextBox x:Name="RestoreInteractionHotkey" Grid.Column="1" Style="{StaticResource HotkeyField}" PreviewKeyDown="Hotkey_PreviewKeyDown" /></Grid>
+          <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:TrayShortcutsHint}" Style="{StaticResource Hint}" />
+          <Grid Margin="0,0,0,12"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="170" /><ColumnDefinition Width="82" /></Grid.ColumnDefinitions>
+            <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:ShortcutAction}" />
+            <TextBlock Grid.Column="1" Text="{loc:Loc SnapSharp.Core:Resources.Strings:KeyboardShortcuts}" />
+            <TextBlock Grid.Column="2" Text="{loc:Loc SnapSharp.Core:Resources.Strings:ShowInTray}" TextWrapping="Wrap" TextAlignment="Center" />
+          </Grid>
+          <StackPanel x:Name="ShortcutRows" />
         </StackPanel></Border>
       </StackPanel></ScrollViewer></TabItem>
       <TabItem Header="{loc:Loc SnapSharp.Core:Resources.Strings:History}" Tag="History"><ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False"><StackPanel Margin="0,0,10,12" MaxWidth="820">
@@ -315,9 +336,6 @@
           </WrapPanel>
           <ProgressBar x:Name="AppUpdateProgress" Height="6" Minimum="0" Maximum="100" Visibility="Collapsed" Margin="0,0,0,10" />
           <TextBlock x:Name="AppUpdateStatus" TextWrapping="Wrap" Margin="0,0,0,10" />
-          <ScrollViewer x:Name="AppReleaseNotesPanel" MaxHeight="220" VerticalScrollBarVisibility="Auto" Visibility="Collapsed" Margin="0,0,0,10">
-            <TextBox x:Name="AppReleaseNotes" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" />
-          </ScrollViewer>
         </StackPanel></Border>
         <Border Style="{StaticResource SettingsSection}"><StackPanel>
           <TextBlock Text="{loc:Loc SnapSharp.Core:Resources.Strings:SnapSharpSourceLicense}" Style="{StaticResource SectionTitle}" />

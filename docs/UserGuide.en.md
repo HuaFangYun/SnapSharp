@@ -48,6 +48,8 @@ Tray menus, window menus, and pinned-image context menus include icons for their
 
 You can change these shortcuts under **Settings → Shortcuts**. If a shortcut conflicts with another application, SnapSharp displays a warning. Choose an unused combination and save again. Optional shortcuts, such as restoring the most recently closed pin or restoring mouse interaction, may be left blank.
 
+Every tray action can have a shortcut. Use each row's **In tray** checkbox to show or hide its menu entry; hidden actions keep their shortcuts. Empty submenus hide automatically. **Settings** and **Exit** are always visible and are not shortcut rows.
+
 The tray menu also provides 3-, 5-, and 10-second delayed captures for menus, tooltips, and other interfaces that must be opened first. You can cancel during the countdown.
 
 To close SnapSharp, right-click the tray icon and choose **Exit**. If a recording is in progress, stop it and wait for the file to finish saving instead of terminating the process. You can enable launch at Windows sign-in from Settings.
@@ -162,7 +164,7 @@ Templates support `{date}`, `{time}`, `{width}`, `{height}`, and `{seq}`. A suff
 
 Pins keep images, text, or colors above other windows, which is useful when working while referring to other material.
 
-Copy an image and press `Ctrl+Shift+V` to create a pin. You can also choose Pin from the capture toolbar, or create a text or color pin from the tray's **Pins** menu.
+Copy an image, text, or a color value and press `Ctrl+Shift+V`, or click the single **Pins** entry in the tray. Clipboard colors (`#RGB`, `#RRGGBB`, `#AARRGGBB`, `rgb(...)`, `rgba(...)`, or `0xRRGGBB`) create color pins directly. You can also choose Pin from the capture toolbar.
 
 | Action | Result |
 |---|---|
@@ -175,7 +177,7 @@ Scaling and window opacity do not change the saved image's actual pixels. Rotati
 
 Configure a text pin's font, width, foreground color, and background color under **Settings → Pins**. A color pin can copy its HEX or RGB value. Pin groups last only for the current session; moving one pin in a group moves the entire group.
 
-When click-through is enabled, mouse input goes directly to the window behind a pin. If a pin suddenly cannot be clicked, use **Pins → Disable Click-Through for Pins** from the tray menu. If you close a pin accidentally, try **Restore Last Closed Pin**.
+When click-through is enabled, mouse input goes directly to the window behind a pin. Configure a shortcut for **Disable Click-Through for Pins**, or enable its tray entry under **Settings → Keyboard Shortcuts**. The same applies to **Restore Last Closed Pin**. The tray has a single pin creation entry by default.
 
 <a id="scrolling"></a>
 
@@ -227,6 +229,14 @@ Each scrolling-capture frame is limited to 16 million pixels, with a maximum of 
 Alternatively, take a screenshot and click the scan-text or scissors icon on the selection toolbar. Recognition and background removal are also available from a pin's context menu, the editor, and the scrolling-capture result window.
 
 Translation operates on text; it does not directly turn a portrait or ordinary image into translated content. Run OCR on text in an image before translating it.
+
+### Watermark removal and image repair
+
+The recognition window has a shared model/device row. OCR and identity documents can switch between PP-OCRv6 Tiny, Small, Medium, Windows OCR, and Tesseract. Table and formula recognition expose their local model and configured plugin; background removal lists models compatible with the selected device. Selecting a missing model offers its download information and a choice of source. A successful download configures paths and saves the default automatically. Switching between installed models applies to the current window. Windows OCR and Tesseract use CPU; plugins manage their own devices.
+
+Watermark removal and background removal show the original on the left and the result on the right, with linked zoom/pan and undo for processing results. Image tools and output actions share one row below the previews. The top toolbar combines model, device and the settings gear; watermark mode places its action beside the mask controls below the images. Text-based pages have a draggable divider between the preview and results. Barcode scanning does not show model controls.
+
+The window opens without starting recognition. Choose **Remove watermark** and select MI-GAN (fast), LaMa (default), or Moebius (detail candidate). Missing models show their purpose and download size on the current page, with official and China sources. Confirm to download, verify, configure paths and save the default. SLBR for region and smart detection installs through the same flow, without Python or manual conversion. Paint with the cursor-sized brush or mark a region with marching ants; region and smart modes hide brush and threshold controls. The mode and **Remove watermark** button share the toolbar below the images. One click detects and removes watermarks in region or smart mode. The original stays on the left and results appear on the right, with linked zoom and pan, undo, copy, save and pin actions. See [model contracts and limits](去水印与图像修复.md).
 
 ### Configure OCR for the first time
 
@@ -284,7 +294,7 @@ Extraction covers the current page. It does not verify authenticity, aggregate h
 - Barcodes: select **QR Code/Barcode** mode and start. No model download is required.
 - Tables: use the one-click table-recognition setup under **Settings → OCR and Recognition → Local Tables and Formulas**, save the settings, select a single table, and choose **Table Recognition (Local)**. Review rows, columns, and merged cells before correcting and exporting CSV or XLSX.
 - Formulas: configure formula recognition in the same section, save the settings, select one formula, and choose **Formula (Local LaTeX)**. You can edit, copy, or export the result as `.tex`; complex formulas still require manual review.
-- Hover OCR: enable **Hover OCR (This Session)** from the tray. Hold the pointer still for about 1.5 seconds to recognize nearby text; move it to hide the result. Local OCR must be configured first, and the setting is not retained after SnapSharp exits.
+- Hover OCR: enable **Hover OCR (This Session)** from the tray or its configured shortcut. Close the menu and hold the pointer over text for about a second; move it to hide the result. Uses configured or cached local OCR, with installed Windows OCR as a fallback when model files are missing. Missing engines and timeouts show an explanation. The enabled state lasts for the current session only.
 
 <a id="cutout"></a>
 
@@ -424,13 +434,17 @@ Screenshot history is not encrypted. History images, scrolling-capture projects,
 | The background-removal page has no timeout option | Adjust it under **Settings → OCR and Recognition → Language and Resource Limits** |
 | A large model reports insufficient memory or crashes | Stop using the HR + DirectML combination, fully exit, then test a lightweight model or CPU |
 | A cutout has a white background after saving | Use PNG instead of JPEG, BMP, or another format that does not preserve transparency |
-| A pin cannot be clicked | Disable pin click-through from the tray's **Pins** menu |
+| A pin cannot be clicked | Assign a shortcut or enable the tray entry for disabling pin click-through in shortcut settings |
 | A scrolling capture does not finish automatically | Manual mode requires you to click `√`; reaching the bottom does not finish it |
 | A scrolling capture is misaligned | Scroll more slowly, avoid dynamic content, exclude fixed bars, or fine-tune the seams |
 | A recording has no sound | Select MP4, explicitly enable an audio device, and grant system permission |
 | Recording failed or the file cannot be opened | Wait for finalization and inspect the failed temporary files; do not terminate the process |
 
 For everyday use, start with **keyboard shortcut → annotate directly → copy or save**. To process an existing image, choose **Recognize Clipboard Image…**, then use OCR and translation or switch to a background-removal model.
+
+## Startup Update Checks
+
+SnapSharp checks GitHub Releases once on each launch and reports whether a new stable version is available. It does not poll during use. **Settings → About** reuses that result; click **Check for updates** to request another check explicitly. Release notes are no longer embedded below the status. A new release can be downloaded and verified before you confirm restarting to install it.
 
 ## 11. License
 

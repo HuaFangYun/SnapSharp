@@ -18,14 +18,25 @@ public static class PinContentService
     {
         color = default;
         var text = value?.Trim() ?? "";
+        if (Regex.IsMatch(text, @"^0x[0-9a-fA-F]{6}$", RegexOptions.IgnoreCase)) text = "#" + text[2..];
         if (Regex.IsMatch(text, @"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"))
         {
             color = (Color)ColorConverter.ConvertFromString(text);
             return true;
         }
-        var match = Regex.Match(text, @"^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$", RegexOptions.IgnoreCase);
-        if (!match.Success || !byte.TryParse(match.Groups[1].Value, out var r) || !byte.TryParse(match.Groups[2].Value, out var g) || !byte.TryParse(match.Groups[3].Value, out var b)) return false;
-        color = Color.FromRgb(r, g, b); return true;
+        var match = Regex.Match(text, @"^(rgb|rgba)\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*(0?(?:\.\d+)|[01](?:\.\d+)?))?\s*\)$", RegexOptions.IgnoreCase);
+        if (!match.Success || !byte.TryParse(match.Groups[2].Value, out var r) || !byte.TryParse(match.Groups[3].Value, out var g) || !byte.TryParse(match.Groups[4].Value, out var b)) return false;
+        if (match.Groups[1].Value.Equals("rgba", StringComparison.OrdinalIgnoreCase) != match.Groups[5].Success) return false;
+        var alpha = match.Groups[5].Success ? double.Parse(match.Groups[5].Value, CultureInfo.InvariantCulture) : 1;
+        if (alpha > 1) return false;
+        color = Color.FromArgb((byte)Math.Round(alpha * 255), r, g, b); return true;
+    }
+
+    public static PinContent FromClipboard(BitmapSource? image, string? text, AppSettings settings)
+    {
+        if (TryParseColor(text, out var color)) return FromColor(color);
+        if (image is not null) { if (image.CanFreeze) image.Freeze(); return new PinContent(image); }
+        return FromText(text ?? "", settings);
     }
 
     public static string Hex(Color color) => color.A == 255 ? $"#{color.R:X2}{color.G:X2}{color.B:X2}" : $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";

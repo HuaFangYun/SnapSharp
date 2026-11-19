@@ -30,6 +30,32 @@ public partial class App : Application
         }
         _crashDiagnostics = new CrashDiagnostics(this);
         base.OnStartup(e);
+        if (e.Args is ["--shell-self-test", var shellOutput])
+        {
+            var directory = Path.GetFullPath(shellOutput); Directory.CreateDirectory(directory);
+            try
+            {
+                using var theme = new ThemeService(); theme.Start();
+                File.WriteAllText(Path.Combine(directory, "shell-checks.txt"), ShellSelfTest.Run(directory)); Shutdown(0);
+            }
+            catch (Exception ex) { File.WriteAllText(Path.Combine(directory, "shell-checks.txt"), ex.ToString()); Shutdown(1); }
+            return;
+        }
+        if (e.Args is ["--watermark-self-test" or "--slbr-self-test", var watermarkModels, var watermarkOutput])
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var directory = Path.GetFullPath(watermarkOutput); Directory.CreateDirectory(directory);
+            try
+            {
+                using var theme = new ThemeService(); theme.Start();
+                File.WriteAllText(Path.Combine(directory, "watermark-checks.txt"), e.Args[0] == "--slbr-self-test"
+                    ? SlbrSelfTest.Run(Path.GetFullPath(watermarkModels), directory)
+                    : WatermarkSelfTest.Run(Path.GetFullPath(watermarkModels), directory));
+                Shutdown(0);
+            }
+            catch (Exception ex) { File.WriteAllText(Path.Combine(directory, "watermark-checks.txt"), ex.ToString()); Shutdown(1); }
+            return;
+        }
         EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent,
             new RoutedEventHandler(OnWindowLoaded));
         var localizationTest = Array.FindIndex(e.Args, argument => argument.Equals("--localization-self-test", StringComparison.OrdinalIgnoreCase));

@@ -3818,7 +3818,7 @@ Modelos grandes podem levar algum tempo para serem copiados. Os dados existentes
     <value>Modelos verificados e caminhos preenchidos. Os modelos válidos existentes são reutilizados. Salve as configurações para aplicar.</value>
   </data>
   <data name="AppUpdateTitle" xml:space="preserve"><value>Online updates</value></data>
-  <data name="AppUpdateHint" xml:space="preserve"><value>Download, verify and install stable updates from GitHub Releases. SnapSharp will restart automatically; saved settings, models and history are preserved.</value></data>
+  <data name="AppUpdateHint" xml:space="preserve"><value>Checks for updates once on startup and notifies you. No periodic checks. You can also check manually here.</value></data>
   <data name="AppUpdateCheck" xml:space="preserve"><value>Check for updates</value></data>
   <data name="AppUpdateViewRelease" xml:space="preserve"><value>Open release page</value></data>
   <data name="AppUpdateDownload" xml:space="preserve"><value>Download and install update</value></data>
@@ -3940,4 +3940,86 @@ Images are processed locally.</value></data>
   <data name="AutomaticCaptureBackend" xml:space="preserve"><value>Autom?tico (WGC ? DXGI ? GDI)</value></data>
   <data name="CurrentCaptureBackend" xml:space="preserve"><value>M?todo de captura atual: {0}</value></data>
   <data name="CaptureCleanupFailed" xml:space="preserve"><value>N?o foi poss?vel liberar os recursos de captura; as imagens capturadas foram preservadas.</value></data>
+  <data name="WatermarkRemoval" xml:space="preserve"><value>Remove watermark</value></data>
+  <data name="WatermarkBrushMode" xml:space="preserve"><value>Brush</value></data>
+  <data name="WatermarkRegionMode" xml:space="preserve"><value>Selected region</value></data>
+  <data name="WatermarkSmartMode" xml:space="preserve"><value>Smart detection</value></data>
+  <data name="WatermarkRepair" xml:space="preserve"><value>Repair selection</value></data>
+  <data name="WatermarkHelp" xml:space="preserve"><value>Paint or select the watermark, then click Remove watermark. Smart mode detects the full image. Each operation uses the original image.</value></data>
+  <data name="WatermarkRepairModel" xml:space="preserve"><value>Repair model</value></data>
+  <data name="WatermarkModelFast" xml:space="preserve"><value>Fast · MI-GAN 512 · 26.8 MiB</value></data>
+  <data name="WatermarkModelDetail" xml:space="preserve"><value>Default · LaMa FP32</value></data>
+  <data name="WatermarkDownloadModel" xml:space="preserve"><value>Download selected model</value></data>
+  <data name="WatermarkImportRepair" xml:space="preserve"><value>Import repair ONNX</value></data>
+  <data name="WatermarkDeviceLabel" xml:space="preserve"><value>Processing device</value></data>
+  <data name="WatermarkBrushSize" xml:space="preserve"><value>Brush diameter (original pixels)</value></data>
+  <data name="WatermarkEraseMask" xml:space="preserve"><value>Erase from mask</value></data>
+  <data name="WatermarkAdjustMask" xml:space="preserve"><value>Brush to adjust detected mask</value></data>
+  <data name="WatermarkUndoMask" xml:space="preserve"><value>Undo mask edit</value></data>
+  <data name="WatermarkClearMask" xml:space="preserve"><value>Clear selection</value></data>
+  <data name="WatermarkDetectorHelp" xml:space="preserve"><value>Region and smart modes use SLBR to locate watermarks, followed by the selected repair model. Missing models can be downloaded and configured on this page.</value></data>
+  <data name="WatermarkImportSlbr" xml:space="preserve"><value>Import SLBR ONNX</value></data>
+  <data name="WatermarkThreshold" xml:space="preserve"><value>Detection threshold (lower selects more)</value></data>
+  <data name="WatermarkDetect" xml:space="preserve"><value>Detect watermark</value></data>
+  <data name="WatermarkCompareOriginal" xml:space="preserve"><value>View original</value></data>
+  <data name="WatermarkQualityHint" xml:space="preserve"><value>Runs locally. Only masked pixels are replaced. Hidden text and details cannot be guaranteed to match the original.</value></data>
+  <data name="WatermarkPreviewHint" xml:space="preserve"><value>Left drag: paint / select region. Middle drag or Space + left drag: pan. Wheel: zoom.</value></data>
+  <data name="WatermarkModelReady" xml:space="preserve"><value>Configured · download size {0:F1} MiB</value></data>
+  <data name="WatermarkModelNotReady" xml:space="preserve"><value>Not configured · download size {0:F1} MiB</value></data>
+  <data name="WatermarkSlbrReady" xml:space="preserve"><value>SLBR is configured.</value></data>
+  <data name="WatermarkSlbrMissing" xml:space="preserve"><value>SLBR is missing. It locates watermarks in region and smart modes. Click Start to download and use it.</value></data>
+  <data name="WatermarkModelMissing" xml:space="preserve"><value>Download or import the selected repair model first.</value></data>
+  <data name="WatermarkInvalidModel" xml:space="preserve"><value>Model inputs / outputs do not match the selected watermark model contract.</value></data>
+  <data name="WatermarkEmptyMask" xml:space="preserve"><value>Paint a repair mask, or detect and review the watermark first.</value></data>
+  <data name="WatermarkSelectRegion" xml:space="preserve"><value>Draw a rectangle around the watermark before detection.</value></data>
+  <data name="WatermarkReviewDetection" xml:space="preserve"><value>Switch to brush mode to adjust the mask, then click Remove watermark.</value></data>
+  <data name="WatermarkNoDetection" xml:space="preserve"><value>No watermark was detected. Adjust the threshold or paint a mask manually.</value></data>
+  <data name="WatermarkRepairDone" xml:space="preserve"><value>Repair complete. Compare with the original, then copy, save or pin the result.</value></data>
+  <data name="WatermarkSettingsHint" xml:space="preserve"><value>Models are downloaded separately. Choose a source, download or import, then save settings.</value></data>
+  <data name="WatermarkDefaultRepairModel" xml:space="preserve"><value>Default repair model</value></data>
+  <data name="WatermarkSlbrDownloadHint" xml:space="preserve"><value>Official and China sources support automatic download, verification and setup. No Python installation or manual model conversion is needed.</value></data>
+  <data name="WatermarkUndoRepair" xml:space="preserve"><value>Undo repair</value></data>
+  <data name="RecognitionModelLabel" xml:space="preserve"><value>Recognition model / engine</value></data>
+  <data name="RecognitionPluginDevice" xml:space="preserve"><value>Plugin managed</value></data>
+  <data name="RecognitionModelUnavailable" xml:space="preserve"><value>The selected model is not configured. Select it to download, or import it through the settings gear.</value></data>
+  <data name="RecognitionRunCompact" xml:space="preserve"><value>Run</value></data>
+  <data name="RecognitionCutoutCompact" xml:space="preserve"><value>Remove background</value></data>
+  <data name="RecognitionOriginalImage" xml:space="preserve"><value>Original</value></data>
+  <data name="RecognitionProcessedImage" xml:space="preserve"><value>Result</value></data>
+  <data name="RecognitionResultPlaceholder" xml:space="preserve"><value>Run processing to compare the result here</value></data>
+  <data name="RecognitionUndoCutout" xml:space="preserve"><value>Undo background removal</value></data>
+  <data name="RecognitionShowMask" xml:space="preserve"><value>Show mask</value></data>
+  <data name="RecognitionBarcodeNavigation" xml:space="preserve"><value>QR code
+Barcode</value></data>
+  <data name="RecognitionDownloadTitle" xml:space="preserve"><value>Download model</value></data>
+  <data name="RecognitionDownloadSize" xml:space="preserve"><value>Download size: about {0:F1} MB</value></data>
+  <data name="RecognitionDownloadDefault" xml:space="preserve"><value>After download, paths are configured automatically and this becomes the default model for this tool.</value></data>
+  <data name="RecognitionDownloadConfirm" xml:space="preserve"><value>Download and use</value></data>
+  <data name="RecognitionDownloadReady" xml:space="preserve"><value>Model ready. Paths configured and default model saved.</value></data>
+  <data name="RecognitionDownloadIncludesOcr" xml:space="preserve"><value>Includes the OCR models needed to read table text.</value></data>
+  <data name="RecognitionDownloadUseWatermark" xml:space="preserve"><value>Removes selected watermarks and fills the image content.</value></data>
+  <data name="RecognitionDownloadUseCutout" xml:space="preserve"><value>Detects the foreground and produces a transparent background.</value></data>
+  <data name="RecognitionDownloadUseOCR" xml:space="preserve"><value>Recognizes text in images locally.</value></data>
+  <data name="RecognitionDownloadUseTable" xml:space="preserve"><value>Recognizes table structure and cell text.</value></data>
+  <data name="RecognitionDownloadUseFormula" xml:space="preserve"><value>Recognizes formulas in images as LaTeX.</value></data>
+  <data name="RecognitionCancelDownload" xml:space="preserve"><value>Cancel</value></data>
+  <data name="RecognitionCopyResult" xml:space="preserve"><value>Copy result</value></data>
+  <data name="RecognitionSaveResult" xml:space="preserve"><value>Save / export result</value></data>
+  <data name="RecognitionUndoAction" xml:space="preserve"><value>Undo last action</value></data>
+  <data name="WatermarkModelMoebius" xml:space="preserve"><value>Detail candidate · Moebius 0.22B FP32 (1.24 GB)</value></data>
+  <data name="RecognitionMissingModel" xml:space="preserve"><value>Missing model: </value></data>
+  <data name="WatermarkDetectorModel" xml:space="preserve"><value>SLBR watermark detector</value></data>
+  <data name="WatermarkPreparingDetector" xml:space="preserve"><value>Preparing and verifying the SLBR detector...</value></data>
+  <data name="WatermarkDetectorPurpose" xml:space="preserve"><value>SLBR locates watermarks in region and smart modes; the selected repair model fills the image. Setup and configuration are automatic; no manual conversion is required.</value></data>
+  <data name="WatermarkDownloadSlbr" xml:space="preserve"><value>Download and configure SLBR</value></data>
+  <data name="ScreenWordsEnabledHint" xml:space="preserve"><value>Screen text capture is on. Close the tray menu and hold the pointer over text for about a second. Uses configured local OCR or Windows OCR when model files are missing.</value></data>
+  <data name="ScreenWordsNoText" xml:space="preserve"><value>No text found. Hold the pointer over some text.</value></data>
+  <data name="TrayShortcutsHint" xml:space="preserve"><value>Assign shortcuts and choose which actions appear in the tray menu. Hidden actions keep their shortcuts. Settings and Exit are always shown. Pin automatically handles clipboard images, color values and text.</value></data>
+  <data name="AppUpdateStartupOnlyHint" xml:space="preserve"><value>Checks once on startup. No periodic checks while you use the app.</value></data>
+  <data name="ScreenWordsNeedsOcr" xml:space="preserve"><value>Screen text capture needs local OCR. No configured model or Windows OCR language is available. Download an OCR model in OCR settings or install a Windows OCR language pack.</value></data>
+  <data name="ShowInTray" xml:space="preserve"><value>In tray</value></data>
+  <data name="ScreenWordsTimeout" xml:space="preserve"><value>Screen text capture timed out and was paused. Check OCR settings or increase the inference timeout, then enable it again.</value></data>
+  <data name="TrayDelayAction" xml:space="preserve"><value>Delayed capture ({0} seconds)</value></data>
+  <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>Version {0} is available. Open the update page?</value></data>
+  <data name="ShortcutAction" xml:space="preserve"><value>Action</value></data>
 </root>

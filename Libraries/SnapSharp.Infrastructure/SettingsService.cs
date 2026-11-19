@@ -1,4 +1,4 @@
-using SnapSharp.Models;
+﻿using SnapSharp.Models;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -58,6 +58,12 @@ public sealed class SettingsService
 
     private void Normalize()
     {
+        Current.ActionHotkeys ??= new();
+        Current.TrayActions ??= new();
+        Current.WatermarkModels ??= new();
+        if (!WatermarkModels.All.Any(x => x.Id == Current.WatermarkDefaultModelId)) Current.WatermarkDefaultModelId = "lama";
+        if (Current.WatermarkDevice is not ("CPU" or "DirectML")) Current.WatermarkDevice = "CPU";
+        Current.WatermarkDetectionThreshold = double.IsFinite(Current.WatermarkDetectionThreshold) ? Math.Clamp(Current.WatermarkDetectionThreshold, .05, .95) : .5;
         Current.Recording ??= new();
         Current.Recording.SpeakerDeviceId ??= "";
         Current.Recording.MicrophoneDeviceId ??= "";

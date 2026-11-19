@@ -13,9 +13,13 @@ public partial class RecognitionWindow
     {
         if (PictureScroll.ViewportWidth <= 8 || PictureScroll.ViewportHeight <= 8) return;
         EndPreviewDrag();
+        EndComparisonDrag();
         // Use the displayed image dimensions, including rotated and cutout previews.
-        SetPreviewScale(Math.Min((PictureScroll.ViewportWidth - 8) / PictureCanvas.Width,
-            (PictureScroll.ViewportHeight - 8) / PictureCanvas.Height));
+        var width = PictureScroll.ViewportWidth;
+        var height = PictureScroll.ViewportHeight;
+        if (IsImageComparison && ComparisonScroll.ViewportWidth > 8 && ComparisonScroll.ViewportHeight > 8)
+        { width = Math.Min(width, ComparisonScroll.ViewportWidth); height = Math.Min(height, ComparisonScroll.ViewportHeight); }
+        SetPreviewScale(Math.Min((width - 8) / PictureCanvas.Width, (height - 8) / PictureCanvas.Height));
         PictureScroll.UpdateLayout();
         PictureScroll.ScrollToHorizontalOffset(0);
         PictureScroll.ScrollToVerticalOffset(0);
@@ -26,6 +30,7 @@ public partial class RecognitionWindow
         // Very large images can still fit; wheel magnification is capped at 1600%.
         scale = Math.Clamp(scale, .0001, 16);
         PictureScale.ScaleX = PictureScale.ScaleY = scale;
+        UpdateWatermarkBrushCursor(Mouse.GetPosition(PictureCanvas));
         foreach (var highlight in PictureCanvas.Children.OfType<Rectangle>())
             highlight.StrokeThickness = 2 / scale;
     }
@@ -50,6 +55,7 @@ public partial class RecognitionWindow
 
     private void Picture_MouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (BeginWatermarkGesture(e)) return;
         if (e.ChangedButton != MouseButton.Left && e.ChangedButton != MouseButton.Middle) return;
         var point = e.GetPosition(PictureScroll);
         // Leave the scroll bars and their thumbs to the ScrollViewer.
@@ -76,6 +82,8 @@ public partial class RecognitionWindow
 
     private void Picture_MouseMove(object sender, MouseEventArgs e)
     {
+        UpdateWatermarkBrushCursor(e.GetPosition(PictureCanvas));
+        if (MoveWatermarkGesture(e)) return;
         if (_previewDragStart is null) return;
         if (e.LeftButton != MouseButtonState.Pressed && e.MiddleButton != MouseButtonState.Pressed)
             EndPreviewDrag();
@@ -83,14 +91,17 @@ public partial class RecognitionWindow
         e.Handled = true;
     }
 
+    private void Picture_MouseLeave(object sender, MouseEventArgs e) => WatermarkBrushCursor.Visibility = Visibility.Collapsed;
+
     private void Picture_MouseUp(object sender, MouseButtonEventArgs e)
     {
+        if (EndWatermarkGesture(e)) return;
         if (_previewDragStart is null || (e.ChangedButton != MouseButton.Left && e.ChangedButton != MouseButton.Middle)) return;
         EndPreviewDrag();
         e.Handled = true;
     }
 
-    private void Picture_LostMouseCapture(object sender, MouseEventArgs e) => EndPreviewDrag();
+    private void Picture_LostMouseCapture(object sender, MouseEventArgs e) { FinishWatermarkGesture(); EndPreviewDrag(); }
 
     private void EndPreviewDrag()
     {
