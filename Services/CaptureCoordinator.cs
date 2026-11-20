@@ -1,6 +1,7 @@
 using L = NimCap.Screenshot.Localization.UiText;
 using NimCap.Screenshot.Models;
 using NimCap.Screenshot.Views;
+using System.Windows;
 
 namespace NimCap.Screenshot.Services;
 
@@ -17,6 +18,7 @@ public sealed class CaptureCoordinator
 
     public event EventHandler<CaptureResult>? CaptureCompleted;
     public event EventHandler? CaptureCanceled;
+    public event Action<string, Window>? SettingsRequested;
     public bool IsActive => _windows.Count > 0 || _selectingScrollingRegion || _preparingCoordinator is not null;
 
     public CaptureCoordinator(ICaptureService? captureService = null, SettingsService? settings = null)
@@ -113,6 +115,7 @@ public sealed class CaptureCoordinator
             var window = new SelectionWindow(screen, candidates, _captureService, scrollingSelection, settings: _settings);
             window.PrecisionPreferencesChanged += OnPrecisionPreferencesChanged;
             window.CaptureAccepted += OnAccepted;
+            window.SettingsRequested += category => SettingsRequested?.Invoke(category, window);
             window.CaptureCanceled += OnCanceled;
             window.Closed += OnCanceled;
             _windows.Add(window);

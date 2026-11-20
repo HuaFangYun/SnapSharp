@@ -58,6 +58,7 @@ public partial class SelectionWindow : Window
         _precisionSettings = settings;
         _elementDetectionService = elementDetectionService ?? new ElementDetectionService();
         InitializeComponent();
+        InitializeTextRecognition();
         _scrollingSelection = scrollingSelection;
         if (scrollingSelection)
         {
@@ -66,7 +67,7 @@ public partial class SelectionWindow : Window
             PrimaryCaptureButton.Content = new TextBlock { Text = L.Get("StartScrollingCapture") };
             PrimaryCaptureButton.Width = double.NaN;
             PrimaryCaptureButton.ToolTip = L.Get("ConfirmRegionAndStartScrollingCaptureEnter");
-            foreach (var button in new[] { ScrollCaptureButton, PinCaptureButton, RecognitionCaptureButton, RedactCaptureButton, CutoutCaptureButton, RecordingCaptureButton, SaveCaptureButton })
+            foreach (var button in new[] { ScrollCaptureButton, PinCaptureButton, RedactCaptureButton, CutoutCaptureButton, RecordingCaptureButton, SaveCaptureButton })
                 button.Visibility = Visibility.Collapsed;
             ShapePicker.IsEnabled = false;
         }
@@ -128,6 +129,7 @@ public partial class SelectionWindow : Window
 
     private void Root_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (_textRecognitionActive) return;
         if (IsCaptureControl(e.OriginalSource as DependencyObject)) return;
         var point = Clamp(GetLogicalPointer(e));
         _lastPointer = point;
@@ -179,7 +181,7 @@ public partial class SelectionWindow : Window
     private void Window_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.OriginalSource is DependencyObject toolbarSource &&
-            (ToolPanel.IsAncestorOf(toolbarSource) || SecondaryToolPanel.IsAncestorOf(toolbarSource)))
+            (ToolPanel.IsAncestorOf(toolbarSource) || SecondaryToolPanel.IsAncestorOf(toolbarSource) || RecognitionActionsPanel.IsAncestorOf(toolbarSource)))
         {
             AnnotationView.CommitInlineEdit();
             return;
@@ -209,6 +211,7 @@ public partial class SelectionWindow : Window
 
     private void Window_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (_textRecognitionActive) { ExitTextRecognition(); e.Handled = true; return; }
         if (!_editing) return;
         RestartRegionSelection();
         e.Handled = true;
@@ -216,6 +219,7 @@ public partial class SelectionWindow : Window
 
     private void RestartRegionSelection()
     {
+        ExitTextRecognition();
         _redaction.Cancel();
         _pixelNudgeActive = false;
         // Discard this selection and its annotations, retaining the original desktop snapshot.
@@ -248,6 +252,7 @@ public partial class SelectionWindow : Window
         Handles.Visibility = Visibility.Collapsed;
         ToolPanel.Visibility = Visibility.Collapsed;
         SecondaryToolPanel.Visibility = Visibility.Collapsed;
+        RecognitionActionsPanel.Visibility = Visibility.Collapsed;
         MoveSelectionButton.Background = Brushes.Transparent;
         Hint.Visibility = Visibility.Visible;
         CapturePanel.Visibility = Visibility.Visible;
@@ -420,6 +425,8 @@ public partial class SelectionWindow : Window
         Cursor = Cursors.Arrow;
         Hint.Visibility = Visibility.Collapsed;
         CapturePanel.Visibility = Visibility.Collapsed;
+        RecognitionActionsPanel.Visibility = _scrollingSelection ? Visibility.Collapsed : Visibility.Visible;
+        PositionRecognitionActions();
         Magnifier.Visibility = Visibility.Collapsed;
         Handles.Visibility = Visibility.Visible;
         ToolPanel.Visibility = Visibility.Visible;
@@ -467,6 +474,7 @@ public partial class SelectionWindow : Window
 
     private void UpdateEditorSurface()
     {
+        if (_textRecognitionActive) ExitTextRecognition();
         if (_editor is null) return;
         EditedImageView.Source = _editor.Image;
         EditedImageView.Width = _editor.Image.PixelWidth;
@@ -734,7 +742,16 @@ public partial class SelectionWindow : Window
     private void Copy_Click(object sender, RoutedEventArgs e) => Complete(CaptureAction.Copy);
     private void Save_Click(object sender, RoutedEventArgs e) => Complete(CaptureAction.Save);
     private void Pin_Click(object sender, RoutedEventArgs e) => Complete(CaptureAction.Pin);
-    private void Recognition_Click(object sender, RoutedEventArgs e) => Complete(CaptureAction.OCR);
+    private async void Recognition_Click(object sender, RoutedEventArgs e) => await RecognizeTextInPlace();
+    private async void Summary_Click(object sender, RoutedEventArgs e) => await SummarizeInPlace();
+
+    private void PositionRecognitionActions()
+    {
+        var viewport = ChromeViewport(new Point(_selection.X + _selection.Width / 2, _selection.Y));
+        RecognitionActionsPanel.Measure(new System.Windows.Size(viewport.Width, viewport.Height));
+        var size = RecognitionActionsPanel.DesiredSize;
+        CanvasPosition(RecognitionActionsPanel, viewport.Left + Math.Max(0, (viewport.Width - size.Width) / 2), viewport.Top + 20);
+    }
     private async void Redact_Click(object sender, RoutedEventArgs e)
     {
         if (_editor is not { } editor) return;
@@ -764,22 +781,44 @@ public partial class SelectionWindow : Window
     {
         if (_scrollingSelection) { ScrollCapture_Click(this, new RoutedEventArgs()); return; }
         if (_editor is null) return;
+        var output = RenderCaptureImage();
+        CaptureAccepted?.Invoke(this, new CaptureResult(output, _screen.Bounds, _pixelSelection.ToDrawingRectangle(), action));
+    }
+
+    private BitmapSource RenderCaptureImage()
+    {
         AnnotationView.CommitInlineEdit();
-        var output = _skia.Render(_editor.Image, _editor.Annotations);
+        var output = _skia.Render(_editor!.Image, _editor.Annotations);
         if (_shape == SelectionShape.Ellipse) output = _skia.ApplySelectionMask(output, [], true);
         else if (_shape is SelectionShape.Lasso or SelectionShape.Polygon)
         {
             var points = _normalizedPath.Select(p => new Point(p.X * output.PixelWidth, p.Y * output.PixelHeight)).ToArray();
             output = _skia.ApplySelectionMask(output, points, false);
         }
-        CaptureAccepted?.Invoke(this, new CaptureResult(output, _screen.Bounds, _pixelSelection.ToDrawingRectangle(), action));
+        return output;
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)
     {
+        if (_textRecognitionActive)
+        {
+            HandleTextRecognitionKey(e);
+            return;
+        }
         if (e.OriginalSource is System.Windows.Controls.TextBox or System.Windows.Controls.Primitives.TextBoxBase ||
             CaptureModePicker.IsDropDownOpen || ShapePicker.IsDropDownOpen || RatioPicker.IsDropDownOpen) return;
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        if (_editing && !_scrollingSelection && Keyboard.Modifiers == ModifierKeys.None && key is Key.O or Key.J or Key.D)
+        {
+            e.Handled = true;
+            if (!e.IsRepeat)
+            {
+                if (key == Key.D) Redact_Click(this, new RoutedEventArgs());
+                else if (key == Key.O) Recognition_Click(this, new RoutedEventArgs());
+                else Summary_Click(this, new RoutedEventArgs());
+            }
+            return;
+        }
         if (key == Key.R && Keyboard.Modifiers == ModifierKeys.None)
         {
             if (!e.IsRepeat) Ruler_Click(this, new RoutedEventArgs());
@@ -1040,6 +1079,9 @@ public partial class SelectionWindow : Window
 
     private void PositionChrome()
     {
+        PositionRecognitionActions();
+        if (SummaryResultPanel.Visibility == Visibility.Visible) PositionSummaryPanel();
+        if (_textRecognitionActive) PositionTextSelectionLayer();
         const double half = 6;
         CanvasPosition(TopLeftHandle, _selection.Left - half, _selection.Top - half);
         CanvasPosition(TopCenterHandle, _selection.Left + _selection.Width / 2 - half, _selection.Top - half);

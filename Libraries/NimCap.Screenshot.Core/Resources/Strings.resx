@@ -3902,4 +3902,25 @@ Barcode</value></data>
   <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>Version {0} is available. Open the update page?</value></data>
   <data name="ShortcutAction" xml:space="preserve"><value>Action</value></data>
   <data name="OfficialWebsite" xml:space="preserve"><value>Official website</value></data>
+  <data name="CaptureRecognizeText" xml:space="preserve"><value>Text recognition</value></data>
+  <data name="CaptureSummary" xml:space="preserve"><value>Summarize</value></data>
+  <data name="CaptureSummaryProcessing" xml:space="preserve"><value>Summarizing locally...</value></data>
+  <data name="CaptureSummaryComplete" xml:space="preserve"><value>Summary complete. Nothing was uploaded.</value></data>
+  <data name="CaptureSummaryEmpty" xml:space="preserve"><value>No text to summarize.</value></data>
+  <data name="CaptureSummaryTooLong" xml:space="preserve"><value>Summaries support up to 6,000 characters. Select a smaller region.</value></data>
+  <data name="CaptureTextCopyAll" xml:space="preserve"><value>Copy all</value></data>
+  <data name="CaptureTextBackToEditing" xml:space="preserve"><value>Back to editing</value></data>
+  <data name="CaptureTextSelectionHint" xml:space="preserve"><value>Drag to select and copy · Ctrl+A select all · Ctrl+C copy</value></data>
+  <data name="CaptureTextRecognizing" xml:space="preserve"><value>Recognizing text locally… · Esc to return to editing</value></data>
+  <data name="CaptureTextNoText" xml:space="preserve"><value>No text found. Press Esc to return and adjust the selection.</value></data>
+  <data name="CaptureTextTimedOut" xml:space="preserve"><value>Recognition timed out. Press Esc to return and try again.</value></data>
+  <data name="CaptureTextCopied" xml:space="preserve"><value>Copied · Drag to copy another selection</value></data>
+  <data name="CaptureTextAllCopied" xml:space="preserve"><value>All text copied to clipboard · You can also drag to copy a portion</value></data>
+  <data name="CaptureSummaryClose" xml:space="preserve"><value>Close summary</value></data>
+  <data name="CaptureSummaryCopy" xml:space="preserve"><value>Copy summary</value></data>
+  <data name="CaptureSummaryRetry" xml:space="preserve"><value>Retry</value></data>
+  <data name="CaptureSummaryConfigure" xml:space="preserve"><value>Set up model</value></data>
+  <data name="CaptureSummaryEmptyResult" xml:space="preserve"><value>The model returned no summary. Please retry.</value></data>
+  <data name="CaptureSummaryTimedOut" xml:space="preserve"><value>Summary timed out. Your screenshot is preserved; you can retry.</value></data>
+  <data name="CaptureSummaryCopied" xml:space="preserve"><value>Summary copied to clipboard.</value></data>
 </root>

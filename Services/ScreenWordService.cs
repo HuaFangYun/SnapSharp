@@ -86,10 +86,13 @@ internal sealed class ScreenWordService(Func<AppSettings> settings, Func<bool> s
         }
         finally { _operation?.Dispose(); _operation = null; _busy = false; }
     }
-    internal async Task<RecognitionDocument> RecognizeImage(BitmapSource image, CancellationToken token)
+    internal Task<RecognitionDocument> RecognizeImage(BitmapSource image, CancellationToken token)
+        => RecognizeImage(image, settings(), token);
+
+    internal static async Task<RecognitionDocument> RecognizeImage(BitmapSource image, AppSettings source, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        var candidate = JsonSerializer.Deserialize<AppSettings>(JsonSerializer.Serialize(settings()))!;
+        var candidate = JsonSerializer.Deserialize<AppSettings>(JsonSerializer.Serialize(source))!;
         if (candidate.OcrBackend == "PaddleOCR" && !PaddleReady(candidate))
         {
             var package = OcrModelDownloadService.FindPackage(candidate.OcrModelPackage);
@@ -102,7 +105,7 @@ internal sealed class ScreenWordService(Func<AppSettings> settings, Func<bool> s
         }
         var language = WindowsLanguage(candidate.WindowsOcrLanguage);
         candidate = ResolveSettings(candidate, language);
-        return await new LocalRecognitionService().Recognize(image, candidate, token);
+        return OcrTextCleanup.RemoveCjkSpacing(await new LocalRecognitionService().Recognize(image, candidate, token));
     }
 
     internal static AppSettings ResolveSettings(AppSettings source, string? availableWindowsLanguage)

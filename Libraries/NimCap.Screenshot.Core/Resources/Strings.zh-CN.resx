@@ -3902,4 +3902,25 @@ Media Foundation：{2}
   <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>发现新版本 {0}。是否打开更新页面？</value></data>
   <data name="ShortcutAction" xml:space="preserve"><value>功能</value></data>
   <data name="OfficialWebsite" xml:space="preserve"><value>官方主页</value></data>
+  <data name="CaptureRecognizeText" xml:space="preserve"><value>文字识别</value></data>
+  <data name="CaptureSummary" xml:space="preserve"><value>总结</value></data>
+  <data name="CaptureSummaryProcessing" xml:space="preserve"><value>正在本地总结…</value></data>
+  <data name="CaptureSummaryComplete" xml:space="preserve"><value>总结完成，内容未上传。</value></data>
+  <data name="CaptureSummaryEmpty" xml:space="preserve"><value>未识别到可总结的文字。</value></data>
+  <data name="CaptureSummaryTooLong" xml:space="preserve"><value>总结支持最多 6000 字，请缩小截图范围。</value></data>
+  <data name="CaptureTextCopyAll" xml:space="preserve"><value>复制全部</value></data>
+  <data name="CaptureTextBackToEditing" xml:space="preserve"><value>返回编辑</value></data>
+  <data name="CaptureTextSelectionHint" xml:space="preserve"><value>拖选即复制 · Ctrl+A 全选 · Ctrl+C 复制</value></data>
+  <data name="CaptureTextRecognizing" xml:space="preserve"><value>正在本地识别文字… · Esc 返回编辑</value></data>
+  <data name="CaptureTextNoText" xml:space="preserve"><value>未识别到文字，按 Esc 返回后可调整截图范围。</value></data>
+  <data name="CaptureTextTimedOut" xml:space="preserve"><value>识别超时，按 Esc 返回后可重试。</value></data>
+  <data name="CaptureTextCopied" xml:space="preserve"><value>已复制 · 可继续拖选复制</value></data>
+  <data name="CaptureTextAllCopied" xml:space="preserve"><value>全部文字已复制到剪贴板 · 也可拖选复制局部</value></data>
+  <data name="CaptureSummaryClose" xml:space="preserve"><value>关闭总结</value></data>
+  <data name="CaptureSummaryCopy" xml:space="preserve"><value>复制总结</value></data>
+  <data name="CaptureSummaryRetry" xml:space="preserve"><value>重试</value></data>
+  <data name="CaptureSummaryConfigure" xml:space="preserve"><value>配置模型</value></data>
+  <data name="CaptureSummaryEmptyResult" xml:space="preserve"><value>模型未返回总结，请重试。</value></data>
+  <data name="CaptureSummaryTimedOut" xml:space="preserve"><value>总结超时，截图已保留，可点击重试。</value></data>
+  <data name="CaptureSummaryCopied" xml:space="preserve"><value>总结已复制到剪贴板。</value></data>
 </root>

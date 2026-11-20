@@ -16,7 +16,7 @@ public partial class RecognitionWindow
     private readonly Dictionary<string, string> _quickModels = new();
     private readonly Dictionary<string, string> _quickDevices = new();
     private bool _modelControlsUpdating;
-    private string ModelScope => Mode == "Document" ? "OCR" : Mode;
+    private string ModelScope => Mode is "Document" or "Summary" ? "OCR" : Mode;
 
     private void RefreshModelToolbar(bool reset = false)
     {
@@ -134,7 +134,7 @@ public partial class RecognitionWindow
             { settings.CutoutProfile = model.Profile; settings.CutoutInputSize = model.InputSize; }
             settings.CutoutOnnxDevice = device;
         }
-        else if (Mode is "OCR" or "Document")
+        else if (Mode is "OCR" or "Document" or "Summary")
         {
             var id = ((QuickModel)QuickModelBox.SelectedItem).Id;
             settings.OcrBackend = id is "Windows" or "Tesseract" ? id : "PaddleOCR";

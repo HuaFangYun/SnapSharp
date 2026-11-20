@@ -31,6 +31,7 @@ public sealed class AppController : IDisposable
     private readonly AppUpdateSession _updates = new();
     private readonly CancellationTokenSource _lifetime = new();
     private bool _disposed;
+    private bool _captureBackendRefreshPending;
 
     public AppController()
     {
@@ -76,6 +77,7 @@ public sealed class AppController : IDisposable
         _tray.ExitRequested += async (_, _) => { if (_recordingWindow is null || await _recordingWindow.StopAndWait()) Application.Current.Shutdown(); };
         _hotkey.CaptureRequested += RequestCapture;
         _capture.CaptureCompleted += OnCaptureCompleted;
+        _capture.SettingsRequested += (category, owner) => ShowSettings(category, owner);
         _tray.UpdateHotkeyLabels(_settings.Current);
         if (_plugins.Failures.Count > 0)
             _tray.ShowMessage(L.Get("PluginLoading"), L.Format("0PluginsCouldNotBeLoaded", _plugins.Failures.Count),
@@ -171,6 +173,11 @@ public sealed class AppController : IDisposable
         if (_capture.IsActive) return;
         try
         {
+            if (_captureBackendRefreshPending)
+            {
+                _capture.SetCaptureService(new ResilientCaptureService(_settings.Current.PreferWgcCapture, _settings.Current.IncludeCursor));
+                _captureBackendRefreshPending = false;
+            }
             if (scrolling)
             {
                 var selection = await CaptureCoordinator.SelectScrollingRegionAsync();
@@ -276,7 +283,12 @@ public sealed class AppController : IDisposable
         {
             OpenRecording(new System.Drawing.Rectangle(result.ScreenBounds.Left + result.PixelRegion.Left, result.ScreenBounds.Top + result.PixelRegion.Top, result.PixelRegion.Width, result.PixelRegion.Height)); return;
         }
-        if (result.Action is CaptureAction.OCR or CaptureAction.Cutout) { OpenRecognition(result.Image, sender as Window, result.Action == CaptureAction.Cutout ? "Cutout" : "OCR"); return; }
+        if (result.Action is CaptureAction.OCR or CaptureAction.Cutout or CaptureAction.Summary)
+        {
+            OpenRecognition(result.Image, sender as Window, result.Action switch
+            { CaptureAction.Cutout => "Cutout", CaptureAction.Summary => "Summary", _ => "OCR" });
+            return;
+        }
         if (result.Action == CaptureAction.Scrolling) { OpenScrolling(result); return; }
         if (_settings.Current.AutoSaveImages)
         {
@@ -416,7 +428,7 @@ public sealed class AppController : IDisposable
 
     private void ShowSettings(string? category = null, Window? owner = null)
     {
-        if (_capture.IsActive) { _tray.ShowMessage(L.Get("Settings"), L.Get("StopCaptureBeforeOpeningSettings")); return; }
+        if (_capture.IsActive && owner is not SelectionWindow) { _tray.ShowMessage(L.Get("Settings"), L.Get("StopCaptureBeforeOpeningSettings")); return; }
         if (_openWindows.OfType<ScrollCaptureWindow>().Any(x => x.IsCapturing)) { _tray.ShowMessage(L.Get("ScrollingCapture"), L.Get("StopCaptureBeforeOpeningSettings")); return; }
         if (_settingsWindow is not null)
         {
@@ -432,8 +444,12 @@ public sealed class AppController : IDisposable
             if (WindowDialogService.ShowDialog(window, owner) == true)
             {
                 _tray.UpdateHotkeyLabels(_settings.Current);
-                _capture.SetCaptureService(new ResilientCaptureService(
-                    _settings.Current.PreferWgcCapture, _settings.Current.IncludeCursor));
+                if (_capture.IsActive) _captureBackendRefreshPending = true;
+                else
+                {
+                    _capture.SetCaptureService(new ResilientCaptureService(_settings.Current.PreferWgcCapture, _settings.Current.IncludeCursor));
+                    _captureBackendRefreshPending = false;
+                }
             }
         }
         finally { _settingsWindow = null; }

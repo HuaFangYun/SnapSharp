@@ -156,23 +156,44 @@ public sealed partial class LocalRecognitionService
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token); timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(settings.RecognitionTimeoutSeconds, 1, 120)));
         var engine = string.IsNullOrWhiteSpace(settings.WindowsOcrLanguage) ? OcrEngine.TryCreateFromUserProfileLanguages() : OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language(settings.WindowsOcrLanguage));
         if (engine is null) throw new InvalidOperationException(L.Get("WindowsOCRLanguagePackUnavailableInstallThe"));
+        if (!image.IsFrozen) { image = image.Clone(); image.Freeze(); }
         var maximum = (int)OcrEngine.MaxImageDimension;
-        var input = Math.Max(image.PixelWidth, image.PixelHeight) > maximum ? _images.CreateThumbnail(image, maximum) : image;
-        var converted = new FormatConvertedBitmap(input, PixelFormats.Bgra32, null, 0); var pixels = new byte[input.PixelWidth * input.PixelHeight * 4]; converted.CopyPixels(pixels, input.PixelWidth * 4, 0);
-        using var bitmap = SoftwareBitmap.CreateCopyFromBuffer(CryptographicBuffer.CreateFromByteArray(pixels), BitmapPixelFormat.Bgra8, input.PixelWidth, input.PixelHeight, BitmapAlphaMode.Straight);
-        var result = await engine.RecognizeAsync(bitmap).AsTask(timeout.Token).ConfigureAwait(false);
-        var sx = image.PixelWidth / (double)input.PixelWidth; var sy = image.PixelHeight / (double)input.PixelHeight;
-        var blocks = result.Lines.Select(line =>
+        // Enlarge small screen fonts before recognition. Tall captures are processed
+        // in overlapping strips instead of shrinking every character to fit the engine.
+        var scale = Math.Min(3d, maximum / (double)image.PixelWidth);
+        var stripHeight = Math.Max(1, (int)Math.Floor(maximum / scale));
+        var overlap = Math.Min(128, stripHeight / 4);
+        var blocks = new List<RecognizedBlock>();
+        for (var y = 0; y < image.PixelHeight;)
         {
-            var left = line.Words.Min(x => x.BoundingRect.Left); var top = line.Words.Min(x => x.BoundingRect.Top);
-            var right = line.Words.Max(x => x.BoundingRect.Right); var bottom = line.Words.Max(x => x.BoundingRect.Bottom);
-            return new RecognizedBlock(line.Text, new Rect(left * sx, top * sy, (right - left) * sx, (bottom - top) * sy))
+            timeout.Token.ThrowIfCancellationRequested();
+            var height = Math.Min(stripHeight, image.PixelHeight - y);
+            var last = y + height == image.PixelHeight;
+            var crop = new CroppedBitmap(image, new Int32Rect(0, y, image.PixelWidth, height));
+            var input = new TransformedBitmap(crop, new ScaleTransform(scale, scale));
+            input.Freeze();
+            var converted = new FormatConvertedBitmap(input, PixelFormats.Bgra32, null, 0);
+            var pixels = new byte[input.PixelWidth * input.PixelHeight * 4]; converted.CopyPixels(pixels, input.PixelWidth * 4, 0);
+            using var bitmap = SoftwareBitmap.CreateCopyFromBuffer(CryptographicBuffer.CreateFromByteArray(pixels), BitmapPixelFormat.Bgra8, input.PixelWidth, input.PixelHeight, BitmapAlphaMode.Straight);
+            var result = await engine.RecognizeAsync(bitmap).AsTask(timeout.Token).ConfigureAwait(false);
+            var sx = image.PixelWidth / (double)input.PixelWidth; var sy = height / (double)input.PixelHeight;
+            foreach (var line in result.Lines.Where(line => line.Words.Count > 0))
             {
-                TextSpans = WordPositions(line.Text, line.Words.Select(w => (w.Text,
-                    new Rect(w.BoundingRect.Left * sx, w.BoundingRect.Top * sy, w.BoundingRect.Width * sx, w.BoundingRect.Height * sy))))
-            };
-        }).ToArray();
-        return new RecognitionDocument(blocks, "Windows.Media.Ocr / " + engine.RecognizerLanguage.LanguageTag);
+                var left = line.Words.Min(x => x.BoundingRect.Left); var top = line.Words.Min(x => x.BoundingRect.Top);
+                var right = line.Words.Max(x => x.BoundingRect.Right); var bottom = line.Words.Max(x => x.BoundingRect.Bottom);
+                var center = (top + bottom) * sy / 2;
+                // Each overlap belongs to exactly one strip; retain complete lines.
+                if (y > 0 && center < overlap / 2d || !last && center >= height - overlap / 2d) continue;
+                blocks.Add(new RecognizedBlock(line.Text, new Rect(left * sx, y + top * sy, (right - left) * sx, (bottom - top) * sy))
+                {
+                    TextSpans = WordPositions(line.Text, line.Words.Select(w => (w.Text,
+                        new Rect(w.BoundingRect.Left * sx, y + w.BoundingRect.Top * sy, w.BoundingRect.Width * sx, w.BoundingRect.Height * sy))))
+                });
+            }
+            if (last) break;
+            y += height - overlap;
+        }
+        return new RecognitionDocument(ReadingOrder(blocks), "Windows.Media.Ocr / " + engine.RecognizerLanguage.LanguageTag);
     }
 
     private static IReadOnlyList<RecognizedTextSpan> WordPositions(string text, IEnumerable<(string Text, Rect Bounds)> words)

@@ -33,7 +33,7 @@ public partial class SelectionWindow
     {
         while (source is not null)
         {
-            if (source == CapturePanel || source == ToolPanel || source == SecondaryToolPanel) return true;
+            if (source == CapturePanel || source == RecognitionActionsPanel || source == SummaryResultPanel || source == ToolPanel || source == SecondaryToolPanel) return true;
             source = source is Visual ? VisualTreeHelper.GetParent(source) : LogicalTreeHelper.GetParent(source);
         }
         return false;
@@ -89,7 +89,7 @@ public partial class SelectionWindow
 
     private bool CanNudgeCapture(bool resize = false)
     {
-        if (!IsLoaded || !IsActive || !IsKeyboardFocusWithin || CaptureModePicker.IsDropDownOpen ||
+        if (_textRecognitionActive || !IsLoaded || !IsActive || !IsKeyboardFocusWithin || CaptureModePicker.IsDropDownOpen ||
             ShapePicker.IsDropDownOpen || RatioPicker.IsDropDownOpen) return false;
         var focus = Keyboard.FocusedElement as DependencyObject;
         while (focus is not null && focus != this)
@@ -119,8 +119,8 @@ public partial class SelectionWindow
         PrecisionGuides.OriginX = _screen.Bounds.Left;
         PrecisionGuides.OriginY = _screen.Bounds.Top;
         PrecisionGuides.Pointer = point;
-        PrecisionGuides.ShowRulers = _rulersVisible;
-        PrecisionGuides.ShowCrosshair = _crosshairVisible && !CapturePanel.IsMouseOver && !ToolPanel.IsMouseOver && !SecondaryToolPanel.IsMouseOver;
+        PrecisionGuides.ShowRulers = _rulersVisible && !_textRecognitionActive;
+        PrecisionGuides.ShowCrosshair = _crosshairVisible && !_textRecognitionActive && !CapturePanel.IsMouseOver && !RecognitionActionsPanel.IsMouseOver && !ToolPanel.IsMouseOver && !SecondaryToolPanel.IsMouseOver;
         PrecisionGuides.InvalidateVisual();
         UpdateMovementHint();
     }

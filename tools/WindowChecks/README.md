@@ -1,5 +1,22 @@
 # Window layering checks
 
+In-place screenshot text selection (synthetic OCR, no desktop capture or clipboard writes):
+
+```powershell
+dotnet run --project tools/WindowChecks/WindowChecks.csproj -c Release -p:Platform=x64 -- --inline-ocr-only
+```
+
+Checks automatic copy-all, drag/release-to-copy logic, Unicode and reverse/multiline selection,
+unchanged capture output, Esc, cancellation, stale results and failure recovery at five DPI scales.
+Inline summary checks use model response fixtures to verify progress, copying, retry, settings
+requests, OCR reuse/recovery, cancellation and card bounds without launching or downloading an LLM.
+Chinese and English previews are saved under `.artifacts/window-checks`.
+If a Windows OCR language pack is installed, the same suite also recognizes a generated
+text image and verifies native word coordinates; this step skips when no pack is available.
+With a Chinese language pack it also checks 14px mixed Chinese/English text, missing selection
+bounds and long-image strip boundaries. Original/enhanced OCR output is saved as `small-font-ocr.txt`;
+this validates text coverage and spacing, not perfect character accuracy from Windows OCR.
+
 One-click redaction rules and screenshot/pin integration (synthetic OCR input, no model required):
 
 ```powershell

@@ -31,7 +31,8 @@ public enum CaptureAction
     Scrolling,
     OCR,
     Cutout,
-    Recording
+    Recording,
+    Summary
 }
 
 public sealed record CaptureResult(BitmapSource Image, Rectangle ScreenBounds, Rectangle PixelRegion,

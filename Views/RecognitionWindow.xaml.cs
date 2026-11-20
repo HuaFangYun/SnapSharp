@@ -101,6 +101,7 @@ public partial class RecognitionWindow : Window
             await Dispatcher.InvokeAsync(FitImage, System.Windows.Threading.DispatcherPriority.Loaded);
             if (_closed) return;
             Status.Text = L.Get("RecognitionChooseTool");
+            if (autoRun && Mode is "OCR" or "Summary") await Run();
         };
         Closed += (_, _) => { _closed = true; _operation?.Cancel(); };
     }
@@ -147,7 +148,7 @@ public partial class RecognitionWindow : Window
         try
         {
             var settings = QuickSettings(); var service = new LocalRecognitionService(); Status.Text = L.Get("ProcessingLocallyClickStopToCancel");
-            if ((Mode is "OCR" or "Document" || Mode == "Table" && string.IsNullOrWhiteSpace(settings.TableRecognizerId))
+            if ((Mode is "OCR" or "Document" or "Summary" || Mode == "Table" && string.IsNullOrWhiteSpace(settings.TableRecognizerId))
                 && !await ResolveQuickOcr(settings, _operation.Token))
             { Status.Text = L.Get("RecognitionModelUnavailable"); return; }
             if (Mode == "Cutout")
@@ -194,6 +195,15 @@ public partial class RecognitionWindow : Window
             _identityDocument = null; DocumentEditor.Clear(); DocumentTypeText.Text = L.Get("DocumentUnknown"); _identityBaseline = IdentitySnapshot;
             ResultTabs.SelectedItem = Mode == "Table" ? TableResultTab : TextResultTab;
             Status.Text = document.Blocks.Count == 0 ? L.Get("NoContentRecognizedTryAnotherEngineCheck") : L.Format("01RegionsClickAnImageRegion", document.Backend, document.Blocks.Count);
+            if (Mode == "Summary" && !string.IsNullOrWhiteSpace(document.Text))
+            {
+                Status.Text = L.Get("CaptureSummaryProcessing");
+                var summary = await LocalTranslationService.Summarize(document.Text, settings, _operation.Token);
+                if (_closed) return;
+                SetSourceText(summary);
+                _baseline = _sourceText;
+                Status.Text = L.Get("CaptureSummaryComplete");
+            }
             if (Mode == "Table") Status.Text += L.Get("RowsColumnsAndMergedCellsRecognizedReview");
             if (Mode == "Document") ShowDocument();
         }
@@ -499,7 +509,7 @@ public partial class RecognitionWindow : Window
             content.Measure(new System.Windows.Size(1140, 790)); content.Arrange(new Rect(0, 0, 1140, 790)); content.UpdateLayout();
             if (window.Picture.Source is not BitmapSource preview || preview.PixelWidth != source.PixelWidth || preview.PixelHeight != source.PixelHeight || window.Mode != "OCR" || window._busy)
                 throw new InvalidOperationException("Clipboard entry must show the imported image before running a selected tool.");
-            window.ModeBox.SelectedIndex = 5;
+            window.ModeBox.SelectedItem = window.ModeBox.Items.OfType<ListBoxItem>().Single(item => item.Tag?.ToString() == "Cutout");
             if (window.CutoutModelBox.Visibility != Visibility.Visible || window.ResultTabs.SelectedItem != window.CutoutResultTab)
                 throw new InvalidOperationException("Clipboard image cutout mode selection failed.");
             window.ModeBox.SelectedIndex = 0;

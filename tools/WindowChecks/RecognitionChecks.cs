@@ -114,8 +114,10 @@ internal static partial class Program
         try
         {
             var nav = (ListBox)window.FindName("ModeBox");
-            Require(nav.Items.Count == 6, "Recognition tools should be directly visible in navigation.");
-            var transformTools = (WrapPanel)window.FindName("ImageTransformTools");
+            Require(nav.Items.OfType<ListBoxItem>().Select(item => item.Tag?.ToString()).ToHashSet()
+                .SetEquals(["OCR", "Summary", "Document", "Table", "Barcode", "Formula", "Cutout", "Watermark"]),
+                "Recognition tools should be directly visible in navigation.");
+            var transformTools = (System.Windows.Controls.Panel)window.FindName("ImageTransformTools");
             foreach (var action in new[] { "Left", "Right", "Half", "Half", "Vertical", "Vertical" })
             {
                 var before = (BitmapSource)typeof(RecognitionWindow).GetField("_image", PrivateInstance)!.GetValue(window)!;
@@ -130,7 +132,7 @@ internal static partial class Program
                 var content = (FrameworkElement)window.Content;
                 content.Measure(new System.Windows.Size(width, 720)); content.Arrange(new Rect(0, 0, width, 720)); content.UpdateLayout();
                 RecognitionPreviewChecks(window);
-                foreach (var mode in new[] { "Document", "OCR", "Table", "Barcode", "Formula", "Cutout" })
+                foreach (var mode in new[] { "Document", "OCR", "Summary", "Table", "Barcode", "Formula", "Cutout" })
                 {
                     nav.SelectedItem = nav.Items.OfType<ListBoxItem>().Single(i => i.Tag?.ToString() == mode);
                     content.UpdateLayout();
@@ -191,8 +193,8 @@ internal static partial class Program
             var rotate = transformTools.Children.OfType<System.Windows.Controls.Button>().Single(b => b.Tag?.ToString() == "Right");
             rotate.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
             Require(typeof(RecognitionWindow).GetField("_document", PrivateInstance)!.GetValue(window) is null && ((System.Windows.Controls.TextBox)window.FindName("DocumentEditor")).Text.Length == 0
-                && !((WrapPanel)window.FindName("CutoutButtons")).IsEnabled, "Image orientation changes must invalidate stale result coordinates and output.");
-            Console.WriteLine("PASS: all six navigation modes, minimum/default window sizes, field location/edit tracking; previews: " + Root);
+                && !((System.Windows.Controls.Button)window.FindName("CommonCopyButton")).IsEnabled, "Image orientation changes must invalidate stale result coordinates and output.");
+            Console.WriteLine("PASS: recognition navigation including summary, minimum/default window sizes, field location/edit tracking; previews: " + Root);
         }
         finally { window.Close(); }
     }
