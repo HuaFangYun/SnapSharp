@@ -55,15 +55,19 @@ separately from these source files.
 
 - `content.py`: Chinese/English editorial pairs, feature descriptions, FAQs, and
   guides. Chinese is first and English is second in each pair.
-- `homepage.py`: original landing-page composition, local-AI stories, and
-  illustrative annotation / draggable-pin demos.
+- `templates/home.html`: semantic homepage markup, complete product descriptions,
+  screenshot figures, setup steps, and offline-AI explanations. Each `{{Chinese||English}}`
+  pair is resolved at build time, never in the browser.
+- `homepage.py`: small build-time adapter that fills the HTML template with
+  localized text, image paths, guide links, and native FAQ markup.
 - `templates/base.html`: semantic page shell and metadata.
 - `assets/site.css`: responsive layout and reduced-motion / print styles.
-- `assets/home.css`: homepage-only forest, lime, and lavender visual system.
-- `assets/site.js`: progressive enhancement for mobile navigation, keyboard
-  recognition tabs, the image viewer, a before/after comparison, annotation
-  previews, and bounded draggable pins with keyboard support. No-JavaScript
-  pages keep all recognition panels and a static comparison visible.
+- `assets/home.css`: homepage-only white and pale-blue layout with subtle mint,
+  lavender, and peach accents, plus responsive and print styles.
+- `assets/site.js`: progressive enhancement only for the mobile menu and image
+  viewer. It does not generate page sections, articles, product copy, or links.
+  Without JavaScript, navigation stays visible, screenshot links open image files,
+  and native `<details>` FAQs still work.
 - `scripts/build-site.py`: static page rendering, JSON-LD, sitemap, and URL paths.
 
 Validate claims against the application and user guide when updating content.
@@ -78,17 +82,15 @@ when a screenshot is selected. All imagery uses existing project material;
 model output has not been replaced or improved by hand. See
 [`Screenshot/Blog/README.md`](../Screenshot/Blog/README.md) for provenance.
 
-The cutout slider uses aligned crops from the existing actual before/after
-comparison; the original image proportions and inference output are retained.
-The Qwen panel uses an existing local translation result. Hero paper layouts,
-annotation sample dashboard, abstract pin artwork, and `privacy-orbit.svg` are
-original code-based illustrations, labeled as such. They do not run AI in the
-browser or imply desktop performance measurements. No assets, copy, or code
-from third-party software sites are included.
+The hero uses `Screenshot/去水印.png`, showing the current Image Tools window,
+LaMa CPU repair, and original/result comparison. The cutout figure retains the
+existing actual before/after output, and the Qwen figure uses an existing local
+translation result. No AI runs in the browser, and figures do not imply desktop
+performance measurements. Older illustration assets remain available for reuse.
 
 Some application renders were produced with 1.0.4; they illustrate features, not
 an assertion that the current release looks identical. Recognition figures show
-real CPU outputs; the desktop-pin composition is an illustrative scene. These
+real CPU outputs; older desktop-pin compositions are illustrative scenes. These
 distinctions are also disclosed in the public pages.
 
 To regenerate committed image derivatives on Windows with Pillow installed:

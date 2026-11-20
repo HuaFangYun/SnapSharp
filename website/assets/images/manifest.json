@@ -62,6 +62,15 @@
     ],
     "source": "Screenshot/Blog/20-ai-local-translation.png"
   },
+  "watermark": {
+    "width": 1226,
+    "height": 783,
+    "widths": [
+      640,
+      1226
+    ],
+    "source": "Screenshot/去水印.png"
+  },
   "cutout-before": {
     "width": 650,
     "height": 921,

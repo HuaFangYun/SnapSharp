@@ -5,10 +5,10 @@ Do not imply that illustrative UI renders are live desktop captures.
 """
 
 HOME = {
-    "title": ("NimCap Screenshot — Windows 截图、本地 AI 与离线图像工具", "NimCap Screenshot — Windows Screenshots, Local AI & Offline Image Tools"),
+    "title": ("NimCap 截图工具 — 离线 AI、截图、OCR 与图像处理", "NimCap Screenshot — Offline AI, Screenshots, OCR & Image Tools"),
     "description": (
-        "NimCap 截图工具（NimCap Screenshot）是开源 Windows 截图与本地 AI 工具，支持 OCR、证件识别、一键脱敏、表格转 Excel、公式转 LaTeX、翻译、抠图、屏幕测量与录屏。模型及依赖配置后可离线、内网使用本地功能，图片与文字无需上传。",
-        "Open-source Windows screenshots and local AI: OCR, document fields, sensitive-text blur, tables to Excel, formulas to LaTeX, translation, cutouts, measurement, and recording. Local features work offline and on internal networks after setup, without uploading images or text.",
+        "NimCap 截图工具是开源 Windows 截图与离线 AI 工具，支持 OCR、表格转 Excel、公式转 LaTeX、本地翻译、抠图、去水印、脱敏与录屏。提前配置模型及运行依赖后，本地功能可在断网与内网中使用，图片与文字无需上传。",
+        "Open-source Windows screenshots and offline AI: OCR, tables to Excel, formulas to LaTeX, local translation, background and watermark removal, sensitive-text blur, and recording. Prepare models and runtimes to use local features offline without uploading images or text.",
     ),
     "badge": ("开源软件 · Windows 桌面端", "OPEN SOURCE · MADE FOR WINDOWS"),
     "headline": ("截图之后，<br>交给 <em>本地 AI。</em>", "Capture it.<br><em>Keep it local.</em>"),
@@ -48,6 +48,7 @@ HOME = {
 }
 
 FEATURES = [
+    ("image", ("去水印与图像修复", "Watermark removal and image repair"), ("MI-GAN、LaMa、Moebius 本地修复，SLBR 辅助区域与全图检测，支持原图对比、蒙版编辑及撤销。", "Local MI-GAN, LaMa, and Moebius repair with SLBR region/full-image detection, original comparison, mask editing, and undo.")),
     ("capture", ("截图与标注", "Capture & annotate"), ("区域、窗口与全屏截图。用箭头、序号、文字、荧光笔和马赛克把重点说明白。", "Capture an area, a window, or your screen. Explain the details with arrows, numbers, text, highlights, and pixelation.")),
     ("text", ("本地文字与翻译", "Local OCR & translation"), ("提取中英文文字，接着阅读译文。提供本地 OCR 引擎和 Qwen 翻译模型。", "Extract Chinese and English text, then translate it. Use local OCR engines and a local Qwen translation model.")),
     ("table", ("表格与公式识别", "Tables & formulas"), ("表格图片转 CSV / XLSX，公式图片转 LaTeX。识别结果可检查后继续使用。", "Turn table images into CSV / XLSX and formula images into LaTeX. Review the results before taking them into your work.")),
