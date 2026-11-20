@@ -38,7 +38,9 @@ jobs:
           dotnet-version: 10.0.x
       - name: Build, check, and package Windows x64
         id: package
-        shell: pwsh
+        # The updater fixtures launch Windows PowerShell 5.1. Use its module
+        # environment so the child process can resolve built-in cmdlets.
+        shell: powershell
         env:
           EXPECTED_VERSION: ${{ inputs.expected_version }}
           DOTNET_NOLOGO: 'true'
