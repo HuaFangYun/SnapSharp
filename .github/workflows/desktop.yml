@@ -1,0 +1,67 @@
+name: Desktop Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      expected_version:
+        description: Version that must match the project before packaging
+        required: false
+        type: string
+        default: ''
+    outputs:
+      version:
+        description: Version read from the project
+        value: ${{ jobs.build.outputs.version }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2025
+    timeout-minutes: 35
+    outputs:
+      version: ${{ steps.package.outputs.version }}
+    steps:
+      - name: Check out the requested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build, check, and package Windows x64
+        id: package
+        shell: pwsh
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+          DOTNET_NOLOGO: 'true'
+          DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+        run: ./scripts/build-desktop.ps1 -ExpectedVersion $env:EXPECTED_VERSION
+      - name: Save the Windows package and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows-x64
+          path: |
+            ${{ steps.package.outputs.package_path }}
+            ${{ steps.package.outputs.checksum_path }}
+          if-no-files-found: error
+          retention-days: 14
+      - name: Save diagnostic logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-build-diagnostics
+          path: |
+            .artifacts/desktop-build/**/*.log
+            .artifacts/desktop-build/**/*.binlog
+            .artifacts/regression-checks/
+            .artifacts/window-checks/
+          if-no-files-found: ignore
+          retention-days: 7

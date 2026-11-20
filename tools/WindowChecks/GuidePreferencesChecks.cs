@@ -101,7 +101,10 @@ internal static partial class Program
                 "Saving settings would overwrite remembered toolbar states.");
             candidate.ShowCaptureCrosshair = false;
             Require(disabled.Current.ShowCaptureCrosshair, "Settings candidate changed current toolbar preferences.");
-            var rulerShortcut = (TextBox)configuration.FindName("ScreenRulerHotkey");
+            var actionFields = (IReadOnlyDictionary<GlobalAction, TextBox>)typeof(SettingsWindow)
+                .GetField("_actionFields", PrivateInstance)!.GetValue(configuration)!;
+            Require(actionFields.ContainsKey(GlobalAction.ScreenRuler), "Standalone ruler has no shortcut editor.");
+            var rulerShortcut = actionFields[GlobalAction.ScreenRuler];
             rulerShortcut.Text = "Ctrl+Shift+M";
             candidate = configuration.BuildCandidate();
             Require(candidate.ScreenRulerHotkey == "Ctrl+Shift+M" && disabled.Current.ScreenRulerHotkey == "" &&
