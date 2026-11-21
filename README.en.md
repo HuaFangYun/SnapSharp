@@ -2,13 +2,13 @@
 
 [简体中文](README.md) | **English**
 
-[GitHub](https://github.com/nimcap/nimcap-screenshot) · [Gitee](https://gitee.com/lilongjiang/SnapSharp) · [Website](https://jietu.nimcap.com/) · [Releases](https://github.com/nimcap/nimcap-screenshot/releases)
+[GitHub](https://github.com/nimcap/nimcap-screenshot) · [Gitee mirror (legacy name)](https://gitee.com/lilongjiang/SnapSharp) · [Website](https://jietu.nimcap.com/) · [Releases](https://github.com/nimcap/nimcap-screenshot/releases)
 
 NimCap Screenshot is an open-source Windows desktop tool combining **screenshots, annotations, desktop pins, scrolling capture, and recording** with **local OCR, translation, table and formula recognition, background removal, watermark removal, and image repair**. Capture an image and share it, or keep working: extract text, export a table, generate LaTeX, remove a background, or pin reference material to your desktop.
 
 **Offline AI is central to the application. Local recognition, translation, and image processing run on your computer without uploading your images or text to the cloud.** Once the application, required models, and runtime dependencies are prepared, these features work without internet access, including on isolated internal networks. Use them for internal documents, tutorials, foreign-language reading, and everyday office work. Basic capture, annotations, pins, color picking, measurement, and barcode decoding need no AI downloads.
 
-The application is part of `nimcap` and was formerly called SnapSharp. Its current repository is `nimcap/nimcap-screenshot`; existing user data directories remain compatible. Built with C#, WPF, and .NET 10 for Windows x64, it is accessed through the notification area and global shortcuts.
+The application is part of `nimcap` and was formerly called SnapSharp. Its primary GitHub repository is `nimcap/nimcap-screenshot`; the Gitee mirror retains the legacy repository name. Built with C#, WPF, and .NET 10 for Windows x64, it is accessed through the notification area and global shortcuts. See the [migration notes](#upgrade) for legacy upgrades and data-folder selection.
 
 ## What offline AI can do
 
@@ -22,6 +22,12 @@ The application is part of `nimcap` and was formerly called SnapSharp. Its curre
 | Remove image backgrounds | U²-Net and BiRefNet models | Original dimensions and transparency; PNG/WebP output |
 | Remove watermarks and repair images | MI-GAN, LaMa, Moebius; SLBR for automatic detection | Compare with the original, undo, copy, save, or pin |
 | Blur sensitive text before sharing | Local OCR and rules; optional local Qwen assistance for names and addresses | Blur the image regions containing sensitive text |
+
+### Model size and recognition quality
+
+**Recognition quality depends on the size and capabilities of the selected AI model.** Within the same model family and task, with comparable training and quantization, more parameters generally help improve accuracy and handling of complex content. Lightweight models favor lower resource use and faster processing. OCR, tables, formulas, and local translation use separate models; choose compatible models for each task and your hardware.
+
+Larger models generally need more RAM, VRAM, and processing time. Results also depend on architecture, training data, quantization, language coverage, and image clarity, so download size alone is not a measure of accuracy. For complex content, consider a more capable compatible model and check key text, numbers, and symbols against the source.
 
 ### Preparing for offline use
 
@@ -53,7 +59,7 @@ Add arrows, text, numbered steps, highlights, pixelation, or blur. Move, resize,
 
 ### Blur sensitive text before sharing
 
-Capture and pin editing toolbars provide sensitive-text blurring. Local OCR and rules locate phone numbers, identity and bank-card numbers, email addresses, license plates, name fields, and addresses, then blur their image regions. Optional local Qwen assistance helps identify names and addresses. Configure OCR first and review the image for missed or incorrectly selected text before sharing.
+Capture and pin editing toolbars provide sensitive-text blurring. Local OCR and rules locate phone numbers, identity and bank-card numbers, email addresses, license plates, name fields, and addresses, then blur their image regions. Optional local Qwen assistance helps identify names and addresses. Detection quality depends on the OCR model's size and capabilities and on image clarity; assistance with names and addresses also depends on the selected Qwen model. Configure a suitable model first, then compare the treated regions with the source and add manual blur where needed before sharing.
 
 ![Example after sensitive-text blurring](Screenshot/一键脱敏-脱敏后.png)
 
@@ -63,7 +69,7 @@ Capture and pin editing toolbars provide sensitive-text blurring. Local OCR and 
 
 Choose text OCR in **Image Tools** to extract editable text, copy it, or export it. Recognition boxes and text results support navigation in both directions. PaddleOCR, Windows OCR, and Tesseract are local engines requiring their respective models, Windows language packs, or trained data.
 
-Document mode reuses local OCR to extract current-page fields from Chinese ID cards, including front/back and combined images, driving and vehicle licenses, household registers, passports, bank cards, and business licenses. Edit the fields before copying or exporting TXT. QR codes and one-dimensional barcodes decode offline without AI models. Document extraction uses OCR and rules; it does not verify authenticity.
+Document mode reuses local OCR to extract current-page fields from Chinese ID cards, including front/back and combined images, driving and vehicle licenses, household registers, passports, bank cards, and business licenses. Field recognition depends on OCR model size, language coverage, and image clarity. Choose a compatible model for the task, then edit the fields before copying or exporting TXT. This mode extracts fields; it does not verify document authenticity. QR codes and one-dimensional barcodes decode offline without AI models.
 
 ![Example Chinese text recognized by local PaddleOCR](Screenshot/Blog/14-ai-ocr-chinese.png)
 
@@ -73,13 +79,13 @@ Table mode uses local SLANet to recognize structure, then fills cells using OCR.
 
 ![Local table recognition and cell correction example](Screenshot/Blog/16-ai-table-recognition.png)
 
-Formula mode converts an individual formula image into editable LaTeX for copying or `.tex` export. Tables and formulas require their own matching models. Compare complex structures and recognition results with the original before reuse.
+Formula mode converts an individual formula image into editable LaTeX for copying or `.tex` export. Tables and formulas require their own matching models; results depend on model size, training coverage, and image clarity. A more capable compatible model generally helps with complex structures. Compare rows, columns, symbols, and subscripts or superscripts with the source before export.
 
 ![Local formula recognition producing LaTeX](Screenshot/Blog/17-ai-formula-latex.png)
 
 ### Local translation and hover OCR
 
-Recognize image text, then translate the full result or a selected passage; entered text can also be translated. Local translation runs Qwen3.5 through llama.cpp on CPU or Vulkan without a cloud API. Choose a model that fits your hardware and complete setup before offline use.
+Recognize image text, then translate the full result or a selected passage; entered text can also be translated. Local translation runs Qwen3.5 through llama.cpp on CPU or Vulkan without a cloud API. Larger models in the same family generally handle complex meaning better, while requiring more RAM, VRAM, and processing time. Choose a model that fits your hardware and complete setup before offline use.
 
 Enable screen text capture from the tray for the current session to run local OCR near a stationary pointer. Interface language, OCR language, and translation source/target languages are configured independently.
 
@@ -172,6 +178,16 @@ Save PNG, JPEG, WebP, TIFF, BMP, or A4-paginated PDF. Preview resizing and encod
 
 Change bindings and assign ruler or pin-restoration shortcuts under **Settings → Shortcuts**. Language/region packs include Chinese, English, Japanese, Korean, German, French, and others. Select and save a language under **Settings → General → Interface Language**. Some translations are machine-generated drafts.
 
+<a id="upgrade"></a>
+
+### Upgrading from SnapSharp and locating your data
+
+**SnapSharp v1.1.3 and earlier require a manual upgrade.** Download the complete Windows x64 archive for v1.1.4 or later from [GitHub Releases](https://github.com/nimcap/nimcap-screenshot/releases), extract the full archive, and run `NimCap.Screenshot.exe`. Future updates can use the new in-app updater. See the [v1.1.4 release notes](docs/releases/v1.1.4.md) for the first renamed release.
+
+The app first reads `data-location.json` beside the executable. Without that file, it uses `%LocalAppData%\SnapSharp` only when the executable folder has no managed data entries and the legacy folder contains entries such as `settings.json`, `models`, or `History`. Otherwise it uses the executable folder. View or schedule a move under **Settings → General → Local Data**; a confirmed move takes effect after restarting.
+
+Preserve the existing data folder and `data-location.json` during a manual upgrade. If you extract the new app into a different folder, check the data location: the rename alone does not locate data beside the old executable or in a custom folder. See the [user guide](docs/UserGuide.en.md#data-directory) for the full rules.
+
 <a id="settings"></a>
 
 ## First-time setup and requirements
@@ -203,5 +219,7 @@ The WPF application orchestrates user workflows. Libraries handle capture, imagi
 - [Feature specifications and roadmap](<docs/NimCap Screenshot 功能规格与路线图.md>) · [Image provenance](Screenshot/Blog/README.md)
 
 Technical references are primarily in Chinese; an English user guide is linked above.
+
+Report bugs and feature requests in the primary repository's [GitHub Issues](https://github.com/nimcap/nimcap-screenshot/issues), including the app version, Windows version, reproduction steps, and relevant screenshots. Search both `NimCap Screenshot` and `SnapSharp` for historical reports, and include the legacy name and exact version when reporting an older release. Keep private images and text out of public reports.
 
 Copyright 2026 leelongjiang and NimCap Screenshot contributors. Licensed under [Apache License 2.0](LICENSE). Component and model licenses are listed separately in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

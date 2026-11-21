@@ -29,7 +29,7 @@ public partial class RecognitionWindow
             "Cutout" => _cutout is not null,
             "Document" => _identityDocument is not null,
             "Table" => _cells.Count > 0,
-            _ => !string.IsNullOrEmpty(TextEditor.Text)
+            _ => !string.IsNullOrEmpty(ActiveTextEditor.Text)
         };
         CommonCopyButton.IsEnabled = CommonExportButton.IsEnabled = !_busy && hasResult;
         CommonPinButton.IsEnabled = !_busy && hasResult && mode is "Watermark" or "Cutout";
@@ -38,7 +38,7 @@ public partial class RecognitionWindow
             "Watermark" => _watermarkResult is not null,
             "Cutout" => _cutout is not null,
             "Document" => DocumentEditor.CanUndo,
-            "Text" => TextEditor.CanUndo,
+            "Text" => ActiveTextEditor.CanUndo,
             _ => false
         });
     }
@@ -51,7 +51,7 @@ public partial class RecognitionWindow
             case "Watermark": WatermarkUndoRepair_Click(sender, e); break;
             case "Cutout": CutoutUndo_Click(sender, e); break;
             case "Document" when DocumentEditor.CanUndo: DocumentEditor.Undo(); break;
-            case "Text" when TextEditor.CanUndo: TextEditor.Undo(); break;
+            case "Text" when ActiveTextEditor.CanUndo: ActiveTextEditor.Undo(); break;
         }
         RefreshCommonActions();
     }

@@ -2,7 +2,9 @@
 
 [简体中文](使用指南.md) | **English**
 
-Repository mirrors: [GitHub](https://github.com/nimcap/nimcap-screenshot) | [Gitee](https://gitee.com/lilongjiang/SnapSharp)
+Repositories: [Primary GitHub repository](https://github.com/nimcap/nimcap-screenshot) | [Gitee mirror (legacy name)](https://gitee.com/lilongjiang/SnapSharp)
+
+NimCap Screenshot was formerly called SnapSharp; the Gitee mirror retains the legacy repository name. Submit bugs and feature requests to the primary repository's [GitHub Issues](https://github.com/nimcap/nimcap-screenshot/issues). Search both names for historical reports and check the affected version.
 
 NimCap Screenshot is a Windows screenshot and image-processing tool. In addition to capturing screenshots, drawing arrows, and applying pixelation, it can pin images above other windows, stitch scrolling screenshots, recognize text in images, translate text, remove image backgrounds, and record MP4 or GIF files.
 
@@ -105,7 +107,7 @@ A screen snapshot cannot recover a window's original transparency, so the RGBA a
 
 Use the capture or pin-editing toolbar action to blur sensitive text. Configured local OCR and rules locate phone numbers, identity/card numbers, email, license plates, name fields, and addresses. A configured local Qwen translation model can assist with unlabeled names and addresses; candidates must match OCR text.
 
-The result is applied to image pixels and retained when copied or saved. Undo/redo covers the operation. Review for missed or incorrectly blurred text and add manual blur as needed.
+Detection quality depends on OCR model size and capabilities and on image clarity. When Qwen assistance is enabled, the language model's size and capabilities also matter. Larger models in the same family generally handle complex content better; choose compatible models that fit your hardware. The result is applied to image pixels and retained when copied or saved. Undo/redo covers the operation. Compare the treated regions with the source and add manual blur as needed before sharing.
 
 ### Standalone screen ruler
 
@@ -240,6 +242,8 @@ The window opens without starting recognition. Choose **Remove watermark** and s
 
 ### Configure OCR for the first time
 
+Recognition quality depends on model size and capabilities. Within the same family and task, with comparable training and quantization, larger models generally help improve accuracy; lightweight models use fewer resources and respond faster. Training data, language coverage, and image clarity also affect results. Choose among supported compatible models for your task and hardware, rather than comparing download sizes alone. OCR, tables, formulas, and local translation use separate models; upgrading the translation model does not change OCR results.
+
 1. Open **Settings → OCR and Recognition** from the tray.
 2. Keep the default PaddleOCR engine and start with CPU processing.
 3. Under **PaddleOCR Models and Dictionaries**, select **PP-OCRv4 · Chinese + English**.
@@ -279,7 +283,7 @@ For first-time translation, choose an engine under **Settings → Translation, A
 </p>
 <p align="center"><em>OCR output can be translated by a local model without uploading it to an external service.</em></p>
 
-Local translation accepts up to 6,000 characters per request and may be slower on first load. Small models can mistranslate, and OCR errors affect the translation. Review important source text and then verify the translation. A failure does not automatically switch services or compute devices.
+Local Qwen translation offers several parameter sizes. Larger models in the same family generally handle complex meaning better, at the cost of more RAM, VRAM, and processing time. Choose a model for your hardware and text; OCR source quality also affects the translation. Review important source text and then verify the translation. Each request accepts up to 6,000 characters and first loading may be slower. A failure does not automatically switch services or compute devices.
 
 ### Document field extraction
 
@@ -287,13 +291,13 @@ Select document mode to classify a Chinese ID card, driving license, vehicle lic
 
 Chinese ID cards support front, back, and combined images. Edit, copy, or export field text as TXT, and click a field line to locate its source. Missing fields stay blank; unclear types retain OCR text. Rotate or flip the source and rerun when necessary.
 
-Extraction covers the current page. It does not verify authenticity, aggregate household-register pages, or provide complete passport MRZ parsing. Check names, numbers, dates, and addresses against the source.
+Field extraction depends on OCR model size, language coverage, and image clarity. You can select a compatible model and rerun recognition, then check names, numbers, dates, and addresses against the source. Extraction covers the current page. It does not verify authenticity, aggregate household-register pages, or provide complete passport MRZ parsing.
 
 ### Barcodes, tables, formulas, and hover OCR
 
 - Barcodes: select **QR Code/Barcode** mode and start. No model download is required.
 - Tables: use the one-click table-recognition setup under **Settings → OCR and Recognition → Local Tables and Formulas**, save the settings, select a single table, and choose **Table Recognition (Local)**. Review rows, columns, and merged cells before correcting and exporting CSV or XLSX.
-- Formulas: configure formula recognition in the same section, save the settings, select one formula, and choose **Formula (Local LaTeX)**. You can edit, copy, or export the result as `.tex`; complex formulas still require manual review.
+- Formulas: configure formula recognition in the same section, save the settings, select one formula, and choose **Formula (Local LaTeX)**. You can edit, copy, or export the result as `.tex`. Recognition quality depends on formula model size, training coverage, and image clarity. Consider a more capable compatible model and check complex symbols, subscripts, and superscripts against the source before export.
 - Hover OCR: enable **Hover OCR (This Session)** from the tray or its configured shortcut. Close the menu and hold the pointer over text for about a second; move it to hide the result. Uses configured or cached local OCR, with installed Windows OCR as a fallback when model files are missing. Missing engines and timeouts show an explanation. The enabled state lasts for the current session only.
 
 <a id="cutout"></a>
@@ -392,6 +396,8 @@ Terminating the process or losing power can leave an MP4 without its final index
 
 <a id="settings"></a>
 
+<a id="data-directory"></a>
+
 ## 9. Settings, Local Data, and Privacy
 
 The Settings window is organized by category. Scroll down on the right when a page contains more options. After making changes, click **Save Settings** at the bottom. A successful model download does not mean the configuration has been saved.
@@ -404,14 +410,16 @@ The folder containing NimCap.Screenshot.exe
 
 In **Settings → General → Local Data**, browse or enter a new folder, or click **Use executable folder**. Saving prompts you to migrate downloaded models, settings, and history. After confirmation, exit NimCap Screenshot from the tray and launch it again to perform the migration and update model and history paths. Original data is deleted only after success; existing application data in the destination is never overwritten. If migration fails, the original folder remains in use.
 
-Existing installations continue using `%LocalAppData%\NimCap Screenshot` until you choose another folder. The selection is stored in `data-location.json` beside the executable. Both the executable folder and chosen data folder must be writable.
+The legacy data folder is `%LocalAppData%\SnapSharp`; the rename preserves that path. At startup, the app first reads `data-location.json` beside the executable, uses its recorded current directory, and applies any confirmed pending migration. Without that file, it uses the legacy folder only when the executable folder has no managed data entries and the legacy folder contains entries such as `settings.json`, `models`, or `History`. Otherwise it uses the executable folder. If both folders contain data, the app does not merge them automatically.
+
+Use the controls above to migrate legacy data to the executable folder or another folder. Preserve the data folder and `data-location.json` during a manual upgrade. If you extract the app into a different folder, check the data location: the rename alone does not locate data beside the old executable or in a custom folder. Both the executable folder and the selected data folder must be writable.
 
 | Directory or file | Contents |
 |---|---|
 | `settings.json` | Personal settings, shortcuts, and model paths |
 | `models` | Downloaded models and language data |
 | `History` | Screenshot history, thumbnails, and indexes |
-| `Diagnostics` | Diagnostic information and self-test results |
+| `Diagnostics` | Diagnostic information and self-test results under the current data folder |
 | `Plugins` | Discovery directory for external plugins, which are disabled by default |
 
 When updating, preserve the data folder and `data-location.json`; do not delete the entire application folder. After manually moving to another computer, you may need to select local model paths again. Before deleting model files, confirm that no feature still references them.
@@ -444,7 +452,11 @@ For everyday use, start with **keyboard shortcut → annotate directly → copy 
 
 ## Startup Update Checks
 
+**SnapSharp v1.1.3 and earlier require a manual upgrade using the complete new package.** Download the Windows x64 archive for v1.1.4 or later from [GitHub Releases](https://github.com/nimcap/nimcap-screenshot/releases), extract it fully, and run `NimCap.Screenshot.exe`. Future updates can use the new in-app updater. Preserve the data folder and `data-location.json` beside the executable, and check the [data-folder selection rules](#data-directory). See the [v1.1.4 release notes](releases/v1.1.4.md) for details of the rename.
+
 NimCap Screenshot checks GitHub Releases once on each launch and reports whether a new stable version is available. It does not poll during use. **Settings → About** reuses that result; click **Check for updates** to request another check explicitly. Release notes are no longer embedded below the status. A new release can be downloaded and verified before you confirm restarting to install it.
+
+Update backups and installation results are stored under `NimCap.Screenshot-updates/<update-id>/` in the system temporary folder. If installation fails, the helper attempts to restore replaced files and restart the previous app; this rollback covers installation failures, not a health check of the new version.
 
 ## 11. License
 

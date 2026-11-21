@@ -4020,4 +4020,9 @@ Barcode</value></data>
   <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>Version {0} is available. Open the update page?</value></data>
   <data name="ShortcutAction" xml:space="preserve"><value>Action</value></data>
   <data name="OfficialWebsite" xml:space="preserve"><value>Sitio web oficial</value></data>
+  <data name="RecognitionOcrHint" xml:space="preserve"><value>Reconocer el texto de la imagen. Editar el resultado, traducirlo o comparar el original y la traducción.</value></data>
+  <data name="RecognitionSummaryHint" xml:space="preserve"><value>Reconocer el texto y generar un resumen local. Desplegar el original para revisarlo; editar, copiar o exportar el resumen de abajo.</value></data>
+  <data name="RecognitionBarcodeHint" xml:space="preserve"><value>Decodificar códigos QR y de barras localmente. Revisar y editar el contenido, y después copiarlo o exportarlo.</value></data>
+  <data name="RecognitionFormulaHint" xml:space="preserve"><value>Reconocer fórmulas como LaTeX editable. Copiar el resultado o exportarlo como .tex / .txt.</value></data>
+  <data name="RecognitionTableHint" xml:space="preserve"><value>Reconocer filas, columnas y celdas combinadas. Corregir las celdas, copiar como CSV o exportar como CSV / Excel. La numeración empieza en 1.</value></data>
 </root>

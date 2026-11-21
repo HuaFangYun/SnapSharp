@@ -48,7 +48,7 @@ public partial class RecognitionWindow : Window
     private string _identityBaseline = "";
     private string IdentitySnapshot => DocumentEditor?.Text ?? "";
     private string TableSnapshot => System.Text.Json.JsonSerializer.Serialize(_cells);
-    private bool HasEdits => _sourceText != _baseline || TableSnapshot != _tableBaseline || IdentitySnapshot != _identityBaseline;
+    private bool HasEdits => _sourceText != _baseline || TableSnapshot != _tableBaseline || IdentitySnapshot != _identityBaseline || HasToolTextEdits;
     private bool _busy, _closed, _syncing;
     public event Action<BitmapSource, CaptureAction>? OutputRequested;
     public event Action<string>? SettingsRequested;
@@ -82,12 +82,7 @@ public partial class RecognitionWindow : Window
         {
             UpdateWatermarkMode();
             CutoutModelBox.Visibility = Mode == "Cutout" ? Visibility.Visible : Visibility.Collapsed;
-            DocumentResultTab.Visibility = Mode == "Document" ? Visibility.Visible : Visibility.Collapsed;
-            TableResultTab.Visibility = Mode == "Table" ? Visibility.Visible : Visibility.Collapsed;
-            CutoutResultTab.Visibility = Mode == "Cutout" ? Visibility.Visible : Visibility.Collapsed;
-            TextResultTab.Visibility = Mode is "Cutout" or "Watermark" ? Visibility.Collapsed : Visibility.Visible;
-            RunButton.Content = L.Get(Mode == "Watermark" ? "WatermarkRemoval" : Mode == "Cutout" ? "RecognitionCutoutCompact" : "RecognitionRunCompact");
-            ResultTabs.SelectedItem = Mode switch { "Watermark" => WatermarkResultTab, "Cutout" => CutoutResultTab, "Table" => TableResultTab, "Document" => DocumentResultTab, _ => TextResultTab };
+            UpdateToolWorkspace();
             RefreshWorkspaceLayout();
             SetPicture(_image);
         }
@@ -100,7 +95,7 @@ public partial class RecognitionWindow : Window
             // can shrink a large clipboard picture to an apparently blank preview.
             await Dispatcher.InvokeAsync(FitImage, System.Windows.Threading.DispatcherPriority.Loaded);
             if (_closed) return;
-            Status.Text = L.Get("RecognitionChooseTool");
+            Status.Text = ToolHint;
             if (autoRun && Mode is "OCR" or "Summary") await Run();
         };
         Closed += (_, _) => { _closed = true; _operation?.Cancel(); };
@@ -128,6 +123,7 @@ public partial class RecognitionWindow : Window
         _document = null; _identityDocument = null; DocumentEditor.Clear(); _identityBaseline = IdentitySnapshot;
         DocumentTypeText.Text = DocumentTypeName(_documentKindOverride ?? IdentityDocumentKind.Unknown);
         SetSourceText(""); _baseline = _sourceText; _cells.Clear(); _tableBaseline = TableSnapshot;
+        ResetToolResults();
         _cutout = null; _cutoutUndo.Clear();
         ResetWatermarkImage();
         SetPicture(_image); PictureScroll.UpdateLayout(); FitImage();
@@ -142,7 +138,7 @@ public partial class RecognitionWindow : Window
         if (Mode == "Watermark") { await RepairWatermark(); return; }
         if (!await EnsureSelectedModel()) return;
         CellsGrid.CommitEdit();
-        if (HasEdits && MessageBox.Show(this, L.Get("RunningAgainWillReplaceManuallyEditedText"), L.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        if (CurrentToolHasEdits && MessageBox.Show(this, L.Get("RunningAgainWillReplaceManuallyEditedText"), L.Get("Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
         SetBusy(true); _operation = new CancellationTokenSource();
         _pluginCells = null;
         try
@@ -187,23 +183,17 @@ public partial class RecognitionWindow : Window
                     : Mode == "Document" ? service.RecognizeIdentityDocument(_image, settings, _operation.Token) : service.Recognize(_image, settings, _operation.Token));
             }
             if (_closed) return;
-            _document = document; SetPicture(_image);
-            SetSourceText(Mode == "Document" ? string.Join(Environment.NewLine, document.Blocks.Where(b => !b.Kind.StartsWith("document-", StringComparison.Ordinal)).Select(b => b.Text)) : document.Text);
-            _baseline = _sourceText;
-            _cells = new ObservableCollection<RecognizedCell>(_pluginCells ?? RecognitionExport.Draft(document)); _pluginCells = null; CellsGrid.ItemsSource = _cells;
-            _tableBaseline = TableSnapshot;
-            _identityDocument = null; DocumentEditor.Clear(); DocumentTypeText.Text = L.Get("DocumentUnknown"); _identityBaseline = IdentitySnapshot;
-            ResultTabs.SelectedItem = Mode == "Table" ? TableResultTab : TextResultTab;
+            ShowToolResult(document);
             Status.Text = document.Blocks.Count == 0 ? L.Get("NoContentRecognizedTryAnotherEngineCheck") : L.Format("01RegionsClickAnImageRegion", document.Backend, document.Blocks.Count);
             if (Mode == "Summary" && !string.IsNullOrWhiteSpace(document.Text))
             {
                 Status.Text = L.Get("CaptureSummaryProcessing");
                 var summary = await LocalTranslationService.Summarize(document.Text, settings, _operation.Token);
                 if (_closed) return;
-                SetSourceText(summary);
-                _baseline = _sourceText;
+                SetToolText(summary);
                 Status.Text = L.Get("CaptureSummaryComplete");
             }
+            if (Mode == "Summary" && string.IsNullOrWhiteSpace(document.Text)) Status.Text = L.Get("CaptureSummaryEmpty");
             if (Mode == "Table") Status.Text += L.Get("RowsColumnsAndMergedCellsRecognizedReview");
             if (Mode == "Document") ShowDocument();
         }
@@ -237,7 +227,8 @@ public partial class RecognitionWindow : Window
     private void SetBusy(bool busy)
     {
         _busy = busy; if (_closed) return; RunButton.IsEnabled = !busy; ModeBox.IsEnabled = !busy; CancelButton.IsEnabled = busy; CellsGrid.IsReadOnly = busy;
-        DocumentEditor.IsReadOnly = busy; ChangeDocumentTypeButton.IsEnabled = !busy;
+        DocumentEditor.IsReadOnly = SummaryEditor.IsReadOnly = BarcodeEditor.IsReadOnly = FormulaEditor.IsReadOnly = busy;
+        ChangeDocumentTypeButton.IsEnabled = SummarySettingsButton.IsEnabled = !busy;
         ImageTransformTools.IsEnabled = !busy;
         CutoutModelBox.IsEnabled = TargetLanguageBox.IsEnabled = TextViewBox.IsEnabled = TranslateButton.IsEnabled = !busy;
         QuickModelBox.IsEnabled = EngineSettingsButton.IsEnabled = !busy;
@@ -246,6 +237,7 @@ public partial class RecognitionWindow : Window
         SetWatermarkBusy(busy);
         RefreshComparison();
         RefreshTextView();
+        RefreshCommonActions();
     }
     private void Cancel_Click(object sender, RoutedEventArgs e) => _operation?.Cancel();
     private static string DocumentTypeName(IdentityDocumentKind kind) => L.Get(kind switch
@@ -388,10 +380,10 @@ public partial class RecognitionWindow : Window
         InvalidateTranslation();
         if (Status is not null && !_busy) Status.Text = L.Get("TextEditedCopyExportUsesTheEdited");
     }
-    private void CopyText_Click(object sender, RoutedEventArgs e) { try { OutputActions.CopyText(TextEditor.Text); if (CurrentTextView == "Source") _baseline = _sourceText; Status.Text = L.Get("CurrentTextCopied"); } catch (Exception ex) { Status.Text = ex.Message; } }
+    private void CopyText_Click(object sender, RoutedEventArgs e) { try { OutputActions.CopyText(ActiveTextEditor.Text); AcceptToolTextEdits(); Status.Text = L.Get("CurrentTextCopied"); } catch (Exception ex) { Status.Text = ex.Message; } }
     private void ExportText_Click(object sender, RoutedEventArgs e)
     {
-        if (SaveBytes(Encoding.UTF8.GetBytes(TextEditor.Text), Mode == "Formula" ? L.Get("LaTeXTexTextTxt") : L.Get("TextTxt"), "NimCap-Screenshot-text") && CurrentTextView == "Source") _baseline = _sourceText;
+        if (SaveBytes(Encoding.UTF8.GetBytes(ActiveTextEditor.Text), Mode == "Formula" ? L.Get("LaTeXTexTextTxt") : L.Get("TextTxt"), "NimCap-Screenshot-" + Mode.ToLowerInvariant())) AcceptToolTextEdits();
     }
     private void ExportTable_Click(object sender, RoutedEventArgs e)
     {

@@ -4020,4 +4020,9 @@ Barcode</value></data>
   <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>Version {0} is available. Open the update page?</value></data>
   <data name="ShortcutAction" xml:space="preserve"><value>Action</value></data>
   <data name="OfficialWebsite" xml:space="preserve"><value>Официальный сайт</value></data>
+  <data name="RecognitionOcrHint" xml:space="preserve"><value>Распознайте текст на изображении. Измените результат, переведите его или сравните оригинал и перевод.</value></data>
+  <data name="RecognitionSummaryHint" xml:space="preserve"><value>Распознайте текст и создайте локальное резюме. Раскройте оригинал для проверки; измените, скопируйте или экспортируйте резюме ниже.</value></data>
+  <data name="RecognitionBarcodeHint" xml:space="preserve"><value>Локальное декодирование QR-кодов и штрихкодов. Проверьте и измените содержимое, затем скопируйте или экспортируйте его.</value></data>
+  <data name="RecognitionFormulaHint" xml:space="preserve"><value>Распознайте формулы как редактируемый LaTeX. Скопируйте результат или экспортируйте в .tex / .txt.</value></data>
+  <data name="RecognitionTableHint" xml:space="preserve"><value>Распознайте строки, столбцы и объединённые ячейки. Исправьте ячейки, скопируйте CSV или экспортируйте CSV / Excel. Нумерация начинается с 1.</value></data>
 </root>

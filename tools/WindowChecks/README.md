@@ -65,8 +65,10 @@ dotnet run --project tools/WindowChecks/WindowChecks.csproj -p:Platform=x64 -- -
 
 This checks classification and extraction with synthetic OCR blocks (including
 ambiguous types, split labels/values, multiline addresses and local checksums),
-ID front/back/both modes with either vertical order, all six navigation modes,
-field editing/location and 980/1240-pixel layouts. Image rotation/reflection is
+ID front/back/both modes with either vertical order, all eight navigation modes,
+field editing/location and 980x560 / 1240x790 layouts. Tool-specific results, summary
+source text, edit retention, output targets and invalidation after image changes
+are checked without loading OCR or summary models. Image rotation/reflection is
 checked pixel by pixel; busy-state locking and stale-result clearing are checked.
 Business fixtures cover fourteen fields, horizontal columns/vertical layouts,
 branch labels, code below its label, empty fields, multiline scope/address and

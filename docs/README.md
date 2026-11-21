@@ -31,4 +31,6 @@
 
 README 描述功能概览；使用指南负责操作，配置文档负责模型与运行条件，技术文档负责实现边界，路线图负责未完成项。新增功能或更改设备策略时，同步更新中英文 README、两份使用指南及相关配置说明。
 
+当前产品名称统一使用 NimCap 截图工具／NimCap Screenshot；介绍历史时注明原名 SnapSharp。历史发版说明、旧安装包名称、兼容目录 `%LocalAppData%\SnapSharp` 与 Gitee 镜像地址保留实际名称，不做全局替换。新问题统一提交到主仓库的 [GitHub Issues](https://github.com/nimcap/nimcap-screenshot/issues)，检索旧问题时兼查两个名称。
+
 接口、依赖包和候选设计不直接计为已实现功能。历史版本说明保留当时行为，不替代当前操作文档。配图来源见[图片说明](../Screenshot/Blog/README.md)。

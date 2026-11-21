@@ -4020,4 +4020,9 @@ Barcode</value></data>
   <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>Version {0} is available. Open the update page?</value></data>
   <data name="ShortcutAction" xml:space="preserve"><value>Action</value></data>
   <data name="OfficialWebsite" xml:space="preserve"><value>公式サイト</value></data>
+  <data name="RecognitionOcrHint" xml:space="preserve"><value>画像内の文字を認識します。結果を編集・翻訳し、原文と訳文を比較できます。</value></data>
+  <data name="RecognitionSummaryHint" xml:space="preserve"><value>画像の文字を認識し、ローカルモデルで要約します。「原文」を開いて確認し、下の要約を編集・コピー・保存できます。</value></data>
+  <data name="RecognitionBarcodeHint" xml:space="preserve"><value>QR コードとバーコードをローカルで読み取ります。内容を確認・編集し、コピーまたは保存できます。</value></data>
+  <data name="RecognitionFormulaHint" xml:space="preserve"><value>画像の数式を編集可能な LaTeX に変換します。コピー、または .tex / .txt で保存できます。</value></data>
+  <data name="RecognitionTableHint" xml:space="preserve"><value>表の行・列と結合セルを認識します。セルを修正し、CSV としてコピー、または CSV / Excel で保存できます。行と列は 1 から始まります。</value></data>
 </root>

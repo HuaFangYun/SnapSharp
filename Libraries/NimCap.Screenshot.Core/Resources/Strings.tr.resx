@@ -4020,4 +4020,9 @@ Barcode</value></data>
   <data name="AppUpdateStartupPrompt" xml:space="preserve"><value>Version {0} is available. Open the update page?</value></data>
   <data name="ShortcutAction" xml:space="preserve"><value>Action</value></data>
   <data name="OfficialWebsite" xml:space="preserve"><value>Resmî web sitesi</value></data>
+  <data name="RecognitionOcrHint" xml:space="preserve"><value>Görüntüdeki metni tanıyın. Sonucu düzenleyin, çevirin veya özgün metinle çeviriyi karşılaştırın.</value></data>
+  <data name="RecognitionSummaryHint" xml:space="preserve"><value>Metni tanıyıp yerel bir özet oluşturun. Kaynağı incelemek için özgün metni açın; aşağıdaki özeti düzenleyin, kopyalayın veya dışa aktarın.</value></data>
+  <data name="RecognitionBarcodeHint" xml:space="preserve"><value>QR kodlarını ve barkodları yerel olarak çözün. İçeriği inceleyip düzenleyin, ardından kopyalayın veya dışa aktarın.</value></data>
+  <data name="RecognitionFormulaHint" xml:space="preserve"><value>Formülleri düzenlenebilir LaTeX olarak tanıyın. Sonucu kopyalayın veya .tex / .txt olarak dışa aktarın.</value></data>
+  <data name="RecognitionTableHint" xml:space="preserve"><value>Tablonun satırlarını, sütunlarını ve birleştirilmiş hücrelerini tanıyın. Hücreleri düzeltin, CSV olarak kopyalayın veya CSV / Excel olarak dışa aktarın. Numaralar 1’den başlar.</value></data>
 </root>

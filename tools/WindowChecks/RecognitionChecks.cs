@@ -110,6 +110,7 @@ internal static partial class Program
         var source = new RenderTargetBitmap(540, 300, 96, 96, PixelFormats.Pbgra32); source.Render(drawing); source.Freeze();
         if (modelDirectory is not null) DocumentModelChecks(modelDirectory);
         RecognitionWindow.RunLayoutSelfTest(source);
+        RecognitionWorkspaceChecks(source);
         var window = new RecognitionWindow(source, new SettingsService(Path.Combine(Root, "recognition-settings.json")), autoRun: false);
         try
         {
@@ -127,12 +128,12 @@ internal static partial class Program
                 VerifyImageTransform(before, after, action);
                 Require(ReferenceEquals(((Image)window.FindName("Picture")).Source, after) && after.IsFrozen, "Transformed preview must be the frozen OCR input.");
             }
-            foreach (var width in new[] { 1240d, 980d })
+            foreach (var (width, height) in new[] { (1240d, 790d), (980d, 560d) })
             {
                 var content = (FrameworkElement)window.Content;
-                content.Measure(new System.Windows.Size(width, 720)); content.Arrange(new Rect(0, 0, width, 720)); content.UpdateLayout();
+                content.Measure(new System.Windows.Size(width, height)); content.Arrange(new Rect(0, 0, width, height)); content.UpdateLayout();
                 RecognitionPreviewChecks(window);
-                foreach (var mode in new[] { "Document", "OCR", "Summary", "Table", "Barcode", "Formula", "Cutout" })
+                foreach (var mode in new[] { "Document", "OCR", "Summary", "Table", "Barcode", "Formula", "Cutout", "Watermark" })
                 {
                     nav.SelectedItem = nav.Items.OfType<ListBoxItem>().Single(i => i.Tag?.ToString() == mode);
                     content.UpdateLayout();
@@ -155,9 +156,9 @@ internal static partial class Program
                     }
                     var selected = ((TabControl)window.FindName("ResultTabs")).SelectedItem as TabItem;
                     Require(selected?.Visibility == Visibility.Visible, "Tool selected a collapsed result panel.");
-                    if (mode is "Document" or "OCR")
+                    if (mode is "Document" or "OCR" or "Summary" or "Barcode" or "Formula")
                     {
-                        var bitmap = new RenderTargetBitmap((int)width, 720, 96, 96, PixelFormats.Pbgra32); bitmap.Render(content);
+                        var bitmap = new RenderTargetBitmap((int)width, (int)height, 96, 96, PixelFormats.Pbgra32); bitmap.Render(content);
                         var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
                         using var output = File.Create(Path.Combine(Root, $"recognition-{mode}-{width}.png")); encoder.Save(output);
                     }
@@ -174,7 +175,7 @@ internal static partial class Program
                             var busyImage = typeof(RecognitionWindow).GetField("_image", PrivateInstance)!.GetValue(window);
                             Invoke(window, "TransformImage_Click", transformTools.Children[0], new RoutedEventArgs());
                             Require(ReferenceEquals(busyImage, typeof(RecognitionWindow).GetField("_image", PrivateInstance)!.GetValue(window)), "Image changed while recognition was running.");
-                            var bitmap = new RenderTargetBitmap((int)width, 720, 96, 96, PixelFormats.Pbgra32); bitmap.Render(content);
+                            var bitmap = new RenderTargetBitmap((int)width, (int)height, 96, 96, PixelFormats.Pbgra32); bitmap.Render(content);
                             var point = nav.TranslatePoint(new System.Windows.Point(4, nav.ActualHeight - 4), content);
                             // RenderTargetBitmap includes the root element's layout margin.
                             point.Offset(content.Margin.Left, content.Margin.Top);

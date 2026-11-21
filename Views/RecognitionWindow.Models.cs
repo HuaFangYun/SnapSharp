@@ -38,7 +38,7 @@ public partial class RecognitionWindow
         if (scope == "Barcode")
         {
             _modelControlsUpdating = true;
-            try { QuickModelBox.ItemsSource = new[] { new QuickModel("none", "—") }; QuickModelBox.SelectedIndex = 0; ProcessingDeviceBox.SelectedValue = "CPU"; }
+            try { QuickModelBox.ItemsSource = new[] { new QuickModel("none", "ZXing.Net") }; QuickModelBox.SelectedIndex = 0; ProcessingDeviceBox.SelectedValue = "CPU"; }
             finally { _modelControlsUpdating = false; }
             return;
         }

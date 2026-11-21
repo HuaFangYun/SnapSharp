@@ -162,8 +162,10 @@
       </Grid>
       <TabControl x:Name="ResultTabs" Grid.Column="2" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}">
         <TabItem x:Name="WatermarkResultTab" Visibility="Collapsed" Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:WatermarkRemoval}" />
-        <TabItem x:Name="TextResultTab" Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:TextBarcodes}"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+        <TabItem x:Name="TextResultTab" Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:TextOCR}"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+          <StackPanel Margin="0,0,0,8">
+            <TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:RecognitionOcrHint}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8" />
+            <WrapPanel>
             <ComboBox x:Name="TargetLanguageBox" Width="150" SelectionChanged="TargetLanguage_Changed" />
             <Button x:Name="TranslateButton" Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:Translate}" Click="Translate_Click" />
             <ComboBox x:Name="TextViewBox" Width="100" SelectionChanged="TextView_Changed">
@@ -171,12 +173,35 @@
               <ComboBoxItem Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:TranslatedTextView}" Tag="Translation" />
               <ComboBoxItem Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:BilingualText}" Tag="Bilingual" />
             </ComboBox>
+            </WrapPanel>
           </StackPanel>
           <TextBox x:Name="TextEditor" Grid.Row="1" AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="10" FontSize="16" TextChanged="Text_Changed" />
           <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="0,6,0,0"><Button Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:TranslationSettings}" Click="TranslationSettings_Click" /></StackPanel>
         </Grid></TabItem>
+        <TabItem x:Name="SummaryResultTab" Visibility="Collapsed" Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:CaptureSummary}">
+          <Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+            <TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:RecognitionSummaryHint}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10" />
+            <TextBox x:Name="SummaryEditor" Grid.Row="1" AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="10" FontSize="16" TextChanged="CommonDocument_Changed" />
+            <Expander Grid.Row="2" Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:SourceText}" Margin="0,8,0,0">
+              <TextBox x:Name="SummarySourceEditor" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="160" Padding="8" />
+            </Expander>
+            <Button x:Name="SummarySettingsButton" Grid.Row="3" Content="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:CaptureSummaryConfigure}" Click="TranslationSettings_Click" HorizontalAlignment="Left" Margin="0,8,0,0" />
+          </Grid>
+        </TabItem>
+        <TabItem x:Name="BarcodeResultTab" Visibility="Collapsed" Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:RecognitionBarcodeNavigation}">
+          <Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /></Grid.RowDefinitions>
+            <TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:RecognitionBarcodeHint}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10" />
+            <TextBox x:Name="BarcodeEditor" Grid.Row="1" AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="10" FontSize="16" TextChanged="CommonDocument_Changed" />
+          </Grid>
+        </TabItem>
+        <TabItem x:Name="FormulaResultTab" Visibility="Collapsed" Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:RecognitionFormulaTool}">
+          <Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /></Grid.RowDefinitions>
+            <TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:RecognitionFormulaHint}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10" />
+            <TextBox x:Name="FormulaEditor" Grid.Row="1" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Padding="10" FontFamily="Consolas" FontSize="16" TextChanged="CommonDocument_Changed" />
+          </Grid>
+        </TabItem>
         <TabItem x:Name="TableResultTab" Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:TableCorrection}"><Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-          <TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:TableModeUsesLocalSLANetStructureRecognition}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10" />
+          <TextBlock Text="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:RecognitionTableHint}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10" />
           <DataGrid x:Name="CellsGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True"><DataGrid.Columns>
             <DataGridTextColumn Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:Row}" Binding="{Binding Row}" Width="SizeToHeader" MinWidth="40" /><DataGridTextColumn Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:Column}" Binding="{Binding Column}" Width="SizeToHeader" MinWidth="40" /><DataGridTextColumn Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:RowSpan}" Binding="{Binding RowSpan}" Width="SizeToHeader" MinWidth="45" /><DataGridTextColumn Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:ColumnSpan}" Binding="{Binding ColumnSpan}" Width="SizeToHeader" MinWidth="45" /><DataGridTextColumn Header="{loc:Loc NimCap.Screenshot.Core:Resources.Strings:Text2}" Binding="{Binding Text}" Width="*" />
           </DataGrid.Columns></DataGrid>
