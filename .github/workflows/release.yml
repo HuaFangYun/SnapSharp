@@ -92,6 +92,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Check out release notes from the requested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
       - name: Download the checked package
         uses: actions/download-artifact@v4
         with:
@@ -113,12 +118,17 @@ jobs:
           RELEASE_COMMIT: ${{ github.sha }}
         run: |
           tag="v${RELEASE_VERSION}"
+          notes="docs/releases/${tag}.md"
+          notes_args=(--generate-notes)
+          if [ -f "$notes" ]; then
+            notes_args=(--notes-file "$notes")
+          fi
           gh release create "$tag" \
             "dist/nimcap-screenshot-${tag}-win-x64.zip" \
             dist/SHA256SUMS.txt \
             --target "$RELEASE_COMMIT" \
             --title "NimCap Screenshot ${tag}" \
-            --generate-notes \
+            "${notes_args[@]}" \
             --draft
           gh release view "$tag" --json assets --jq '.assets[].name' > assets.txt
           grep -Fx "nimcap-screenshot-${tag}-win-x64.zip" assets.txt
